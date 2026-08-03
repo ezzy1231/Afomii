@@ -1,0 +1,19 @@
+import { cn } from "../../lib/utils";
+
+export function Select({
+  className,
+  children,
+  ...props
+}: React.SelectHTMLAttributes<HTMLSelectElement>) {
+  return (
+    <select
+      className={cn(
+        "w-full px-4 py-3 rounded-lg border border-gray-200 bg-white dark:bg-navy-800 text-app-fg focus:border-gold focus:ring-2 focus:ring-gold/20 outline-none transition-all appearance-none",
+        className
+      )}
+      {...props}
+    >
+      {children}
+    </select>
+  );
+}

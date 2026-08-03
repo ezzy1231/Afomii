@@ -1,0 +1,20 @@
+{
+  "name": "@urbanexplore/mobile",
+  "version": "0.0.0",
+  "private": true,
+  "main": "expo-router/entry",
+  "scripts": {
+    "dev": "expo start",
+    "start": "expo start",
+    "lint": "echo \"No mobile lint yet\""
+  },
+  "dependencies": {
+    "@urbanexplore/shared": "*",
+    "zod": "^3.23.0"
+  },
+  "devDependencies": {
+    "@urbanexplore/eslint-config": "*",
+    "@urbanexplore/tsconfig": "*",
+    "typescript": "^5.4.0"
+  }
+}

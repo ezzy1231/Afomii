@@ -1,0 +1,279 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
+}
+
+datasource db {
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+}
+
+// ─── Enums ────────────────────────────────────────────────────────
+
+enum UserRole {
+  CUSTOMER
+  RESTAURANT_ADMIN
+  EVENT_ORGANIZER
+  SYSTEM_ADMIN
+}
+
+enum ReservationStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+  REJECTED
+}
+
+enum BookingMode {
+  WALK_IN_ONLY
+  TIME_SLOT
+  REQUEST_BASED
+}
+
+enum TicketTier {
+  GENERAL
+  VIP
+  EARLY_BIRD
+  GROUP
+}
+
+enum EventStatus {
+  DRAFT
+  PUBLISHED
+  COMPLETED
+}
+
+enum TicketPurchaseStatus {
+  PENDING
+  COMPLETED
+  CANCELLED
+  REFUNDED
+}
+
+// ─── User & Profile ───────────────────────────────────────────────
+
+model User {
+  id           String    @id @default(uuid())
+  email        String?   @unique
+  phone        String?   @unique
+  passwordHash String
+  role         UserRole  @default(CUSTOMER)
+  language     String    @default("en")
+  country      String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  preferences        UserPreferences?
+  reservations       Reservation[]
+  ticketPurchases    TicketPurchase[]
+  rideSearchLogs     RideSearchLog[]
+  organizedEvents    Event[]
+
+  @@index([email])
+  @@index([phone])
+  @@index([role])
+}
+
+model UserPreferences {
+  id                 String @id @default(uuid())
+  userId             String @unique
+  dietaryRestrictions Json?
+  allergies          Json?
+  defaultLocation    String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// ─── Restaurant & Dining ──────────────────────────────────────────
+
+model BusinessProfile {
+  id          String    @id @default(uuid())
+  name        String
+  category    String
+  licenseUrl  String?
+  logoUrl     String?
+  coverUrl    String?
+  isVerified  Boolean   @default(false)
+  openingHours Json?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  branches BusinessBranch[]
+  events   Event[]
+
+  @@index([name])
+  @@index([category])
+  @@index([isVerified])
+}
+
+model BusinessBranch {
+  id              String  @id @default(uuid())
+  businessId      String
+  branchName      String
+  address         String
+  latitude        Float?
+  longitude       Float?
+  phone           String?
+
+  business   BusinessProfile @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  bookingConfig BookingConfig?
+  menuItems  MenuItem[]
+  reservations Reservation[]
+
+  @@index([businessId])
+  @@index([latitude, longitude])
+}
+
+model BookingConfig {
+  id                      String      @id @default(uuid())
+  branchId                String      @unique
+  bookingMode             BookingMode @default(TIME_SLOT)
+  timeSlotDurationMinutes Int         @default(60)
+  totalTables             Int         @default(10)
+  maxGuestPerTable        Int         @default(6)
+  requirePrepayment       Boolean     @default(false)
+  prepaymentType          String?     // NONE, FIXED_DEPOSIT, PERCENTAGE
+  prepaymentValue         Float?
+  cancellationPolicyText  String?
+
+  branch BusinessBranch @relation(fields: [branchId], references: [id], onDelete: Cascade)
+}
+
+model MenuItem {
+  id          String  @id @default(uuid())
+  branchId    String
+  name        String
+  price       Float
+  category    String
+  imageUrl    String?
+  isAvailable Boolean @default(true)
+
+  branch BusinessBranch @relation(fields: [branchId], references: [id], onDelete: Cascade)
+
+  @@index([branchId])
+  @@index([category])
+  @@index([isAvailable])
+}
+
+// ─── Event & Ticketing ────────────────────────────────────────────
+
+model Event {
+  id             String      @id @default(uuid())
+  organizerId    String
+  businessId     String?
+  title          String
+  description    String?
+  category       String
+  venueName      String
+  latitude       Float?
+  longitude      Float?
+  startDateTime  DateTime
+  endDateTime    DateTime
+  coverImageUrl  String?
+  status         EventStatus @default(DRAFT)
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+
+  organizer   User             @relation(fields: [organizerId], references: [id])
+  business    BusinessProfile? @relation(fields: [businessId], references: [id])
+  ticketTypes TicketType[]
+  purchases   TicketPurchase[]
+
+  @@index([organizerId])
+  @@index([businessId])
+  @@index([status])
+  @@index([startDateTime])
+  @@index([latitude, longitude])
+}
+
+model TicketType {
+  id                String     @id @default(uuid())
+  eventId           String
+  name              String
+  tier              TicketTier @default(GENERAL)
+  price             Float
+  totalQuantity     Int
+  remainingQuantity Int
+  salesStart        DateTime?
+  salesEnd          DateTime?
+  createdAt         DateTime   @default(now())
+  updatedAt         DateTime   @updatedAt
+
+  event    Event             @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  purchases TicketPurchase[]
+
+  @@index([eventId])
+  @@index([tier])
+  @@index([remainingQuantity])
+}
+
+// ─── Reservations & Orders ────────────────────────────────────────
+
+model Reservation {
+  id               String            @id @default(uuid())
+  userId           String
+  branchId         String
+  reservationDate  DateTime
+  timeSlot         String?
+  guestCount       Int
+  status           ReservationStatus @default(PENDING)
+  specialRequests  String?
+  reservationCode  String            @unique
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+
+  user   User           @relation(fields: [userId], references: [id])
+  branch BusinessBranch @relation(fields: [branchId], references: [id])
+
+  @@index([userId])
+  @@index([branchId])
+  @@index([reservationDate])
+  @@index([status])
+  @@unique([branchId, reservationDate, timeSlot, reservationCode])
+}
+
+model TicketPurchase {
+  id             String                @id @default(uuid())
+  userId         String
+  eventId        String
+  ticketTypeId   String
+  quantity       Int
+  totalPaid      Float
+  status         TicketPurchaseStatus  @default(PENDING)
+  qrCodeHash     String                @unique
+  holdToken      String?
+  createdAt      DateTime              @default(now())
+  updatedAt      DateTime              @updatedAt
+
+  user       User       @relation(fields: [userId], references: [id])
+  event      Event      @relation(fields: [eventId], references: [id])
+  ticketType TicketType @relation(fields: [ticketTypeId], references: [id])
+
+  @@index([userId])
+  @@index([eventId])
+  @@index([ticketTypeId])
+  @@index([status])
+  @@index([qrCodeHash])
+}
+
+// ─── Ride Aggregation Log ─────────────────────────────────────────
+
+model RideSearchLog {
+  id              String   @id @default(uuid())
+  userId          String
+  pickupLat       Float
+  pickupLng       Float
+  dropoffLat      Float
+  dropoffLng      Float
+  estimates       Json?
+  selectedPartner String?
+  createdAt       DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([createdAt])
+  @@index([pickupLat, pickupLng])
+  @@index([dropoffLat, dropoffLng])
+}
