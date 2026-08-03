@@ -65,12 +65,12 @@ export default function RidePlanner() {
   const [mapsReady, setMapsReady] = useState(false)
 
   const mapRef = useRef<HTMLDivElement | null>(null)
+  const pickupAutocompleteHostRef = useRef<HTMLDivElement | null>(null)
+  const destinationAutocompleteHostRef = useRef<HTMLDivElement | null>(null)
   const mapInstanceRef = useRef<any>(null)
-  const directionsRendererRef = useRef<any>(null)
+  const routeLineRef = useRef<any>(null)
   const autocompletePickupRef = useRef<any>(null)
   const autocompleteDestinationRef = useRef<any>(null)
-  const pickupInputRef = useRef<HTMLInputElement | null>(null)
-  const destinationInputRef = useRef<HTMLInputElement | null>(null)
   const googleGeocoderRef = useRef<any>(null)
 
   const estimateMutation = useMutation({
@@ -89,79 +89,163 @@ export default function RidePlanner() {
       return
     }
 
-    loadGoogleMaps(apiKey)
-      .then(() => setMapsReady(true))
-      .catch(() => setMapError('Google Maps could not be loaded. Check your API key and API permissions.'))
+    let cancelled = false
+
+    const toCoords = (location: any): LatLng | null => {
+      if (!location) return null
+
+      const lat = typeof location.lat === 'function' ? location.lat() : location.lat
+      const lng = typeof location.lng === 'function' ? location.lng() : location.lng
+
+      if (typeof lat !== 'number' || typeof lng !== 'number') {
+        return null
+      }
+
+      return { lat, lng }
+    }
+
+    const createAutocomplete = async (
+      host: HTMLDivElement,
+      placeholder: string,
+      onSelect: (value: string, coords: LatLng, viewport?: any) => void
+    ) => {
+      const { PlaceAutocompleteElement } = await window.google.maps.importLibrary('places') as any
+
+      const element = new PlaceAutocompleteElement({})
+      element.placeholder = placeholder
+      element.className = 'w-full'
+
+      element.addEventListener('gmp-select', async ({ placePrediction }: any) => {
+        const place = placePrediction.toPlace()
+        await place.fetchFields({
+          fields: ['displayName', 'formattedAddress', 'location', 'viewport'],
+        })
+
+        const coords = toCoords(place.location)
+        if (!coords) return
+
+        onSelect(
+          place.formattedAddress || place.displayName || placeholder,
+          coords,
+          place.viewport
+        )
+      })
+
+      host.innerHTML = ''
+      host.appendChild(element)
+      return element
+    }
+
+    const init = async () => {
+      try {
+        await loadGoogleMaps(apiKey)
+
+        const { Map, Polyline } = await window.google.maps.importLibrary('maps') as any
+
+        if (cancelled || !mapRef.current) return
+
+        if (!mapInstanceRef.current) {
+          mapInstanceRef.current = new Map(mapRef.current, {
+            center: { lat: 9.0192, lng: 38.7525 },
+            zoom: 12,
+            mapTypeControl: false,
+            streetViewControl: false,
+            fullscreenControl: false,
+          })
+        }
+
+        if (!routeLineRef.current) {
+          routeLineRef.current = new Polyline({
+            strokeColor: '#C2A878',
+            strokeOpacity: 0.95,
+            strokeWeight: 4,
+            geodesic: true,
+          })
+          routeLineRef.current.setMap(mapInstanceRef.current)
+        }
+
+        if (!googleGeocoderRef.current) {
+          googleGeocoderRef.current = new window.google.maps.Geocoder()
+        }
+
+        if (pickupAutocompleteHostRef.current && !autocompletePickupRef.current) {
+          autocompletePickupRef.current = await createAutocomplete(
+            pickupAutocompleteHostRef.current,
+            'Pickup location',
+            (value, coords, viewport) => {
+              setPickup(value)
+              setPickupCoords(coords)
+
+              if (viewport && mapInstanceRef.current) {
+                mapInstanceRef.current.fitBounds(viewport)
+              } else if (mapInstanceRef.current) {
+                mapInstanceRef.current.setCenter(coords)
+                mapInstanceRef.current.setZoom(15)
+              }
+            }
+          )
+        }
+
+        if (destinationAutocompleteHostRef.current && !autocompleteDestinationRef.current) {
+          autocompleteDestinationRef.current = await createAutocomplete(
+            destinationAutocompleteHostRef.current,
+            'Destination',
+            (value, coords, viewport) => {
+              setDestination(value)
+              setDestinationCoords(coords)
+
+              if (viewport && mapInstanceRef.current) {
+                mapInstanceRef.current.fitBounds(viewport)
+              } else if (mapInstanceRef.current) {
+                mapInstanceRef.current.setCenter(coords)
+                mapInstanceRef.current.setZoom(15)
+              }
+            }
+          )
+        }
+
+        if (!cancelled) {
+          setMapsReady(true)
+        }
+      } catch {
+        if (!cancelled) {
+          setMapError('Google Maps could not be loaded. Check that Maps JavaScript API, Places API (New), and Geocoding API are enabled for this key.')
+        }
+      }
+    }
+
+    init()
+
+    return () => {
+      cancelled = true
+    }
   }, [])
 
   useEffect(() => {
-    if (!mapsReady || !mapRef.current || !window.google?.maps) return
+    if (!mapsReady || !mapInstanceRef.current || !window.google?.maps) return
 
-    const google = window.google
-    const center = { lat: 9.0192, lng: 38.7525 }
+    const map = mapInstanceRef.current
 
-    if (!mapInstanceRef.current) {
-      mapInstanceRef.current = new google.maps.Map(mapRef.current, {
-        center,
-        zoom: 12,
-        mapTypeControl: false,
-        streetViewControl: false,
-        fullscreenControl: false,
-      })
+    if (routeLineRef.current) {
+      routeLineRef.current.setPath([])
     }
 
-    if (!directionsRendererRef.current) {
-      directionsRendererRef.current = new google.maps.DirectionsRenderer({
-        suppressMarkers: false,
-        preserveViewport: true,
-      })
-      directionsRendererRef.current.setMap(mapInstanceRef.current)
+    if (pickupCoords && destinationCoords) {
+      const bounds = new window.google.maps.LatLngBounds()
+      bounds.extend(pickupCoords)
+      bounds.extend(destinationCoords)
+      map.fitBounds(bounds)
+
+      routeLineRef.current?.setPath([pickupCoords, destinationCoords])
+      return
     }
 
-    if (!googleGeocoderRef.current) {
-      googleGeocoderRef.current = new google.maps.Geocoder()
+    const singlePoint = pickupCoords ?? destinationCoords
+    if (singlePoint) {
+      map.setCenter(singlePoint)
+      map.setZoom(15)
     }
-
-    if (pickupInputRef.current && !autocompletePickupRef.current) {
-      autocompletePickupRef.current = new google.maps.places.Autocomplete(pickupInputRef.current, {
-        fields: ['formatted_address', 'geometry', 'name'],
-      })
-      autocompletePickupRef.current.addListener('place_changed', () => {
-        const place = autocompletePickupRef.current.getPlace()
-        if (!place?.geometry?.location) return
-
-        const coords = {
-          lat: place.geometry.location.lat(),
-          lng: place.geometry.location.lng(),
-        }
-
-        setPickup(place.formatted_address || place.name || pickup)
-        setPickupCoords(coords)
-
-        if (mapInstanceRef.current) {
-          mapInstanceRef.current.setCenter(coords)
-        }
-      })
-    }
-
-    if (destinationInputRef.current && !autocompleteDestinationRef.current) {
-      autocompleteDestinationRef.current = new google.maps.places.Autocomplete(destinationInputRef.current, {
-        fields: ['formatted_address', 'geometry', 'name'],
-      })
-      autocompleteDestinationRef.current.addListener('place_changed', () => {
-        const place = autocompleteDestinationRef.current.getPlace()
-        if (!place?.geometry?.location) return
-
-        const coords = {
-          lat: place.geometry.location.lat(),
-          lng: place.geometry.location.lng(),
-        }
-
-        setDestination(place.formatted_address || place.name || destination)
-        setDestinationCoords(coords)
-      })
-    }
-  }, [mapsReady, pickup, destination])
+  }, [mapsReady, pickupCoords, destinationCoords])
 
   const geocodeAddress = async (address: string): Promise<LatLng> => {
     if (!window.google?.maps || !googleGeocoderRef.current) {
@@ -183,26 +267,6 @@ export default function RidePlanner() {
     })
   }
 
-  const drawRoute = async (start: LatLng, end: LatLng) => {
-    if (!window.google?.maps || !mapInstanceRef.current || !directionsRendererRef.current) return
-
-    const google = window.google
-    const directionsService = new google.maps.DirectionsService()
-
-    directionsService.route(
-      {
-        origin: start,
-        destination: end,
-        travelMode: google.maps.TravelMode.DRIVING,
-      },
-      (result: any, status: string) => {
-        if (status === 'OK' && result) {
-          directionsRendererRef.current.setDirections(result)
-        }
-      }
-    )
-  }
-
   const handleSearch = async () => {
     try {
       setMapError(null)
@@ -211,14 +275,12 @@ export default function RidePlanner() {
       const destinationLocation = destinationCoords ?? (destination.trim() ? await geocodeAddress(destination.trim()) : null)
 
       if (!pickupLocation || !destinationLocation) {
-        setMapError('Choose both pickup and destination from the map suggestions or type valid addresses.')
+        setMapError('Select both pickup and destination from the Places suggestions before comparing rides.')
         return
       }
 
       setPickupCoords(pickupLocation)
       setDestinationCoords(destinationLocation)
-
-      await drawRoute(pickupLocation, destinationLocation)
 
       estimateMutation.mutate({
         pickupLat: pickupLocation.lat,
@@ -240,42 +302,27 @@ export default function RidePlanner() {
           <p className="mb-2 text-xs font-semibold uppercase tracking-[0.15em] text-gold">Ride planner</p>
           <h1 className="font-serif text-3xl font-bold text-app-fg sm:text-4xl">Where are you headed?</h1>
           <div className="mt-8 space-y-3">
-            <label className="flex items-center gap-3 rounded-xl border border-[var(--border)] bg-[var(--bg-input)] px-4 py-3.5 transition-shadow focus-within:shadow-card">
-              <Navigation className="size-4 shrink-0 text-gold" />
-              <input
-                ref={pickupInputRef}
-                value={pickup}
-                onChange={(event) => setPickup(event.target.value)}
-                className="min-w-0 flex-1 bg-transparent text-sm outline-none"
-                placeholder="Pickup location"
-                aria-label="Pickup location"
-              />
-            </label>
-            <div className="flex justify-center">
-              <button
-                type="button"
-                onClick={() => {
-                  const current = pickup
-                  setPickup(destination)
-                  setDestination(current)
-                }}
-                className="flex size-9 items-center justify-center rounded-full border border-[var(--border)] bg-[var(--bg-card)] text-app-muted transition-all hover:text-app-fg active:scale-90"
-                aria-label="Swap"
-              >
-                <ArrowDownUp className="size-4" />
-              </button>
+            <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-input)] px-4 py-3.5 transition-shadow focus-within:shadow-card">
+              <div className="mb-2 flex items-center gap-3 text-sm text-app-muted">
+                <Navigation className="size-4 shrink-0 text-gold" />
+                <span>Pickup location</span>
+              </div>
+              <div ref={pickupAutocompleteHostRef} />
+              {pickup && <p className="mt-2 text-xs text-app-muted">Selected: {pickup}</p>}
             </div>
-            <label className="flex items-center gap-3 rounded-xl border border-[var(--border)] bg-[var(--bg-input)] px-4 py-3.5 transition-shadow focus-within:shadow-card">
-              <MapPin className="size-4 shrink-0 text-gold" />
-              <input
-                ref={destinationInputRef}
-                value={destination}
-                onChange={(event) => setDestination(event.target.value)}
-                className="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-app-muted"
-                placeholder="Enter destination"
-                aria-label="Destination"
-              />
-            </label>
+            <div className="flex justify-center">
+              <span className="flex size-9 items-center justify-center rounded-full border border-[var(--border)] bg-[var(--bg-card)] text-app-muted">
+                <ArrowDownUp className="size-4" />
+              </span>
+            </div>
+            <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-input)] px-4 py-3.5 transition-shadow focus-within:shadow-card">
+              <div className="mb-2 flex items-center gap-3 text-sm text-app-muted">
+                <MapPin className="size-4 shrink-0 text-gold" />
+                <span>Destination</span>
+              </div>
+              <div ref={destinationAutocompleteHostRef} />
+              {destination && <p className="mt-2 text-xs text-app-muted">Selected: {destination}</p>}
+            </div>
           </div>
           <button
             type="button"
