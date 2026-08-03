@@ -31,7 +31,8 @@ declare global {
 
 function loadGoogleMaps(apiKey: string): Promise<void> {
   return new Promise((resolve, reject) => {
-    if (window.google?.maps) {
+    // Already fully loaded (core + places)
+    if (window.google?.maps?.places) {
       resolve()
       return
     }
@@ -43,11 +44,11 @@ function loadGoogleMaps(apiKey: string): Promise<void> {
       return
     }
 
+    // New bootstrap loader — required for Places API (New)
     const script = document.createElement('script')
     script.dataset.googleMaps = 'true'
     script.async = true
-    script.defer = true
-    script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places`
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&v=weekly&libraries=places,maps&loading=async`
     script.onload = () => resolve()
     script.onerror = () => reject(new Error('Failed to load Google Maps'))
     document.head.appendChild(script)
