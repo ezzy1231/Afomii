@@ -1,52 +1,52 @@
 import { RideProviderAdapter, RideOption, GeoPoint } from "./ride-provider.interface";
 
 export class MockProviderAdapter implements RideProviderAdapter {
-  readonly providerName = "MockRide";
+  readonly providerName = "Meter Taxi";
 
   async getEstimates(
     pickup: GeoPoint,
     dropoff: GeoPoint
   ): Promise<RideOption[]> {
     const distance = this.haversineDistance(pickup, dropoff);
-    const baseFare = distance * 0.5;
+    const normalizedDistance = Math.max(distance, 0.5);
 
     await this.delay(100);
 
     return [
       {
-        providerName: "MockRide",
+        providerName: "Meter Taxi",
         providerLogo: "https://via.placeholder.com/40",
-        tier: "Economy",
+        tier: "Standard",
         estimatedPrice: {
-          amount: Math.round(baseFare * 10) / 10,
-          currency: "USD",
+          amount: Math.round(90 + normalizedDistance * 18),
+          currency: "ETB",
         },
-        currencySymbol: "$",
-        etaMinutes: Math.round(distance * 2 + 3),
+        currencySymbol: "ETB",
+        etaMinutes: Math.max(5, Math.round(normalizedDistance * 3 + 4)),
         badge: "Best Value",
       },
       {
-        providerName: "MockRide",
+        providerName: "Meter Taxi",
         providerLogo: "https://via.placeholder.com/40",
         tier: "Comfort",
         estimatedPrice: {
-          amount: Math.round(baseFare * 15) / 10,
-          currency: "USD",
+          amount: Math.round(110 + normalizedDistance * 22),
+          currency: "ETB",
         },
-        currencySymbol: "$",
-        etaMinutes: Math.round(distance * 1.5 + 5),
+        currencySymbol: "ETB",
+        etaMinutes: Math.max(4, Math.round(normalizedDistance * 2.5 + 4)),
         badge: null,
       },
       {
-        providerName: "MockRide",
+        providerName: "Meter Taxi",
         providerLogo: "https://via.placeholder.com/40",
-        tier: "VIP",
+        tier: "Minivan",
         estimatedPrice: {
-          amount: Math.round(baseFare * 25) / 10,
-          currency: "USD",
+          amount: Math.round(140 + normalizedDistance * 28),
+          currency: "ETB",
         },
-        currencySymbol: "$",
-        etaMinutes: Math.round(distance * 1.2 + 2),
+        currencySymbol: "ETB",
+        etaMinutes: Math.max(4, Math.round(normalizedDistance * 2.2 + 3)),
         badge: "Fastest",
       },
     ];

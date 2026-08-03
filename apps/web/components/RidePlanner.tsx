@@ -23,6 +23,38 @@ type EstimateResponse = {
 
 type LatLng = { lat: number; lng: number }
 
+function roundBirr(amount: number) {
+  return Math.round(amount)
+}
+
+function buildMeterTaxiEstimates(distanceKm: number): RideEstimate[] {
+  const normalizedDistance = Math.max(distanceKm, 0.5)
+
+  return [
+    {
+      providerName: 'Meter Taxi',
+      tier: 'Standard',
+      estimatedPrice: { amount: roundBirr(90 + normalizedDistance * 18), currency: 'ETB' },
+      etaMinutes: Math.max(5, Math.round(normalizedDistance * 3 + 4)),
+      badge: 'Best Value',
+    },
+    {
+      providerName: 'Meter Taxi',
+      tier: 'Comfort',
+      estimatedPrice: { amount: roundBirr(110 + normalizedDistance * 22), currency: 'ETB' },
+      etaMinutes: Math.max(4, Math.round(normalizedDistance * 2.5 + 4)),
+      badge: undefined,
+    },
+    {
+      providerName: 'Meter Taxi',
+      tier: 'Minivan',
+      estimatedPrice: { amount: roundBirr(140 + normalizedDistance * 28), currency: 'ETB' },
+      etaMinutes: Math.max(4, Math.round(normalizedDistance * 2.2 + 3)),
+      badge: 'Fastest',
+    },
+  ]
+}
+
 declare global {
   interface Window {
     google?: any
@@ -58,6 +90,8 @@ function loadGoogleMaps(apiKey: string): Promise<void> {
 export default function RidePlanner() {
   const [pickup, setPickup] = useState('')
   const [destination, setDestination] = useState('')
+  const [manualDistanceKm, setManualDistanceKm] = useState('')
+  const [localEstimates, setLocalEstimates] = useState<RideEstimate[] | null>(null)
   const [selectedRide, setSelectedRide] = useState<string | null>(null)
   const [pickupCoords, setPickupCoords] = useState<LatLng | null>(null)
   const [destinationCoords, setDestinationCoords] = useState<LatLng | null>(null)
@@ -270,15 +304,29 @@ export default function RidePlanner() {
   const handleSearch = async () => {
     try {
       setMapError(null)
+      setSelectedRide(null)
 
       const pickupLocation = pickupCoords ?? (pickup.trim() ? await geocodeAddress(pickup.trim()) : null)
       const destinationLocation = destinationCoords ?? (destination.trim() ? await geocodeAddress(destination.trim()) : null)
 
       if (!pickupLocation || !destinationLocation) {
-        setMapError('Select both pickup and destination from the Places suggestions before comparing rides.')
+        const parsedDistance = Number(manualDistanceKm)
+
+        if (!Number.isFinite(parsedDistance) || parsedDistance <= 0) {
+          setMapError('Enter a trip distance in kilometers, or select pickup and destination from the map suggestions.')
+          return
+        }
+
+        setLocalEstimates(buildMeterTaxiEstimates(parsedDistance))
+
+        if (!mapsReady) {
+          setMapError('Using manual meter-taxi pricing because Google Maps is unavailable.')
+        }
+
         return
       }
 
+      setLocalEstimates(null)
       setPickupCoords(pickupLocation)
       setDestinationCoords(destinationLocation)
 
@@ -293,7 +341,7 @@ export default function RidePlanner() {
     }
   }
 
-  const estimates = estimateMutation.data?.estimates ?? []
+  const estimates = localEstimates ?? estimateMutation.data?.estimates ?? []
 
   return (
     <main className="mx-auto max-w-7xl px-4 pb-28 pt-8 sm:px-6 lg:px-8">
@@ -323,14 +371,28 @@ export default function RidePlanner() {
               <div ref={destinationAutocompleteHostRef} />
               {destination && <p className="mt-2 text-xs text-app-muted">Selected: {destination}</p>}
             </div>
+            <label className="block rounded-xl border border-[var(--border)] bg-[var(--bg-input)] px-4 py-3.5">
+              <span className="mb-2 block text-sm text-app-muted">Trip distance in kilometers</span>
+              <input
+                type="number"
+                min="0"
+                step="0.1"
+                value={manualDistanceKm}
+                onChange={(event) => setManualDistanceKm(event.target.value)}
+                className="w-full bg-transparent text-sm outline-none"
+                placeholder="Example: 4.5"
+                aria-label="Trip distance in kilometers"
+              />
+              <p className="mt-2 text-xs text-app-muted">Fallback meter taxi pricing starts at ETB 90 and adds fare by distance.</p>
+            </label>
           </div>
           <button
             type="button"
             onClick={handleSearch}
-            disabled={estimateMutation.isPending || !mapsReady}
+            disabled={estimateMutation.isPending}
             className="btn-primary mt-6 w-full !py-3 text-sm disabled:opacity-50"
           >
-            {estimateMutation.isPending ? 'Searching rides...' : mapsReady ? 'Compare rides' : 'Loading maps...'}
+            {estimateMutation.isPending ? 'Searching rides...' : 'Compare rides'}
           </button>
           {mapError && (
             <p className="mt-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
@@ -353,7 +415,13 @@ export default function RidePlanner() {
           </div>
 
           <div className="mb-6 overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--bg-input)]">
-            <div ref={mapRef} className="h-[320px] w-full" />
+            {mapsReady ? (
+              <div ref={mapRef} className="h-[320px] w-full" />
+            ) : (
+              <div className="flex h-[320px] items-center justify-center px-6 text-center text-sm text-app-muted">
+                Google Maps is optional here. You can still estimate local meter-taxi fares using the trip distance field.
+              </div>
+            )}
           </div>
 
           {estimateMutation.isPending && (
