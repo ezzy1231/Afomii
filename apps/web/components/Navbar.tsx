@@ -5,9 +5,15 @@ import MobileNavigation from './MobileNavigation'
 import ThemeToggle from './ThemeToggle'
 
 async function getUser() {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  return user
+  try {
+    const supabase = await createClient()
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+    return user
+  } catch {
+    return null
+  }
 }
 
 export default async function Navbar() {
