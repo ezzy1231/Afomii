@@ -4,23 +4,37 @@
 
 @layer base {
   :root {
-    --bg-primary: #F8F5F0;
-    --bg-alt: #FFFDFB;
-    --bg-card: #FFFFFF;
-    --bg-input: #FAFAFA;
-    --bg-hover: #F4F4F4;
-    --text-primary: #111827;
-    --text-secondary: #6B7280;
-    --text-muted: #9CA3AF;
-    --border: #E8E8E8;
-    --nav-bg: #FFFFFF;
-    --shadow-sm: 0 1px 3px rgba(0,0,0,.04);
-    --shadow-md: 0 4px 20px rgba(0,0,0,.06);
-    --shadow-lg: 0 8px 30px rgba(0,0,0,.08);
+    --bg-primary: #07192b;
+    --bg-alt: #0d2036;
+    --bg-card: #0b1d31;
+    --bg-input: #101f33;
+    --bg-hover: #122a42;
+    --text-primary: #f5efe8;
+    --text-secondary: #d9d1c7;
+    --text-muted: #a9a093;
+    --border: rgba(215, 183, 120, 0.28);
+    --nav-bg: rgba(8, 23, 38, 0.85);
+    --shadow-sm: 0 6px 20px rgba(0,0,0,.18);
+    --shadow-md: 0 14px 26px rgba(0,0,0,.22);
+    --shadow-lg: 0 24px 60px rgba(0,0,0,.3);
     --radius-sm: 12px;
     --radius-md: 16px;
     --radius-lg: 20px;
-    --radius-xl: 24px;
+    --radius-xl: 28px;
+    color-scheme: dark;
+  }
+
+  [data-theme='light'] {
+    --bg-primary: #f5f0e7;
+    --bg-alt: #ece3d5;
+    --bg-card: #fffdf8;
+    --bg-input: #f3ede3;
+    --bg-hover: #e9dfd0;
+    --text-primary: #10243a;
+    --text-secondary: #35485c;
+    --text-muted: #687587;
+    --border: rgba(123, 92, 43, 0.26);
+    --nav-bg: rgba(255, 253, 248, 0.9);
     color-scheme: light;
   }
 
@@ -29,19 +43,16 @@
   [data-theme='dark'] .theme-icon-dark { display: inline-flex; }
 
   [data-theme='dark'] {
-    --bg-primary: #071220;
-    --bg-alt: #10203A;
-    --bg-card: #142742;
-    --bg-input: #1B3050;
-    --bg-hover: #1E3456;
-    --text-primary: #F8F5F0;
-    --text-secondary: #BFC6D4;
-    --text-muted: #8A94A6;
-    --border: rgba(255, 255, 255, 0.07);
-    --nav-bg: rgba(8, 16, 29, 0.9);
-    --shadow-sm: 0 1px 3px rgba(0,0,0,.2);
-    --shadow-md: 0 4px 20px rgba(0,0,0,.3);
-    --shadow-lg: 0 10px 35px rgba(0,0,0,.35);
+    --bg-primary: #07192b;
+    --bg-alt: #0d2036;
+    --bg-card: #0b1d31;
+    --bg-input: #101f33;
+    --bg-hover: #122a42;
+    --text-primary: #f5efe8;
+    --text-secondary: #d9d1c7;
+    --text-muted: #a9a093;
+    --border: rgba(215, 183, 120, 0.28);
+    --nav-bg: rgba(8, 23, 38, 0.85);
     color-scheme: dark;
   }
 
@@ -76,14 +87,14 @@
   }
 
   :focus-visible {
-    outline: 2px solid #C2A878;
+    outline: 2px solid #d7b778;
     outline-offset: 2px;
     border-radius: 4px;
   }
 
   ::selection {
-    background: #C2A878;
-    color: #0B1F3A;
+    background: #d7b778;
+    color: #07192b;
   }
 }
 

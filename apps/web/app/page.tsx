@@ -1,65 +1,40 @@
 import Link from 'next/link'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
+import { ArrowRight, Bell, CalendarDays, CarFront, Check, Compass, MapPinned, Sparkles, Star, Ticket, Utensils } from 'lucide-react'
 
-const HOW_IT_WORKS = [
+const features = [
   {
-    step: '01',
-    title: 'Discover',
-    description: 'Search thousands of restaurants, events, and ride options near you — filtered by your taste.',
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="w-6 h-6">
-        <path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
-      </svg>
-    ),
+    title: 'Restaurants',
+    accent: 'Food & Dining',
+    description: 'Restaurants, cafés, bakeries, bars, lounges, pubs, food trucks, and hotels.',
+    icon: Utensils,
   },
   {
-    step: '02',
-    title: 'Book',
-    description: 'Reserve a table, grab event tickets, or compare fares from Uber, Bolt, and more — in seconds.',
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="w-6 h-6">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 6v.75m0 3v.75m0 3v.75m0 3V18m-9-5.25h5.25M7.5 15h3M3.375 5.25c-.621 0-1.125.504-1.125 1.125v3.026a2.999 2.999 0 0 1 0 5.198v3.026c0 .621.504 1.125 1.125 1.125h17.25c.621 0 1.125-.504 1.125-1.125v-3.026a3 3 0 0 1 0-5.198V6.375c0-.621-.504-1.125-1.125-1.125H3.375Z" />
-      </svg>
-    ),
+    title: 'Events',
+    accent: 'Events & Entertainment',
+    description: 'Concerts, festivals, shows, conferences, exhibitions, nightlife, and live experiences.',
+    icon: CalendarDays,
   },
   {
-    step: '03',
-    title: 'Enjoy',
-    description: 'Show up, scan your ticket, and enjoy. Track everything in one place — no juggling apps.',
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="w-6 h-6">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M15.182 15.182a4.5 4.5 0 0 1-6.364 0M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0ZM9.75 9.75c0 .414-.168.75-.375.75S9 10.164 9 9.75 9.168 9 9.375 9s.375.336.375.75Zm-.375 0h.008v.015h-.008V9.75Zm5.625 0c0 .414-.168.75-.375.75s-.375-.336-.375-.75.168-.75.375-.75.375.336.375.75Zm-.375 0h.008v.015h-.008V9.75Z" />
-      </svg>
-    ),
+    title: 'Ride',
+    accent: 'Go by Ride',
+    description: 'Compare prices, book rides, and travel seamlessly between places in your city.',
+    icon: CarFront,
   },
 ]
 
-const PILLARS = [
-  {
-    key: 'restaurants',
-    href: '/restaurants',
-    label: 'Restaurants',
-    headline: 'Eat well, every time',
-    description: 'From cosy neighbourhood cafés to upscale dining — discover restaurants curated for your palate.',
-    cta: 'Browse restaurants',
-  },
-  {
-    key: 'events',
-    href: '/events',
-    label: 'Events',
-    headline: 'Never miss a moment',
-    description: 'Music, art, sport, food — get tickets to the best events happening in your city.',
-    cta: 'Explore events',
-  },
-  {
-    key: 'ride',
-    href: '/ride',
-    label: 'Ride',
-    headline: 'Get there in style',
-    description: 'Compare fares from Uber, Bolt, Careem and more. One search, the best price.',
-    cta: 'Compare rides',
-  },
+const howItWorks = [
+  { step: '1', title: 'Discover', copy: 'Search for restaurants, events, and rides near you.' },
+  { step: '2', title: 'Book', copy: 'Reserve tables, buy tickets, or compare ride prices instantly.' },
+  { step: '3', title: 'Enjoy', copy: 'Show up, scan, and move through the day without friction.' },
+]
+
+const quickCards = [
+  { title: 'Discover', emoji: '🔎', tone: 'bg-[#fdf6ed] text-[#0d2138]' },
+  { title: 'Book', emoji: '📅', tone: 'bg-[#f2ead9] text-[#0d2138]' },
+  { title: 'Go', emoji: '🚕', tone: 'bg-[#f4e7d6] text-[#0d2138]' },
+  { title: 'Enjoy', emoji: '✨', tone: 'bg-[#ede4d5] text-[#0d2138]' },
 ]
 
 export default function HomePage() {
@@ -67,121 +42,183 @@ export default function HomePage() {
     <>
       <Navbar />
 
-      <main className="flex-1">
-        <section className="relative overflow-hidden bg-navy text-ivory">
-          <div className="absolute inset-0 opacity-[0.03] bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-gold to-transparent pointer-events-none" />
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-32 md:py-44 relative">
-            <div className="max-w-2xl animate-fade-in-up">
-              <p className="badge-gold inline-flex mb-5 !bg-gold/20 !text-gold">
-                The UrbanExplore Super-App
-              </p>
-              <h1 className="font-serif text-5xl md:text-7xl font-bold leading-tight mb-6">
-                Eat. Celebrate.{' '}
-                <span className="text-gold">Ride.</span>
-              </h1>
-              <p className="text-ivory/70 text-lg md:text-xl leading-relaxed mb-10 max-w-xl">
-                Discover restaurants, book events, and get a ride — all in one simple place.
-              </p>
-              <div className="flex flex-wrap gap-4">
-                <Link
-                  href="/auth/role"
-                  className="btn-accent !text-navy !font-bold !px-7 !py-3.5"
-                >
-                    Get started
-                </Link>
-                <Link
-                  href="/restaurants"
-                  className="btn-secondary !border-ivory/30 !text-ivory hover:!bg-ivory/10 !px-7 !py-3.5"
-                >
-                  Browse restaurants
-                </Link>
+      <main className="flex-1 bg-[#07192b] text-[#f8f2ea]">
+        <section className="relative overflow-hidden bg-[#07192b] text-[#f3ebdf]">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(204,168,103,0.16),transparent_30%),radial-gradient(circle_at_bottom_right,_rgba(33,62,95,0.7),transparent_35%)]" />
+          <div className="relative mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 lg:py-20">
+            <div className="rounded-[28px] border border-[#d7b778]/35 bg-[#071a2f]/80 p-6 shadow-[0_25px_80px_rgba(0,0,0,0.38)] lg:p-8">
+              <div className="mb-10 flex items-center justify-between gap-4">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-11 w-11 items-center justify-center rounded-xl border border-[#d7b778]/50 bg-[#d7b778]/10 text-[#d7b778]">
+                    <Compass className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <div className="font-serif text-3xl font-bold tracking-tight">FoodRide</div>
+                    <div className="text-[10px] uppercase tracking-[0.28em] text-[#d7b778]">Discover. Reserve. Go.</div>
+                  </div>
+                </div>
+
+                <div className="hidden items-center gap-6 text-sm text-[#e8dfd4] md:flex">
+                  <span>Restaurants</span>
+                  <span>Events</span>
+                  <span>Ride</span>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <button className="flex h-10 w-10 items-center justify-center rounded-full border border-[#d7b778]/40 bg-[#d7b778]/10 text-[#d7b778]">
+                    <Bell className="h-4 w-4" />
+                  </button>
+                  <Link href="/auth/role" className="rounded-full bg-[#d7b778] px-4 py-2 text-sm font-semibold text-[#081a2e]">
+                    Join now
+                  </Link>
+                </div>
+              </div>
+
+              <div className="grid gap-9 lg:grid-cols-[1.2fr_0.8fr] lg:items-center">
+                <div>
+                  <p className="mb-4 inline-flex rounded-full border border-[#d7b778]/40 bg-[#d7b778]/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.24em] text-[#d7b778]">
+                    One app, all your plans
+                  </p>
+                  <h1 className="font-serif text-4xl font-bold leading-none tracking-tight text-[#f7f2ea] sm:text-5xl lg:text-7xl">
+                    Discover. <span className="text-[#d7b778]">Book.</span>
+                    <br />
+                    Enjoy.
+                  </h1>
+                  <p className="mt-5 max-w-xl text-base text-[#d7d0c6] sm:text-lg">
+                    Explore restaurants, book event tickets, and compare rides in one elegant super-app designed for city life.
+                  </p>
+
+                  <div className="mt-8 flex flex-wrap gap-3">
+                    <Link href="/auth/role" className="rounded-xl bg-[#d7b778] px-6 py-3 text-sm font-semibold text-[#081a2e] shadow-[0_10px_25px_rgba(215,183,120,0.28)]">
+                      Get started
+                    </Link>
+                    <Link href="/restaurants" className="rounded-xl border border-[#d7b778]/35 bg-transparent px-6 py-3 text-sm font-semibold text-[#f6efe6]">
+                      Browse now
+                    </Link>
+                  </div>
+                </div>
+
+                <div className="rounded-[28px] border border-[#d7b778]/30 bg-[#0e2340] p-4 shadow-[0_20px_50px_rgba(0,0,0,0.4)]">
+                  <div className="mb-4 flex items-center justify-between text-[#d7b778]">
+                    <div className="flex items-center gap-2 text-xs uppercase tracking-[0.24em]">
+                      <MapPinned className="h-3.5 w-3.5" />
+                      Nearby
+                    </div>
+                    <button className="rounded-full border border-[#d7b778]/30 px-2.5 py-1 text-[10px] uppercase tracking-[0.18em] text-[#f0e4c8]">
+                      Secure
+                    </button>
+                  </div>
+
+                  <div className="space-y-3">
+                    <div className="rounded-2xl border border-[#d7b778]/20 bg-[#091d30] p-4">
+                      <div className="mb-2 flex items-center justify-between text-[#e8dfd4]">
+                        <span className="text-lg font-semibold">Sky Garden Restaurant</span>
+                        <span className="rounded-full bg-[#d7b778]/10 px-2 py-1 text-[10px] uppercase tracking-[0.2em] text-[#d7b778]">4.7</span>
+                      </div>
+                      <div className="text-sm text-[#d2cabc]">Italian · Bole, Addis Ababa</div>
+                    </div>
+
+                    <div className="rounded-2xl border border-[#d7b778]/20 bg-[#091d30] p-4">
+                      <div className="mb-2 flex items-center justify-between text-[#e8dfd4]">
+                        <span className="text-lg font-semibold">Summer Jazz Night</span>
+                        <span className="rounded-full bg-[#d7b778]/10 px-2 py-1 text-[10px] uppercase tracking-[0.2em] text-[#d7b778]">Live</span>
+                      </div>
+                      <div className="text-sm text-[#d2cabc]">Friday · 8:00 PM · Addis Ababa</div>
+                    </div>
+
+                    <div className="rounded-2xl border border-[#d7b778]/20 bg-[#091d30] p-4">
+                      <div className="mb-2 flex items-center justify-between text-[#e8dfd4]">
+                        <span className="text-lg font-semibold">Go by Ride</span>
+                        <span className="rounded-full bg-[#d7b778]/10 px-2 py-1 text-[10px] uppercase tracking-[0.2em] text-[#d7b778]">ETA</span>
+                      </div>
+                      <div className="text-sm text-[#d2cabc]">Uber and Yango fares in real-time</div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         </section>
 
-        <section className="py-24 md:py-32 bg-[var(--bg-alt)]">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-16">
-              <p className="text-xs font-semibold uppercase tracking-widest text-gold mb-3">How it works</p>
-              <h2 className="font-serif text-4xl md:text-5xl font-bold text-app-fg">
-                Simple. Fast. One account.
-              </h2>
+        <section className="bg-[#07192b] py-12">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div className="mb-8 flex items-center justify-between">
+              <div>
+                <div className="text-[10px] uppercase tracking-[0.26em] text-[#d7b778]">What we offer</div>
+                <h2 className="mt-2 font-serif text-3xl font-bold text-[#f5efe9] sm:text-4xl">Restaurants, Events & More — All in One Place</h2>
+              </div>
+              <div className="hidden items-center gap-3 text-sm text-[#e9e0d3] md:flex">
+                <button className="rounded-full border border-[#d7b778]/25 bg-[#d7b778]/10 px-3 py-2 text-xs uppercase tracking-[0.18em] text-[#e4ce96]">
+                  App Store
+                </button>
+                <button className="rounded-full border border-[#d7b778]/25 bg-[#d7b778]/10 px-3 py-2 text-xs uppercase tracking-[0.18em] text-[#e4ce96]">
+                  Google Play
+                </button>
+              </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {HOW_IT_WORKS.map((item, i) => (
-                <div key={item.step} className="card-elevated animate-fade-in-up text-center p-8 sm:p-10" style={{ animationDelay: `${i * 90}ms` }}>
-                  <div className="w-14 h-14 rounded-2xl bg-gold/10 flex items-center justify-center text-gold mx-auto mb-6">
-                    {item.icon}
+            <div className="grid gap-5 md:grid-cols-3">
+              {features.map(({ title, accent, description, icon: Icon }) => (
+                <div key={title} className="rounded-[24px] border border-[#d7b778]/25 bg-[#0a1d32] p-5 shadow-[0_18px_40px_rgba(0,0,0,0.22)]">
+                  <div className="mb-4 flex items-center gap-3">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#d7b778]/10 text-[#d7b778]">
+                      <Icon className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <div className="font-serif text-2xl font-bold text-[#f5efe9]">{title}</div>
+                      <div className="text-xs uppercase tracking-[0.18em] text-[#d7b778]">{accent}</div>
+                    </div>
                   </div>
-                  <div className="badge-gold inline-flex mb-3">{item.step}</div>
-                  <h3 className="font-serif text-xl font-bold text-app-fg mb-3">{item.title}</h3>
-                  <p className="text-sm text-app-muted leading-relaxed">{item.description}</p>
+                  <p className="text-sm leading-6 text-[#d8d0c6]">{description}</p>
                 </div>
               ))}
             </div>
           </div>
         </section>
 
-        <section className="py-24 md:py-32 bg-[var(--bg-primary)]">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-16">
-                <p className="text-xs font-semibold uppercase tracking-widest text-gold mb-3">What we offer</p>
-              <h2 className="font-serif text-4xl md:text-5xl font-bold text-app-fg">
-                One app. Three superpowers.
-              </h2>
+        <section className="bg-[#07192b] py-16">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div className="mb-8 text-center">
+              <div className="text-[10px] uppercase tracking-[0.28em] text-[#d7b778]">How it works</div>
+              <h2 className="mt-3 font-serif text-3xl font-bold text-[#f7f0e8] sm:text-4xl">From discovery to dinner in three steps</h2>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {PILLARS.map((p, i) => (
-                <div
-                  key={p.key}
-                  className="card-elevated animate-fade-in-up group flex flex-col p-8 sm:p-10"
-                  style={{ animationDelay: `${i * 90}ms` }}
-                >
-                  <span className="badge-gold mb-4 inline-flex w-fit">{p.label}</span>
-                  <h3 className="font-serif text-2xl font-bold text-app-fg mb-3">{p.headline}</h3>
-                  <p className="text-sm text-app-muted leading-relaxed flex-1 mb-8">
-                    {p.description}
-                  </p>
-                  <Link
-                    href={p.href}
-                    className="inline-flex items-center gap-2 text-sm font-semibold text-app-fg transition-all group-hover:gap-3"
-                  >
-                    {p.cta}
-                    <svg viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
-                      <path fillRule="evenodd" d="M3 10a.75.75 0 0 1 .75-.75h10.638L10.23 5.29a.75.75 0 1 1 1.04-1.08l5.5 5.25a.75.75 0 0 1 0 1.08l-5.5 5.25a.75.75 0 1 1-1.04-1.08l4.158-3.96H3.75A.75.75 0 0 1 3 10Z" clipRule="evenodd" />
-                    </svg>
-                  </Link>
+            <div className="grid gap-5 md:grid-cols-3">
+              {howItWorks.map(({ step, title, copy }) => (
+                <div key={title} className="rounded-[24px] border border-[#d7b778]/25 bg-[#091d30] p-5">
+                  <div className="mb-4 flex items-center justify-between">
+                    <div className="text-[12px] uppercase tracking-[0.22em] text-[#d7b778]">Step {step}</div>
+                    <ArrowRight className="h-4 w-4 text-[#d7b778]" />
+                  </div>
+                  <h3 className="font-serif text-2xl font-bold text-[#f9f3ec]">{title}</h3>
+                  <p className="mt-3 text-sm leading-6 text-[#d5cfc6]">{copy}</p>
                 </div>
               ))}
             </div>
           </div>
         </section>
 
-        <section className="py-24 md:py-28 bg-navy text-ivory">
-          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-              <p className="badge-gold inline-flex mb-5 !bg-gold/20 !text-gold">For businesses</p>
-            <h2 className="font-serif text-4xl md:text-5xl font-bold mb-5">
-              Grow your business with UrbanExplore
-            </h2>
-            <p className="text-ivory/70 text-lg mb-10 max-w-xl mx-auto">
-              Join restaurants and event organisers reaching new customers through discovery, bookings, and ride handoff.
-            </p>
-            <div className="flex flex-wrap justify-center gap-4">
-              <Link
-                href="/auth/signup/business"
-                className="btn-accent !px-7 !py-3.5"
-              >
-                List your restaurant
-              </Link>
-              <Link
-                href="/auth/signup/organizer"
-                className="btn-secondary !border-ivory/30 !text-ivory hover:!bg-ivory/10 !px-7 !py-3.5"
-              >
-                Promote your events
-              </Link>
+        <section className="bg-[#07192b] pb-20 pt-4">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div className="rounded-[30px] border border-[#d7b778]/30 bg-[#0a1d32] p-6 shadow-[0_28px_70px_rgba(0,0,0,0.28)] md:p-8">
+              <div className="mb-6 flex items-center justify-between">
+                <div>
+                  <div className="text-[10px] uppercase tracking-[0.28em] text-[#d7b778]">For businesses</div>
+                  <h2 className="mt-2 font-serif text-3xl font-bold text-[#f7f1ea]">Grow your reach with FoodRide</h2>
+                </div>
+                <Link href="/auth/role" className="rounded-full border border-[#d7b778]/35 bg-[#d7b778]/10 px-4 py-2 text-sm font-semibold text-[#f1e5c7]">
+                  List your business
+                </Link>
+              </div>
+
+              <div className="grid gap-4 md:grid-cols-4">
+                {quickCards.map(({ title, emoji, tone }) => (
+                  <div key={title} className={`flex items-center gap-3 rounded-2xl border border-[#d7b778]/20 p-4 ${tone}`}>
+                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#07192b]/10 text-2xl">{emoji}</div>
+                    <div className="text-lg font-semibold">{title}</div>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </section>

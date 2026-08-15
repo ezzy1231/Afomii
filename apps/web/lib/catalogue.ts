@@ -1,4 +1,4 @@
-const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000/api/v1";
+import { createClient } from '@/lib/supabase/server'
 
 export type CatalogueItem = {
   id: string
@@ -59,28 +59,26 @@ function formatEventTime(value: string | null) {
 
 export async function getRestaurantCatalogue(): Promise<{ items: CatalogueItem[]; source: 'live' | 'sample' }> {
   try {
-    const response = await fetch(`${API_BASE}/partners/restaurants`, {
-      next: { revalidate: 60 },
-    })
+    const supabase = await createClient()
+    const { data, error } = await supabase
+      .from('restaurants')
+      .select('id, name, cuisine, city, area_label, rating, branches(address, area_label, city)')
+      .eq('is_active', true)
+      .order('created_at', { ascending: false })
+      .limit(60)
 
-    if (!response.ok) {
+    if (error || !data?.length) {
       return { items: fallbackRestaurants, source: 'sample' }
     }
 
-    const data = await response.json()
-
-    if (!data.length) {
-      return { items: fallbackRestaurants, source: 'sample' }
-    }
-
-    const items: CatalogueItem[] = data.map((business: any) => ({
-      id: business.id,
-      name: business.name,
-      category: business.category ?? 'Restaurant',
-      location: business.branches?.[0]?.address ?? 'City center',
-      detail: business.isVerified ? 'Verified' : 'Open today',
-      rating: business.isVerified ? '4.8' : 'New',
-      color: chooseColor(business.name, restaurantColors),
+    const items: CatalogueItem[] = data.map((r: any) => ({
+      id: r.id,
+      name: r.name,
+      category: r.cuisine ?? 'Restaurant',
+      location: r.branches?.[0]?.address ?? r.area_label ?? r.city ?? 'City center',
+      detail: r.rating ? `★ ${r.rating}` : 'Open today',
+      rating: r.rating != null ? String(r.rating) : 'New',
+      color: chooseColor(r.name, restaurantColors),
     }))
 
     return { items, source: 'live' }
@@ -91,17 +89,16 @@ export async function getRestaurantCatalogue(): Promise<{ items: CatalogueItem[]
 
 export async function getEventCatalogue(): Promise<{ items: CatalogueItem[]; source: 'live' | 'sample' }> {
   try {
-    const response = await fetch(`${API_BASE}/events`, {
-      next: { revalidate: 60 },
-    })
+    const supabase = await createClient()
+    const { data, error } = await supabase
+      .from('events')
+      .select('id, title, category, venue_name, starts_at, ticket_types(price)')
+      .eq('status', 'published')
+      .eq('is_active', true)
+      .order('starts_at', { ascending: true })
+      .limit(60)
 
-    if (!response.ok) {
-      return { items: fallbackEvents, source: 'sample' }
-    }
-
-    const data = await response.json()
-
-    if (!data.length) {
+    if (error || !data?.length) {
       return { items: fallbackEvents, source: 'sample' }
     }
 
@@ -109,10 +106,10 @@ export async function getEventCatalogue(): Promise<{ items: CatalogueItem[]; sou
       id: event.id,
       name: event.title,
       category: event.category ?? 'Event',
-      location: event.venueName ?? 'City venue',
-      detail: formatEventTime(event.startDateTime),
-      rating: event.ticketTypes?.[0]
-        ? `From $${event.ticketTypes[0].price}`
+      location: event.venue_name ?? 'City venue',
+      detail: formatEventTime(event.starts_at),
+      rating: event.ticket_types?.[0]
+        ? `From ETB ${event.ticket_types[0].price}`
         : 'Free',
       color: chooseColor(event.title, eventColors),
     }))
