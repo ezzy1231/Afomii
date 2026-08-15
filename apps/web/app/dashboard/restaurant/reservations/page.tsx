@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { ReservationCalendarGrid } from '@/components/dashboard/reservation-calendar'
+import { updateReservationStatus } from '@/app/dashboard/actions'
 
 type Reservation = {
   id: string
@@ -21,7 +22,7 @@ export default function ReservationsPage() {
     async function load() {
       const supabase = createClient()
       const { data: { user } } = await supabase.auth.getUser()
-      if (!user) return
+      if (!user) { setLoading(false); return }
 
       const { data: business } = await supabase
         .from('businesses')
@@ -46,39 +47,39 @@ export default function ReservationsPage() {
         .order('reservation_date', { ascending: false })
         .limit(50)
 
-      if (data) {
-        const mapped: Reservation[] = await Promise.all(
-          data.map(async (r) => {
-            const { data: profile } = await supabase
-              .from('profiles')
-              .select('email, phone')
-              .eq('id', r.user_id)
-              .maybeSingle()
+      if (!data) { setLoading(false); return }
 
-            return {
-              id: r.id,
-              reservationDate: r.reservation_date,
-              timeSlot: r.time_slot,
-              guestCount: r.guest_count,
-              status: r.status,
-              user: { email: profile?.email, phone: profile?.phone },
-            }
-          })
-        )
-        setReservations(mapped)
-      }
+      const userIds = Array.from(new Set(data.map((r) => r.user_id).filter(Boolean)))
+      const { data: profiles } = userIds.length
+        ? await supabase.from('profiles').select('id, email, phone').in('id', userIds)
+        : { data: [] as { id: string; email?: string; phone?: string }[] | null }
 
+      const profileMap = new Map((profiles ?? []).map((p) => [p.id, p]))
+      const mapped: Reservation[] = data.map((r) => {
+        const profile = profileMap.get(r.user_id)
+        return {
+          id: r.id,
+          reservationDate: r.reservation_date,
+          timeSlot: r.time_slot,
+          guestCount: r.guest_count,
+          status: r.status,
+          user: { email: profile?.email, phone: profile?.phone },
+        }
+      })
+      setReservations(mapped)
       setLoading(false)
     }
     load()
   }, [])
 
   async function handleUpdateStatus(id: string, status: string) {
-    const supabase = createClient()
-    await supabase.from('reservations').update({ status }).eq('id', id)
-    setReservations((prev) =>
-      prev.map((r) => (r.id === id ? { ...r, status } : r))
-    )
+    const res = await updateReservationStatus(id, status)
+    if (res.ok) {
+      setReservations((prev) =>
+        prev.map((r) => (r.id === id ? { ...r, status } : r))
+      )
+    }
+    return res
   }
 
   return (

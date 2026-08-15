@@ -11,6 +11,9 @@ export type DetailBranch = {
     bookingMode: string
     totalTables: number
     maxGuestPerTable: number
+    slotDurationMinutes: number
+    advanceNoticeHours: number
+    cancellationPolicy: string | null
   } | null
   menuItems: {
     id: string
@@ -73,7 +76,7 @@ export async function getRestaurantDetail(id: string): Promise<RestaurantDetail 
   const { data: branches } = await supabase
     .from('branches')
     .select(
-      'id, branch_name, address, latitude, longitude, phone, booking_configs(booking_mode, total_tables, max_guest_per_table), menu_items(id, name, price, category, is_available)'
+      'id, branch_name, address, latitude, longitude, phone, booking_configs(booking_mode, total_tables, max_guest_per_table, slot_duration_minutes, advance_notice_hours, cancellation_policy), menu_items(id, name, price, category, is_available)'
     )
     .eq('business_id', restaurant.business_id)
     .order('created_at', { ascending: true })
@@ -92,6 +95,9 @@ export async function getRestaurantDetail(id: string): Promise<RestaurantDetail 
             bookingMode: bc.booking_mode,
             totalTables: bc.total_tables,
             maxGuestPerTable: bc.max_guest_per_table,
+            slotDurationMinutes: bc.slot_duration_minutes ?? 30,
+            advanceNoticeHours: bc.advance_notice_hours ?? 0,
+            cancellationPolicy: bc.cancellation_policy ?? null,
           }
         : null
     })(),
@@ -165,4 +171,49 @@ export async function getEventDetail(id: string): Promise<EventDetail | null> {
       }
     })(),
   }
+}
+
+export type ConsumerReservation = {
+  id: string
+  reservationDate: string
+  timeSlot: string | null
+  guestCount: number
+  status: string
+  branchName: string
+  address: string
+  restaurantName: string
+}
+
+export async function getConsumerReservations(userId: string): Promise<ConsumerReservation[]> {
+  const supabase = await createClient()
+
+  const { data } = await supabase
+    .from('reservations')
+    .select(
+      'id, reservation_date, time_slot, guest_count, status, branch:branches(branch_name, address, restaurant:restaurants(name))'
+    )
+    .eq('user_id', userId)
+    .order('reservation_date', { ascending: false })
+    .limit(50)
+
+  if (!data) return []
+
+  return (data as any[]).map((r) => {
+    const branch = Array.isArray(r.branch) ? r.branch[0] : r.branch
+    const restaurant = branch?.restaurant
+      ? Array.isArray(branch.restaurant)
+        ? branch.restaurant[0]
+        : branch.restaurant
+      : null
+    return {
+      id: r.id,
+      reservationDate: r.reservation_date,
+      timeSlot: r.time_slot,
+      guestCount: r.guest_count,
+      status: r.status,
+      branchName: branch?.branch_name ?? '',
+      address: branch?.address ?? '',
+      restaurantName: restaurant?.name ?? '',
+    }
+  })
 }

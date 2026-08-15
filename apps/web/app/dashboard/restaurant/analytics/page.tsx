@@ -6,7 +6,7 @@ import { CalendarDays, DollarSign, Store, Users } from 'lucide-react'
 import { MetricCard } from '@/components/dashboard/metric-card'
 
 export default function RestaurantAnalyticsPage() {
-  const [metrics, setMetrics] = useState({ listings: 0, bookings: 0, revenue: 0, views: 0 })
+  const [metrics, setMetrics] = useState({ listings: 0, bookings: 0, guests: 0, views: 0 })
 
   useEffect(() => {
     async function load() {
@@ -21,7 +21,24 @@ export default function RestaurantAnalyticsPage() {
       const { count: listings } = await supabase
         .from('restaurants').select('*', { count: 'exact', head: true }).eq('business_id', business.id)
 
-      setMetrics(prev => ({ ...prev, listings: listings ?? 0 }))
+      const { data: branches } = await supabase
+        .from('branches')
+        .select('id')
+        .eq('business_id', business.id)
+
+      const branchIds = branches ?? []
+      let bookings = 0
+      let guests = 0
+      if (branchIds.length) {
+        const { data: rows } = await supabase
+          .from('reservations')
+          .select('guest_count')
+          .in('branch_id', branchIds.map((b: any) => b.id))
+        bookings = rows?.length ?? 0
+        guests = (rows ?? []).reduce((sum: number, r: any) => sum + (Number(r.guest_count) || 0), 0)
+      }
+
+      setMetrics({ listings: listings ?? 0, bookings, guests, views: 0 })
     }
     load()
   }, [])
@@ -35,8 +52,8 @@ export default function RestaurantAnalyticsPage() {
       <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <MetricCard title="Listings" value={metrics.listings} icon={<Store className="size-5" />} />
         <MetricCard title="Bookings" value={metrics.bookings} icon={<CalendarDays className="size-5" />} />
-        <MetricCard title="Revenue" value={`$${metrics.revenue}`} icon={<DollarSign className="size-5" />} />
-        <MetricCard title="Profile Views" value={metrics.views} icon={<Users className="size-5" />} />
+        <MetricCard title="Guests" value={metrics.guests} icon={<Users className="size-5" />} />
+        <MetricCard title="Profile Views" value={metrics.views} icon={<DollarSign className="size-5" />} />
       </div>
     </div>
   )

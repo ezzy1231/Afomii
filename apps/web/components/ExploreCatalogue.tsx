@@ -149,9 +149,15 @@ export default function ExploreCatalogue({
                 </div>
 
                 <div className="flex gap-3">
-                  <button type="button" onClick={() => action(item)} className="flex-1 rounded-xl bg-[#d7b778] px-4 py-2.5 text-sm font-semibold text-[#06182d]">
-                    {type === 'restaurants' ? 'Reserve' : 'Book now'}
-                  </button>
+                  {type === 'restaurants' ? (
+                    <Link href={detailHref} className="flex-1 rounded-xl bg-[#d7b778] px-4 py-2.5 text-center text-sm font-semibold text-[#06182d]">
+                      Reserve
+                    </Link>
+                  ) : (
+                    <button type="button" onClick={() => action(item)} className="flex-1 rounded-xl bg-[#d7b778] px-4 py-2.5 text-sm font-semibold text-[#06182d]">
+                      Book now
+                    </button>
+                  )}
                   <Link href={detailHref} className="flex items-center justify-center rounded-xl border border-[#d7b778]/25 bg-transparent px-4 py-2.5 text-sm font-semibold text-[#f5efe9]">
                     View
                   </Link>

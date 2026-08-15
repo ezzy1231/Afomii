@@ -81,27 +81,55 @@ export function ReservationCalendarGrid({ reservations, onUpdateStatus }: Props)
                   </div>
 
                   {selected === booking.id && (
-                    <div className="flex gap-2">
-                      <Button
-                        variant="primary"
-                        size="sm"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onUpdateStatus(booking.id, "CONFIRMED");
-                        }}
-                      >
-                        Accept
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onUpdateStatus(booking.id, "REJECTED");
-                        }}
-                      >
-                        Decline
-                      </Button>
+                    <div className="flex flex-wrap gap-2">
+                      {booking.status === "pending" && (
+                        <>
+                          <Button
+                            variant="primary"
+                            size="sm"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              onUpdateStatus(booking.id, "confirmed");
+                            }}
+                          >
+                            Confirm
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              onUpdateStatus(booking.id, "rejected");
+                            }}
+                          >
+                            Reject
+                          </Button>
+                        </>
+                      )}
+                      {booking.status === "confirmed" && (
+                        <Button
+                          variant="primary"
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onUpdateStatus(booking.id, "completed");
+                          }}
+                        >
+                          Complete
+                        </Button>
+                      )}
+                      {(booking.status === "pending" || booking.status === "confirmed") && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onUpdateStatus(booking.id, "cancelled");
+                          }}
+                        >
+                          Cancel
+                        </Button>
+                      )}
                     </div>
                   )}
                 </div>

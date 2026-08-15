@@ -3,38 +3,8 @@
 import { useState } from 'react'
 import { ArrowLeft, Check, Clock3, MapPin, Phone, ShieldCheck, Star, Utensils, Wallet } from 'lucide-react'
 import Link from 'next/link'
-
-type Branch = {
-  id: string
-  branchName: string
-  address: string
-  latitude: number | null
-  longitude: number | null
-  phone: string | null
-  bookingConfig: {
-    bookingMode: string
-    totalTables: number
-    maxGuestPerTable: number
-  } | null
-  menuItems: {
-    id: string
-    name: string
-    price: number
-    category: string
-    isAvailable: boolean
-  }[]
-}
-
-type Restaurant = {
-  id: string
-  name: string
-  category: string
-  logoUrl: string | null
-  coverUrl: string | null
-  isVerified: boolean
-  openingHours: Record<string, { open: string; close: string }[]> | null
-  branches: Branch[]
-}
+import { ReservationForm } from '@/components/reservation-form'
+import type { RestaurantDetail as Restaurant, DetailBranch as Branch } from '@/lib/supabase/queries'
 
 export default function RestaurantDetail({ restaurant }: { restaurant: Restaurant }) {
   const [selectedBranch, setSelectedBranch] = useState(restaurant.branches[0]?.id ?? null)
@@ -120,12 +90,23 @@ export default function RestaurantDetail({ restaurant }: { restaurant: Restauran
                   { label: 'Reserve', icon: Clock3 },
                   { label: 'Follow', icon: Star },
                   { label: 'Save', icon: Wallet },
-                ].map(({ label, icon: Icon }) => (
-                  <button key={label} type="button" className="rounded-2xl border border-[#d7b778]/20 bg-[#0d1d2f] p-3 text-center text-sm text-[#f2ece2]">
-                    <div className="mb-2 flex justify-center"><Icon className="size-5 text-[#d7b778]" /></div>
-                    {label}
-                  </button>
-                ))}
+                ].map(({ label, icon: Icon }) =>
+                  label === 'Reserve' ? (
+                    <Link
+                      key={label}
+                      href="#reserve"
+                      className="rounded-2xl border border-[#d7b778]/20 bg-[#0d1d2f] p-3 text-center text-sm text-[#f2ece2]"
+                    >
+                      <div className="mb-2 flex justify-center"><Icon className="size-5 text-[#d7b778]" /></div>
+                      {label}
+                    </Link>
+                  ) : (
+                    <button key={label} type="button" className="rounded-2xl border border-[#d7b778]/20 bg-[#0d1d2f] p-3 text-center text-sm text-[#f2ece2]">
+                      <div className="mb-2 flex justify-center"><Icon className="size-5 text-[#d7b778]" /></div>
+                      {label}
+                    </button>
+                  )
+                )}
               </div>
 
               <div className="rounded-[22px] border border-[#d7b778]/20 bg-[#0d1d2f] p-4">
@@ -146,10 +127,10 @@ export default function RestaurantDetail({ restaurant }: { restaurant: Restauran
                 Map preview
               </div>
               <div className="mt-4 text-sm text-[#d5cbbd]">Bole, Addis Ababa</div>
-              <div className="mt-4 grid gap-2 sm:grid-cols-2">
-                <button type="button" className="rounded-xl border border-[#d7b778]/20 bg-[#0c1d30] px-3 py-2 text-sm text-[#f5ece3]">Reserve</button>
-                <button type="button" className="rounded-xl bg-[#d7b778] px-3 py-2 text-sm font-semibold text-[#06182d]">Book a Ride</button>
-              </div>
+            </div>
+
+            <div id="reserve" className="mt-4 scroll-mt-24">
+              <ReservationForm restaurant={restaurant} branch={branch} key={branch.id} />
             </div>
           </div>
 

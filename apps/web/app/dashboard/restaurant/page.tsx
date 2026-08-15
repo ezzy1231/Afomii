@@ -27,6 +27,28 @@ export default async function RestaurantDashboardPage() {
         .limit(24)
     : { data: [] }
 
+  const { data: branches } = business
+    ? await supabase.from('branches').select('id').eq('business_id', business.id)
+    : { data: [] }
+  const branchIds = (branches ?? []).map((b) => b.id)
+
+  let upcomingBookings = 0
+  let totalGuests = 0
+  if (branchIds.length) {
+    const { data: resRows } = await supabase
+      .from('reservations')
+      .select('reservation_date, status, guest_count')
+      .in('branch_id', branchIds)
+      .limit(2000)
+    const today = new Date().toISOString().slice(0, 10)
+    for (const r of resRows ?? []) {
+      if ((r.status === 'confirmed' || r.status === 'pending') && r.reservation_date >= today) {
+        upcomingBookings += 1
+      }
+      totalGuests += Number(r.guest_count) || 0
+    }
+  }
+
   return (
     <div className="mx-auto w-full max-w-6xl px-4 pb-24 pt-8 sm:px-6 lg:px-8">
       <p className="text-xs font-bold uppercase tracking-[0.15em] text-gold">Partner portal</p>
@@ -44,8 +66,8 @@ export default async function RestaurantDashboardPage() {
 
       <div className="mt-8 grid gap-4 sm:grid-cols-3">
         <Metric icon={Store} label="Published restaurants" value={String(listings?.length ?? 0)} />
-        <Metric icon={CalendarDays} label="Upcoming bookings" value="0" />
-        <Metric icon={CircleDollarSign} label="This month" value="$0" />
+        <Metric icon={CalendarDays} label="Upcoming bookings" value={String(upcomingBookings)} />
+        <Metric icon={CircleDollarSign} label="Total guests served" value={String(totalGuests)} />
       </div>
 
       {!business && (

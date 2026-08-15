@@ -41,6 +41,12 @@ export function StatusBadge({ status }: { status: string }) {
     REJECTED: "danger",
     DRAFT: "outline",
     PUBLISHED: "success",
+    confirmed: "success",
+    completed: "success",
+    pending: "warning",
+    cancelled: "danger",
+    rejected: "danger",
+    published: "success",
   };
 
   return (
