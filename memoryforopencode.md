@@ -175,10 +175,28 @@ Protects `/dashboard/*` and `/settings/*`:
 
 ## Known Limitations / Next Steps
 
-1. **Database not connected** — `.env` has `localhost` PostgreSQL URL; needs Supabase PostgreSQL connection string for Prisma `db push`
-2. **Server Actions** — `dashboard/actions.ts` and `auth/callback/route.ts` write directly to Supabase tables; should be migrated to NestJS API
-3. **Middleware role check** — Uses Supabase `profiles` table; Prisma uses `User` model
-4. **Supabase JWT Secret** — `SUPABASE_JWT_SECRET` in `.env` needs to be filled
-5. **Redis** — Needs a running Redis instance (or local `redis-server`)
-6. **No tests** — Backend has jest setup but no tests written
-7. **No seed data** — `prisma/seed.ts` not created
+### Progress log (updated 2026-08-24)
+
+**Committed:**
+- Phase 1 (Supabase foundation) + Phase 5 (restaurant ops) — earlier commits
+- Phase 6 ticketing: `app/events/actions.ts` purchase flow (hold_ticket RPC), consumer tickets in settings, organizer publish toggle + real metrics
+- UI redesign per `stitch_responsive_page_design/` + `UI_PLAN.md`: light-first theme (dark via toggle), navy navbar/footer, rebuilt home/restaurants/events/details/ride, token layer with RGB vars in globals.css
+- Auth Slice 3: CategoryPicker radio screens (business 13 / organizer 11 categories), full dietary (16) + allergy (11) checklists, EC/GC birth calendar, country field
+- Real Addis Ababa seed: `packages/supabase/seed-places.sql` (12 venues, run in Supabase SQL editor — NOT yet run), photos in `apps/web/public/places/`
+- `/vision` mockup gallery page
+
+**Known issues / TODO next session:**
+1. Run `packages/supabase/seed-places.sql` in Supabase SQL editor to see real restaurants
+2. Slice 5: organizer public profile page `/organizers/[id]` (AJE-style) — not built
+3. Ticket tier CRUD (`/dashboard/organizer/tickets`) still saves to local state only — needs server actions persisting to `ticket_types`
+4. `release_expired_holds()` has no scheduler (needs pg_cron migration)
+5. Hold-release bug fixed? NO — `events/actions.ts` still deletes hold row even if purchase insert fails (inventory leak on failure path)
+6. Google Maps API key in `.env.local` is referrer-restricted; server-side Places fetch needs a separate key (`scripts/fetch-places.mjs` ready)
+7. Final QA pass: touch targets, reduced-motion, 320px sweep, Lighthouse
+
+### Original limitations (pre-redesign, still partially relevant)
+
+1. ~~Database not connected~~ — Supabase is wired for catalogue/auth/reservations/tickets
+2. Server Actions write directly to Supabase (accepted architecture per IMPLEMENTATION_PLAN.md)
+3. ~~No seed data~~ — seed-places.sql ready (run manually)
+4. Redis/NestJS retained for future trusted ops only
