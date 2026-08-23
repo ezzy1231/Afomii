@@ -101,7 +101,7 @@ export default function MenuPage() {
                     <button
                       onClick={() => toggleAvailability(item.id, item.isAvailable)}
                       className={`rounded-full px-3 py-1 text-xs font-semibold ${
-                        item.isAvailable ? 'bg-emerald-100 text-emerald-700' : 'bg-stone-200 text-stone-500'
+                        item.isAvailable ? 'bg-success/15 text-success' : 'bg-app-input text-app-muted'
                       }`}
                     >
                       {item.isAvailable ? 'Available' : 'Hidden'}

@@ -3,13 +3,22 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
+import { CategoryPicker, type CategoryOption } from '@/components/auth/CategoryPicker'
 
 const STEPS = 4
 
-const CATEGORIES = [
-  'Music & Concerts', 'Arts & Theater', 'Sports & Fitness',
-  'Food & Drink', 'Business & Networking', 'Community & Culture',
-  'Comedy & Entertainment', 'Other',
+const CATEGORIES: CategoryOption[] = [
+  { label: 'Event Organizer', icon: '🎪' },
+  { label: 'Nightclub / Club', icon: '🪩' },
+  { label: 'Concert Organizer', icon: '🎤' },
+  { label: 'Festival Organizer', icon: '🎡' },
+  { label: 'Show Organizer', icon: '🎭' },
+  { label: 'Conference Organizer', icon: '🎙️' },
+  { label: 'Event Venue', icon: '🏟️' },
+  { label: 'Theater / Performing Arts', icon: '🎬' },
+  { label: 'Wedding Planner', icon: '💐' },
+  { label: 'Sports & Fitness', icon: '🏆' },
+  { label: 'Other', icon: '✨' },
 ]
 
 interface FormData {
@@ -96,7 +105,7 @@ export default function OrganizerSignupPage() {
 
   const [form, setForm] = useState<FormData>({
     contactName: '', email: '', password: '', confirmPassword: '',
-    orgName: '', category: 'Music & Concerts', description: '',
+    orgName: '', category: 'Event Organizer', description: '',
     address: '', city: '', country: '', phone: '', website: '',
     plan: 'free',
   })
@@ -199,7 +208,7 @@ export default function OrganizerSignupPage() {
         <StepIndicator current={step} />
 
         {error && (
-          <div className="mb-5 rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3">{error}</div>
+          <div className="mb-5 rounded-lg bg-danger/10 border border-danger/30 text-danger text-sm px-4 py-3">{error}</div>
         )}
 
         {step === 1 && (
@@ -223,9 +232,7 @@ export default function OrganizerSignupPage() {
             <div className="space-y-4">
               <Field label="Organisation name"><input type="text" value={form.orgName} onChange={(e) => set('orgName', e.target.value)} placeholder="City Arts Collective" className={inputCls} /></Field>
               <Field label="Category">
-                <select value={form.category} onChange={(e) => set('category', e.target.value)} className={inputCls}>
-                  {CATEGORIES.map((c) => <option key={c}>{c}</option>)}
-                </select>
+                <CategoryPicker options={CATEGORIES} value={form.category} onChange={(v) => set('category', v)} />
               </Field>
               <Field label="Short description" optional>
                 <textarea value={form.description} onChange={(e) => set('description', e.target.value)} placeholder="We bring world-class artists to local venues…" rows={3} className={`${inputCls} resize-none`} />

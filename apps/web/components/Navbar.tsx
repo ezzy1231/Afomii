@@ -1,7 +1,8 @@
 import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
-import { Compass, MapPinned, CalendarDays, CarFront, Settings } from 'lucide-react'
+import { Bell } from 'lucide-react'
 import MobileNavigation from './MobileNavigation'
+import NavLinks from './NavLinks'
 import ThemeToggle from './ThemeToggle'
 
 async function getUser() {
@@ -18,68 +19,56 @@ async function getUser() {
 
 export default async function Navbar() {
   const user = await getUser()
+  const initial =
+    (user?.user_metadata?.full_name as string)?.[0]?.toUpperCase() ??
+    user?.email?.[0]?.toUpperCase() ??
+    null
 
   return (
     <>
-      <header className="fixed top-4 left-1/2 -translate-x-1/2 z-50 w-[calc(100%-2rem)] max-w-7xl rounded-2xl bg-[var(--nav-bg)] border border-[var(--border)] shadow-soft nav-blur">
-        <div className="flex h-14 items-center justify-between px-4 sm:px-6">
-          <Link href="/" className="flex items-center gap-2 font-serif text-lg font-bold text-app-fg transition-opacity hover:opacity-80 active:scale-95">
-            <span className="flex size-8 items-center justify-center rounded-lg bg-navy text-ivory shadow-sm">
-              <Compass className="size-4" />
-            </span>
+      <header className="sticky top-0 z-50 bg-navy text-ivory shadow-md">
+        <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+          <Link
+            href="/"
+            className="font-serif text-xl font-bold tracking-tight transition-opacity hover:opacity-85"
+          >
             UrbanExplore
           </Link>
 
-          <nav className="hidden items-center gap-1 md:flex">
-            <Link href="/restaurants" className="flex items-center gap-2 rounded-full px-3 py-1.5 text-sm font-medium text-app-muted transition-colors hover:bg-[var(--bg-hover)] hover:text-app-fg">
-              <MapPinned className="size-4" />
-              Restaurants
-            </Link>
-            <Link href="/events" className="flex items-center gap-2 rounded-full px-3 py-1.5 text-sm font-medium text-app-muted transition-colors hover:bg-[var(--bg-hover)] hover:text-app-fg">
-              <CalendarDays className="size-4" />
-              Events
-            </Link>
-            <Link href="/ride" className="flex items-center gap-2 rounded-full px-3 py-1.5 text-sm font-medium text-app-muted transition-colors hover:bg-[var(--bg-hover)] hover:text-app-fg">
-              <CarFront className="size-4" />
-              Ride
-            </Link>
-          </nav>
+          <div className="absolute left-1/2 hidden -translate-x-1/2 md:block">
+            <NavLinks />
+          </div>
 
-          <div className="flex items-center gap-2">
-            <ThemeToggle />
+          <div className="flex items-center gap-1.5">
+            <button
+              type="button"
+              aria-label="Notifications"
+              className="flex size-9 items-center justify-center rounded-full text-ivory/70 transition-colors hover:bg-white/10 hover:text-ivory"
+            >
+              <Bell className="size-4" />
+            </button>
+            <span className="text-ivory/30">
+              <ThemeToggle />
+            </span>
             {user ? (
               <Link
                 href="/settings"
-                className="flex items-center gap-2 rounded-full py-1 pl-1 pr-3 text-sm font-medium text-app-muted transition-colors hover:bg-[var(--bg-hover)] hover:text-app-fg"
+                className="ml-1 flex size-8 items-center justify-center rounded-full bg-gold text-xs font-bold text-navy transition-transform hover:scale-105"
+                aria-label="Your account"
               >
-                <span className="flex size-7 items-center justify-center rounded-full bg-navy text-ivory text-xs font-bold shadow-sm">
-                  {(user.user_metadata?.full_name as string)?.[0]?.toUpperCase() ?? user.email?.[0]?.toUpperCase() ?? 'U'}
-                </span>
-                <span className="hidden sm:inline text-xs">
-                  {(user.user_metadata?.full_name as string)?.split(' ')[0] ?? 'Account'}
-                </span>
-                <Settings className="hidden size-3.5 sm:block" />
+                {initial ?? 'U'}
               </Link>
             ) : (
-              <>
-                <Link
-                  href="/auth/signin"
-                  className="hidden text-sm font-medium text-app-muted transition-colors hover:text-app-fg sm:block"
-                >
-                  Sign in
-                </Link>
-                <Link
-                  href="/auth/role"
-                  className="btn-primary !py-1.5 !px-4 text-xs"
-                >
-                  Get started
-                </Link>
-              </>
+              <Link
+                href="/auth/signin"
+                className="ml-1 rounded-md bg-gold px-4 py-1.5 text-sm font-semibold text-navy transition-transform active:scale-[0.98]"
+              >
+                Sign in
+              </Link>
             )}
           </div>
         </div>
       </header>
-      <div className="h-16" />
       <MobileNavigation isAuthenticated={Boolean(user)} />
     </>
   )

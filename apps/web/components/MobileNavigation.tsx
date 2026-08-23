@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { CalendarDays, CarFront, Home, MapPinned, UserRound } from 'lucide-react'
+import { cn } from '@/lib/utils'
 
 const items = [
   { href: '/', label: 'Home', icon: Home },
@@ -14,32 +15,54 @@ const items = [
 export default function MobileNavigation({ isAuthenticated }: { isAuthenticated: boolean }) {
   const pathname = usePathname()
   const accountHref = isAuthenticated ? '/settings' : '/auth/signin'
+  const accountActive = pathname.startsWith('/settings') || pathname.startsWith('/auth')
+
+  function isActive(href: string) {
+    return href === '/' ? pathname === '/' : pathname.startsWith(href)
+  }
 
   return (
-    <nav className="fixed inset-x-0 bottom-4 z-50 mx-auto flex max-w-md items-center justify-around rounded-2xl border border-[var(--border)] bg-[var(--nav-bg)] px-2 py-1.5 nav-blur shadow-soft md:hidden">
+    <nav
+      className="fixed inset-x-3 bottom-[calc(0.75rem+env(safe-area-inset-bottom))] z-50 mx-auto flex max-w-md items-center justify-around rounded-3xl border border-app-border bg-app-panel/95 px-2 py-1.5 nav-blur shadow-[var(--shadow-lg)] md:hidden"
+      aria-label="Primary"
+    >
       {items.map(({ href, label, icon: Icon }) => {
-        const active = href === '/' ? pathname === '/' : pathname.startsWith(href)
+        const active = isActive(href)
         return (
           <Link
             key={href}
             href={href}
-            className="flex min-h-12 min-w-14 flex-col items-center justify-center gap-0.5 rounded-xl px-3 py-1 text-[10px] font-medium transition-all active:scale-90"
+            aria-current={active ? 'page' : undefined}
+            className={cn(
+              'flex min-h-12 min-w-14 flex-col items-center justify-center gap-0.5 rounded-2xl px-3 py-1 text-[10px] font-medium transition-all active:scale-90',
+              active && 'bg-gold/10'
+            )}
           >
-            <span className={`flex size-7 items-center justify-center rounded-lg transition-colors ${active ? 'text-gold' : 'text-app-muted'}`}>
-              <Icon className="size-[18px]" strokeWidth={active ? 2.5 : 1.8} />
+            <Icon
+              className={cn('size-[18px]', active ? 'text-gold-soft' : 'text-app-muted')}
+              strokeWidth={active ? 2.4 : 1.8}
+            />
+            <span className={cn(active ? 'font-semibold text-gold-soft' : 'text-app-muted')}>
+              {label}
             </span>
-            <span className={active ? 'text-gold font-semibold' : 'text-app-muted'}>{label}</span>
           </Link>
         )
       })}
       <Link
         href={accountHref}
-        className="flex min-h-12 min-w-14 flex-col items-center justify-center gap-0.5 rounded-xl px-3 py-1 text-[10px] font-medium transition-all active:scale-90"
+        aria-current={accountActive ? 'page' : undefined}
+        className={cn(
+          'flex min-h-12 min-w-14 flex-col items-center justify-center gap-0.5 rounded-2xl px-3 py-1 text-[10px] font-medium transition-all active:scale-90',
+          accountActive && 'bg-gold/10'
+        )}
       >
-        <span className={`flex size-7 items-center justify-center rounded-lg transition-colors ${pathname.startsWith('/settings') || pathname.startsWith('/auth') ? 'text-gold' : 'text-app-muted'}`}>
-          <UserRound className="size-[18px]" />
+        <UserRound
+          className={cn('size-[18px]', accountActive ? 'text-gold-soft' : 'text-app-muted')}
+          strokeWidth={accountActive ? 2.4 : 1.8}
+        />
+        <span className={cn(accountActive ? 'font-semibold text-gold-soft' : 'text-app-muted')}>
+          Account
         </span>
-        <span className={pathname.startsWith('/settings') || pathname.startsWith('/auth') ? 'text-gold font-semibold' : 'text-app-muted'}>Account</span>
       </Link>
     </nav>
   )

@@ -64,9 +64,9 @@ export default function CalendarPage() {
                       <p className="text-xs text-app-muted">{new Date(e.starts_at).toLocaleTimeString()}</p>
                     </div>
                     <span className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase ${
-                      e.status === 'PUBLISHED' ? 'bg-emerald-100 text-emerald-700' :
-                      e.status === 'DRAFT' ? 'bg-stone-200 text-stone-500' :
-                      'bg-blue-100 text-blue-700'
+                      e.status === 'PUBLISHED' ? 'bg-success/15 text-success' :
+                      e.status === 'DRAFT' ? 'bg-app-input text-app-muted' :
+                      'bg-gold/15 text-gold-soft'
                     }`}>
                       {e.status}
                     </span>

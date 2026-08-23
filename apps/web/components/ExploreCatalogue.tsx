@@ -1,180 +1,594 @@
 'use client'
 
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import Link from 'next/link'
-import { CalendarDays, CheckCircle2, Clock3, Heart, MapPin, Search, SearchX, SlidersHorizontal, Sparkles, Star, Ticket } from 'lucide-react'
+import Image from 'next/image'
+import {
+  ArrowRight,
+  Baby,
+  CalendarDays,
+  Coins,
+  Globe2,
+  Heart,
+  Music2,
+  PartyPopper,
+  Search,
+  SearchX,
+  SlidersHorizontal,
+  Star,
+  Ticket,
+  Utensils,
+  Wine,
+} from 'lucide-react'
 import type { CatalogueItem } from '@/lib/catalogue'
+import { CategoryChips, EmptyState, FilterSheet } from '@/components/patterns'
+import { cn } from '@/lib/utils'
 
-const filterChips = {
-  restaurants: ['All', 'Italian', 'Bar', 'Café', 'Seafood', 'Brunch'],
-  events: ['All', 'Music', 'Sports', 'Food & Drink', 'More'],
+const quickChips = {
+  restaurants: ['All', 'Ethiopian', 'Italian', 'Japanese', 'International', 'European', 'Café'],
+  events: ['All', 'Music', 'Food & Drink', 'Networking', 'Theatre'],
 } as const
+
+const dateChips = ['All Dates', 'This Weekend', 'Next Week'] as const
+
+const filterGroups = {
+  restaurants: [
+    {
+      key: 'cuisine',
+      title: 'Cuisine',
+      options: [
+        { label: 'Ethiopian', icon: <Utensils className="size-4" /> },
+        { label: 'Italian', icon: <Utensils className="size-4" /> },
+        { label: 'Japanese', icon: <Utensils className="size-4" /> },
+        { label: 'International', icon: <Utensils className="size-4" /> },
+        { label: 'European', icon: <Utensils className="size-4" /> },
+        { label: 'Middle Eastern', icon: <Utensils className="size-4" /> },
+      ],
+    },
+    {
+      key: 'vibe',
+      title: 'Vibe',
+      options: [
+        { label: 'Live music', icon: <Music2 className="size-4" /> },
+        { label: 'Rooftop', icon: <Star className="size-4" /> },
+        { label: 'Outdoor seating', icon: <Star className="size-4" /> },
+        { label: 'Fine dining', icon: <Star className="size-4" /> },
+      ],
+    },
+    {
+      key: 'budget',
+      title: 'Budget',
+      options: [
+        { label: 'Student friendly', icon: <Coins className="size-4" /> },
+        { label: 'Budget friendly', icon: <Coins className="size-4" /> },
+        { label: 'Fine dining', icon: <Coins className="size-4" /> },
+      ],
+    },
+  ],
+  events: [
+    {
+      key: 'type',
+      title: 'Event type',
+      options: [
+        { label: 'Concerts', icon: <Music2 className="size-4" /> },
+        { label: 'Brunch', icon: <Utensils className="size-4" /> },
+        { label: 'Parties', icon: <PartyPopper className="size-4" /> },
+        { label: 'Networking', icon: <Globe2 className="size-4" /> },
+        { label: 'Theatre', icon: <Ticket className="size-4" /> },
+        { label: 'Food & Drink', icon: <Wine className="size-4" /> },
+      ],
+    },
+    {
+      key: 'audience',
+      title: 'Audience',
+      options: [
+        { label: 'Kids friendly', icon: <Baby className="size-4" /> },
+        { label: 'Family events', icon: <Baby className="size-4" /> },
+        { label: 'Tourists', icon: <Globe2 className="size-4" /> },
+        { label: 'Must visit', icon: <Star className="size-4" /> },
+      ],
+    },
+    {
+      key: 'budget',
+      title: 'Budget',
+      options: [
+        { label: 'Free', icon: <Coins className="size-4" /> },
+        { label: 'Budget friendly', icon: <Coins className="size-4" /> },
+        { label: 'Premium', icon: <Coins className="size-4" /> },
+      ],
+    },
+  ],
+} as const
+
+function matchesFilters(item: CatalogueItem, selected: Record<string, string[]>) {
+  const haystack = `${item.name} ${item.category} ${item.location} ${item.detail}`.toLowerCase()
+  const active = Object.values(selected).flat()
+  if (!active.length) return true
+  return active.some((label) => {
+    const words = label.toLowerCase().split(/\s+/)
+    return words.some((word) => haystack.includes(word))
+  })
+}
+
+function matchesDateRange(item: CatalogueItem, range: (typeof dateChips)[number]) {
+  if (range === 'All Dates' || !item.startsAt) return true
+  const date = new Date(item.startsAt)
+  if (Number.isNaN(date.getTime())) return true
+  const now = new Date()
+  const start = new Date(now)
+  start.setDate(now.getDate() + (range === 'This Weekend' ? 0 : 7))
+  start.setHours(0, 0, 0, 0)
+  const end = new Date(start)
+  end.setDate(start.getDate() + (range === 'This Weekend' ? 7 : 7))
+  return date >= start && date <= end
+}
+
+function eventParts(item: CatalogueItem) {
+  const match = item.detail.match(/,\s*(\w{3})\s+(\d{1,2})/)
+  return {
+    month: match ? match[1].toUpperCase() : 'SOON',
+    day: match ? match[2] : '·',
+  }
+}
+
+const PAGE_SIZE = 6
 
 export default function ExploreCatalogue({
   type,
   items,
   source,
+  initialQuery = '',
 }: {
   type: 'restaurants' | 'events'
   items: CatalogueItem[]
   source: 'live' | 'sample'
+  initialQuery?: string
 }) {
-  const [query, setQuery] = useState('')
+  const [query, setQuery] = useState(initialQuery)
   const [saved, setSaved] = useState<string[]>([])
   const [activeFilter, setActiveFilter] = useState('All')
-  const [notice, setNotice] = useState('')
+  const [filtersOpen, setFiltersOpen] = useState(false)
+  const [selected, setSelected] = useState<Record<string, string[]>>({})
+  const [dateRange, setDateRange] = useState<(typeof dateChips)[number]>('All Dates')
+  const [sortDesc, setSortDesc] = useState(false)
+  const [visible, setVisible] = useState(PAGE_SIZE)
 
-  const visibleItems = items.filter((item) => {
-    const text = `${item.name} ${item.category} ${item.location}`.toLowerCase()
-    const queryMatch = text.includes(query.toLowerCase())
-    const filterMatch = activeFilter === 'All' || item.category.toLowerCase().includes(activeFilter.toLowerCase()) || item.name.toLowerCase().includes(activeFilter.toLowerCase())
-    return queryMatch && filterMatch
-  })
+  const visibleItems = useMemo(() => {
+    const filtered = items.filter((item) => {
+      const text = `${item.name} ${item.category} ${item.location}`.toLowerCase()
+      const queryMatch = text.includes(query.toLowerCase())
+      const chipMatch =
+        activeFilter === 'All' ||
+        item.category.toLowerCase().includes(activeFilter.toLowerCase()) ||
+        item.name.toLowerCase().includes(activeFilter.toLowerCase())
+      return (
+        queryMatch &&
+        chipMatch &&
+        matchesFilters(item, selected) &&
+        (type === 'restaurants' || matchesDateRange(item, dateRange))
+      )
+    })
+    if (type === 'restaurants') {
+      return [...filtered].sort((a, b) => {
+        const ra = Number(a.rating) || 0
+        const rb = Number(b.rating) || 0
+        return sortDesc ? rb - ra : ra - rb
+      })
+    }
+    return filtered
+  }, [items, query, activeFilter, selected, dateRange, sortDesc, type])
 
-  const icon = type === 'restaurants' ? <Clock3 className="size-4" /> : <CalendarDays className="size-4" />
+  const featured = visibleItems[0]
+  const rest = visibleItems.slice(1, visible + 1)
+  const hasMore = visibleItems.length > visible + 1
 
-  function action(item: CatalogueItem) {
-    setNotice(type === 'restaurants' ? `Reservation started for ${item.name}.` : `Tickets selected for ${item.name}.`)
+  function toggleFilter(groupKey: string, label: string) {
+    setSelected((current) => {
+      const group = current[groupKey] ?? []
+      const next = group.includes(label)
+        ? group.filter((v) => v !== label)
+        : [...group, label]
+      return { ...current, [groupKey]: next }
+    })
   }
 
+  const activeCount = Object.values(selected).flat().length
+
   return (
-    <section className="mx-auto max-w-7xl px-4 pb-28 pt-8 sm:px-6 lg:px-8">
-      <div className="mb-8 rounded-[28px] border border-[#d7b778]/30 bg-[#071a2e] p-5 shadow-[0_20px_60px_rgba(0,0,0,0.28)] sm:p-7">
-        <div className="mb-5 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.25em] text-[#d7b778]">{type === 'restaurants' ? 'Discover' : 'Explore events'}</p>
-            <h1 className="font-serif text-3xl font-bold text-[#f7f0e4] sm:text-5xl">
-              {type === 'restaurants' ? 'Good food, nearby.' : 'Something good is happening.'}
+    <section className="pb-24">
+      {type === 'restaurants' ? (
+        /* Navy hero band */
+        <div className="bg-navy">
+          <div className="mx-auto max-w-7xl px-4 py-14 text-center sm:px-6 lg:px-8">
+            <h1 className="mx-auto max-w-2xl font-serif text-3xl font-bold text-white sm:text-5xl">
+              Find your next culinary experience
             </h1>
+            <form
+              action="/restaurants"
+              className="mx-auto mt-7 flex max-w-2xl items-center gap-2 rounded-lg bg-app-card p-2 shadow-[var(--shadow-lg)]"
+            >
+              <Search className="ml-2 size-4 shrink-0 text-app-muted" />
+              <input
+                name="q"
+                defaultValue={query}
+                className="min-w-0 flex-1 bg-transparent py-2 text-sm text-app-fg outline-none placeholder:text-app-muted"
+                placeholder="Search by restaurant, cuisine, or location"
+                aria-label="Search restaurants"
+              />
+              <button
+                type="submit"
+                className="rounded-md bg-navy px-6 py-2.5 text-sm font-semibold text-ivory"
+              >
+                Search
+              </button>
+            </form>
           </div>
-          <button type="button" className="inline-flex items-center gap-2 self-start rounded-full border border-[#d7b778]/30 bg-[#d7b778]/10 px-3 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-[#f3dfaf]">
-            <SlidersHorizontal className="size-4" />
+        </div>
+      ) : (
+        /* Events header */
+        <div className="mx-auto max-w-7xl px-4 pt-10 sm:px-6 lg:px-8">
+          <h1 className="font-serif text-4xl font-bold sm:text-5xl">Exclusive Events</h1>
+          <p className="mt-3 max-w-xl text-base text-app-muted">
+            Discover and book premium experiences, from intimate jazz nights to grand
+            galas. Arrive in style with UrbanExplore.
+          </p>
+
+          <div className="mt-6 flex flex-col gap-3 rounded-lg border border-app-border bg-app-card p-3 shadow-[var(--shadow-sm)] sm:flex-row sm:items-center">
+            <div className="flex min-w-0 flex-1 items-center gap-2.5 px-2">
+              <Search className="size-4 shrink-0 text-app-muted" />
+              <input
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                className="min-w-0 flex-1 bg-transparent py-2 text-sm text-app-fg outline-none placeholder:text-app-muted"
+                placeholder="Search events..."
+                aria-label="Search events"
+              />
+            </div>
+            <div className="flex shrink-0 gap-2">
+              {dateChips.map((chip) => (
+                <button
+                  key={chip}
+                  type="button"
+                  onClick={() => setDateRange(chip)}
+                  className={cn(
+                    'rounded-md px-3.5 py-2 text-xs font-semibold transition-colors',
+                    dateRange === chip
+                      ? 'bg-navy text-ivory'
+                      : 'border border-app-border text-app-muted hover:text-app-fg'
+                  )}
+                >
+                  {chip}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        {/* Chips + sort row */}
+        <div
+          className={cn(
+            'flex flex-wrap items-center gap-2',
+            type === 'restaurants' ? 'mt-6' : 'mt-5'
+          )}
+        >
+          <CategoryChips
+            items={quickChips[type].map((label) => ({ label }))}
+            active={activeFilter}
+            onSelect={(label) => {
+              setActiveFilter(label)
+              setVisible(PAGE_SIZE)
+            }}
+            className="flex-1"
+          />
+          {type === 'restaurants' && (
+            <button
+              type="button"
+              onClick={() => setSortDesc((v) => !v)}
+              className="inline-flex shrink-0 items-center gap-1.5 rounded-md border border-app-border px-3.5 py-2 text-xs font-semibold text-app-muted transition-colors hover:text-app-fg"
+            >
+              {sortDesc ? 'Rating ↓' : 'Rating ↑'}
+            </button>
+          )}
+          <button
+            type="button"
+            onClick={() => setFiltersOpen((v) => !v)}
+            className={cn(
+              'relative inline-flex shrink-0 items-center gap-1.5 rounded-md border px-3.5 py-2 text-xs font-semibold transition-colors',
+              filtersOpen || activeCount
+                ? 'border-gold/60 bg-gold/10 text-gold-soft'
+                : 'border-app-border text-app-muted hover:text-app-fg'
+            )}
+            aria-label="Filters"
+          >
+            <SlidersHorizontal className="size-3.5" />
             Filters
+            {activeCount > 0 && (
+              <span className="flex size-4 items-center justify-center rounded-full bg-gold text-[9px] font-bold text-navy">
+                {activeCount}
+              </span>
+            )}
           </button>
         </div>
 
-        <div className="mb-5 flex items-center gap-3 rounded-2xl border border-[#d7b778]/20 bg-[#0d1d2f] px-3 py-3">
-          <Search className="ml-1 size-4 shrink-0 text-[#d7b778]" />
-          <input
-            value={query}
-            onChange={(event) => setQuery(event.target.value)}
-            className="min-w-0 flex-1 bg-transparent text-sm text-[#f5efe9] outline-none placeholder:text-[#b9b0a1]"
-            placeholder={type === 'restaurants' ? 'Search cuisines, restaurants, or areas…' : 'Search events, venues, or interests…'}
-          />
-        </div>
+        <FilterSheet
+          groups={filterGroups[type] as unknown as Parameters<typeof FilterSheet>[0]['groups']}
+          selected={selected}
+          onToggle={toggleFilter}
+          onClear={() => setSelected({})}
+          open={filtersOpen}
+          onClose={() => setFiltersOpen(false)}
+          resultCount={visibleItems.length}
+        />
 
-        <div className="flex flex-wrap gap-2">
-          {filterChips[type].map((chip) => (
-            <button
-              key={chip}
-              type="button"
-              onClick={() => setActiveFilter(chip)}
-              className={`rounded-full px-3 py-1.5 text-sm transition ${
-                activeFilter === chip
-                  ? 'bg-[#d7b778] text-[#06182d] font-semibold'
-                  : 'border border-[#d7b778]/25 bg-[#0d1d2f] text-[#e4dccf]'
-              }`}
-            >
-              {chip}
-            </button>
-          ))}
-        </div>
-      </div>
+        {source === 'sample' && (
+          <p className="mt-5 text-sm text-app-muted">
+            Showing sample listings while live data is being set up.
+          </p>
+        )}
 
-      {notice && (
-        <p className="animate-pop-in mb-6 flex items-center gap-2 rounded-xl border border-[#d7b778]/25 bg-[#d7b778]/10 px-4 py-3 text-sm font-medium text-[#f7f0e3]">
-          <CheckCircle2 className="size-4 shrink-0 text-[#d7b778]" />
-          {notice}
-        </p>
-      )}
-
-      {source === 'sample' && (
-        <p className="mb-6 text-sm text-[#d3cabf]">Showing sample listings while live data is being set up.</p>
-      )}
-
-      <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-        {visibleItems.map((item, i) => {
-          const isSaved = saved.includes(item.name)
-          const detailHref = type === 'restaurants' ? `/restaurants/${item.id}` : `/events/${item.id}`
-          const primaryBg = i % 2 === 0
-            ? 'bg-[radial-gradient(circle_at_top,_rgba(215,183,120,0.35),transparent_30%),linear-gradient(135deg,#1c0c17_0%,#0d1a2d_55%,#0a1528_100%)]'
-            : 'bg-[radial-gradient(circle_at_bottom,_rgba(215,183,120,0.28),transparent_30%),linear-gradient(135deg,#0d1d2f_0%,#162a43_45%,#101a2c_100%)]'
-
-          return (
-            <article
-              key={item.id}
-              className="animate-fade-in-up overflow-hidden rounded-[24px] border border-[#d7b778]/20 bg-[#091b2e] shadow-[0_20px_50px_rgba(0,0,0,.24)]"
-              style={{ animationDelay: `${i * 70}ms` }}
-            >
-              <Link href={detailHref}>
-                <div className={`${primaryBg} relative flex h-52 items-end justify-between p-5`}>
-                  <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(7,25,43,0.1),rgba(7,25,43,0.82))]" />
-                  <div className="relative z-10 flex items-center gap-2 rounded-full border border-[#d7b778]/35 bg-[#0d1d2f]/80 px-3 py-1.5 text-[10px] uppercase tracking-[0.18em] text-[#f2d793]">
-                    {item.category}
+        {/* Featured card */}
+        {featured && (
+          <div className="mt-6">
+            {type === 'restaurants' ? (
+              <Link
+                href={`/restaurants/${featured.id}`}
+                className="group relative block min-h-[300px] overflow-hidden rounded-xl"
+              >
+                {featured.imageUrl ? (
+                  <Image
+                    src={featured.imageUrl}
+                    alt={featured.name}
+                    fill
+                    sizes="(max-width: 1024px) 100vw, 900px"
+                    className="object-cover transition-transform duration-300 group-hover:scale-[1.02]"
+                  />
+                ) : (
+                  <div className="absolute inset-0 bg-[linear-gradient(140deg,rgba(194,168,120,0.4),rgba(11,31,58,0.95))]" />
+                )}
+                <div className="absolute inset-0 bg-[linear-gradient(180deg,transparent_25%,rgba(11,31,58,0.92))]" />
+                <span className="absolute left-5 top-5 rounded bg-gold px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest text-navy">
+                  Featured
+                </span>
+                <span className="absolute right-5 top-5 flex items-center gap-1 rounded-full bg-navy/80 px-2.5 py-1 text-xs font-semibold text-gold backdrop-blur-sm">
+                  <Star className="size-3 fill-current" />
+                  {featured.rating}
+                </span>
+                <div className="absolute inset-x-0 bottom-0 flex flex-wrap items-end justify-between gap-4 p-6">
+                  <div>
+                    <h2 className="font-serif text-3xl font-bold text-white">{featured.name}</h2>
+                    <p className="mt-1 text-sm text-white/75">
+                      {featured.category} · {featured.detail} · {featured.location}
+                    </p>
                   </div>
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.preventDefault()
-                      e.stopPropagation()
-                      setSaved((current) => isSaved ? current.filter((name) => name !== item.name) : [...current, item.name])
-                    }}
-                    className="relative z-10 flex size-10 items-center justify-center rounded-full border border-[#d7b778]/30 bg-[#0d1d2f]/75 text-[#f7f0e7] backdrop-blur-sm transition-transform active:scale-90"
-                    aria-label={`Save ${item.name}`}
-                  >
-                    <Heart className={`size-4 transition-all duration-200 ${isSaved ? 'fill-current text-[#f6c3c3]' : ''}`} />
-                  </button>
+                  <span className="rounded-md bg-gold px-5 py-2.5 text-sm font-semibold text-navy transition-transform group-hover:scale-[1.03]">
+                    Reserve Table
+                  </span>
                 </div>
               </Link>
+            ) : (
+              <Link
+                href={`/events/${featured.id}`}
+                className="group relative block min-h-[300px] overflow-hidden rounded-xl"
+              >
+                {featured.imageUrl ? (
+                  <Image
+                    src={featured.imageUrl}
+                    alt={featured.name}
+                    fill
+                    sizes="(max-width: 1024px) 100vw, 1200px"
+                    className="object-cover transition-transform duration-300 group-hover:scale-[1.02]"
+                  />
+                ) : (
+                  <div className="absolute inset-0 bg-[linear-gradient(140deg,rgba(194,168,120,0.4),rgba(11,31,58,0.95))]" />
+                )}
+                <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(11,31,58,0.35),rgba(11,31,58,0.9))]" />
+                <span className="absolute left-5 top-5 rounded bg-gold px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest text-navy">
+                  Featured
+                </span>
+                <div className="absolute inset-x-0 bottom-0 p-6">
+                  <h2 className="font-serif text-3xl font-bold text-white sm:text-4xl">
+                    {featured.name}
+                  </h2>
+                  {featured.description && (
+                    <p className="mt-2 max-w-2xl text-sm text-white/80">{featured.description}</p>
+                  )}
+                  <div className="mt-4 flex flex-wrap items-center gap-4 text-xs text-white/75">
+                    <span className="flex items-center gap-1.5">
+                      <CalendarDays className="size-3.5" />
+                      {featured.detail}
+                    </span>
+                    <span className="flex items-center gap-1.5">
+                      <Star className="size-3.5" />
+                      {featured.location}
+                    </span>
+                  </div>
+                  <span className="mt-4 inline-flex items-center gap-2 rounded-md bg-gold px-5 py-2.5 text-sm font-semibold text-navy transition-transform group-hover:scale-[1.03]">
+                    Book Experience
+                    <ArrowRight className="size-4" />
+                  </span>
+                </div>
+              </Link>
+            )}
+          </div>
+        )}
 
-              <div className="p-5">
-                <div className="mb-3 flex items-center justify-between gap-3">
-                  <Link href={detailHref} className="font-serif text-2xl font-bold text-[#f7f0e7] hover:text-[#d7b778] transition-colors">
-                    {item.name}
+        {/* Grid */}
+        {type === 'events' && rest.length > 0 && (
+          <h2 className="mb-5 mt-10 font-serif text-2xl font-bold">Upcoming Experiences</h2>
+        )}
+
+        <div
+          className={cn(
+            'mt-6 grid gap-5',
+            type === 'restaurants' && 'sm:grid-cols-2 lg:grid-cols-3'
+          )}
+        >
+          {rest.map((item) => {
+            const isSaved = saved.includes(item.id)
+            const detailHref =
+              type === 'restaurants' ? `/restaurants/${item.id}` : `/events/${item.id}`
+            const parts = eventParts(item)
+
+            if (type === 'events') {
+              return (
+                <article
+                  key={item.id}
+                  className="overflow-hidden rounded-xl border border-app-border bg-app-card shadow-[var(--shadow-sm)] transition-all hover:shadow-[var(--shadow-md)]"
+                >
+                  <Link href={detailHref} className="relative block h-40">
+                    {item.imageUrl ? (
+                      <Image
+                        src={item.imageUrl}
+                        alt={item.name}
+                        fill
+                        sizes="(max-width: 640px) 100vw, 400px"
+                        className="object-cover"
+                      />
+                    ) : (
+                      <div className="flex h-full items-center justify-center bg-[linear-gradient(140deg,rgba(194,168,120,0.35),rgba(11,31,58,0.9))]">
+                        <span className="font-serif text-4xl font-bold text-gold-soft">
+                          {item.name.charAt(0).toUpperCase()}
+                        </span>
+                      </div>
+                    )}
+                    <span className="absolute right-3 top-3 rounded-lg bg-app-card px-2.5 py-1.5 text-center leading-none shadow-md">
+                      <span className="block text-[9px] font-bold uppercase tracking-wider text-danger">
+                        {parts.month}
+                      </span>
+                      <span className="mt-0.5 block text-sm font-bold text-app-fg">{parts.day}</span>
+                    </span>
                   </Link>
-                  <div className="flex items-center gap-1 rounded-full border border-[#d7b778]/20 bg-[#d7b778]/10 px-2 py-1 text-xs font-semibold text-[#f1d79b]">
-                    <Star className="size-3.5 fill-current" />
-                    {item.rating}
+                  <div className="p-4">
+                    <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-gold-soft">
+                      {item.category}
+                    </p>
+                    <Link href={detailHref}>
+                      <h3 className="mt-1 font-serif text-xl font-bold text-app-fg transition-colors hover:text-gold-soft">
+                        {item.name}
+                      </h3>
+                    </Link>
+                    {item.description && (
+                      <p className="mt-1.5 line-clamp-2 text-sm text-app-muted">
+                        {item.description}
+                      </p>
+                    )}
+                    <div className="mt-4 flex items-center justify-between border-t border-app-border pt-3">
+                      <span className="text-sm font-semibold text-app-fg">Starts at {item.rating}</span>
+                      <Link
+                        href={detailHref}
+                        className="rounded-md bg-navy px-4 py-2 text-xs font-semibold text-ivory transition-transform active:scale-[0.98]"
+                      >
+                        Book Tickets
+                      </Link>
+                    </div>
+                  </div>
+                </article>
+              )
+            }
+
+            return (
+              <article
+                key={item.id}
+                className="overflow-hidden rounded-xl border border-app-border bg-app-card shadow-[var(--shadow-sm)] transition-all hover:shadow-[var(--shadow-md)]"
+              >
+                <div className="relative h-40">
+                  <Link href={detailHref} className="block h-full">
+                    {item.imageUrl ? (
+                      <Image
+                        src={item.imageUrl}
+                        alt={item.name}
+                        fill
+                        sizes="(max-width: 640px) 100vw, 400px"
+                        className="object-cover"
+                      />
+                    ) : (
+                      <div className="flex h-full items-center justify-center bg-[linear-gradient(140deg,rgba(194,168,120,0.35),rgba(11,31,58,0.9))]">
+                        <span className="font-serif text-4xl font-bold text-gold-soft">
+                          {item.name.charAt(0).toUpperCase()}
+                        </span>
+                      </div>
+                    )}
+                  </Link>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setSaved((current) =>
+                        isSaved ? current.filter((id) => id !== item.id) : [...current, item.id]
+                      )
+                    }
+                    className="absolute right-3 top-3 flex size-8 items-center justify-center rounded-full bg-app-card/90 text-app-fg shadow-sm transition-transform active:scale-90"
+                    aria-label={isSaved ? `Unsave ${item.name}` : `Save ${item.name}`}
+                  >
+                    <Heart className={cn('size-4', isSaved && 'fill-danger text-danger')} />
+                  </button>
+                </div>
+                <div className="p-4">
+                  <div className="flex items-center justify-between gap-2">
+                    <Link href={detailHref}>
+                      <h3 className="truncate font-serif text-xl font-bold text-app-fg transition-colors hover:text-gold-soft">
+                        {item.name}
+                      </h3>
+                    </Link>
+                    <span className="shrink-0 text-xs font-semibold text-app-muted">
+                      ★ {item.rating}
+                    </span>
+                  </div>
+                  <p className="mt-0.5 truncate text-sm text-app-muted">{item.category}</p>
+                  <div className="mt-3 flex items-center justify-between border-t border-app-border pt-3 text-xs text-app-muted">
+                    <span className="truncate">
+                      {item.detail} · {item.location}
+                    </span>
+                    <Link
+                      href={detailHref}
+                      className="shrink-0 font-semibold text-app-fg transition-colors hover:text-gold-soft"
+                    >
+                      Details
+                    </Link>
                   </div>
                 </div>
-
-                <div className="mb-3 flex items-center gap-2 text-sm text-[#d7d0c5]">
-                  <MapPin className="size-4 text-[#d7b778]" />
-                  {item.location}
-                </div>
-
-                <div className="mb-5 flex items-center justify-between gap-3 rounded-2xl border border-[#d7b778]/15 bg-[#0d1d2f] px-3 py-2 text-sm text-[#d8d0c7]">
-                  <span className="flex items-center gap-2">{icon}{item.detail}</span>
-                  <span className="text-[#d7b778]">{type === 'restaurants' ? 'Open now' : 'Tickets'}</span>
-                </div>
-
-                <div className="flex gap-3">
-                  {type === 'restaurants' ? (
-                    <Link href={detailHref} className="flex-1 rounded-xl bg-[#d7b778] px-4 py-2.5 text-center text-sm font-semibold text-[#06182d]">
-                      Reserve
-                    </Link>
-                  ) : (
-                    <button type="button" onClick={() => action(item)} className="flex-1 rounded-xl bg-[#d7b778] px-4 py-2.5 text-sm font-semibold text-[#06182d]">
-                      Book now
-                    </button>
-                  )}
-                  <Link href={detailHref} className="flex items-center justify-center rounded-xl border border-[#d7b778]/25 bg-transparent px-4 py-2.5 text-sm font-semibold text-[#f5efe9]">
-                    View
-                  </Link>
-                </div>
-              </div>
-            </article>
-          )
-        })}
-      </div>
-
-      {!visibleItems.length && (
-        <div className="animate-fade-in-up flex flex-col items-center py-20 text-center text-[#d0c7bb]">
-          <SearchX className="mb-4 size-10 text-[#d7b778]" />
-          <p className="text-lg">No results for &ldquo;{query}&rdquo;</p>
-          <p className="mt-1 text-sm">Try a different search term or filter.</p>
+              </article>
+            )
+          })}
         </div>
-      )}
+
+        {hasMore && (
+          <div className="mt-10 text-center">
+            <button
+              type="button"
+              onClick={() => setVisible((v) => v + PAGE_SIZE)}
+              className="rounded-md border border-navy px-8 py-3 text-xs font-bold uppercase tracking-[0.14em] text-navy transition-colors hover:bg-navy hover:text-ivory dark:border-gold dark:text-gold dark:hover:bg-gold dark:hover:text-navy"
+            >
+              Load More {type === 'restaurants' ? 'Experiences' : 'Events'}
+            </button>
+          </div>
+        )}
+
+        {!visibleItems.length && (
+          <div className="mt-8">
+            <EmptyState
+              icon={<SearchX className="size-6" />}
+              title={query ? `No results for “${query}”` : 'Nothing matches these filters'}
+              message="Try a different search term or clear some filters."
+              action={
+                <button
+                  type="button"
+                  onClick={() => {
+                    setQuery('')
+                    setActiveFilter('All')
+                    setSelected({})
+                    setDateRange('All Dates')
+                  }}
+                  className="rounded-md bg-navy px-5 py-2.5 text-sm font-semibold text-ivory"
+                >
+                  Reset everything
+                </button>
+              }
+            />
+          </div>
+        )}
+      </div>
     </section>
   )
 }

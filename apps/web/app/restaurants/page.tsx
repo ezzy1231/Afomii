@@ -6,8 +6,25 @@ import { getRestaurantCatalogue } from '@/lib/catalogue'
 
 export const metadata: Metadata = { title: 'Restaurants' }
 
-export default async function RestaurantsPage() {
+export default async function RestaurantsPage({
+  searchParams,
+}: {
+  searchParams?: { q?: string }
+}) {
   const { items, source } = await getRestaurantCatalogue()
 
-  return <><Navbar /><main className="flex-1"><ExploreCatalogue type="restaurants" items={items} source={source} /></main><Footer /></>
+  return (
+    <>
+      <Navbar />
+      <main className="flex-1">
+        <ExploreCatalogue
+          type="restaurants"
+          items={items}
+          source={source}
+          initialQuery={searchParams?.q ?? ''}
+        />
+      </main>
+      <Footer />
+    </>
+  )
 }

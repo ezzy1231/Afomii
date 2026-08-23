@@ -1,5 +1,8 @@
 export function readEnv(name: string): string | undefined {
-  const value = process.env[name];
+  return trimEnv(process.env[name]);
+}
+
+export function trimEnv(value: string | undefined): string | undefined {
   if (!value) return undefined;
 
   // Hosting dashboards sometimes receive quoted values copied from .env files.

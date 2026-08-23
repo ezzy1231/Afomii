@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
+import { fallbackRestaurants, fallbackEvents, type CatalogueItem } from '@/lib/catalogue'
 
 export type DetailBranch = {
   id: string
@@ -31,6 +32,7 @@ export type RestaurantDetail = {
   logoUrl: string | null
   coverUrl: string | null
   isVerified: boolean
+  rating: number | null
   openingHours: Record<string, { open: string; close: string }[]> | null
   branches: DetailBranch[]
 }
@@ -67,11 +69,14 @@ export async function getRestaurantDetail(id: string): Promise<RestaurantDetail 
 
   const { data: restaurant, error } = await supabase
     .from('restaurants')
-    .select('id, name, cuisine, logo_url, cover_url, is_verified, opening_hours, business_id')
+    .select('id, name, cuisine, logo_url, cover_url, is_verified, rating, opening_hours, business_id')
     .eq('id', id)
     .maybeSingle()
 
-  if (error || !restaurant) return null
+  if (error || !restaurant) {
+    const sample = fallbackRestaurants.find((r) => r.id === id)
+    return sample ? buildSampleRestaurantDetail(sample) : null
+  }
 
   const { data: branches } = await supabase
     .from('branches')
@@ -117,6 +122,7 @@ export async function getRestaurantDetail(id: string): Promise<RestaurantDetail 
     logoUrl: restaurant.logo_url,
     coverUrl: restaurant.cover_url,
     isVerified: restaurant.is_verified,
+    rating: restaurant.rating,
     openingHours: restaurant.opening_hours,
     branches: mappedBranches,
   }
@@ -133,7 +139,10 @@ export async function getEventDetail(id: string): Promise<EventDetail | null> {
     .eq('id', id)
     .maybeSingle()
 
-  if (error || !event) return null
+  if (error || !event) {
+    const sample = fallbackEvents.find((e) => e.id === id)
+    return sample ? buildSampleEventDetail(sample) : null
+  }
 
   const { data: ticketTypes } = await supabase
     .from('ticket_types')
@@ -216,4 +225,186 @@ export async function getConsumerReservations(userId: string): Promise<ConsumerR
       restaurantName: restaurant?.name ?? '',
     }
   })
+}
+
+export type ConsumerTicket = {
+  id: string
+  ticketTypeId: string
+  eventId: string
+  eventTitle: string
+  ticketName: string
+  quantity: number
+  amount: number
+  paymentStatus: string
+  qrCode: string | null
+  attended: boolean
+  createdAt: string
+}
+
+export async function getConsumerTickets(userId: string): Promise<ConsumerTicket[]> {
+  const supabase = await createClient()
+
+  const { data } = await supabase
+    .from('ticket_purchases')
+    .select(
+      'id, ticket_type_id, event_id, quantity, amount, payment_status, qr_code, attended, created_at, ticket_types(name), events(title)'
+    )
+    .eq('user_id', userId)
+    .order('created_at', { ascending: false })
+    .limit(50)
+
+  if (!data) return []
+
+  return (data as any[]).map((r) => {
+    const tt = Array.isArray(r.ticket_types) ? r.ticket_types[0] : r.ticket_types
+    const ev = Array.isArray(r.events) ? r.events[0] : r.events
+    return {
+      id: r.id,
+      ticketTypeId: r.ticket_type_id,
+      eventId: r.event_id ?? '',
+      eventTitle: ev?.title ?? '',
+      ticketName: tt?.name ?? '',
+      quantity: r.quantity,
+      amount: Number(r.amount) || 0,
+      paymentStatus: r.payment_status,
+      qrCode: r.qr_code ?? null,
+      attended: r.attended,
+      createdAt: r.created_at,
+    }
+  })
+}
+
+const ALL_DAYS = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun']
+
+function buildSampleRestaurantDetail(item: CatalogueItem): RestaurantDetail {
+  const hours = ALL_DAYS.reduce(
+    (acc, day) => ({ ...acc, [day]: [{ open: '11:00', close: '22:00' }] }),
+    {}
+  )
+
+  const menuByCuisine: Record<string, { name: string; price: number; category: string }[]> = {
+    default: [
+      { name: 'Signature platter', price: 450, category: 'Main Course' },
+      { name: 'Seasonal soup', price: 180, category: 'Soup & Salad' },
+      { name: 'Garden salad', price: 160, category: 'Soup & Salad' },
+      { name: 'Grilled specialty', price: 520, category: 'Main Course' },
+      { name: 'Fried appetizer mix', price: 220, category: 'Appetizers' },
+      { name: 'Fresh juice', price: 90, category: 'Drinks' },
+    ],
+  }
+
+  return {
+    id: item.id,
+    name: item.name,
+    category: item.category,
+    logoUrl: null,
+    coverUrl: null,
+    isVerified: true,
+    rating: Number(item.rating) || null,
+    openingHours: hours,
+    branches: [
+      {
+        id: `${item.id}-branch-1`,
+        branchName: `${item.name} â€” ${item.location}`,
+        address: item.location,
+        latitude: null,
+        longitude: null,
+        phone: null,
+        bookingConfig: {
+          bookingMode: 'instant',
+          totalTables: 10,
+          maxGuestPerTable: 6,
+          slotDurationMinutes: 60,
+          advanceNoticeHours: 0,
+          cancellationPolicy: 'Free cancellation up to 2 hours before your reservation.',
+        },
+        menuItems: (menuByCuisine[item.category] ?? menuByCuisine.default).map((m, i) => ({
+          id: `${item.id}-menu-${i}`,
+          name: m.name,
+          price: m.price,
+          category: m.category,
+          isAvailable: true,
+        })),
+      },
+    ],
+  }
+}
+
+function nextOccurrence(detail: string): Date {
+  const timeMatch = detail.match(/(\d{1,2}):(\d{2})\s*(AM|PM)/i)
+  let hour = 19
+  let minute = 0
+  if (timeMatch) {
+    hour = parseInt(timeMatch[1], 10) % 12
+    if (timeMatch[3].toUpperCase() === 'PM') hour += 12
+    minute = parseInt(timeMatch[2], 10)
+  }
+
+  const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
+  const lowered = detail.toLowerCase()
+  const now = new Date()
+  const result = new Date()
+  result.setHours(hour, minute, 0, 0)
+
+  const dayIndex = dayNames.findIndex((d) => lowered.includes(d))
+  if (dayIndex >= 0) {
+    const diff = (dayIndex - now.getDay() + 7) % 7
+    result.setDate(now.getDate() + (diff === 0 && result <= now ? 7 : diff))
+  } else if (result <= now) {
+    result.setDate(now.getDate() + 2)
+  }
+
+  return result
+}
+
+function buildSampleEventDetail(item: CatalogueItem): EventDetail {
+  const start = nextOccurrence(item.detail)
+  const end = new Date(start.getTime() + 3 * 60 * 60 * 1000)
+
+  return {
+    id: item.id,
+    title: item.name,
+    description: `${item.name} â€” ${item.category}. Join us for a memorable experience at ${item.location}. Doors open 30 minutes before start.`,
+    category: item.category,
+    venueName: item.location,
+    latitude: null,
+    longitude: null,
+    startDateTime: start.toISOString(),
+    endDateTime: end.toISOString(),
+    coverImageUrl: null,
+    status: 'published',
+    ticketTypes: [
+      {
+        id: `${item.id}-tt-early`,
+        name: 'Early Bird',
+        tier: 'early_bird',
+        price: 350,
+        totalQuantity: 50,
+        remainingQuantity: 40,
+        salesStart: null,
+        salesEnd: null,
+      },
+      {
+        id: `${item.id}-tt-general`,
+        name: 'General Admission',
+        tier: 'general',
+        price: 500,
+        totalQuantity: 200,
+        remainingQuantity: 120,
+        salesStart: null,
+        salesEnd: null,
+      },
+      {
+        id: `${item.id}-tt-vip`,
+        name: 'VIP',
+        tier: 'vip',
+        price: 1200,
+        totalQuantity: 30,
+        remainingQuantity: 25,
+        salesStart: null,
+        salesEnd: null,
+      },
+    ],
+    organizer: { id: 'sample-organizer', email: 'events@urbanexplore.example' },
+  }
 }

@@ -2,8 +2,25 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { useMutation } from '@tanstack/react-query'
-import { CarFront, CheckCircle2, Clock3, LocateFixed, MapPin, Navigation } from 'lucide-react'
+import {
+  ArrowLeft,
+  BadgeCheck,
+  CarFront,
+  Check,
+  CheckCircle2,
+  Clock3,
+  Lock,
+  LocateFixed,
+  MapPin,
+  Navigation,
+  Route,
+  Users,
+} from 'lucide-react'
+import Link from 'next/link'
+import Image from 'next/image'
 import { apiRequest } from '@/lib/api'
+import { EmptyState } from '@/components/patterns'
+import { cn } from '@/lib/utils'
 
 type RideEstimate = {
   providerName: string
@@ -63,7 +80,6 @@ declare global {
 
 function loadGoogleMaps(apiKey: string): Promise<void> {
   return new Promise((resolve, reject) => {
-    // Already fully loaded (core + places)
     if (window.google?.maps?.places) {
       resolve()
       return
@@ -76,7 +92,6 @@ function loadGoogleMaps(apiKey: string): Promise<void> {
       return
     }
 
-    // New bootstrap loader — required for Places API (New)
     const script = document.createElement('script')
     script.dataset.googleMaps = 'true'
     script.async = true
@@ -92,12 +107,13 @@ export default function RidePlanner() {
   const [destination, setDestination] = useState('')
   const [manualDistanceKm, setManualDistanceKm] = useState('')
   const [localEstimates, setLocalEstimates] = useState<RideEstimate[] | null>(null)
-  const [selectedRide, setSelectedRide] = useState<string | null>(null)
+  const [selectedRide, setSelectedRide] = useState<number | null>(null)
   const [pickupCoords, setPickupCoords] = useState<LatLng | null>(null)
   const [destinationCoords, setDestinationCoords] = useState<LatLng | null>(null)
   const [mapError, setMapError] = useState<string | null>(null)
   const [mapsReady, setMapsReady] = useState(false)
   const [isLocating, setIsLocating] = useState(false)
+  const [rideContext, setRideContext] = useState<string | null>(null)
 
   const mapRef = useRef<HTMLDivElement | null>(null)
   const pickupAutocompleteHostRef = useRef<HTMLDivElement | null>(null)
@@ -116,6 +132,15 @@ export default function RidePlanner() {
       dropoffLng: number
     }) => apiRequest<EstimateResponse>('/rides/estimate', { method: 'POST', body: params }),
   })
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const to = params.get('to')
+    if (to) {
+      setRideContext(to)
+      setDestination(to)
+    }
+  }, [])
 
   const useCurrentLocation = () => {
     if (!navigator.geolocation) {
@@ -157,7 +182,7 @@ export default function RidePlanner() {
   useEffect(() => {
     const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
     if (!apiKey) {
-      setMapError('Google Maps key is missing. Add NEXT_PUBLIC_GOOGLE_MAPS_API_KEY in apps/web/.env.local.')
+      setMapError('Maps enhancement is unavailable — manual distance pricing below works fully without it.')
       return
     }
 
@@ -281,7 +306,7 @@ export default function RidePlanner() {
         }
       } catch {
         if (!cancelled) {
-          setMapError('Google Maps could not be loaded. Check that Maps JavaScript API, Places API (New), and Geocoding API are enabled for this key.')
+          setMapError('Maps enhancement is unavailable — manual distance pricing below works fully without it.')
         }
       }
     }
@@ -358,7 +383,7 @@ export default function RidePlanner() {
         setLocalEstimates(buildMeterTaxiEstimates(parsedDistance))
 
         if (!mapsReady) {
-          setMapError('Using manual meter-taxi pricing because Google Maps is unavailable.')
+          setMapError('Showing meter-taxi estimates from your distance. Maps pricing returns when Maps is available.')
         }
 
         return
@@ -380,192 +405,299 @@ export default function RidePlanner() {
   }
 
   const estimates = localEstimates ?? estimateMutation.data?.estimates ?? []
+  const selected = selectedRide !== null ? estimates[selectedRide] : null
+  const fastestEta = estimates.length ? Math.min(...estimates.map((e) => e.etaMinutes)) : null
+  const distanceKm = Number(manualDistanceKm)
 
   return (
-    <main className="mx-auto max-w-7xl px-4 pb-28 pt-8 sm:px-6 lg:px-8">
-      <div className="rounded-[30px] border border-[#d7b778]/30 bg-[#071a2e] p-5 shadow-[0_20px_60px_rgba(0,0,0,0.28)] sm:p-7">
-        <div className="mb-5 flex items-center justify-between">
+    <main className="mx-auto max-w-7xl px-4 pb-40 pt-6 sm:px-6 lg:px-8">
+      {/* Header */}
+      <div className="mb-5 flex items-center justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <Link
+            href="/"
+            className="flex size-9 items-center justify-center rounded-full text-app-muted transition-colors hover:bg-app-input hover:text-app-fg"
+            aria-label="Back"
+          >
+            <ArrowLeft className="size-4" />
+          </Link>
           <div>
-            <div className="text-[10px] uppercase tracking-[0.28em] text-[#d7b778]">Ride</div>
-            <h1 className="mt-2 font-serif text-3xl font-bold text-[#f8f2ea] sm:text-5xl">Go &amp; Book Ride</h1>
-          </div>
-          <div className="inline-flex items-center gap-2 rounded-full border border-[#d7b778]/35 bg-[#d7b778]/10 px-3 py-1.5 text-[10px] uppercase tracking-[0.18em] text-[#f0d79a]">
-            <CheckCircle2 className="size-3.5" />
-            Secure
+            <h1 className="font-serif text-2xl font-bold sm:text-3xl">Go &amp; Book Ride</h1>
+            <p className="text-xs text-app-muted">Compare and book from multiple ride partners</p>
           </div>
         </div>
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-navy px-3.5 py-1.5 text-[10px] font-bold uppercase tracking-widest text-ivory">
+          <BadgeCheck className="size-3.5" />
+          Secure
+        </span>
+      </div>
 
-        <div className="mb-6 rounded-[24px] border border-[#d7b778]/25 bg-[#0c1f34] p-4 sm:p-5">
-          <div className="flex items-center gap-3">
-            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-[radial-gradient(circle_at_top,_rgba(215,183,120,0.35),transparent_30%),linear-gradient(135deg,#392210,#1a1f2a,#091c2f)] text-2xl">
-              🏪
-            </div>
-            <div className="flex-1">
-              <div className="font-serif text-2xl font-bold text-[#f8f1e7]">Bella Italia Restaurant</div>
-              <div className="mt-1 flex items-center gap-2 text-sm text-[#d7d0c5]">
-                <span>Italian</span>
-                <span className="text-[#d7b778]">•</span>
-                <span>4.6</span>
-              </div>
-              <div className="mt-1 text-sm text-[#d7d0c5]">Table for 2 · Today at 7:00 PM</div>
-            </div>
-          </div>
-        </div>
+      <div className="mx-auto max-w-4xl">
+        {/* Booking context */}
+        {rideContext && (
+          <Link
+            href="/restaurants"
+            className="mb-5 flex items-center justify-between gap-3 rounded-xl border border-app-border bg-app-card p-4 shadow-[var(--shadow-sm)] transition-all hover:shadow-[var(--shadow-md)]"
+          >
+            <span className="flex min-w-0 items-center gap-3.5">
+              <span className="relative flex size-14 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-app-input">
+                <Image src="/places/food-3.jpg" alt="" fill sizes="56px" className="object-cover" />
+              </span>
+              <span className="min-w-0">
+                <span className="block truncate font-serif text-xl font-bold text-app-fg">
+                  {rideContext}
+                </span>
+                <span className="block text-xs text-app-muted">
+                  Your destination, set automatically
+                </span>
+              </span>
+            </span>
+            <span className="shrink-0 text-app-muted">›</span>
+          </Link>
+        )}
 
-        <div className="grid gap-5 lg:grid-cols-[1.1fr_0.9fr]">
-          <section className="rounded-[26px] border border-[#d7b778]/20 bg-[#0b1d30] p-4 sm:p-5">
-            <div className="space-y-4">
-              <div className="rounded-2xl border border-[#d7b778]/15 bg-[#0d1f33] p-3">
-                <div className="mb-2 flex items-center gap-2 text-sm text-[#d7b778]">
-                  <Navigation className="size-4" />
-                  Pickup
-                </div>
-                <div className="flex gap-2">
-                  <input
-                    value={pickup}
-                    onChange={(event) => {
-                      setPickup(event.target.value)
-                      setPickupCoords(null)
-                    }}
-                    placeholder="Enter pickup location"
-                    className="min-w-0 flex-1 rounded-xl border border-[#d7b778]/15 bg-[#102238] px-3 py-2 text-sm text-[#f7f0e7] outline-none placeholder:text-[#a99e8e] focus:border-[#d7b778]/50"
-                    aria-label="Pickup location"
-                  />
-                  <button
-                    type="button"
-                    onClick={useCurrentLocation}
-                    disabled={isLocating}
-                    className="inline-flex shrink-0 items-center gap-2 rounded-xl border border-[#d7b778]/30 px-3 text-sm font-medium text-[#f0d79a] disabled:opacity-60"
-                  >
-                    <LocateFixed className="size-4" />
-                    {isLocating ? 'Locating' : 'Use location'}
-                  </button>
-                </div>
+        {/* Route + why cards */}
+        <div className="grid gap-4 lg:grid-cols-2">
+          <div className="rounded-xl border border-app-border bg-app-card p-4 shadow-[var(--shadow-sm)]">
+            {/* Pickup */}
+            <div className="flex gap-3">
+              <span className="mt-1.5 flex size-3.5 shrink-0 items-center justify-center rounded-full border-[3px] border-navy dark:border-gold" />
+              <div className="min-w-0 flex-1">
+                <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-app-muted">
+                  Pickup (your location)
+                </p>
+                <input
+                  value={pickup}
+                  onChange={(event) => {
+                    setPickup(event.target.value)
+                    setPickupCoords(null)
+                  }}
+                  placeholder="Enter pickup location"
+                  className="mt-0.5 w-full bg-transparent text-sm font-semibold text-app-fg outline-none placeholder:font-normal placeholder:text-app-muted"
+                  aria-label="Pickup location"
+                />
+                <button
+                  type="button"
+                  onClick={useCurrentLocation}
+                  disabled={isLocating}
+                  className="mt-0.5 inline-flex items-center gap-1 text-xs font-medium text-gold-soft hover:underline disabled:opacity-60"
+                >
+                  <LocateFixed className="size-3" />
+                  {isLocating ? 'Detecting…' : 'Detected automatically — tap to refresh'}
+                </button>
                 <div ref={pickupAutocompleteHostRef} className="mt-2" />
               </div>
+            </div>
 
-              <div className="rounded-2xl border border-[#d7b778]/15 bg-[#0d1f33] p-3">
-                <div className="mb-2 flex items-center gap-2 text-sm text-[#d7b778]">
-                  <MapPin className="size-4" />
+            <div className="ml-[6.5px] h-6 w-px bg-app-border" aria-hidden />
+
+            {/* Destination */}
+            <div className="flex gap-3">
+              <span className="mt-1.5 flex size-3.5 shrink-0 items-center justify-center rounded-full border-[3px] border-danger" />
+              <div className="min-w-0 flex-1">
+                <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-danger">
                   Destination
-                </div>
+                </p>
                 <input
                   value={destination}
                   onChange={(event) => {
                     setDestination(event.target.value)
                     setDestinationCoords(null)
                   }}
-                  placeholder="Enter your destination"
-                  className="w-full rounded-xl border border-[#d7b778]/15 bg-[#102238] px-3 py-2 text-sm text-[#f7f0e7] outline-none placeholder:text-[#a99e8e] focus:border-[#d7b778]/50"
+                  placeholder="Where to?"
+                  className="mt-0.5 w-full bg-transparent text-sm font-semibold text-app-fg outline-none placeholder:font-normal placeholder:text-app-muted"
                   aria-label="Destination"
                 />
                 <div ref={destinationAutocompleteHostRef} className="mt-2" />
-                {destination && <div className="mt-3 text-sm text-[#d3cabf]">Selected: {destination}</div>}
               </div>
             </div>
 
-            <div className="mt-5 rounded-2xl border border-[#d7b778]/15 bg-[#0d1f33] p-4">
-              <div className="mb-3 flex items-center gap-3 text-sm text-[#d7b778]">
-                <CheckCircle2 className="size-4" />
-                Why book your ride here?
-              </div>
-              <ul className="space-y-2 text-sm text-[#e5ddd2]">
-                {['Compare prices in real time', 'Multiple trusted partners', 'Best prices, more choices', 'Safe & secure payments'].map((item) => (
-                  <li key={item} className="flex items-center gap-2"><span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-[#d7b778]/15 text-[#d7b778]">✓</span>{item}</li>
-                ))}
-              </ul>
-            </div>
-          </section>
-
-          <section className="rounded-[26px] border border-[#d7b778]/20 bg-[#0b1d30] p-4 sm:p-5">
-            <div className="mb-4 flex items-center justify-between">
-              <div className="text-lg font-semibold text-[#f7f0e7]">Choose a ride</div>
-              <div className="text-xs uppercase tracking-[0.18em] text-[#d7b778]">Live prices</div>
-            </div>
-
-            <div className="space-y-3">
-              {estimates.length > 0 ? estimates.map((ride, i) => (
+            {/* Manual distance */}
+            <div className="mt-4 rounded-lg border border-dashed border-gold/40 bg-app-input p-3">
+              <label className="mb-1.5 block text-[10px] font-bold uppercase tracking-[0.14em] text-gold-soft">
+                Trip distance (km) — works without maps
+              </label>
+              <div className="flex gap-2">
+                <input
+                  type="number"
+                  min="0"
+                  step="0.1"
+                  value={manualDistanceKm}
+                  onChange={(event) => setManualDistanceKm(event.target.value)}
+                  className="min-w-0 flex-1 rounded-md border border-app-border bg-app-card px-3 py-2 text-sm tabular-nums text-app-fg outline-none placeholder:text-app-muted focus:border-gold"
+                  placeholder="Example: 4.5"
+                  aria-label="Trip distance in kilometers"
+                />
                 <button
-                  key={`${ride.providerName}-${ride.tier}-${i}`}
                   type="button"
-                  onClick={() => setSelectedRide(ride.providerName)}
-                  className={`flex w-full items-center justify-between rounded-2xl border p-3 text-left transition ${
-                    selectedRide === ride.providerName ? 'border-[#d7b778]/40 bg-[#d7b778]/10' : 'border-[#d7b778]/10 bg-[#101f32]'
-                  }`}
+                  onClick={handleSearch}
+                  disabled={estimateMutation.isPending}
+                  className="shrink-0 rounded-md bg-navy px-5 text-sm font-semibold text-ivory transition-transform active:scale-[0.98] disabled:opacity-60 dark:bg-gold dark:text-navy"
                 >
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#d7b778]/10 text-sm font-bold text-[#f2d793]">{ride.providerName.slice(0, 2).toUpperCase()}</div>
-                    <div>
-                      <div className="font-semibold text-[#f7f0e7]">{ride.providerName}</div>
-                      <div className="text-xs text-[#d3cabf]">{ride.tier} · {ride.etaMinutes} min</div>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <div className="font-semibold text-[#f7f0e7]">ETB {ride.estimatedPrice.amount}</div>
-                    {ride.badge && <div className="text-[10px] uppercase tracking-[0.18em] text-[#d7b778]">{ride.badge}</div>}
-                  </div>
+                  {estimateMutation.isPending ? 'Finding…' : 'Compare'}
                 </button>
-              )) : (
-                <div className="space-y-3">
-                  {[{providerName:'Uber', tier:'Economy', price:260, eta:3}, {providerName:'Yango', tier:'Economy', price:230, eta:3}, {providerName:'Lyft', tier:'Standard', price:240, eta:4}].map((ride) => (
-                    <div key={ride.providerName} className="flex items-center justify-between rounded-2xl border border-[#d7b778]/10 bg-[#101f32] p-3">
-                      <div className="flex items-center gap-3">
-                        <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#d7b778]/10 text-sm font-bold text-[#f2d793]">{ride.providerName.slice(0, 2).toUpperCase()}</div>
-                        <div>
-                          <div className="font-semibold text-[#f7f0e7]">{ride.providerName}</div>
-                          <div className="text-xs text-[#d3cabf]">{ride.tier} · {ride.eta} min</div>
-                        </div>
-                      </div>
-                      <div className="font-semibold text-[#f7f0e7]">ETB {ride.price}</div>
-                    </div>
-                  ))}
-                </div>
-              )}
+              </div>
             </div>
-          </section>
+          </div>
+
+          {/* Why book */}
+          <div className="rounded-xl border border-app-border bg-app-card p-5 shadow-[var(--shadow-sm)]">
+            <h2 className="flex items-center gap-2 font-serif text-xl font-bold">
+              <BadgeCheck className="size-5 text-gold-soft" />
+              Why book your ride here?
+            </h2>
+            <ul className="mt-4 space-y-3">
+              {[
+                'Compare prices in real time',
+                'Multiple trusted partners',
+                'Best prices, more choices',
+                'Safe & secure payments',
+              ].map((item) => (
+                <li key={item} className="flex items-center gap-2.5 text-sm text-app-muted">
+                  <span className="flex size-5 shrink-0 items-center justify-center rounded-full border border-gold/50 text-gold-soft">
+                    <Check className="size-3" />
+                  </span>
+                  {item}
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
 
-        <div className="mt-6 flex items-center justify-between gap-3 rounded-[20px] border border-[#d7b778]/20 bg-[#0d1d2f] p-3 text-sm text-[#e8dfd2]">
-          <div className="flex items-center gap-2"><Clock3 className="size-4 text-[#d7b778]" />18 min total travel time</div>
-          <div className="flex items-center gap-2"><MapPin className="size-4 text-[#d7b778]" />7.2 km</div>
-          <div className="flex items-center gap-2"><CarFront className="size-4 text-[#d7b778]" />1-4 passengers</div>
-        </div>
-
-        <label className="mt-4 block rounded-2xl border border-[#d7b778]/15 bg-[#0d1d2f] p-3 text-sm text-[#e8dfd2]">
-          <span className="mb-2 block text-[#d7b778]">Trip distance in kilometers</span>
-          <input
-            type="number"
-            min="0"
-            step="0.1"
-            value={manualDistanceKm}
-            onChange={(event) => setManualDistanceKm(event.target.value)}
-            className="w-full rounded-xl border border-[#d7b778]/15 bg-[#102238] px-3 py-2 text-[#f7f0e7] outline-none placeholder:text-[#a99e8e] focus:border-[#d7b778]/50"
-            placeholder="Example: 4.5"
-            aria-label="Trip distance in kilometers"
+        {/* Map */}
+        <div className="mt-4">
+          <div
+            ref={mapRef}
+            className="h-52 overflow-hidden rounded-xl border border-app-border bg-app-input sm:h-64"
           />
-        </label>
+          {!mapsReady && (
+            <p className="mt-2 flex items-center gap-1.5 text-xs text-app-muted">
+              <CheckCircle2 className="size-3.5 text-success" />
+              Map is optional — fare estimates work with distance only.
+            </p>
+          )}
+          {mapError && (
+            <p className="mt-2 rounded-lg border border-warning/30 bg-warning/10 px-4 py-2.5 text-xs text-app-fg">
+              {mapError}
+            </p>
+          )}
+        </div>
 
-        <button
-          type="button"
-          onClick={handleSearch}
-          disabled={estimateMutation.isPending}
-          className="mt-4 w-full rounded-2xl bg-[#d7b778] px-5 py-3 text-sm font-semibold text-[#07192b] disabled:opacity-60"
-        >
-          {estimateMutation.isPending ? 'Finding rides...' : 'Compare rides'}
-        </button>
-        {mapError && <p className="mt-3 rounded-xl border border-red-300/30 bg-red-950/30 px-4 py-3 text-sm text-red-100">{mapError}</p>}
+        {/* Choose a ride */}
+        <div className="mt-4 rounded-xl border border-app-border bg-app-card shadow-[var(--shadow-sm)]">
+          <div className="flex items-center justify-between border-b border-app-border px-5 py-4">
+            <h2 className="font-serif text-2xl font-bold">Choose a ride</h2>
+            <span className="flex items-center gap-1.5 text-xs text-app-muted">
+              <Clock3 className="size-3.5" />
+              Prices update in real time
+            </span>
+          </div>
 
-        <div className="mt-6 grid gap-3 sm:grid-cols-2">
-          <button type="button" className="rounded-2xl border border-[#d7b778]/35 bg-[#0d1d2f] px-5 py-4 text-left text-[#f7f0e7]">
-            <div className="mb-2 text-xl">🧭</div>
-            <div className="font-semibold">Go</div>
-            <div className="text-sm text-[#d7d0c5]">Open navigation</div>
-          </button>
-          <button type="button" className="rounded-2xl bg-[#d7b778] px-5 py-4 text-left text-[#07192b]">
-            <div className="mb-2 text-xl">🚕</div>
-            <div className="font-semibold">Book Ride</div>
-            <div className="text-sm text-[#07192b]/80">Request with Yango</div>
-          </button>
+          <div className="p-3">
+            {estimates.length > 0 ? (
+              estimates.map((ride, i) => {
+                const active = selectedRide === i
+                return (
+                  <button
+                    key={`${ride.providerName}-${ride.tier}-${i}`}
+                    type="button"
+                    onClick={() => setSelectedRide(i)}
+                    className={cn(
+                      'flex w-full items-center gap-4 rounded-lg px-3 py-3.5 text-left transition-colors',
+                      active ? 'bg-gold/10' : 'hover:bg-app-input'
+                    )}
+                  >
+                    <span className="flex size-11 shrink-0 items-center justify-center rounded-md bg-navy text-xs font-bold uppercase text-gold">
+                      {ride.providerName.slice(0, 2)}
+                    </span>
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate font-semibold text-app-fg">{ride.providerName}</span>
+                      <span className="block text-xs text-app-muted">{ride.tier}</span>
+                    </span>
+                    <span className="shrink-0 text-center">
+                      <span className="block text-sm font-semibold text-app-fg">{ride.etaMinutes} min</span>
+                      <span className="block text-[10px] uppercase tracking-wider text-app-muted">ETA</span>
+                    </span>
+                    <span className="shrink-0 text-right">
+                      <span className="block text-sm font-bold tabular-nums text-app-fg">
+                        {ride.estimatedPrice.currency} {ride.estimatedPrice.amount.toLocaleString()}
+                      </span>
+                      <span className="block text-[10px] uppercase tracking-wider text-app-muted">
+                        Estimate
+                      </span>
+                    </span>
+                    {ride.badge && (
+                      <span className="hidden shrink-0 rounded bg-gold/20 px-2 py-0.5 text-[10px] font-bold text-gold-soft sm:block">
+                        {ride.badge}
+                      </span>
+                    )}
+                    <span
+                      className={cn(
+                        'flex size-5 shrink-0 items-center justify-center rounded-full border-2',
+                        active ? 'border-gold' : 'border-app-border'
+                      )}
+                    >
+                      {active && <span className="size-2 rounded-full bg-gold" />}
+                    </span>
+                  </button>
+                )
+              })
+            ) : (
+              <EmptyState
+                icon={<CarFront className="size-6" />}
+                title="No estimates yet"
+                message="Set pickup and destination, or enter your trip distance to see live meter-taxi fares."
+              />
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Sticky bottom action bar */}
+      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-app-border bg-app-card/95 backdrop-blur-lg safe-bottom">
+        <div className="mx-auto flex max-w-4xl flex-wrap items-center justify-center gap-x-6 gap-y-3 px-4 py-3 sm:justify-between">
+          <div className="hidden items-center gap-6 sm:flex">
+            {[
+              { icon: Clock3, value: fastestEta ? `${fastestEta} min` : '—', label: 'Total time' },
+              { icon: Route, value: distanceKm > 0 ? `${distanceKm} km` : '—', label: 'Distance' },
+              { icon: Users, value: '1-4', label: 'Passengers' },
+              { icon: Lock, value: 'In app', label: 'Secure pay' },
+            ].map(({ icon: Icon, value, label }) => (
+              <span key={label} className="flex flex-col items-center">
+                <Icon className="size-4 text-app-muted" />
+                <span className="mt-0.5 text-sm font-semibold text-app-fg">{value}</span>
+                <span className="text-[10px] text-app-muted">{label}</span>
+              </span>
+            ))}
+          </div>
+
+          <div className="flex w-full gap-3 sm:w-auto">
+            <Link
+              href="#"
+              className="flex flex-1 items-center justify-center gap-2 rounded-md border border-navy px-6 py-3 text-sm font-semibold text-navy transition-transform active:scale-[0.98] dark:border-gold dark:text-gold sm:flex-none"
+            >
+              <Navigation className="size-4" />
+              <span className="flex flex-col items-start leading-none">
+                <span>Go</span>
+                <span className="mt-0.5 text-[9px] font-normal uppercase tracking-wider opacity-60">
+                  Open navigation
+                </span>
+              </span>
+            </Link>
+            <button
+              type="button"
+              disabled={!selected}
+              className="flex flex-1 items-center justify-center gap-2 rounded-md bg-gold px-6 py-3 text-sm font-bold text-navy transition-all hover:brightness-105 active:scale-[0.98] disabled:opacity-40 sm:flex-none"
+            >
+              <CarFront className="size-4" />
+              <span className="flex flex-col items-start leading-none">
+                <span>{selected ? `Book · ${selected.providerName}` : 'Book Ride'}</span>
+                <span className="mt-0.5 text-[9px] font-normal uppercase tracking-wider opacity-60">
+                  {selected ? `${selected.estimatedPrice.currency} ${selected.estimatedPrice.amount}` : 'Select a ride'}
+                </span>
+              </span>
+            </button>
+          </div>
         </div>
       </div>
     </main>

@@ -2,16 +2,16 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "../../lib/utils";
 
 const badgeVariants = cva(
-  "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold transition-colors",
+  "inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold transition-colors",
   {
     variants: {
       variant: {
         default: "bg-navy text-ivory",
         gold: "bg-gold text-navy",
-        success: "bg-green-100 text-green-800",
-        warning: "bg-yellow-100 text-yellow-800",
-        danger: "bg-red-100 text-red-800",
-        outline: "border border-navy text-navy",
+        success: "bg-success/15 text-success",
+        warning: "bg-warning/15 text-warning",
+        danger: "bg-danger/15 text-danger",
+        outline: "border border-app-border text-app-fg",
       },
     },
     defaultVariants: {
@@ -36,17 +36,26 @@ export function StatusBadge({ status }: { status: string }) {
   const variantMap: Record<string, BadgeVariant> = {
     CONFIRMED: "success",
     COMPLETED: "success",
+    PAID: "success",
+    PUBLISHED: "success",
     PENDING: "warning",
+    DRAFT: "outline",
+    HOLD: "warning",
+    FAILED: "danger",
     CANCELLED: "danger",
     REJECTED: "danger",
-    DRAFT: "outline",
-    PUBLISHED: "success",
+    REFUNDED: "danger",
     confirmed: "success",
     completed: "success",
+    paid: "success",
+    published: "success",
     pending: "warning",
+    hold: "warning",
+    draft: "outline",
+    failed: "danger",
     cancelled: "danger",
     rejected: "danger",
-    published: "success",
+    refunded: "danger",
   };
 
   return (

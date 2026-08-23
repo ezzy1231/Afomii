@@ -71,7 +71,7 @@ export default async function RestaurantDashboardPage() {
       </div>
 
       {!business && (
-        <section className="animate-pop-in mt-6 rounded-xl border border-amber-300 bg-amber-50 p-4 text-sm text-amber-800">
+        <section className="animate-pop-in mt-6 rounded-xl border border-warning/40 bg-warning/10 p-4 text-sm text-app-fg">
           No linked business profile was found for your account. Complete business signup first.
         </section>
       )}
@@ -92,7 +92,7 @@ export default async function RestaurantDashboardPage() {
               <article key={item.id} className="rounded-xl border border-[var(--border)] bg-[var(--bg-primary)] p-4">
                 <div className="flex items-center justify-between gap-3">
                   <h3 className="font-semibold text-app-fg">{item.name}</h3>
-                  <span className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ${item.is_active ? 'bg-emerald-100 text-emerald-700' : 'bg-stone-200 text-stone-700'}`}>
+                  <span className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ${item.is_active ? 'bg-success/15 text-success' : 'bg-app-input text-app-muted'}`}>
                     {item.is_active ? 'Active' : 'Hidden'}
                   </span>
                 </div>

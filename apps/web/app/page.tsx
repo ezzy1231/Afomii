@@ -1,224 +1,250 @@
 import Link from 'next/link'
+import Image from 'next/image'
+import { ArrowRight, Bookmark, CarFront, Heart } from 'lucide-react'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
-import { ArrowRight, Bell, CalendarDays, CarFront, Check, Compass, MapPinned, Sparkles, Star, Ticket, Utensils } from 'lucide-react'
+import HomeSearch from '@/components/HomeSearch'
+import { SectionHeader, ListingCard } from '@/components/patterns'
+import {
+  getRestaurantCatalogue,
+  getEventCatalogue,
+  type CatalogueItem,
+} from '@/lib/catalogue'
 
-const features = [
-  {
-    title: 'Restaurants',
-    accent: 'Food & Dining',
-    description: 'Restaurants, cafés, bakeries, bars, lounges, pubs, food trucks, and hotels.',
-    icon: Utensils,
-  },
-  {
-    title: 'Events',
-    accent: 'Events & Entertainment',
-    description: 'Concerts, festivals, shows, conferences, exhibitions, nightlife, and live experiences.',
-    icon: CalendarDays,
-  },
-  {
-    title: 'Ride',
-    accent: 'Go by Ride',
-    description: 'Compare prices, book rides, and travel seamlessly between places in your city.',
-    icon: CarFront,
-  },
-]
+function eventParts(item: CatalogueItem) {
+  const match = item.detail.match(/,\s*(\w{3})\s+(\d{1,2})/)
+  return {
+    month: match ? match[1].toUpperCase() : 'SOON',
+    day: match ? match[2] : '·',
+  }
+}
 
-const howItWorks = [
-  { step: '1', title: 'Discover', copy: 'Search for restaurants, events, and rides near you.' },
-  { step: '2', title: 'Book', copy: 'Reserve tables, buy tickets, or compare ride prices instantly.' },
-  { step: '3', title: 'Enjoy', copy: 'Show up, scan, and move through the day without friction.' },
-]
+export default async function HomePage() {
+  const [restaurants, events] = await Promise.all([
+    getRestaurantCatalogue(),
+    getEventCatalogue(),
+  ])
 
-const quickCards = [
-  { title: 'Discover', emoji: '🔎', tone: 'bg-[#fdf6ed] text-[#0d2138]' },
-  { title: 'Book', emoji: '📅', tone: 'bg-[#f2ead9] text-[#0d2138]' },
-  { title: 'Go', emoji: '🚕', tone: 'bg-[#f4e7d6] text-[#0d2138]' },
-  { title: 'Enjoy', emoji: '✨', tone: 'bg-[#ede4d5] text-[#0d2138]' },
-]
+  const trending = restaurants.items.slice(0, 3)
+  const featured = events.items[0]
+  const upcoming = events.items.slice(1, 3)
+  const featuredParts = featured ? eventParts(featured) : null
 
-export default function HomePage() {
   return (
     <>
       <Navbar />
 
-      <main className="flex-1 bg-[#07192b] text-[#f8f2ea]">
-        <section className="relative overflow-hidden bg-[#07192b] text-[#f3ebdf]">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(204,168,103,0.16),transparent_30%),radial-gradient(circle_at_bottom_right,_rgba(33,62,95,0.7),transparent_35%)]" />
-          <div className="relative mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 lg:py-20">
-            <div className="rounded-[28px] border border-[#d7b778]/35 bg-[#071a2f]/80 p-6 shadow-[0_25px_80px_rgba(0,0,0,0.38)] lg:p-8">
-              <div className="mb-10 flex items-center justify-between gap-4">
-                <div className="flex items-center gap-3">
-                  <div className="flex h-11 w-11 items-center justify-center rounded-xl border border-[#d7b778]/50 bg-[#d7b778]/10 text-[#d7b778]">
-                    <Compass className="h-5 w-5" />
-                  </div>
-                  <div>
-                    <div className="font-serif text-3xl font-bold tracking-tight">FoodRide</div>
-                    <div className="text-[10px] uppercase tracking-[0.28em] text-[#d7b778]">Discover. Reserve. Go.</div>
-                  </div>
-                </div>
+      <main className="flex-1 bg-app-bg text-app-fg">
+        {/* Hero */}
+        <section className="relative">
+          <div className="absolute inset-0">
+            <Image
+              src="/places/food-3.jpg"
+              alt=""
+              fill
+              priority
+              sizes="100vw"
+              className="object-cover"
+            />
+            <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(11,31,58,0.72),rgba(11,31,58,0.82))]" />
+          </div>
 
-                <div className="hidden items-center gap-6 text-sm text-[#e8dfd4] md:flex">
-                  <span>Restaurants</span>
-                  <span>Events</span>
-                  <span>Ride</span>
-                </div>
+          <div className="relative mx-auto flex max-w-7xl flex-col items-center px-4 pb-20 pt-16 text-center sm:px-6 sm:pt-24 lg:px-8">
+            <h1 className="font-serif text-4xl font-bold text-white sm:text-6xl">
+              Discover. Book. Go.
+            </h1>
+            <p className="mt-3 max-w-xl text-base text-white/85 sm:text-lg">
+              Your all-in-one platform for premium dining, exclusive events, and
+              luxury rides.
+            </p>
 
-                <div className="flex items-center gap-3">
-                  <button className="flex h-10 w-10 items-center justify-center rounded-full border border-[#d7b778]/40 bg-[#d7b778]/10 text-[#d7b778]">
-                    <Bell className="h-4 w-4" />
-                  </button>
-                  <Link href="/auth/role" className="rounded-full bg-[#d7b778] px-4 py-2 text-sm font-semibold text-[#081a2e]">
-                    Join now
-                  </Link>
-                </div>
-              </div>
-
-              <div className="grid gap-9 lg:grid-cols-[1.2fr_0.8fr] lg:items-center">
-                <div>
-                  <p className="mb-4 inline-flex rounded-full border border-[#d7b778]/40 bg-[#d7b778]/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.24em] text-[#d7b778]">
-                    One app, all your plans
-                  </p>
-                  <h1 className="font-serif text-4xl font-bold leading-none tracking-tight text-[#f7f2ea] sm:text-5xl lg:text-7xl">
-                    Discover. <span className="text-[#d7b778]">Book.</span>
-                    <br />
-                    Enjoy.
-                  </h1>
-                  <p className="mt-5 max-w-xl text-base text-[#d7d0c6] sm:text-lg">
-                    Explore restaurants, book event tickets, and compare rides in one elegant super-app designed for city life.
-                  </p>
-
-                  <div className="mt-8 flex flex-wrap gap-3">
-                    <Link href="/auth/role" className="rounded-xl bg-[#d7b778] px-6 py-3 text-sm font-semibold text-[#081a2e] shadow-[0_10px_25px_rgba(215,183,120,0.28)]">
-                      Get started
-                    </Link>
-                    <Link href="/restaurants" className="rounded-xl border border-[#d7b778]/35 bg-transparent px-6 py-3 text-sm font-semibold text-[#f6efe6]">
-                      Browse now
-                    </Link>
-                  </div>
-                </div>
-
-                <div className="rounded-[28px] border border-[#d7b778]/30 bg-[#0e2340] p-4 shadow-[0_20px_50px_rgba(0,0,0,0.4)]">
-                  <div className="mb-4 flex items-center justify-between text-[#d7b778]">
-                    <div className="flex items-center gap-2 text-xs uppercase tracking-[0.24em]">
-                      <MapPinned className="h-3.5 w-3.5" />
-                      Nearby
-                    </div>
-                    <button className="rounded-full border border-[#d7b778]/30 px-2.5 py-1 text-[10px] uppercase tracking-[0.18em] text-[#f0e4c8]">
-                      Secure
-                    </button>
-                  </div>
-
-                  <div className="space-y-3">
-                    <div className="rounded-2xl border border-[#d7b778]/20 bg-[#091d30] p-4">
-                      <div className="mb-2 flex items-center justify-between text-[#e8dfd4]">
-                        <span className="text-lg font-semibold">Sky Garden Restaurant</span>
-                        <span className="rounded-full bg-[#d7b778]/10 px-2 py-1 text-[10px] uppercase tracking-[0.2em] text-[#d7b778]">4.7</span>
-                      </div>
-                      <div className="text-sm text-[#d2cabc]">Italian · Bole, Addis Ababa</div>
-                    </div>
-
-                    <div className="rounded-2xl border border-[#d7b778]/20 bg-[#091d30] p-4">
-                      <div className="mb-2 flex items-center justify-between text-[#e8dfd4]">
-                        <span className="text-lg font-semibold">Summer Jazz Night</span>
-                        <span className="rounded-full bg-[#d7b778]/10 px-2 py-1 text-[10px] uppercase tracking-[0.2em] text-[#d7b778]">Live</span>
-                      </div>
-                      <div className="text-sm text-[#d2cabc]">Friday · 8:00 PM · Addis Ababa</div>
-                    </div>
-
-                    <div className="rounded-2xl border border-[#d7b778]/20 bg-[#091d30] p-4">
-                      <div className="mb-2 flex items-center justify-between text-[#e8dfd4]">
-                        <span className="text-lg font-semibold">Go by Ride</span>
-                        <span className="rounded-full bg-[#d7b778]/10 px-2 py-1 text-[10px] uppercase tracking-[0.2em] text-[#d7b778]">ETA</span>
-                      </div>
-                      <div className="text-sm text-[#d2cabc]">Uber and Yango fares in real-time</div>
-                    </div>
-                  </div>
-                </div>
-              </div>
+            <div className="mt-8 w-full max-w-2xl">
+              <HomeSearch />
             </div>
           </div>
         </section>
 
-        <section className="bg-[#07192b] py-12">
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <div className="mb-8 flex items-center justify-between">
-              <div>
-                <div className="text-[10px] uppercase tracking-[0.26em] text-[#d7b778]">What we offer</div>
-                <h2 className="mt-2 font-serif text-3xl font-bold text-[#f5efe9] sm:text-4xl">Restaurants, Events & More — All in One Place</h2>
-              </div>
-              <div className="hidden items-center gap-3 text-sm text-[#e9e0d3] md:flex">
-                <button className="rounded-full border border-[#d7b778]/25 bg-[#d7b778]/10 px-3 py-2 text-xs uppercase tracking-[0.18em] text-[#e4ce96]">
-                  App Store
-                </button>
-                <button className="rounded-full border border-[#d7b778]/25 bg-[#d7b778]/10 px-3 py-2 text-xs uppercase tracking-[0.18em] text-[#e4ce96]">
-                  Google Play
-                </button>
-              </div>
-            </div>
-
-            <div className="grid gap-5 md:grid-cols-3">
-              {features.map(({ title, accent, description, icon: Icon }) => (
-                <div key={title} className="rounded-[24px] border border-[#d7b778]/25 bg-[#0a1d32] p-5 shadow-[0_18px_40px_rgba(0,0,0,0.22)]">
-                  <div className="mb-4 flex items-center gap-3">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#d7b778]/10 text-[#d7b778]">
-                      <Icon className="h-5 w-5" />
+        {/* Trending Restaurants */}
+        <section className="mx-auto mt-12 max-w-7xl px-4 sm:px-6 lg:px-8">
+          <SectionHeader
+            title="Trending Restaurants"
+            eyebrow="Most booked this week"
+            href="/restaurants"
+          />
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {trending.map((item) => (
+              <Link
+                key={item.id}
+                href={`/restaurants/${item.id}`}
+                className="group overflow-hidden rounded-xl border border-app-border bg-app-card shadow-[var(--shadow-sm)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[var(--shadow-md)]"
+              >
+                <div className="relative h-44">
+                  {item.imageUrl ? (
+                    <Image
+                      src={item.imageUrl}
+                      alt={item.name}
+                      fill
+                      sizes="(max-width: 640px) 100vw, 400px"
+                      className="object-cover transition-transform duration-300 group-hover:scale-[1.03]"
+                    />
+                  ) : (
+                    <div className="flex h-full items-center justify-center bg-[linear-gradient(135deg,rgba(194,168,120,0.35),rgba(11,31,58,0.9))]">
+                      <span className="font-serif text-4xl font-bold text-gold-soft">
+                        {item.name.charAt(0).toUpperCase()}
+                      </span>
                     </div>
+                  )}
+                  <span className="absolute right-3 top-3 flex size-8 items-center justify-center rounded-full bg-app-card/90 text-app-fg shadow-sm">
+                    <Bookmark className="size-4" />
+                  </span>
+                </div>
+                <div className="p-4">
+                  <div className="flex items-center justify-between gap-2">
+                    <h3 className="truncate font-serif text-xl font-bold text-app-fg">
+                      {item.name}
+                    </h3>
+                    <span className="shrink-0 rounded-md bg-gold/15 px-2 py-0.5 text-xs font-bold text-gold-soft">
+                      ★ {item.rating}
+                    </span>
+                  </div>
+                  <p className="mt-1 truncate text-sm text-app-muted">{item.category}</p>
+                  <p className="mt-0.5 truncate text-xs text-app-muted">{item.detail} · {item.location}</p>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </section>
+
+        {/* Featured Events */}
+        <section className="mx-auto mt-14 max-w-7xl px-4 sm:px-6 lg:px-8">
+          <SectionHeader
+            title="Featured Events"
+            eyebrow="Concerts, shows and festivals near you"
+            href="/events"
+          />
+
+          <div className="grid gap-5 lg:grid-cols-2">
+            {featured && (
+              <Link
+                href={`/events/${featured.id}`}
+                className="group relative block min-h-[340px] overflow-hidden rounded-xl"
+              >
+                {featured.imageUrl ? (
+                  <Image
+                    src={featured.imageUrl}
+                    alt={featured.name}
+                    fill
+                    sizes="(max-width: 1024px) 100vw, 600px"
+                    className="object-cover transition-transform duration-300 group-hover:scale-[1.02]"
+                  />
+                ) : (
+                  <div className="absolute inset-0 bg-[linear-gradient(140deg,rgba(194,168,120,0.4),rgba(11,31,58,0.95))]" />
+                )}
+                <div className="absolute inset-0 bg-[linear-gradient(180deg,transparent_30%,rgba(11,31,58,0.92))]" />
+
+                <span className="absolute left-4 top-4 rounded-lg bg-app-card px-3 py-1.5 text-center leading-none shadow-md">
+                  <span className="block text-[10px] font-bold uppercase tracking-wider text-danger">
+                    {featuredParts?.month}
+                  </span>
+                  <span className="mt-0.5 block text-lg font-bold text-app-fg">
+                    {featuredParts?.day}
+                  </span>
+                </span>
+                <span className="absolute right-4 top-4 flex size-9 items-center justify-center rounded-full bg-app-card/90 text-app-fg shadow-sm">
+                  <Heart className="size-4" />
+                </span>
+
+                <div className="absolute inset-x-0 bottom-0 p-5">
+                  <h3 className="font-serif text-3xl font-bold text-white">{featured.name}</h3>
+                  <p className="mt-1 text-sm text-white/75">{featured.location}</p>
+                  <div className="mt-4 flex items-end justify-between">
                     <div>
-                      <div className="font-serif text-2xl font-bold text-[#f5efe9]">{title}</div>
-                      <div className="text-xs uppercase tracking-[0.18em] text-[#d7b778]">{accent}</div>
+                      <p className="text-[10px] uppercase tracking-widest text-white/60">From</p>
+                      <p className="font-serif text-2xl font-bold text-white">{featured.rating}</p>
                     </div>
+                    <span className="rounded-md bg-gold px-5 py-2.5 text-sm font-semibold text-navy transition-transform group-hover:scale-[1.02]">
+                      Book Now
+                    </span>
                   </div>
-                  <p className="text-sm leading-6 text-[#d8d0c6]">{description}</p>
                 </div>
-              ))}
-            </div>
-          </div>
-        </section>
+              </Link>
+            )}
 
-        <section className="bg-[#07192b] py-16">
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <div className="mb-8 text-center">
-              <div className="text-[10px] uppercase tracking-[0.28em] text-[#d7b778]">How it works</div>
-              <h2 className="mt-3 font-serif text-3xl font-bold text-[#f7f0e8] sm:text-4xl">From discovery to dinner in three steps</h2>
-            </div>
+            <div className="flex flex-col gap-4">
+              {upcoming.map((item) => {
+                const parts = eventParts(item)
+                return (
+                  <Link
+                    key={item.id}
+                    href={`/events/${item.id}`}
+                    className="group flex items-center gap-4 rounded-xl border border-app-border bg-app-card p-3 shadow-[var(--shadow-sm)] transition-all hover:shadow-[var(--shadow-md)]"
+                  >
+                    <span className="flex size-14 shrink-0 flex-col items-center justify-center rounded-lg bg-app-input leading-none">
+                      <span className="text-[9px] font-bold uppercase tracking-wider text-danger">
+                        {parts.month}
+                      </span>
+                      <span className="mt-0.5 text-base font-bold text-app-fg">{parts.day}</span>
+                    </span>
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate font-serif text-lg font-bold text-app-fg transition-colors group-hover:text-gold-soft">
+                        {item.name}
+                      </span>
+                      <span className="block truncate text-xs text-app-muted">{item.location}</span>
+                      <span className="mt-0.5 block text-xs font-semibold text-app-fg">
+                        From {item.rating}
+                      </span>
+                    </span>
+                    <Heart className="size-4 shrink-0 text-app-muted" />
+                  </Link>
+                )
+              })}
 
-            <div className="grid gap-5 md:grid-cols-3">
-              {howItWorks.map(({ step, title, copy }) => (
-                <div key={title} className="rounded-[24px] border border-[#d7b778]/25 bg-[#091d30] p-5">
-                  <div className="mb-4 flex items-center justify-between">
-                    <div className="text-[12px] uppercase tracking-[0.22em] text-[#d7b778]">Step {step}</div>
-                    <ArrowRight className="h-4 w-4 text-[#d7b778]" />
-                  </div>
-                  <h3 className="font-serif text-2xl font-bold text-[#f9f3ec]">{title}</h3>
-                  <p className="mt-3 text-sm leading-6 text-[#d5cfc6]">{copy}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        <section className="bg-[#07192b] pb-20 pt-4">
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <div className="rounded-[30px] border border-[#d7b778]/30 bg-[#0a1d32] p-6 shadow-[0_28px_70px_rgba(0,0,0,0.28)] md:p-8">
-              <div className="mb-6 flex items-center justify-between">
-                <div>
-                  <div className="text-[10px] uppercase tracking-[0.28em] text-[#d7b778]">For businesses</div>
-                  <h2 className="mt-2 font-serif text-3xl font-bold text-[#f7f1ea]">Grow your reach with FoodRide</h2>
-                </div>
-                <Link href="/auth/role" className="rounded-full border border-[#d7b778]/35 bg-[#d7b778]/10 px-4 py-2 text-sm font-semibold text-[#f1e5c7]">
-                  List your business
+              {/* Promo card */}
+              <div className="relative flex-1 overflow-hidden rounded-xl bg-navy p-6">
+                <h3 className="font-serif text-2xl font-bold text-white">
+                  Book Events. Enjoy Rides.
+                </h3>
+                <p className="mt-1.5 max-w-[240px] text-sm text-ivory/70">
+                  Get to your event on time with UrbanExplore.
+                </p>
+                <Link
+                  href="/ride"
+                  className="mt-4 inline-block rounded-md bg-gold px-5 py-2.5 text-sm font-semibold text-navy transition-transform active:scale-[0.98]"
+                >
+                  Book a Ride
                 </Link>
+                <CarFront
+                  className="absolute -bottom-4 -right-3 size-28 text-white/10"
+                  aria-hidden
+                />
               </div>
+            </div>
+          </div>
+        </section>
 
-              <div className="grid gap-4 md:grid-cols-4">
-                {quickCards.map(({ title, emoji, tone }) => (
-                  <div key={title} className={`flex items-center gap-3 rounded-2xl border border-[#d7b778]/20 p-4 ${tone}`}>
-                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#07192b]/10 text-2xl">{emoji}</div>
-                    <div className="text-lg font-semibold">{title}</div>
-                  </div>
-                ))}
+        {/* Business CTA */}
+        <section className="mx-auto mt-14 max-w-7xl px-4 pb-24 sm:px-6 lg:px-8">
+          <div className="rounded-xl bg-navy p-6 sm:p-10">
+            <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <div className="text-[10px] font-semibold uppercase tracking-[0.28em] text-gold">
+                  For businesses
+                </div>
+                <h2 className="mt-2 font-serif text-2xl font-bold text-white sm:text-3xl">
+                  Grow your reach with UrbanExplore
+                </h2>
+                <p className="mt-2 max-w-lg text-sm text-ivory/70">
+                  List your restaurant or events, manage reservations and tickets, and
+                  track real analytics — all from one partner dashboard.
+                </p>
               </div>
+              <Link
+                href="/auth/role"
+                className="inline-flex shrink-0 items-center justify-center gap-2 rounded-md bg-gold px-6 py-3 text-sm font-semibold text-navy transition-transform active:scale-[0.98]"
+              >
+                List your business
+                <ArrowRight className="size-4" />
+              </Link>
             </div>
           </div>
         </section>

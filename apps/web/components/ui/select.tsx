@@ -8,7 +8,7 @@ export function Select({
   return (
     <select
       className={cn(
-        "w-full px-4 py-3 rounded-lg border border-gray-200 bg-white dark:bg-navy-800 text-app-fg focus:border-gold focus:ring-2 focus:ring-gold/20 outline-none transition-all appearance-none",
+        "w-full px-4 py-3 rounded-xl border border-app-border bg-app-input text-app-fg focus:border-gold focus:ring-2 focus:ring-gold/20 outline-none transition-all appearance-none",
         className
       )}
       {...props}

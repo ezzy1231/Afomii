@@ -7,13 +7,27 @@ import { createClient } from '@/lib/supabase/client'
 const STEPS = 3
 
 const DIETARY_OPTIONS = [
-  'Vegetarian', 'Vegan', 'Halal', 'Kosher',
-  'Gluten-Free', 'Dairy-Free', 'Pescatarian', 'Nut-Free',
+  'Vegetarian', 'Vegan', 'Pescatarian', 'Keto',
+  'Gluten-Free', 'Dairy-Free / Lactose', 'Halal', 'Kosher',
+  'Italar (Orthodox Fasting)', 'Fasting Season — Christian', 'Fasting Season — Islam',
+  'Organic Only', 'Non-GMO', 'Low FODMAP', 'Low Carb / Diabetic-Friendly', 'Nut-Free',
 ]
 
 const ALLERGY_OPTIONS = [
-  'Peanuts', 'Tree Nuts', 'Shellfish', 'Fish',
-  'Dairy', 'Eggs', 'Soy', 'Wheat', 'Sesame',
+  'Peanuts', 'Tree Nuts', 'Egg', 'Soy', 'Mustard',
+  'Fish', 'Seafood / Shellfish', 'Milk / Dairy', 'Wheat / Gluten', 'Sulfites', 'Sesame',
+]
+
+const COUNTRY_OPTIONS = [
+  { code: 'ET', label: 'Ethiopia' },
+  { code: 'US', label: 'United States' },
+  { code: 'GB', label: 'United Kingdom' },
+  { code: 'CA', label: 'Canada' },
+  { code: 'AE', label: 'United Arab Emirates' },
+  { code: 'DE', label: 'Germany' },
+  { code: 'IT', label: 'Italy' },
+  { code: 'KE', label: 'Kenya' },
+  { code: 'Other', label: 'Other' },
 ]
 
 interface FormData {
@@ -23,9 +37,11 @@ interface FormData {
   confirmPassword: string
   language: string
   birthDate: string
+  birthCalendar: 'gc' | 'ec'
   gender: string
   phone: string
   city: string
+  country: string
   calendarSync: boolean
   dietaryPrefs: string[]
   allergies: string[]
@@ -97,9 +113,11 @@ export default function UserSignupPage() {
     confirmPassword: '',
     language: 'en',
     birthDate: '',
+    birthCalendar: 'gc',
     gender: '',
     phone: '',
     city: '',
+    country: 'ET',
     calendarSync: false,
     dietaryPrefs: [],
     allergies: [],
@@ -152,9 +170,11 @@ export default function UserSignupPage() {
           full_name: form.fullName,
           language: form.language,
           birth_date: form.birthDate,
+          birth_calendar: form.birthCalendar,
           gender: form.gender,
           phone: form.phone,
           city: form.city,
+          country: form.country,
           calendar_sync: form.calendarSync,
           dietary_prefs: form.dietaryPrefs,
           allergies: form.allergies,
@@ -219,7 +239,7 @@ export default function UserSignupPage() {
             <p className="text-sm text-app-muted mb-6">Step 1 of {STEPS} — Your basics</p>
 
             {error && (
-              <div className="mb-4 rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3">
+              <div className="mb-4 rounded-lg bg-danger/10 border border-danger/30 text-danger text-sm px-4 py-3">
                 {error}
               </div>
             )}
@@ -302,6 +322,25 @@ export default function UserSignupPage() {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-app-fg mb-1.5">Birth date</label>
+                  <div className="mb-1.5 inline-flex rounded-md border border-app-border p-0.5">
+                    {([
+                      { key: 'gc', label: 'Gregorian (GC)' },
+                      { key: 'ec', label: 'Ethiopian (EC)' },
+                    ] as const).map((cal) => (
+                      <button
+                        key={cal.key}
+                        type="button"
+                        onClick={() => set('birthCalendar', cal.key)}
+                        className={`rounded px-2.5 py-1 text-[11px] font-semibold transition-colors ${
+                          form.birthCalendar === cal.key
+                            ? 'bg-navy text-ivory'
+                            : 'text-app-muted hover:text-app-fg'
+                        }`}
+                      >
+                        {cal.label}
+                      </button>
+                    ))}
+                  </div>
                   <input
                     type="date"
                     value={form.birthDate}
@@ -323,6 +362,34 @@ export default function UserSignupPage() {
                   ))}
                 </select>
               </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-app-fg mb-1.5">
+                    Country
+                  </label>
+                  <select
+                    value={form.country}
+                    onChange={(e) => set('country', e.target.value)}
+                    className="input-premium"
+                  >
+                    {COUNTRY_OPTIONS.map((c) => (
+                      <option key={c.code} value={c.code}>{c.label}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-app-fg mb-1.5">
+                    City <span className="text-app-muted font-normal">(optional)</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={form.city}
+                    onChange={(e) => set('city', e.target.value)}
+                    placeholder="Addis Ababa"
+                    className="input-premium"
+                  />
+                </div>
+              </div>
               <div>
                 <label className="block text-sm font-medium text-app-fg mb-1.5">
                   Phone number <span className="text-app-muted font-normal">(optional)</span>
@@ -332,19 +399,7 @@ export default function UserSignupPage() {
                   autoComplete="tel"
                   value={form.phone}
                   onChange={(e) => set('phone', e.target.value)}
-                  placeholder="+1 (555) 000-0000"
-                  className="input-premium"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-app-fg mb-1.5">
-                  City <span className="text-app-muted font-normal">(optional)</span>
-                </label>
-                <input
-                  type="text"
-                  value={form.city}
-                  onChange={(e) => set('city', e.target.value)}
-                  placeholder="New York"
+                  placeholder="+251 91 234 5678"
                   className="input-premium"
                 />
               </div>
@@ -397,7 +452,7 @@ export default function UserSignupPage() {
             </p>
 
             {error && (
-              <div className="mb-4 rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3">
+              <div className="mb-4 rounded-lg bg-danger/10 border border-danger/30 text-danger text-sm px-4 py-3">
                 {error}
               </div>
             )}

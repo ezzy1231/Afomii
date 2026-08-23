@@ -205,6 +205,43 @@ export async function updateReservationStatus(
   return { ok: true, message: `Reservation marked ${status}.` }
 }
 
+export async function toggleEventActive(
+  id: string,
+  active: boolean
+): Promise<DashboardActionState> {
+  const { supabase, user, role } = await getCurrentUserRole()
+  if (!user) return { ok: false, message: 'Please sign in again to continue.' }
+  if (role !== 'event_organizer') {
+    return { ok: false, message: 'Only organizers can manage events.' }
+  }
+
+  const { data: organizer } = await supabase
+    .from('organizers')
+    .select('id')
+    .eq('owner_id', user.id)
+    .maybeSingle()
+  if (!organizer) return { ok: false, message: 'No linked organizer profile found.' }
+
+  const { data: ev } = await supabase
+    .from('events')
+    .select('id')
+    .eq('id', id)
+    .eq('organizer_id', organizer.id)
+    .maybeSingle()
+  if (!ev) return { ok: false, message: 'Event not found or not authorized.' }
+
+  const { error } = await supabase
+    .from('events')
+    .update({ is_active: active, status: active ? 'published' : 'draft' })
+    .eq('id', id)
+
+  if (error) return defaultErrorState
+
+  revalidatePath('/dashboard/organizer/events')
+  revalidatePath('/events')
+  return { ok: true, message: active ? 'Event published.' : 'Event unpublished.' }
+}
+
 const BOOKING_MODES = new Set(['instant', 'request', 'closed'])
 
 export async function addBranch(

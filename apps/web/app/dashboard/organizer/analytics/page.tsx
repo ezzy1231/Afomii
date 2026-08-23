@@ -25,15 +25,26 @@ export default function AnalyticsPage() {
         .from('events').select('id').eq('organizer_id', organizer.id)
       const ids = eventIds?.map(e => e.id) ?? []
 
-      const { count: purchases } = ids.length > 0
-        ? await supabase.from('ticket_purchases').select('*', { count: 'exact', head: true }).in('event_id', ids)
-        : { count: 0 }
+      let tickets = 0
+      let revenue = 0
+      let attendees = 0
+      if (ids.length) {
+        const { data: purchases } = await supabase
+          .from('ticket_purchases')
+          .select('quantity, amount, attended')
+          .in('event_id', ids)
+        for (const p of purchases ?? []) {
+          tickets += Number(p.quantity) || 0
+          revenue += Number(p.amount) || 0
+          if (p.attended) attendees += 1
+        }
+      }
 
       setMetrics({
         events: events ?? 0,
-        tickets: purchases ?? 0,
-        revenue: 0,
-        attendees: 0,
+        tickets,
+        revenue,
+        attendees,
       })
     }
     load()
@@ -48,7 +59,7 @@ export default function AnalyticsPage() {
       <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <MetricCard title="Total Events" value={metrics.events} icon={<CalendarDays className="size-5" />} />
         <MetricCard title="Tickets Sold" value={metrics.tickets} icon={<Ticket className="size-5" />} />
-        <MetricCard title="Revenue" value={`$${metrics.revenue}`} icon={<DollarSign className="size-5" />} />
+        <MetricCard title="Revenue" value={`ETB ${metrics.revenue}`} icon={<DollarSign className="size-5" />} />
         <MetricCard title="Attendees" value={metrics.attendees} icon={<Users className="size-5" />} />
       </div>
     </div>

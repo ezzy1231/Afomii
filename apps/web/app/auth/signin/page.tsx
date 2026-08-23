@@ -49,7 +49,7 @@ export default function SignInPage() {
         </p>
 
         {error && (
-          <div className="mb-5 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3">{error}</div>
+          <div className="mb-5 rounded-lg bg-danger/10 border border-danger/30 text-danger text-sm px-4 py-3">{error}</div>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-5" noValidate>

@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
-import { getConsumerReservations } from '@/lib/supabase/queries'
+import { getConsumerReservations, getConsumerTickets } from '@/lib/supabase/queries'
 import { formatDate } from '@/lib/utils'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
@@ -25,6 +25,7 @@ export default async function SettingsPage() {
   const city = (meta?.city as string) ?? ''
 
   const reservations = await getConsumerReservations(user.id)
+  const tickets = await getConsumerTickets(user.id)
 
   return (
     <>
@@ -105,6 +106,30 @@ export default async function SettingsPage() {
             </div>
           ) : (
             <p className="text-sm text-app-muted">You have no reservations yet.</p>
+          )}
+        </section>
+
+        <section className="card-elevated p-6 sm:p-8 mb-6">
+          <h2 className="text-xs font-semibold uppercase tracking-widest text-gold mb-6">Your Tickets</h2>
+          {tickets.length ? (
+            <div className="space-y-3">
+              {tickets.map((t) => (
+                <div key={t.id} className="flex items-center justify-between gap-4 rounded-xl border border-[var(--border)] bg-[var(--bg-primary)] p-3">
+                  <div>
+                    <p className="font-medium text-app-fg">{t.eventTitle || 'Event'}</p>
+                    <p className="text-sm text-app-muted">{t.ticketName} · {t.quantity} ticket{t.quantity > 1 ? 's' : ''}</p>
+                    <p className="mt-0.5 text-xs text-app-muted">
+                      {t.amount === 0 ? 'Free' : `ETB ${t.amount}`} ·{' '}
+                      <span className="font-mono">{t.qrCode}</span>
+                      {t.attended && <span className="ml-2 text-emerald-600">Attended</span>}
+                    </p>
+                  </div>
+                  <StatusBadge status={t.paymentStatus} />
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-sm text-app-muted">You have no tickets yet.</p>
           )}
         </section>
 

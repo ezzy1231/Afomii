@@ -8,6 +8,9 @@ export type CatalogueItem = {
   detail: string
   rating: string
   color: string
+  imageUrl?: string | null
+  description?: string | null
+  startsAt?: string | null
 }
 
 const restaurantColors = [
@@ -62,7 +65,7 @@ export async function getRestaurantCatalogue(): Promise<{ items: CatalogueItem[]
     const supabase = await createClient()
     const { data, error } = await supabase
       .from('restaurants')
-      .select('id, name, cuisine, city, area_label, rating, branches(address, area_label, city)')
+      .select('id, name, cuisine, city, area_label, rating, cover_url, branches(address, area_label, city)')
       .eq('is_active', true)
       .order('created_at', { ascending: false })
       .limit(60)
@@ -79,6 +82,7 @@ export async function getRestaurantCatalogue(): Promise<{ items: CatalogueItem[]
       detail: r.rating ? `★ ${r.rating}` : 'Open today',
       rating: r.rating != null ? String(r.rating) : 'New',
       color: chooseColor(r.name, restaurantColors),
+      imageUrl: r.cover_url ?? null,
     }))
 
     return { items, source: 'live' }
@@ -92,7 +96,7 @@ export async function getEventCatalogue(): Promise<{ items: CatalogueItem[]; sou
     const supabase = await createClient()
     const { data, error } = await supabase
       .from('events')
-      .select('id, title, category, venue_name, starts_at, ticket_types(price)')
+      .select('id, title, description, category, venue_name, starts_at, cover_image_url, ticket_types(price)')
       .eq('status', 'published')
       .eq('is_active', true)
       .order('starts_at', { ascending: true })
@@ -112,6 +116,9 @@ export async function getEventCatalogue(): Promise<{ items: CatalogueItem[]; sou
         ? `From ETB ${event.ticket_types[0].price}`
         : 'Free',
       color: chooseColor(event.title, eventColors),
+      imageUrl: event.cover_image_url ?? null,
+      description: event.description ?? null,
+      startsAt: event.starts_at ?? null,
     }))
 
     return { items, source: 'live' }

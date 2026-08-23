@@ -21,17 +21,17 @@ export function MetricCard({
   return (
     <Card className={cn("relative overflow-hidden", className)}>
       <CardContent>
-        <div className="flex items-start justify-between">
-          <div className="space-y-1">
+        <div className="flex items-start justify-between gap-3">
+          <div className="space-y-1 min-w-0">
             <p className="text-sm text-app-muted font-medium">{title}</p>
-            <p className="text-3xl font-bold text-app-fg font-heading">
+            <p className="text-2xl sm:text-3xl font-bold text-app-fg tabular-nums truncate">
               {value}
             </p>
             {trend && (
               <p
                 className={cn(
                   "text-sm font-medium",
-                  trend.isPositive ? "text-green-600" : "text-red-500"
+                  trend.isPositive ? "text-success" : "text-danger"
                 )}
               >
                 {trend.isPositive ? "↑" : "↓"} {Math.abs(trend.value)}%
@@ -43,7 +43,7 @@ export function MetricCard({
             )}
           </div>
           {icon && (
-            <div className="p-3 bg-gold/10 rounded-lg text-gold">
+            <div className="shrink-0 p-3 bg-gold/10 rounded-xl text-gold">
               {icon}
             </div>
           )}

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import { toggleEventActive } from '@/app/dashboard/actions'
 import Link from 'next/link'
 import { CalendarDays, MapPin } from 'lucide-react'
 
@@ -17,6 +18,18 @@ type EventItem = {
 export default function OrganizerEventsPage() {
   const [events, setEvents] = useState<EventItem[]>([])
   const [loading, setLoading] = useState(true)
+  const [busyId, setBusyId] = useState<string | null>(null)
+
+  async function handleToggle(item: EventItem) {
+    setBusyId(item.id)
+    const res = await toggleEventActive(item.id, !item.is_active)
+    if (res.ok) {
+      setEvents((prev) =>
+        prev.map((e) => (e.id === item.id ? { ...e, is_active: !e.is_active } : e))
+      )
+    }
+    setBusyId(null)
+  }
 
   useEffect(() => {
     async function load() {
@@ -54,7 +67,7 @@ export default function OrganizerEventsPage() {
               <div className="flex items-center justify-between gap-3">
                 <h3 className="font-semibold text-app-fg">{item.title}</h3>
                 <span className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ${
-                  item.is_active ? 'bg-emerald-100 text-emerald-700' : 'bg-stone-200 text-stone-500'
+                  item.is_active ? 'bg-success/15 text-success' : 'bg-app-input text-app-muted'
                 }`}>
                   {item.is_active ? 'Published' : 'Draft'}
                 </span>
@@ -66,6 +79,14 @@ export default function OrganizerEventsPage() {
                   <span className="flex items-center gap-1"><CalendarDays className="size-3" />{new Date(item.starts_at).toLocaleDateString()}</span>
                 )}
               </div>
+              <button
+                type="button"
+                onClick={() => handleToggle(item)}
+                disabled={busyId === item.id}
+                className="mt-4 rounded-xl border border-[var(--border)] px-3 py-1.5 text-sm font-medium text-app-fg transition hover:border-gold/50 disabled:opacity-50"
+              >
+                {busyId === item.id ? 'Updating…' : item.is_active ? 'Unpublish' : 'Publish'}
+              </button>
             </article>
           ))}
           {events.length === 0 && (

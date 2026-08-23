@@ -27,6 +27,22 @@ export default async function OrganizerDashboardPage() {
         .limit(24)
     : { data: [] }
 
+  const eventIds = (events ?? []).map((e) => e.id)
+  let ticketsSold = 0
+  let revenue = 0
+  let attendees = 0
+  if (eventIds.length) {
+    const { data: purchases } = await supabase
+      .from('ticket_purchases')
+      .select('quantity, amount, attended')
+      .in('event_id', eventIds)
+    for (const p of purchases ?? []) {
+      ticketsSold += Number(p.quantity) || 0
+      revenue += Number(p.amount) || 0
+      if (p.attended) attendees += 1
+    }
+  }
+
   return (
     <div className="mx-auto w-full max-w-6xl px-4 pb-24 pt-8 sm:px-6 lg:px-8">
       <p className="text-xs font-bold uppercase tracking-[0.15em] text-gold">Partner portal</p>
@@ -44,12 +60,12 @@ export default async function OrganizerDashboardPage() {
 
       <div className="mt-8 grid gap-4 sm:grid-cols-3">
         <Metric icon={CalendarDays} label="Published events" value={String(events?.length ?? 0)} />
-        <Metric icon={Store} label="Upcoming bookings" value="0" />
-        <Metric icon={CircleDollarSign} label="This month" value="$0" />
+        <Metric icon={Store} label="Tickets sold" value={String(ticketsSold)} />
+        <Metric icon={CircleDollarSign} label="Revenue" value={`ETB ${revenue}`} />
       </div>
 
       {!organizer && (
-        <section className="animate-pop-in mt-6 rounded-xl border border-amber-300 bg-amber-50 p-4 text-sm text-amber-800">
+        <section className="animate-pop-in mt-6 rounded-xl border border-warning/40 bg-warning/10 p-4 text-sm text-app-fg">
           No linked organizer profile was found for your account. Complete organizer signup first.
         </section>
       )}
@@ -70,7 +86,7 @@ export default async function OrganizerDashboardPage() {
               <article key={item.id} className="rounded-xl border border-[var(--border)] bg-[var(--bg-primary)] p-4">
                 <div className="flex items-center justify-between gap-3">
                   <h3 className="font-semibold text-app-fg">{item.title}</h3>
-                  <span className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ${item.is_active ? 'bg-emerald-100 text-emerald-700' : 'bg-stone-200 text-stone-700'}`}>
+                  <span className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ${item.is_active ? 'bg-success/15 text-success' : 'bg-app-input text-app-muted'}`}>
                     {item.is_active ? 'Active' : 'Hidden'}
                   </span>
                 </div>

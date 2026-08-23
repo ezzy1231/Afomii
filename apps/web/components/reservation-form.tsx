@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { Button } from '@/components/ui/button'
+import { Check, Minus, Plus } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { createReservation, type ReservationActionState } from '@/app/restaurants/actions'
 import type { DetailBranch, RestaurantDetail } from '@/lib/supabase/queries'
@@ -102,7 +102,7 @@ export function ReservationForm({
 
   if (!config || totalTables === 0) {
     return (
-      <div className="rounded-[22px] border border-[#d7b778]/20 bg-[#0d1d2f] p-4 text-sm text-[#d5cbbd]">
+      <div className="rounded-xl border border-app-border bg-app-card p-4 text-sm text-app-muted">
         This branch is not accepting reservations yet.
       </div>
     )
@@ -142,61 +142,53 @@ export function ReservationForm({
 
   if (result?.ok) {
     return (
-      <div className="rounded-[22px] border border-[#d7b778]/30 bg-[#0d1d2f] p-4">
-        <div className="text-sm font-semibold text-[#f7f0e7]">Reservation {result.status === 'confirmed' ? 'confirmed' : 'requested'}</div>
-        <p className="mt-1 text-sm text-[#d5cbbd]">{result.message}</p>
-        <p className="mt-2 text-xs text-[#d7b778]">
+      <div className="rounded-xl border border-app-border bg-app-card p-5">
+        <div className="flex items-center gap-2 text-sm font-semibold text-success">
+          <Check className="size-4" />
+          Reservation {result.status === 'confirmed' ? 'confirmed' : 'requested'}
+        </div>
+        <p className="mt-1.5 text-sm text-app-muted">{result.message}</p>
+        <p className="mt-2 text-xs font-medium text-gold-soft">
           {branch.branchName} · {date} · {timeSlot} · {partySize} guests
         </p>
-        <Button variant="outline" size="sm" className="mt-3" onClick={() => setResult(null)}>
+        <button
+          type="button"
+          onClick={() => setResult(null)}
+          className="mt-4 rounded-md border border-app-border px-4 py-2 text-xs font-semibold text-app-muted transition-colors hover:text-app-fg"
+        >
           Make another reservation
-        </Button>
+        </button>
       </div>
     )
   }
 
   return (
-    <form onSubmit={handleSubmit} className="rounded-[22px] border border-[#d7b778]/20 bg-[#0d1d2f] p-4">
-      <div className="mb-3 text-sm font-semibold text-[#f7f0e7]">Reserve a table</div>
+    <form onSubmit={handleSubmit} className="rounded-xl border border-app-border bg-app-card p-5 shadow-[var(--shadow-sm)]">
+      <h3 className="font-serif text-xl font-bold text-app-fg">Reserve a Table</h3>
 
       {signedIn === false && (
-        <div className="mb-3 rounded-lg border border-[#d7b778]/25 bg-[#d7b778]/10 p-3 text-xs text-[#f1d79a]">
-          <Link href="/auth/signin?next=/restaurants" className="underline font-semibold">
+        <div className="mt-3 rounded-lg border border-gold/30 bg-gold/10 p-3 text-xs text-gold-soft">
+          <Link href="/auth/signin?next=/restaurants" className="font-semibold underline">
             Sign in
           </Link>{' '}
           to make a reservation.
         </div>
       )}
 
-      <div className="space-y-3">
+      <div className="mt-4 space-y-4">
         <div>
-          <label className="mb-1 block text-xs text-[#d3cabf]">Date</label>
+          <label className="mb-1.5 block text-xs font-semibold text-app-fg">Date</label>
           <input
             type="date"
             min={todayString()}
             value={date}
             onChange={(e) => setDate(e.target.value)}
-            className="w-full rounded-lg border border-[#d7b778]/20 bg-[#0c1d30] px-3 py-2 text-sm text-[#f7f0e7] outline-none"
+            className="w-full rounded-md border border-app-border bg-app-bg px-3 py-2.5 text-sm text-app-fg outline-none focus:border-gold"
           />
         </div>
 
         <div>
-          <label className="mb-1 block text-xs text-[#d3cabf]">Party size</label>
-          <select
-            value={partySize}
-            onChange={(e) => setPartySize(Number(e.target.value))}
-            className="w-full rounded-lg border border-[#d7b778]/20 bg-[#0c1d30] px-3 py-2 text-sm text-[#f7f0e7] outline-none"
-          >
-            {Array.from({ length: Math.max(1, maxGuests) }, (_, i) => i + 1).map((n) => (
-              <option key={n} value={n}>
-                {n} {n === 1 ? 'guest' : 'guests'}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div>
-          <label className="mb-1 block text-xs text-[#d3cabf]">Time slot</label>
+          <label className="mb-1.5 block text-xs font-semibold text-app-fg">Time</label>
           <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
             {slots.map((slot) => {
               const full = isFull(slot)
@@ -210,31 +202,76 @@ export function ReservationForm({
                   disabled={disabled}
                   onClick={() => setTimeSlot(slot)}
                   className={cn(
-                    'rounded-lg border px-2 py-1.5 text-xs transition',
+                    'rounded-md border px-2 py-2 text-xs font-medium transition-all active:scale-[0.97]',
                     selected
-                      ? 'border-[#d7b778] bg-[#d7b778] text-[#06182d] font-semibold'
+                      ? 'border-navy bg-navy font-semibold text-ivory dark:border-gold dark:bg-gold dark:text-navy'
                       : disabled
-                      ? 'border-[#d7b778]/10 bg-[#101f32] text-[#5b6573] cursor-not-allowed'
-                      : 'border-[#d7b778]/25 bg-[#0c1d30] text-[#f2ece2] hover:border-[#d7b778]/50'
+                      ? 'cursor-not-allowed border-app-border bg-app-input text-app-muted/50 line-through'
+                      : 'border-app-border bg-app-bg text-app-fg hover:border-gold/60'
                   )}
                 >
                   {slot}
-                  {!disabled && (
-                    <span className="block text-[10px] text-[#d3cabf]">{remaining(slot)} left</span>
-                  )}
                 </button>
               )
             })}
           </div>
+          {timeSlot && (
+            <p className="mt-1.5 text-xs text-app-muted">
+              {remaining(timeSlot)} table{remaining(timeSlot) === 1 ? '' : 's'} left at {timeSlot}
+            </p>
+          )}
+        </div>
+
+        <div>
+          <label className="mb-1.5 block text-xs font-semibold text-app-fg">Guests</label>
+          <div className="flex items-center justify-between rounded-md border border-app-border bg-app-bg px-3 py-2">
+            <span className="flex items-center gap-2 text-sm text-app-fg">
+              <span className="flex size-6 items-center justify-center rounded-full bg-gold/15 text-xs text-gold-soft">
+                👤
+              </span>
+              {partySize} {partySize === 1 ? 'Guest' : 'Guests'}
+            </span>
+            <span className="flex items-center gap-1">
+              <button
+                type="button"
+                aria-label="Fewer guests"
+                onClick={() => setPartySize((n) => Math.max(1, n - 1))}
+                className="flex size-7 items-center justify-center rounded text-app-muted transition-colors hover:text-app-fg"
+              >
+                <Minus className="size-3.5" />
+              </button>
+              <button
+                type="button"
+                aria-label="More guests"
+                onClick={() => setPartySize((n) => Math.min(Math.max(1, maxGuests), n + 1))}
+                className="flex size-7 items-center justify-center rounded text-app-muted transition-colors hover:text-app-fg"
+              >
+                <Plus className="size-3.5" />
+              </button>
+            </span>
+          </div>
         </div>
 
         {result && !result.ok && (
-          <p className="text-xs text-red-300">{result.message}</p>
+          <p className="text-xs text-danger">{result.message}</p>
         )}
 
-        <Button type="submit" disabled={submitting || signedIn === false} className="w-full">
-          {submitting ? 'Reserving…' : 'Reserve'}
-        </Button>
+        <button
+          type="submit"
+          disabled={submitting || signedIn === false}
+          className="w-full rounded-md bg-gold py-3 text-sm font-bold text-navy transition-all hover:brightness-105 active:scale-[0.98] disabled:opacity-40"
+        >
+          {submitting ? 'Reserving…' : 'Confirm Reservation'}
+        </button>
+
+        <div className="space-y-1.5">
+          {['Instant Confirmation', 'No Prepayment Required'].map((note) => (
+            <p key={note} className="flex items-center gap-1.5 text-xs text-app-muted">
+              <Check className="size-3.5 text-success" />
+              {note}
+            </p>
+          ))}
+        </div>
       </div>
     </form>
   )

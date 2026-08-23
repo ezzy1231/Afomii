@@ -139,7 +139,7 @@ function AddBranchForm() {
       <div className="mt-4 flex items-center gap-3">
         <Button type="submit">Add branch</Button>
         {state && (
-          <p className={state.ok ? 'text-sm text-emerald-600' : 'text-sm text-red-500'}>{state.message}</p>
+          <p className={state.ok ? 'text-sm text-success' : 'text-sm text-danger'}>{state.message}</p>
         )}
       </div>
     </form>

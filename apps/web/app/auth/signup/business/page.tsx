@@ -3,12 +3,24 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
+import { CategoryPicker, type CategoryOption } from '@/components/auth/CategoryPicker'
 
 const STEPS = 4
 
-const CATEGORIES = [
-  'Restaurant', 'Café', 'Bakery', 'Bar & Lounge',
-  'Food Truck', 'Cloud Kitchen', 'Catering', 'Other',
+const CATEGORIES: CategoryOption[] = [
+  { label: 'Restaurant', icon: '🍽️' },
+  { label: 'Café / Coffee Shop', icon: '☕' },
+  { label: 'Bakery', icon: '🥐' },
+  { label: 'Bar', icon: '🍸' },
+  { label: 'Lounge', icon: '🛋️' },
+  { label: 'Pub', icon: '🍺' },
+  { label: 'Food Truck', icon: '🚚' },
+  { label: 'Ice Cream & Dessert Shop', icon: '🍦' },
+  { label: 'Hotel Restaurant', icon: '🏨' },
+  { label: 'Juice / Smoothie Bar', icon: '🥤' },
+  { label: 'Cloud Kitchen', icon: '📦' },
+  { label: 'Catering', icon: '🍱' },
+  { label: 'Other', icon: '🏪' },
 ]
 
 interface FormData {
@@ -213,7 +225,7 @@ export default function BusinessSignupPage() {
         <StepIndicator current={step} />
 
         {error && (
-          <div className="mb-5 rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3">
+          <div className="mb-5 rounded-lg bg-danger/10 border border-danger/30 text-danger text-sm px-4 py-3">
             {error}
           </div>
         )}
@@ -240,10 +252,8 @@ export default function BusinessSignupPage() {
               <Field label="Business name">
                 <input type="text" value={form.businessName} onChange={(e) => set('businessName', e.target.value)} placeholder="Bella Cucina" className={inputCls} />
               </Field>
-              <Field label="Category">
-                <select value={form.category} onChange={(e) => set('category', e.target.value)} className={inputCls}>
-                  {CATEGORIES.map((c) => <option key={c}>{c}</option>)}
-                </select>
+              <Field label="Business category">
+                <CategoryPicker options={CATEGORIES} value={form.category} onChange={(v) => set('category', v)} />
               </Field>
               <Field label="Short description" optional>
                 <textarea value={form.description} onChange={(e) => set('description', e.target.value)} placeholder="A cosy Italian trattoria in the heart of the city…" rows={3} className={`${inputCls} resize-none`} />

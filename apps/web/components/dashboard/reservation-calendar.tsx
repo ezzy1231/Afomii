@@ -57,7 +57,7 @@ export function ReservationCalendarGrid({ reservations, onUpdateStatus }: Props)
                     "flex items-center justify-between p-3 rounded-lg border cursor-pointer transition-all",
                     selected === booking.id
                       ? "border-gold bg-gold/5"
-                      : "border-gray-100 hover:border-gray-200"
+                      : "border-app-border hover:border-gold/40"
                   )}
                   onClick={() =>
                     setSelected(selected === booking.id ? null : booking.id)

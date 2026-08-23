@@ -6,6 +6,7 @@ export const metadata: Metadata = { title: 'Get Started' }
 const roles = [
   {
     key: 'user',
+    tint: 'bg-rose-100 text-rose-600 dark:bg-rose-500/15 dark:text-rose-300',
     label: 'User',
     icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="w-8 h-8">
@@ -25,6 +26,7 @@ const roles = [
   },
   {
     key: 'business',
+    tint: 'bg-orange-100 text-orange-600 dark:bg-orange-500/15 dark:text-orange-300',
     label: 'Food & Dining Business',
     icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="w-8 h-8">
@@ -44,6 +46,7 @@ const roles = [
   },
   {
     key: 'organizer',
+    tint: 'bg-violet-100 text-violet-600 dark:bg-violet-500/15 dark:text-violet-300',
     label: 'Events & Entertainment',
     icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="w-8 h-8">
@@ -82,10 +85,13 @@ export default function RolePage() {
             className="card-elevated animate-fade-in-up p-6 sm:p-8 flex flex-col"
             style={{ animationDelay: `${i * 90}ms` }}
           >
-            <div className="text-gold mb-4">{role.icon}</div>
-            <div className="badge-gold inline-flex w-fit mb-2">{role.label}</div>
+            <div
+              className={`mb-4 flex size-14 items-center justify-center rounded-full ${role.tint}`}
+            >
+              {role.icon}
+            </div>
             <h2 className="font-serif text-lg font-bold text-app-fg mb-2">
-              {role.headline}
+              {role.label}
             </h2>
             <p className="text-sm text-app-muted mb-5">{role.description}</p>
 
