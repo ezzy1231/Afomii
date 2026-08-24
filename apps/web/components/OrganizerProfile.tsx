@@ -97,7 +97,7 @@ export default function OrganizerProfile({ organizer }: { organizer: OrganizerDe
         <button
           type="button"
           aria-label="Share"
-          className="absolute right-4 top-4 flex size-9 items-center justify-center rounded-full bg-app-card/90 text-app-fg shadow-sm transition-transform active:scale-90"
+          className="absolute right-4 top-4 flex size-11 items-center justify-center rounded-full bg-app-card/90 text-app-fg shadow-sm transition-transform active:scale-90"
         >
           <Share2 className="size-4" />
         </button>

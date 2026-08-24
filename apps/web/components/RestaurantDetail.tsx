@@ -18,6 +18,7 @@ import {
 import Image from 'next/image'
 import Link from 'next/link'
 import { ReservationForm } from '@/components/reservation-form'
+import { StickyActionBar } from '@/components/patterns'
 import type { RestaurantDetail as Restaurant, DetailBranch as Branch } from '@/lib/supabase/queries'
 import { cn } from '@/lib/utils'
 
@@ -74,7 +75,7 @@ export default function RestaurantDetail({ restaurant }: { restaurant: Restauran
           <button
             type="button"
             aria-label="Share"
-            className="flex size-9 items-center justify-center rounded-full bg-app-card/90 text-app-fg shadow-sm transition-transform active:scale-90"
+            className="flex size-11 items-center justify-center rounded-full bg-app-card/90 text-app-fg shadow-sm transition-transform active:scale-90"
           >
             <Share2 className="size-4" />
           </button>
@@ -82,10 +83,10 @@ export default function RestaurantDetail({ restaurant }: { restaurant: Restauran
             type="button"
             aria-label="Save"
             onClick={() => setSaved((v) => !v)}
-            className={cn(
-              'flex size-9 items-center justify-center rounded-full shadow-sm transition-transform active:scale-90',
-              saved ? 'bg-gold text-navy' : 'bg-app-card/90 text-app-fg'
-            )}
+              className={cn(
+                'flex size-11 items-center justify-center rounded-full shadow-sm transition-transform active:scale-90',
+                saved ? 'bg-gold text-navy' : 'bg-app-card/90 text-app-fg'
+              )}
           >
             <Bookmark className={cn('size-4', saved && 'fill-current')} />
           </button>
@@ -346,6 +347,17 @@ export default function RestaurantDetail({ restaurant }: { restaurant: Restauran
           </div>
         </div>
       </div>
+
+      {/* Mobile thumb-zone CTA: reserve + ride (desktop has the sticky panel) */}
+      <StickyActionBar
+        className="sm:hidden"
+        primary={{
+          label: 'Book a Table',
+          onClick: () =>
+            document.getElementById('reserve')?.scrollIntoView({ behavior: 'smooth' }),
+        }}
+        secondary={{ label: 'Go by Ride', href: `/ride?to=${encodeURIComponent(restaurant.name)}` }}
+      />
     </div>
   )
 }

@@ -3,7 +3,11 @@ import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
 import RidePlanner from '@/components/RidePlanner'
 
-export const metadata: Metadata = { title: 'Ride' }
+export const metadata: Metadata = {
+  title: 'Ride — Meter-taxi fare estimates in ETB',
+  description:
+    'Compare upfront meter-taxi fare estimates across providers and get to your table or event on time.',
+}
 
 export default function RidePage() {
   return <><Navbar /><RidePlanner /><Footer /></>

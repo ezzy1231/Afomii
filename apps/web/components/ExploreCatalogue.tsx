@@ -23,6 +23,7 @@ import {
 } from 'lucide-react'
 import type { CatalogueItem } from '@/lib/catalogue'
 import { CategoryChips, EmptyState, FilterSheet } from '@/components/patterns'
+import { DateBadge, dateBadgeParts } from '@/components/patterns/DateBadge'
 import { cn } from '@/lib/utils'
 
 const quickChips = {
@@ -427,8 +428,14 @@ export default function ExploreCatalogue({
                   <div className="absolute inset-0 bg-[linear-gradient(140deg,rgba(194,168,120,0.4),rgba(11,31,58,0.95))]" />
                 )}
                 <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(11,31,58,0.35),rgba(11,31,58,0.9))]" />
-                <span className="absolute left-5 top-5 rounded bg-gold px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest text-navy">
-                  Featured
+                <span className="absolute left-5 top-5 flex items-center gap-2">
+                  {(() => {
+                    const bp = dateBadgeParts(featured.startsAt ?? featured.detail)
+                    return bp ? <DateBadge month={bp.month} day={bp.day} size="lg" /> : null
+                  })()}
+                  <span className="rounded bg-gold px-2 py-1 text-[10px] font-bold uppercase tracking-widest text-navy">
+                    Featured
+                  </span>
                 </span>
                 <div className="absolute inset-x-0 bottom-0 p-6">
                   <h2 className="font-serif text-3xl font-bold text-white sm:text-4xl">
@@ -445,6 +452,9 @@ export default function ExploreCatalogue({
                     <span className="flex items-center gap-1.5">
                       <Star className="size-3.5" />
                       {featured.location}
+                    </span>
+                    <span className="price-pill !bg-white/15 !text-white backdrop-blur-sm">
+                      {featured.rating}
                     </span>
                   </div>
                   <span className="mt-4 inline-flex items-center gap-2 rounded-md bg-gold px-5 py-2.5 text-sm font-semibold text-navy transition-transform group-hover:scale-[1.03]">
@@ -496,12 +506,12 @@ export default function ExploreCatalogue({
                         </span>
                       </div>
                     )}
-                    <span className="absolute right-3 top-3 rounded-lg bg-app-card px-2.5 py-1.5 text-center leading-none shadow-md">
-                      <span className="block text-[9px] font-bold uppercase tracking-wider text-danger">
-                        {parts.month}
-                      </span>
-                      <span className="mt-0.5 block text-sm font-bold text-app-fg">{parts.day}</span>
-                    </span>
+                    <DateBadge
+                      month={parts.month}
+                      day={parts.day}
+                      size="sm"
+                      className="absolute right-3 top-3 shadow-md"
+                    />
                   </Link>
                   <div className="p-4">
                     <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-gold-soft">
@@ -518,7 +528,7 @@ export default function ExploreCatalogue({
                       </p>
                     )}
                     <div className="mt-4 flex items-center justify-between border-t border-app-border pt-3">
-                      <span className="text-sm font-semibold text-app-fg">Starts at {item.rating}</span>
+                      <span className="price-pill">{item.rating}</span>
                       <Link
                         href={detailHref}
                         className="rounded-md bg-navy px-4 py-2 text-xs font-semibold text-ivory transition-transform active:scale-[0.98]"

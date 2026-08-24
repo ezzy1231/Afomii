@@ -320,6 +320,133 @@
     min-height: 44px;
     min-width: 44px;
   }
+
+  /* ── UI Redesign v2 utilities (UI_REDESIGN_V2.md §3) ─────────────── */
+
+  /* Horizontal snap carousel row: peek on mobile, no visible scrollbar */
+  .snap-row {
+    display: flex;
+    gap: 1rem;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-behavior: smooth;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    padding-bottom: 0.25rem;
+  }
+  .snap-row::-webkit-scrollbar { display: none; }
+  .snap-row > * {
+    scroll-snap-align: start;
+    flex: 0 0 82%;
+  }
+  @media (min-width: 640px) {
+    .snap-row > * { flex-basis: 46%; }
+  }
+  @media (min-width: 1024px) {
+    .snap-row > * { flex: 1 1 0; }
+  }
+
+  /* Category / filter chips */
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    white-space: nowrap;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: var(--bg-card);
+    color: var(--text-secondary);
+    padding: 0.5rem 1rem;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    transition: all 150ms ease;
+  }
+  .chip:hover {
+    border-color: rgb(var(--gold-rgb) / 0.55);
+    color: var(--text-primary);
+  }
+  .chip-active,
+  .chip-active:hover {
+    background: rgb(var(--navy-rgb));
+    border-color: rgb(var(--navy-rgb));
+    color: rgb(var(--bg-card-rgb));
+  }
+  [data-theme='dark'] .chip-active,
+  [data-theme='dark'] .chip-active:hover {
+    background: rgb(var(--gold-rgb));
+    border-color: rgb(var(--gold-rgb));
+    color: rgb(11 31 58);
+  }
+
+  /* Eventbrite-style month/day block */
+  .date-badge {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-card);
+    border-radius: 0.75rem;
+    box-shadow: var(--shadow-md);
+    text-align: center;
+    line-height: 1;
+    padding: 0.55rem 0.8rem;
+  }
+  .date-badge-month {
+    font-size: 0.625rem;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: rgb(var(--danger-rgb));
+  }
+  .date-badge-day {
+    margin-top: 0.2rem;
+    font-size: 1.15rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    color: var(--text-primary);
+  }
+
+  /* "From ETB x" pill — tabular numerals for stable width */
+  .price-pill {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.3rem;
+    border-radius: 999px;
+    background: rgb(var(--gold-rgb) / 0.14);
+    color: rgb(var(--gold-soft-rgb));
+    padding: 0.25rem 0.7rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+  [data-theme='dark'] .price-pill {
+    color: rgb(var(--gold-soft-rgb));
+    background: rgb(var(--gold-rgb) / 0.18);
+  }
+
+  /* Small trust indicator ("Verified", "Open now") */
+  .trust-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    border-radius: 999px;
+    background: rgb(var(--success-rgb) / 0.12);
+    color: rgb(var(--success-rgb));
+    padding: 0.2rem 0.6rem;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+  }
+
+  /* Warm consumer hero — soft gold wash on light, deep navy glow on dark */
+  .hero-warm {
+    background:
+      radial-gradient(58% 90% at 18% -10%, rgb(var(--gold-rgb) / 0.16), transparent 62%),
+      radial-gradient(50% 80% at 88% 8%, rgb(var(--gold-rgb) / 0.08), transparent 55%),
+      linear-gradient(180deg, rgb(var(--navy-rgb) / 0.04), transparent 42%),
+      var(--bg-primary);
+  }
 }
 
 @media (min-width: 640px) {

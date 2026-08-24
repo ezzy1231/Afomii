@@ -15,7 +15,8 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { purchaseTickets, type TicketActionState } from '@/app/events/actions'
-import { TierRow, type Tier } from '@/components/patterns'
+import { TierRow, StickyActionBar, type Tier } from '@/components/patterns'
+import { DateBadge } from '@/components/patterns/DateBadge'
 
 type TicketType = {
   id: string
@@ -216,9 +217,7 @@ export default function EventDetail({ event }: { event: Event }) {
             )}
             <div className="absolute inset-0 bg-[linear-gradient(180deg,transparent_40%,rgba(11,31,58,0.9))]" aria-hidden />
             <span className="absolute bottom-5 left-5">
-              <span className="rounded-md bg-gold px-3 py-1.5 text-xs font-bold text-navy">
-                {badge.month} {badge.day}
-              </span>
+              <DateBadge month={badge.month} day={badge.day} size="lg" />
               <h1 className="mt-2 font-serif text-3xl font-bold text-white sm:text-4xl">
                 {event.title}
               </h1>
@@ -303,7 +302,7 @@ export default function EventDetail({ event }: { event: Event }) {
 
         {/* Right column — Select Tickets */}
         <div>
-          <div className="lg:sticky lg:top-20">
+          <div id="select-tickets" className="scroll-mt-24 lg:sticky lg:top-20">
             <div className="overflow-hidden rounded-xl border border-app-border bg-app-card shadow-[var(--shadow-md)]">
               <div className="bg-navy px-5 py-4">
                 <h2 className="font-serif text-xl font-bold text-white">Select Tickets</h2>
@@ -376,6 +375,18 @@ export default function EventDetail({ event }: { event: Event }) {
           </div>
         </div>
       </div>
+
+      {/* Mobile thumb-zone CTA: book + ride (hidden on desktop where the
+          sticky ticket panel already carries both actions) */}
+      <StickyActionBar
+        className="sm:hidden"
+        primary={{
+          label: 'Book Tickets',
+          onClick: () =>
+            document.getElementById('select-tickets')?.scrollIntoView({ behavior: 'smooth' }),
+        }}
+        secondary={{ label: 'Get a Ride', href: `/ride?to=${encodeURIComponent(event.venueName)}` }}
+      />
     </div>
   )
 }
