@@ -409,6 +409,43 @@ export default function RidePlanner() {
   const fastestEta = estimates.length ? Math.min(...estimates.map((e) => e.etaMinutes)) : null
   const distanceKm = Number(manualDistanceKm)
 
+  // Navigate hand-off: real coordinates when we have them, otherwise the
+  // destination string. Opens Google Maps directions in a new tab.
+  const navigateHref =
+    pickupCoords && destinationCoords
+      ? `https://www.google.com/maps/dir/?api=1&origin=${pickupCoords.lat},${pickupCoords.lng}&destination=${destinationCoords.lat},${destinationCoords.lng}`
+      : destination.trim()
+        ? `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(destination.trim())}`
+        : '#'
+
+  const [dispatching, setDispatching] = useState(false)
+
+  async function handleDispatch() {
+    if (!selected || dispatching) return
+    setDispatching(true)
+    try {
+      const result = await apiRequest<{ providerName: string; deepLink?: string; webFallback?: string }>(
+        '/rides/dispatch-link',
+        {
+          method: 'POST',
+          body: {
+            providerName: selected.providerName,
+            pickupLat: pickupCoords?.lat ?? 0,
+            pickupLng: pickupCoords?.lng ?? 0,
+            dropoffLat: destinationCoords?.lat ?? 0,
+            dropoffLng: destinationCoords?.lng ?? 0,
+          },
+        },
+      )
+      const target = result.deepLink || result.webFallback
+      if (target) window.location.href = target
+    } catch {
+      setMapError('Could not open the provider app. Try the Navigate button instead.')
+    } finally {
+      setDispatching(false)
+    }
+  }
+
   return (
     <main className="mx-auto max-w-7xl px-4 pb-40 pt-6 sm:px-6 lg:px-8">
       {/* Header */}
@@ -445,10 +482,10 @@ export default function RidePlanner() {
               </span>
               <span className="min-w-0">
                 <span className="block truncate font-serif text-xl font-bold text-app-fg">
-                  {rideContext}
+                  Getting to {rideContext}
                 </span>
                 <span className="block text-xs text-app-muted">
-                  Your destination, set automatically
+                  Destination set · tap your trip card below to change
                 </span>
               </span>
             </span>
@@ -548,10 +585,10 @@ export default function RidePlanner() {
             </h2>
             <ul className="mt-4 space-y-3">
               {[
-                'Compare prices in real time',
-                'Multiple trusted partners',
-                'Best prices, more choices',
-                'Safe & secure payments',
+                'Exact fares upfront — before you confirm',
+                'No surge pricing: meter-rate rules only',
+                'Compare providers side-by-side',
+                'Hands you straight to your ride app',
               ].map((item) => (
                 <li key={item} className="flex items-center gap-2.5 text-sm text-app-muted">
                   <span className="flex size-5 shrink-0 items-center justify-center rounded-full border border-gold/50 text-gold-soft">
@@ -587,9 +624,9 @@ export default function RidePlanner() {
         <div className="mt-4 rounded-xl border border-app-border bg-app-card shadow-[var(--shadow-sm)]">
           <div className="flex items-center justify-between border-b border-app-border px-5 py-4">
             <h2 className="font-serif text-2xl font-bold">Choose a ride</h2>
-            <span className="flex items-center gap-1.5 text-xs text-app-muted">
-              <Clock3 className="size-3.5" />
-              Prices update in real time
+            <span className="trust-pill">
+              <CheckCircle2 className="size-3" />
+              Fare upfront · ETB · No surge
             </span>
           </div>
 
@@ -623,7 +660,7 @@ export default function RidePlanner() {
                         {ride.estimatedPrice.currency} {ride.estimatedPrice.amount.toLocaleString()}
                       </span>
                       <span className="block text-[10px] uppercase tracking-wider text-app-muted">
-                        Estimate
+                        Upfront
                       </span>
                     </span>
                     {ride.badge && (
@@ -672,8 +709,10 @@ export default function RidePlanner() {
           </div>
 
           <div className="flex w-full gap-3 sm:w-auto">
-            <Link
-              href="#"
+            <a
+              href={navigateHref}
+              target="_blank"
+              rel="noopener noreferrer"
               className="flex flex-1 items-center justify-center gap-2 rounded-md border border-navy px-6 py-3 text-sm font-semibold text-navy transition-transform active:scale-[0.98] dark:border-gold dark:text-gold sm:flex-none"
             >
               <Navigation className="size-4" />
@@ -683,15 +722,22 @@ export default function RidePlanner() {
                   Open navigation
                 </span>
               </span>
-            </Link>
+            </a>
             <button
               type="button"
-              disabled={!selected}
+              onClick={handleDispatch}
+              disabled={!selected || dispatching}
               className="flex flex-1 items-center justify-center gap-2 rounded-md bg-gold px-6 py-3 text-sm font-bold text-navy transition-all hover:brightness-105 active:scale-[0.98] disabled:opacity-40 sm:flex-none"
             >
               <CarFront className="size-4" />
               <span className="flex flex-col items-start leading-none">
-                <span>{selected ? `Book · ${selected.providerName}` : 'Book Ride'}</span>
+                <span>
+                  {dispatching
+                    ? 'Opening…'
+                    : selected
+                      ? `Book · ${selected.providerName}`
+                      : 'Book Ride'}
+                </span>
                 <span className="mt-0.5 text-[9px] font-normal uppercase tracking-wider opacity-60">
                   {selected ? `${selected.estimatedPrice.currency} ${selected.estimatedPrice.amount}` : 'Select a ride'}
                 </span>

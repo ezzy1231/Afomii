@@ -70,11 +70,12 @@ export default function RolePage() {
   return (
     <div className="w-full max-w-5xl">
       <div className="text-center mb-12">
+        <p className="eyebrow mb-3">Get started</p>
         <h1 className="font-serif text-4xl md:text-5xl font-bold text-app-fg mb-3">
-          Join UrbanExplore
+          How will you use UrbanExplore?
         </h1>
         <p className="text-app-muted text-base md:text-lg">
-          Choose how you&apos;ll use the platform
+          One account for dining out, going out, and getting there.
         </p>
       </div>
 
@@ -82,7 +83,7 @@ export default function RolePage() {
         {roles.map((role, i) => (
           <div
             key={role.key}
-            className="card-elevated animate-fade-in-up p-6 sm:p-8 flex flex-col"
+            className="card-elevated animate-fade-in-up p-6 sm:p-8 flex flex-col !rounded-2xl transition-all duration-200 hover:-translate-y-1 hover:border-gold/50"
             style={{ animationDelay: `${i * 90}ms` }}
           >
             <div

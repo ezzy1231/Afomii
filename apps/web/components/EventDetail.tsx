@@ -133,37 +133,42 @@ export default function EventDetail({ event }: { event: Event }) {
         </Link>
 
         <div className="mx-auto max-w-sm">
-          <div className="relative overflow-hidden rounded-xl border border-app-border bg-app-card p-8 text-center shadow-[var(--shadow-md)]">
+          <div className="relative overflow-hidden rounded-2xl bg-navy p-8 text-center shadow-[var(--shadow-lg)] animate-pop-in">
             <div className="absolute inset-x-0 top-0 h-1.5 bg-gold" aria-hidden />
-            <div className="mx-auto mb-4 flex size-14 items-center justify-center rounded-full bg-success/15 text-success">
+            <div className="mx-auto mb-4 flex size-14 items-center justify-center rounded-full bg-gold/20 text-gold">
               <Check className="size-7" />
             </div>
-            <h1 className="font-serif text-3xl font-bold text-app-fg">You&apos;re going!</h1>
-            <p className="mt-2 text-sm text-app-muted">{result.message}</p>
+            <h1 className="font-serif text-3xl font-bold text-white">You&apos;re going!</h1>
+            <p className="mt-2 text-sm text-ivory/70">{result.message}</p>
 
+            {/* Perforated tear line */}
             <div className="relative my-6">
-              <div className="border-t border-dashed border-app-border" aria-hidden />
+              <div className="border-t border-dashed border-ivory/25" aria-hidden />
               <span className="absolute -left-3 top-1/2 size-6 -translate-y-1/2 rounded-full border border-app-border bg-app-bg" aria-hidden />
               <span className="absolute -right-3 top-1/2 size-6 -translate-y-1/2 rounded-full border border-app-border bg-app-bg" aria-hidden />
             </div>
 
-            <div className="text-xs font-semibold uppercase tracking-[0.22em] text-gold-soft">
-              Ticket code
+            <div className="text-xs font-semibold uppercase tracking-[0.22em] text-gold">
+              Ticket code — show at the door
             </div>
-            <div className="mt-2 rounded-lg border border-app-border bg-app-input p-4 font-mono text-xl font-bold tracking-wider text-app-fg">
+            <div className="mt-2 rounded-lg border border-ivory/20 bg-ivory/10 p-4 font-mono text-xl font-bold tracking-wider text-white">
               {result.code}
             </div>
+
+            <p className="mt-3 text-[11px] leading-relaxed text-ivory/50">
+              Screenshot this screen or find it anytime under your tickets.
+            </p>
 
             <div className="mt-6 flex flex-col gap-3">
               <Link
                 href="/settings"
-                className="rounded-md bg-navy px-5 py-3 text-sm font-semibold text-ivory transition-transform active:scale-[0.98]"
+                className="rounded-lg bg-gold px-5 py-3 text-sm font-bold text-navy transition-transform active:scale-[0.98]"
               >
                 View my tickets
               </Link>
               <Link
                 href="/events"
-                className="rounded-md border border-app-border px-5 py-3 text-sm font-semibold text-app-fg transition-transform active:scale-[0.98]"
+                className="rounded-lg border border-ivory/30 px-5 py-3 text-sm font-semibold text-ivory transition-transform active:scale-[0.98]"
               >
                 Browse more events
               </Link>

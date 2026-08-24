@@ -77,7 +77,7 @@ export default async function RestaurantDashboardPage() {
       )}
 
       {business && (
-        <section className="mt-6">
+        <section id="listing-form" className="mt-6 scroll-mt-24">
           <RestaurantListingForm />
         </section>
       )}
@@ -103,7 +103,19 @@ export default async function RestaurantDashboardPage() {
             ))}
           </div>
         ) : (
-          <p className="mt-5 text-sm text-app-muted">No listings yet. Create your first one above.</p>
+          <div className="mt-5 rounded-xl border border-dashed border-gold/40 bg-app-input p-6 text-center">
+            <Store className="mx-auto size-7 text-gold-soft" />
+            <p className="mt-3 font-semibold text-app-fg">No listings yet</p>
+            <p className="mt-1 text-sm text-app-muted">
+              Publish your first restaurant so diners can find and book you.
+            </p>
+            <Link
+              href="#listing-form"
+              className="btn-accent mt-4 inline-block !py-2.5 text-sm"
+            >
+              Create your first listing
+            </Link>
+          </div>
         )}
       </section>
     </div>
@@ -116,7 +128,7 @@ function Metric({ icon: Icon, label, value }: { icon: typeof Store; label: strin
       <div className="w-9 h-9 rounded-xl bg-gold/10 flex items-center justify-center">
         <Icon className="size-4 text-gold" />
       </div>
-      <p className="mt-4 text-2xl font-bold text-app-fg">{value}</p>
+      <p className="mt-4 text-2xl font-bold tabular-nums text-app-fg">{value}</p>
       <p className="mt-1 text-sm text-app-muted">{label}</p>
     </section>
   )
