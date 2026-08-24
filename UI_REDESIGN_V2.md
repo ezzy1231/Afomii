@@ -83,3 +83,33 @@ New utilities shared across pages:
 | G | Micro-interactions audit (skeletons everywhere, staggered reveals, Lighthouse mobile ≥90, 320px sweep) | last |
 
 Definition of Done per screen: matches spec at 390px & 1280px · zero raw hex · both themes correct · loading/empty/error present · touch targets ≥44px · build clean.
+
+---
+
+## Appendix — Research findings & concrete specs for Slices D–F
+*(sources: [Bolt iOS teardown](https://gummble.com/showcase/bolt-ios/), [Uber-style map+bottom-sheet pattern](https://vp0.com/blogs/uber-clone-app-ui-kit-free-download), [shadcn.io role-selection block](https://www.shadcn.io/blocks/onboarding-role-selection), [progress-step patterns](https://designmodo.com/progress-step-ui/) / [stepper examples](https://www.eleken.co/blog-posts/stepper-ui-examples), [DICE UX case study](https://medium.com/@hannah.2carroll/dice-a-ux-ui-case-study-e8752814aa6), [dark dashboard contrast rules](https://adminlte.io/blog/dark-dashboard-templates/))*
+
+### Slice D — Ride page (Bolt teaches: transparency is differentiation)
+1. **Upfront-fare framing**: headline the estimate card "Fare upfront · ETB" — never "approximate"; add a one-line trust note ("Meter rate rules, no surge").
+2. **Provider comparison stays side-by-side**: option rows = radio list (provider icon · tier name · ETA min · ETB price · badge Fastest/Best Value). Never paginate options into separate screens.
+3. **Context card first**: arriving from `/restaurants/[id]` or `/events/[id]?to=…` shows a "Getting to {venue}" header card with a Change destination affordance above pickup/dropoff inputs.
+4. **Favorite locations** (Home / Work / recent chips) once authed users have history — one-tap fill, cuts the #1 friction.
+5. Keep manual-distance calculator visually equal to maps mode (maps optional enhancement, never a blocker).
+6. Bottom summary bar: time · distance · passengers · dual CTA (secondary "Navigate", primary gold "Open {Provider}") using existing dispatch deep links.
+
+### Slice E — Auth & onboarding (role cards + honest wizards)
+1. Role picker = **single-select cards**: icon tile + title + one-line description; selected state = gold ring (`ring-2`) + check; Continue disabled until chosen. Three cards: Consumer / Restaurant partner / Event organizer.
+2. Signup wizards get a labeled **progress stepper** (1 Account → 2 Details → 3 Preferences) — steps clickable back, never forward-jumping.
+3. Dietary/allergy step uses chip multi-select (vegan, fasting, halal, allergies…) not free text; selections persist to `profiles.dietary_preferences`/`allergies`.
+4. After signup: land users where their role lives (consumer → home w/ greeting; partners → dashboard empty-state with "Create your first listing" CTA).
+5. Ticket success state → DICE-style **ticket stub wallet card**: navy card, perforated edge, QR placeholder, "Add to photos" hint.
+
+### Slice F — Partner dashboards (dark console rules)
+1. Contrast discipline on navy: body text ≥ ivory/85, muted ≥ ivory/60; gold reserved for KPIs, active nav, primary buttons — never long body text.
+2. Overview = 4 MetricCards (tabular numerals, trend arrows ▲▼ with success/danger) + "Recent reservations/orders" list with StatusPills.
+3. Reservations hub (OpenTable Guest Center model): Today default view, timeline/slot grouping, quick actions Confirm/Reject inline — no drill-down needed for common ops.
+4. Empty states double as onboarding: each empty panel carries its own "Create first X" button.
+5. Tables: sticky header, row height ≥56px mobile, horizontal scroll only past 3 columns.
+
+### Slice G polish reminders
+Staggered fade-in-up on card grids (≤12 items), skeleton shimmer already tokenized, `prefers-reduced-motion` respected globally, Lighthouse mobile ≥90 target, 320px sweep.
