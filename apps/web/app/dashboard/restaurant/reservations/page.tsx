@@ -50,11 +50,15 @@ export default function ReservationsPage() {
       if (!data) { setLoading(false); return }
 
       const userIds = Array.from(new Set(data.map((r) => r.user_id).filter(Boolean)))
-      const { data: profiles } = userIds.length
-        ? await supabase.from('profiles').select('id, email, phone').in('id', userIds)
-        : { data: [] as { id: string; email?: string; phone?: string }[] | null }
+      // profiles RLS is own-row-only (migration 0007); partners get customer
+      // contact for reservations at their branches via this RPC instead.
+      type CustomerContact = { id: string; email?: string; phone?: string }
+      const contactsResult = userIds.length
+        ? await supabase.rpc('partner_customer_contacts', { p_user_ids: userIds })
+        : { data: [] as CustomerContact[] | null }
+      const contacts = (contactsResult.data ?? []) as CustomerContact[]
 
-      const profileMap = new Map((profiles ?? []).map((p) => [p.id, p]))
+      const profileMap = new Map(contacts.map((p) => [p.id, p]))
       const mapped: Reservation[] = data.map((r) => {
         const profile = profileMap.get(r.user_id)
         return {

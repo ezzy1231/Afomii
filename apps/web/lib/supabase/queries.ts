@@ -1,6 +1,9 @@
 import { createClient } from '@/lib/supabase/server'
 import { fallbackRestaurants, fallbackEvents, type CatalogueItem } from '@/lib/catalogue'
 
+// Sample-detail builders must never serve fake menus/prices in production.
+const SAMPLE_DETAIL_DATA = process.env.NODE_ENV !== 'production'
+
 export type DetailBranch = {
   id: string
   branchName: string
@@ -74,8 +77,12 @@ export async function getRestaurantDetail(id: string): Promise<RestaurantDetail 
     .maybeSingle()
 
   if (error || !restaurant) {
-    const sample = fallbackRestaurants.find((r) => r.id === id)
-    return sample ? buildSampleRestaurantDetail(sample) : null
+    console.error('[queries] restaurant detail unavailable:', error?.message ?? 'not found')
+    if (SAMPLE_DETAIL_DATA) {
+      const sample = fallbackRestaurants.find((r) => r.id === id)
+      return sample ? buildSampleRestaurantDetail(sample) : null
+    }
+    return null
   }
 
   const { data: branches } = await supabase
@@ -140,8 +147,12 @@ export async function getEventDetail(id: string): Promise<EventDetail | null> {
     .maybeSingle()
 
   if (error || !event) {
-    const sample = fallbackEvents.find((e) => e.id === id)
-    return sample ? buildSampleEventDetail(sample) : null
+    console.error('[queries] event detail unavailable:', error?.message ?? 'not found')
+    if (SAMPLE_DETAIL_DATA) {
+      const sample = fallbackEvents.find((e) => e.id === id)
+      return sample ? buildSampleEventDetail(sample) : null
+    }
+    return null
   }
 
   const { data: ticketTypes } = await supabase
@@ -298,7 +309,7 @@ function buildSampleRestaurantDetail(item: CatalogueItem): RestaurantDetail {
     name: item.name,
     category: item.category,
     logoUrl: null,
-    coverUrl: null,
+    coverUrl: item.imageUrl ?? null,
     isVerified: true,
     rating: Number(item.rating) || null,
     openingHours: hours,
@@ -386,23 +397,33 @@ export async function getOrganizerDetail(id: string): Promise<OrganizerDetail | 
 
   const { data: org, error } = await supabase
     .from('organizers')
-    .select('id, name, bio, logo_url, cover_url, is_verified, city, follower_count, rating')
+    .select('id, name, description, is_verified')
     .eq('id', id)
     .maybeSingle()
 
   if (error || !org) {
-    const sample = fallbackOrganizers.find((o) => o.id === id)
-    return sample ?? null
+    console.error('[queries] organizer detail unavailable:', error?.message ?? 'not found')
+    if (SAMPLE_DETAIL_DATA) {
+      const sample = fallbackOrganizers.find((o) => o.id === id)
+      return sample ?? null
+    }
+    return null
   }
 
-  const { data: events } = await supabase
-    .from('events')
-    .select(
-      'id, title, category, venue_name, starts_at, end_date_time, cover_image_url, status, ticket_types(price)'
-    )
-    .eq('organizer_id', id)
-    .eq('status', 'published')
-    .order('starts_at', { ascending: true })
+  const [{ data: events }, { count: followers }] = await Promise.all([
+    supabase
+      .from('events')
+      .select(
+        'id, title, category, venue_name, starts_at, end_date_time, cover_image_url, status, ticket_types(price)'
+      )
+      .eq('organizer_id', id)
+      .eq('status', 'published')
+      .order('starts_at', { ascending: true }),
+    supabase
+      .from('subscriptions')
+      .select('id', { count: 'exact', head: true })
+      .eq('organizer_id', id),
+  ])
 
   const mappedEvents: OrganizerEvent[] = (events ?? []).map((e: any) => {
     const prices = (e.ticket_types ?? [])
@@ -423,13 +444,13 @@ export async function getOrganizerDetail(id: string): Promise<OrganizerDetail | 
   return {
     id: org.id,
     name: org.name,
-    bio: org.bio ?? null,
-    logoUrl: org.logo_url ?? null,
-    coverUrl: org.cover_url ?? null,
+    bio: org.description ?? null,
+    logoUrl: null,
+    coverUrl: null,
     isVerified: org.is_verified ?? false,
-    city: org.city ?? 'Addis Ababa',
-    followerCount: org.follower_count ?? 0,
-    rating: org.rating != null ? String(org.rating) : null,
+    city: 'Addis Ababa',
+    followerCount: followers ?? 0,
+    rating: null,
     events: mappedEvents,
   }
 }

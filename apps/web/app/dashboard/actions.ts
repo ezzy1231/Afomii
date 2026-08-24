@@ -2,6 +2,17 @@
 
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
+import {
+  branchInputSchema,
+  bookingConfigInputSchema,
+  eventListingInputSchema,
+  firstIssue,
+  logActionError,
+  openingHoursSchema,
+  restaurantListingInputSchema,
+  reservationStatusSchema,
+  uuidSchema,
+} from '@/lib/validation'
 
 export type DashboardActionState = {
   ok: boolean
@@ -46,15 +57,16 @@ export async function createRestaurantListing(
     return { ok: false, message: 'Only food business accounts can create restaurant listings.' }
   }
 
-  const name = readText(formData, 'name')
-  const cuisine = readText(formData, 'cuisine')
-  const areaLabel = readText(formData, 'areaLabel')
-  const city = readText(formData, 'city')
-  const closingLabel = readText(formData, 'closingLabel')
+  const parsed = restaurantListingInputSchema.safeParse({
+    name: readText(formData, 'name'),
+    cuisine: readText(formData, 'cuisine'),
+    areaLabel: readText(formData, 'areaLabel'),
+    city: readText(formData, 'city'),
+    closingLabel: readText(formData, 'closingLabel'),
+  })
+  if (!parsed.success) return { ok: false, message: firstIssue(parsed.error) }
 
-  if (!name) return { ok: false, message: 'Restaurant name is required.' }
-  if (name.length < 2) return { ok: false, message: 'Restaurant name must be at least 2 characters.' }
-  if (!city) return { ok: false, message: 'City is required.' }
+  const { name, cuisine, areaLabel, city, closingLabel } = parsed.data
 
   const { data: business } = await supabase
     .from('businesses')
@@ -79,7 +91,10 @@ export async function createRestaurantListing(
     is_active: true,
   })
 
-  if (error) return defaultErrorState
+  if (error) {
+    logActionError('createRestaurantListing', error)
+    return defaultErrorState
+  }
 
   revalidatePath('/dashboard/restaurant')
   revalidatePath('/restaurants')
@@ -97,19 +112,17 @@ export async function createEventListing(
     return { ok: false, message: 'Only event organizer accounts can create event listings.' }
   }
 
-  const title = readText(formData, 'title')
-  const category = readText(formData, 'category')
-  const venueName = readText(formData, 'venueName')
-  const startsAt = readText(formData, 'startsAt')
-  const priceLabel = readText(formData, 'priceLabel')
+  const parsed = eventListingInputSchema.safeParse({
+    title: readText(formData, 'title'),
+    category: readText(formData, 'category'),
+    venueName: readText(formData, 'venueName'),
+    startsAt: readText(formData, 'startsAt'),
+    priceLabel: readText(formData, 'priceLabel'),
+  })
+  if (!parsed.success) return { ok: false, message: firstIssue(parsed.error) }
 
-  if (!title) return { ok: false, message: 'Event title is required.' }
-  if (!venueName) return { ok: false, message: 'Venue is required.' }
-
+  const { title, category, venueName, startsAt, priceLabel } = parsed.data
   const startsAtDate = startsAt ? new Date(startsAt) : null
-  if (startsAt && (!startsAtDate || Number.isNaN(startsAtDate.getTime()))) {
-    return { ok: false, message: 'Please provide a valid date and time.' }
-  }
 
   const { data: organizer } = await supabase
     .from('organizers')
@@ -134,7 +147,10 @@ export async function createEventListing(
     is_active: true,
   })
 
-  if (error) return defaultErrorState
+  if (error) {
+    logActionError('createEventListing', error)
+    return defaultErrorState
+  }
 
   revalidatePath('/dashboard/organizer')
   revalidatePath('/events')
@@ -142,19 +158,13 @@ export async function createEventListing(
   return { ok: true, message: `Event created: ${title}.` }
 }
 
-const RESERVATION_STATUSES = new Set([
-  'pending',
-  'confirmed',
-  'rejected',
-  'cancelled',
-  'completed',
-])
-
 export async function updateReservationStatus(
   id: string,
   status: string
 ): Promise<DashboardActionState> {
-  if (!RESERVATION_STATUSES.has(status)) {
+  const idCheck = uuidSchema.safeParse(id)
+  const statusCheck = reservationStatusSchema.safeParse(status)
+  if (!idCheck.success || !statusCheck.success) {
     return { ok: false, message: 'Invalid reservation status.' }
   }
 
@@ -181,25 +191,26 @@ export async function updateReservationStatus(
   const { data: existing } = await supabase
     .from('reservations')
     .select('id, branch_id')
-    .eq('id', id)
+    .eq('id', idCheck.data)
     .maybeSingle()
   if (!existing || !branchIds.includes(existing.branch_id)) {
     return { ok: false, message: 'Reservation not found or not authorized.' }
   }
 
-  const { error } = await supabase.from('reservations').update({ status }).eq('id', id)
-  if (error) return defaultErrorState
+  const { error } = await supabase.from('reservations').update({ status }).eq('id', idCheck.data)
+  if (error) {
+    logActionError('updateReservationStatus', error)
+    return defaultErrorState
+  }
 
-  await supabase
-    .from('audit_logs')
-    .insert({
-      actor_id: user.id,
-      action: 'reservation_status_change',
-      entity_type: 'reservation',
-      entity_id: id,
-      metadata: { status },
-    })
-    .then(() => {})
+  const { error: auditError } = await supabase.from('audit_logs').insert({
+    actor_id: user.id,
+    action: 'reservation_status_change',
+    entity_type: 'reservation',
+    entity_id: id,
+    metadata: { status },
+  })
+  if (auditError) logActionError('updateReservationStatus.audit', auditError)
 
   revalidatePath('/dashboard/restaurant/reservations')
   return { ok: true, message: `Reservation marked ${status}.` }
@@ -209,6 +220,9 @@ export async function toggleEventActive(
   id: string,
   active: boolean
 ): Promise<DashboardActionState> {
+  const idCheck = uuidSchema.safeParse(id)
+  if (!idCheck.success) return { ok: false, message: 'Invalid event identifier.' }
+
   const { supabase, user, role } = await getCurrentUserRole()
   if (!user) return { ok: false, message: 'Please sign in again to continue.' }
   if (role !== 'event_organizer') {
@@ -225,7 +239,7 @@ export async function toggleEventActive(
   const { data: ev } = await supabase
     .from('events')
     .select('id')
-    .eq('id', id)
+    .eq('id', idCheck.data)
     .eq('organizer_id', organizer.id)
     .maybeSingle()
   if (!ev) return { ok: false, message: 'Event not found or not authorized.' }
@@ -233,16 +247,17 @@ export async function toggleEventActive(
   const { error } = await supabase
     .from('events')
     .update({ is_active: active, status: active ? 'published' : 'draft' })
-    .eq('id', id)
+    .eq('id', idCheck.data)
 
-  if (error) return defaultErrorState
+  if (error) {
+    logActionError('toggleEventActive', error)
+    return defaultErrorState
+  }
 
   revalidatePath('/dashboard/organizer/events')
   revalidatePath('/events')
   return { ok: true, message: active ? 'Event published.' : 'Event unpublished.' }
 }
-
-const BOOKING_MODES = new Set(['instant', 'request', 'closed'])
 
 export async function addBranch(
   _prevState: DashboardActionState,
@@ -261,17 +276,18 @@ export async function addBranch(
     .maybeSingle()
   if (!business) return { ok: false, message: 'No linked business profile found.' }
 
-  const branchName = readText(formData, 'branchName')
-  const address = readText(formData, 'address')
-  const phone = readText(formData, 'phone')
   const latRaw = formData.get('latitude')
   const lngRaw = formData.get('longitude')
-  const latitude = typeof latRaw === 'string' && latRaw.trim() ? Number(latRaw) : null
-  const longitude = typeof lngRaw === 'string' && lngRaw.trim() ? Number(lngRaw) : null
+  const parsed = branchInputSchema.safeParse({
+    branchName: readText(formData, 'branchName'),
+    address: readText(formData, 'address'),
+    phone: readText(formData, 'phone'),
+    latitude: typeof latRaw === 'string' && latRaw.trim() ? latRaw : null,
+    longitude: typeof lngRaw === 'string' && lngRaw.trim() ? lngRaw : null,
+  })
+  if (!parsed.success) return { ok: false, message: firstIssue(parsed.error) }
 
-  if (!branchName || !address) {
-    return { ok: false, message: 'Branch name and address are required.' }
-  }
+  const { branchName, address, phone, latitude, longitude } = parsed.data
 
   const { data: branch, error } = await supabase
     .from('branches')
@@ -286,19 +302,20 @@ export async function addBranch(
     .select('id')
     .maybeSingle()
 
-  if (error || !branch) return defaultErrorState
+  if (error || !branch) {
+    logActionError('addBranch', error ?? new Error('Branch insert returned no row'))
+    return defaultErrorState
+  }
 
-  await supabase
-    .from('booking_configs')
-    .insert({
-      branch_id: branch.id,
-      booking_mode: 'instant',
-      total_tables: 10,
-      max_guest_per_table: 8,
-      slot_duration_minutes: 30,
-      advance_notice_hours: 2,
-    })
-    .then(() => {})
+  const { error: configError } = await supabase.from('booking_configs').insert({
+    branch_id: branch.id,
+    booking_mode: 'instant',
+    total_tables: 10,
+    max_guest_per_table: 8,
+    slot_duration_minutes: 30,
+    advance_notice_hours: 2,
+  })
+  if (configError) logActionError('addBranch.config', configError)
 
   revalidatePath('/dashboard/restaurant/branches')
   revalidatePath('/restaurants')
@@ -313,9 +330,8 @@ export async function updateBranchBookingConfig(input: {
   slotDurationMinutes: number
   advanceNoticeHours: number
 }): Promise<DashboardActionState> {
-  if (!BOOKING_MODES.has(input.bookingMode)) {
-    return { ok: false, message: 'Invalid booking mode.' }
-  }
+  const parsed = bookingConfigInputSchema.safeParse(input)
+  if (!parsed.success) return { ok: false, message: firstIssue(parsed.error) }
 
   const { supabase, user, role } = await getCurrentUserRole()
   if (!user) return { ok: false, message: 'Please sign in again to continue.' }
@@ -333,21 +349,24 @@ export async function updateBranchBookingConfig(input: {
   const { data: branch } = await supabase
     .from('branches')
     .select('id')
-    .eq('id', input.branchId)
+    .eq('id', parsed.data.branchId)
     .eq('business_id', business.id)
     .maybeSingle()
   if (!branch) return { ok: false, message: 'Branch not found or not authorized.' }
 
   const { error } = await supabase.from('booking_configs').upsert({
-    branch_id: input.branchId,
-    booking_mode: input.bookingMode,
-    total_tables: input.totalTables,
-    max_guest_per_table: input.maxGuestPerTable,
-    slot_duration_minutes: input.slotDurationMinutes,
-    advance_notice_hours: input.advanceNoticeHours,
+    branch_id: parsed.data.branchId,
+    booking_mode: parsed.data.bookingMode,
+    total_tables: parsed.data.totalTables,
+    max_guest_per_table: parsed.data.maxGuestPerTable,
+    slot_duration_minutes: parsed.data.slotDurationMinutes,
+    advance_notice_hours: parsed.data.advanceNoticeHours,
   })
 
-  if (error) return defaultErrorState
+  if (error) {
+    logActionError('updateBranchBookingConfig', error)
+    return defaultErrorState
+  }
 
   revalidatePath('/dashboard/restaurant/branches')
   revalidatePath('/restaurants')
@@ -358,6 +377,12 @@ export async function updateRestaurantHours(input: {
   restaurantId: string
   openingHours: Record<string, { open: string; close: string }[]>
 }): Promise<DashboardActionState> {
+  const idCheck = uuidSchema.safeParse(input.restaurantId)
+  if (!idCheck.success) return { ok: false, message: 'Invalid restaurant identifier.' }
+
+  const hoursCheck = openingHoursSchema.safeParse(input.openingHours)
+  if (!hoursCheck.success) return { ok: false, message: 'Opening hours format is invalid.' }
+
   const { supabase, user, role } = await getCurrentUserRole()
   if (!user) return { ok: false, message: 'Please sign in again to continue.' }
   if (role !== 'food_business') {
@@ -374,17 +399,20 @@ export async function updateRestaurantHours(input: {
   const { data: restaurant } = await supabase
     .from('restaurants')
     .select('id')
-    .eq('id', input.restaurantId)
+    .eq('id', idCheck.data)
     .eq('business_id', business.id)
     .maybeSingle()
   if (!restaurant) return { ok: false, message: 'Restaurant not found or not authorized.' }
 
   const { error } = await supabase
     .from('restaurants')
-    .update({ opening_hours: input.openingHours })
-    .eq('id', input.restaurantId)
+    .update({ opening_hours: hoursCheck.data })
+    .eq('id', idCheck.data)
 
-  if (error) return defaultErrorState
+  if (error) {
+    logActionError('updateRestaurantHours', error)
+    return defaultErrorState
+  }
 
   revalidatePath('/dashboard/restaurant/branches')
   revalidatePath('/restaurants')

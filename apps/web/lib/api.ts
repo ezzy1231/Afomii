@@ -1,4 +1,6 @@
-const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000/api/v1";
+// The NestJS API is deprecated in favor of direct Supabase access. Any caller
+// must explicitly configure NEXT_PUBLIC_API_URL — no silent localhost fallback.
+const API_BASE = process.env.NEXT_PUBLIC_API_URL;
 
 type RequestOptions = {
   method?: string;
@@ -7,6 +9,10 @@ type RequestOptions = {
 };
 
 export async function apiRequest<T>(endpoint: string, options: RequestOptions = {}): Promise<T> {
+  if (!API_BASE) {
+    throw new Error("NEXT_PUBLIC_API_URL is not configured");
+  }
+
   const { method = "GET", body, token } = options;
 
   const headers: Record<string, string> = {

@@ -34,10 +34,10 @@ function chooseColor(name: string, palette: string[]) {
 }
 
 export const fallbackRestaurants: CatalogueItem[] = [
-  { id: '1', name: 'Juniper Table', category: 'Modern African', location: 'West End', detail: 'Open until 11:00 PM', rating: '4.9', color: 'bg-orange-100 text-orange-800' },
-  { id: '2', name: 'Sora Noodle House', category: 'Japanese', location: 'Central Market', detail: 'Open until 10:30 PM', rating: '4.8', color: 'bg-rose-100 text-rose-800' },
-  { id: '3', name: 'Olive & Grain', category: 'Mediterranean', location: 'Riverside', detail: 'Open until 10:00 PM', rating: '4.7', color: 'bg-emerald-100 text-emerald-800' },
-  { id: '4', name: 'Koru Coffee', category: 'Cafe', location: 'Old Town', detail: 'Open until 8:00 PM', rating: '4.8', color: 'bg-amber-100 text-amber-800' },
+  { id: '1', name: 'Juniper Table', category: 'Modern African', location: 'West End', detail: 'Open until 11:00 PM', rating: '4.9', color: 'bg-orange-100 text-orange-800', imageUrl: '/places/food-1.jpg' },
+  { id: '2', name: 'Sora Noodle House', category: 'Japanese', location: 'Central Market', detail: 'Open until 10:30 PM', rating: '4.8', color: 'bg-rose-100 text-rose-800', imageUrl: '/places/food-2.jpg' },
+  { id: '3', name: 'Olive & Grain', category: 'Mediterranean', location: 'Riverside', detail: 'Open until 10:00 PM', rating: '4.7', color: 'bg-emerald-100 text-emerald-800', imageUrl: '/places/food-3.jpg' },
+  { id: '4', name: 'Koru Coffee', category: 'Cafe', location: 'Old Town', detail: 'Open until 8:00 PM', rating: '4.8', color: 'bg-amber-100 text-amber-800', imageUrl: '/places/food-2.jpg' },
 ]
 
 export const fallbackEvents: CatalogueItem[] = [
@@ -60,6 +60,10 @@ function formatEventTime(value: string | null) {
   }).format(date)
 }
 
+// Sample listings must never ship to production (see PRODUCTION_READINESS_PLAN
+// M0): they exist only so local development has content before seeding Supabase.
+const SAMPLE_DATA_ENABLED = process.env.NODE_ENV !== 'production'
+
 export async function getRestaurantCatalogue(): Promise<{ items: CatalogueItem[]; source: 'live' | 'sample' }> {
   try {
     const supabase = await createClient()
@@ -71,7 +75,11 @@ export async function getRestaurantCatalogue(): Promise<{ items: CatalogueItem[]
       .limit(60)
 
     if (error || !data?.length) {
-      return { items: fallbackRestaurants, source: 'sample' }
+      if (!error) console.warn('[catalogue] no active restaurants found')
+      else console.error('[catalogue] restaurants query failed:', error.message)
+      return SAMPLE_DATA_ENABLED
+        ? { items: fallbackRestaurants, source: 'sample' }
+        : { items: [], source: 'live' }
     }
 
     const items: CatalogueItem[] = data.map((r: any) => ({
@@ -86,8 +94,11 @@ export async function getRestaurantCatalogue(): Promise<{ items: CatalogueItem[]
     }))
 
     return { items, source: 'live' }
-  } catch {
-    return { items: fallbackRestaurants, source: 'sample' }
+  } catch (err) {
+    console.error('[catalogue] restaurants catalogue crashed:', err)
+    return SAMPLE_DATA_ENABLED
+      ? { items: fallbackRestaurants, source: 'sample' }
+      : { items: [], source: 'live' }
   }
 }
 
@@ -103,7 +114,11 @@ export async function getEventCatalogue(): Promise<{ items: CatalogueItem[]; sou
       .limit(60)
 
     if (error || !data?.length) {
-      return { items: fallbackEvents, source: 'sample' }
+      if (!error) console.warn('[catalogue] no published events found')
+      else console.error('[catalogue] events query failed:', error.message)
+      return SAMPLE_DATA_ENABLED
+        ? { items: fallbackEvents, source: 'sample' }
+        : { items: [], source: 'live' }
     }
 
     const items: CatalogueItem[] = data.map((event: any) => ({
@@ -122,7 +137,10 @@ export async function getEventCatalogue(): Promise<{ items: CatalogueItem[]; sou
     }))
 
     return { items, source: 'live' }
-  } catch {
-    return { items: fallbackEvents, source: 'sample' }
+  } catch (err) {
+    console.error('[catalogue] events catalogue crashed:', err)
+    return SAMPLE_DATA_ENABLED
+      ? { items: fallbackEvents, source: 'sample' }
+      : { items: [], source: 'live' }
   }
 }

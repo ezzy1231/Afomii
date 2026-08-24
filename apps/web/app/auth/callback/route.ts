@@ -4,7 +4,13 @@ import { NextResponse } from 'next/server'
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url)
   const code = searchParams.get('code')
-  const next = searchParams.get('next') ?? '/'
+  const rawNext = searchParams.get('next') ?? '/'
+
+  // Open-redirect guard: only allow same-site relative paths.
+  const next =
+    rawNext.startsWith('/') && !rawNext.startsWith('//') && !rawNext.includes('\\')
+      ? rawNext
+      : '/'
 
   if (code) {
     const supabase = await createClient()
@@ -29,7 +35,8 @@ export async function GET(request: Request) {
             '-' +
             user.id.slice(0, 6)
 
-          await supabase.from('businesses').insert({
+          // Column set must match packages/supabase/migrations (0002 + 0007).
+          const { error: insertError } = await supabase.from('businesses').insert({
             owner_id: user.id,
             name: rawName,
             slug,
@@ -42,6 +49,10 @@ export async function GET(request: Request) {
             website: (meta.business_website as string) ?? '',
             plan: (meta.business_plan as string) ?? 'free',
           })
+
+          if (insertError) {
+            console.error('[auth/callback] business provisioning failed:', insertError.message)
+          }
         }
 
         return NextResponse.redirect(new URL('/dashboard/restaurant', origin))
@@ -62,9 +73,11 @@ export async function GET(request: Request) {
             '-' +
             user.id.slice(0, 6)
 
-          await supabase.from('organizers').insert({
+          // Column set must match packages/supabase/migrations (0002 + 0007).
+          // NOTE: the organizers table column is `name` (not `org_name`).
+          const { error: insertError } = await supabase.from('organizers').insert({
             owner_id: user.id,
-            org_name: rawName,
+            name: rawName,
             slug,
             category: (meta.org_category as string) ?? 'other',
             description: (meta.org_description as string) ?? '',
@@ -75,6 +88,10 @@ export async function GET(request: Request) {
             website: (meta.org_website as string) ?? '',
             plan: (meta.org_plan as string) ?? 'free',
           })
+
+          if (insertError) {
+            console.error('[auth/callback] organizer provisioning failed:', insertError.message)
+          }
         }
 
         return NextResponse.redirect(new URL('/dashboard/organizer', origin))

@@ -2,6 +2,12 @@
 -- UrbanExplore Supabase schema (single-file apply)
 -- Run this entire file in the Supabase SQL Editor (dashboard -> SQL).
 -- Order: extensions/enums -> tables -> RLS -> profiles trigger -> RPCs -> seed
+--
+-- !! CANONICAL SOURCE: packages/supabase/migrations/0001..0007 !!
+-- This single-file snapshot is NOT auto-generated yet and may lag behind the
+-- numbered migrations. 0007_security_hardening.sql is currently NOT included
+-- here — apply the numbered migrations (supabase db push or SQL editor, in
+-- filename order) instead of relying on this file. Regenerate before use.
 -- ============================================================
 
 
