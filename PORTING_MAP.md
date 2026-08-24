@@ -16,9 +16,9 @@ Stitch followed our token system exactly (ivory #FCF9F8 / navy #0B1F3A / gold #C
 | `business_profile` | `app/auth/signup/business/page.tsx` | ⬜ TODO | Two-step partner onboarding incl. first-branch form + hours editor |
 | `organizer_signup` | `app/auth/signup/organizer/page.tsx` | ⬜ TODO | Org type chips, payout card |
 | `sign_in` | `app/auth/signin/page.tsx` | 🟡 minor | Verify error banner + email-confirm pending state styling |
-| `my_account` | `app/settings/page.tsx` | ⬜ TODO | Ticket-stub wallet list + reservation status pills |
+| `my_account` | `app/settings/page.tsx` | 🟡 tickets done | Ticket-stub wallet grid (navy perforated cards) + onboarding empty state shipped; profile/account card polish remains |
 | `partner_overview` | `app/dashboard/restaurant/page.tsx` | ✅ **ported** | Dark console (#07192B/#0B1D31), KPI grid (real counts only — no fake trends), today's timeline w/ inline confirm/reject via server action + contacts RPC; trends deferred until historical data exists |
-| `reservations_inbox` | `app/dashboard/restaurant/reservations/page.tsx` | ⬜ TODO | Day/Week/Month segmented control, slot grouping, inline confirm/reject |
+| `reservations_inbox` | `app/dashboard/restaurant/reservations/page.tsx` | ✅ **ported** | Dark console; Day/Week/Month segmented control, live status-count chips, slot-grouped rows w/ inline confirm/reject (Stitch artboard mixed themes — structure ported into established console theme) |
 | `menu_manager` | `app/dashboard/restaurant/menu/page.tsx` | ⬜ TODO | Category tabs + item rows w/ availability toggle + edit modal |
 | `branch_configuration` | `components/dashboard/branch-manager.tsx` | ⬜ TODO | Segmented booking-mode control + live preview strip + sticky save bar |
 | `analytics_dashboard` | `app/dashboard/*/analytics/page.tsx` | ⬜ TODO | Chart cards (gold line on navy grid), top-dishes list |
