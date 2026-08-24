@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Branch Settings</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&amp;family=Playfair+Display:wght@600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "secondary": "#705b32",
+                      "on-primary-container": "#7587a7",
+                      "outline": "#75777e",
+                      "error": "#ba1a1a",
+                      "surface-variant": "#e4e2e1",
+                      "on-primary": "#ffffff",
+                      "on-secondary-container": "#756036",
+                      "tertiary-container": "#2d1b00",
+                      "surface-container-high": "#eae7e7",
+                      "surface-dim": "#dcd9d8",
+                      "primary-container": "#0b1f3a",
+                      "inverse-surface": "#303030",
+                      "surface-container": "#f0edec",
+                      "secondary-fixed-dim": "#dfc391",
+                      "on-secondary": "#ffffff",
+                      "outline-variant": "#c4c6ce",
+                      "on-tertiary-fixed": "#291800",
+                      "inverse-primary": "#b5c7ea",
+                      "on-tertiary-fixed-variant": "#5d4215",
+                      "on-tertiary": "#ffffff",
+                      "inverse-on-surface": "#f3f0ef",
+                      "secondary-fixed": "#fcdfab",
+                      "on-secondary-fixed-variant": "#57441d",
+                      "on-primary-fixed": "#071c36",
+                      "primary-fixed-dim": "#b5c7ea",
+                      "tertiary": "#0b0500",
+                      "surface-container-highest": "#e4e2e1",
+                      "surface": "#fcf9f8",
+                      "on-error-container": "#93000a",
+                      "on-secondary-fixed": "#261900",
+                      "secondary-container": "#f9dca8",
+                      "primary": "#000615",
+                      "tertiary-fixed-dim": "#e8c088",
+                      "background": "#fcf9f8",
+                      "on-tertiary-container": "#a3814e",
+                      "on-primary-fixed-variant": "#364764",
+                      "surface-bright": "#fcf9f8",
+                      "surface-container-lowest": "#ffffff",
+                      "surface-tint": "#4d5f7d",
+                      "on-surface": "#1b1c1b",
+                      "on-error": "#ffffff",
+                      "primary-fixed": "#d6e3ff",
+                      "tertiary-fixed": "#ffddb1",
+                      "on-background": "#1b1c1b",
+                      "error-container": "#ffdad6",
+                      "surface-container-low": "#f6f3f2",
+                      "on-surface-variant": "#44474d"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "md": "16px",
+                      "xl": "32px",
+                      "sm": "12px",
+                      "margin-mobile": "20px",
+                      "base": "4px",
+                      "xxl": "48px",
+                      "lg": "24px",
+                      "gutter": "16px",
+                      "margin-desktop": "64px",
+                      "xs": "8px"
+              },
+              "fontFamily": {
+                      "body-md": [
+                              "Inter"
+                      ],
+                      "button": [
+                              "Inter"
+                      ],
+                      "body-lg": [
+                              "Inter"
+                      ],
+                      "label-eyebrow": [
+                              "Inter"
+                      ],
+                      "price-tag": [
+                              "Playfair Display"
+                      ],
+                      "headline-lg": [
+                              "Playfair Display"
+                      ],
+                      "display-lg": [
+                              "Playfair Display"
+                      ],
+                      "headline-sm": [
+                              "Playfair Display"
+                      ]
+              },
+              "fontSize": {
+                      "body-md": [
+                              "16px",
+                              {
+                                      "lineHeight": "1.5",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "button": [
+                              "14px",
+                              {
+                                      "letterSpacing": "0.02em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-lg": [
+                              "18px",
+                              {
+                                      "lineHeight": "1.6",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "label-eyebrow": [
+                              "11px",
+                              {
+                                      "lineHeight": "16px",
+                                      "letterSpacing": "0.15em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "price-tag": [
+                              "20px",
+                              {
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "headline-lg": [
+                              "32px",
+                              {
+                                      "lineHeight": "1.2",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "display-lg": [
+                              "48px",
+                              {
+                                      "lineHeight": "1.1",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "headline-sm": [
+                              "24px",
+                              {
+                                      "lineHeight": "1.3",
+                                      "fontWeight": "600"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+      </script>
+</head>
+<body class="bg-background text-on-background antialiased pb-32">
+<!-- Top App Bar -->
+<header class="fixed top-0 w-full z-50 flex justify-between items-center px-margin-mobile h-16 bg-primary/90 backdrop-blur-md dark:bg-primary/95 shadow-sm">
+<button class="flex items-center justify-center p-2 text-on-primary hover:opacity-80 transition-opacity">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<h1 class="font-headline-sm text-headline-sm text-on-primary">UrbanExplore</h1>
+<button class="flex items-center justify-center p-2 text-on-primary hover:opacity-80 transition-opacity">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+</header>
+<!-- Main Content Canvas -->
+<main class="pt-24 px-margin-mobile flex flex-col gap-xl max-w-md mx-auto">
+<!-- Header & Branch Selector -->
+<section class="flex flex-col gap-md">
+<div>
+<h2 class="font-headline-sm text-headline-sm text-primary mb-xs">Booking Settings</h2>
+<p class="font-body-md text-body-md text-on-surface-variant">Configure availability and rules.</p>
+</div>
+<div class="flex gap-sm overflow-x-auto snap-x hide-scrollbar pb-2">
+<button class="snap-start shrink-0 px-4 py-2 rounded-full border border-secondary text-secondary font-button text-button bg-secondary/10">Bole</button>
+<button class="snap-start shrink-0 px-4 py-2 rounded-full border border-outline-variant text-on-surface-variant font-button text-button hover:bg-surface-container transition-colors">Kazanchis</button>
+<button class="snap-start shrink-0 px-4 py-2 rounded-full border border-dashed border-outline-variant text-on-surface-variant font-button text-button flex items-center gap-1 hover:bg-surface-container transition-colors">
+<span class="material-symbols-outlined text-sm">add</span> Add
+                </button>
+</div>
+</section>
+<!-- Booking Mode Card -->
+<section class="bg-surface-container-lowest rounded-xl p-md shadow-[0_4px_20px_rgba(0,0,0,0.06)] flex flex-col gap-lg border border-surface-container">
+<h3 class="font-label-eyebrow text-label-eyebrow text-on-surface uppercase">1. Booking Mode</h3>
+<div class="grid grid-cols-1 gap-sm">
+<!-- Mode Option -->
+<label class="flex items-start p-sm rounded-lg border border-outline-variant cursor-pointer hover:bg-surface-container transition-colors">
+<input class="mt-1 text-primary focus:ring-primary border-outline-variant" name="booking_mode" type="radio"/>
+<div class="ml-3 flex flex-col">
+<span class="font-body-md text-body-md font-semibold text-on-surface">Walk-in Only</span>
+<span class="font-body-md text-body-md text-sm text-on-surface-variant">No reservations accepted.</span>
+</div>
+</label>
+<!-- Active Mode Option -->
+<label class="flex items-start p-sm rounded-lg border-2 border-secondary bg-secondary/5 cursor-pointer relative overflow-hidden">
+<div class="absolute top-0 right-0 p-1 bg-secondary rounded-bl-lg">
+<span class="material-symbols-outlined text-on-secondary text-xs" style="font-variation-settings: 'FILL' 1;">check</span>
+</div>
+<input checked="" class="mt-1 text-secondary focus:ring-secondary border-secondary" name="booking_mode" type="radio"/>
+<div class="ml-3 flex flex-col">
+<span class="font-body-md text-body-md font-semibold text-on-surface">Time Slots</span>
+<span class="font-body-md text-body-md text-sm text-on-surface-variant">Guests book specific times.</span>
+</div>
+</label>
+<!-- Mode Option -->
+<label class="flex items-start p-sm rounded-lg border border-outline-variant cursor-pointer hover:bg-surface-container transition-colors">
+<input class="mt-1 text-primary focus:ring-primary border-outline-variant" name="booking_mode" type="radio"/>
+<div class="ml-3 flex flex-col">
+<span class="font-body-md text-body-md font-semibold text-on-surface">Request Mode</span>
+<span class="font-body-md text-body-md text-sm text-on-surface-variant">Manual approval required.</span>
+</div>
+</label>
+</div>
+</section>
+<!-- Capacity Card -->
+<section class="bg-surface-container-lowest rounded-xl p-md shadow-[0_4px_20px_rgba(0,0,0,0.06)] flex flex-col gap-lg border border-surface-container">
+<h3 class="font-label-eyebrow text-label-eyebrow text-on-surface uppercase">2. Capacity</h3>
+<div class="flex flex-col gap-md">
+<div class="flex justify-between items-center">
+<div class="flex flex-col">
+<span class="font-body-md text-body-md text-on-surface">Total Tables</span>
+</div>
+<div class="flex items-center gap-3 bg-surface-container rounded-full p-1">
+<button class="w-8 h-8 rounded-full bg-surface-container-lowest shadow-sm flex items-center justify-center text-on-surface hover:bg-surface-variant active:scale-95 transition-all"><span class="material-symbols-outlined">remove</span></button>
+<span class="font-body-lg text-body-lg font-semibold w-6 text-center">12</span>
+<button class="w-8 h-8 rounded-full bg-surface-container-lowest shadow-sm flex items-center justify-center text-on-surface hover:bg-surface-variant active:scale-95 transition-all"><span class="material-symbols-outlined">add</span></button>
+</div>
+</div>
+<div class="h-px bg-surface-variant w-full"></div>
+<div class="flex justify-between items-center">
+<div class="flex flex-col">
+<span class="font-body-md text-body-md text-on-surface">Max Guests / Table</span>
+</div>
+<div class="flex items-center gap-3 bg-surface-container rounded-full p-1">
+<button class="w-8 h-8 rounded-full bg-surface-container-lowest shadow-sm flex items-center justify-center text-on-surface hover:bg-surface-variant active:scale-95 transition-all"><span class="material-symbols-outlined">remove</span></button>
+<span class="font-body-lg text-body-lg font-semibold w-6 text-center">8</span>
+<button class="w-8 h-8 rounded-full bg-surface-container-lowest shadow-sm flex items-center justify-center text-on-surface hover:bg-surface-variant active:scale-95 transition-all"><span class="material-symbols-outlined">add</span></button>
+</div>
+</div>
+</div>
+</section>
+<!-- Policy Card -->
+<section class="bg-surface-container-lowest rounded-xl p-md shadow-[0_4px_20px_rgba(0,0,0,0.06)] flex flex-col gap-lg border border-surface-container">
+<h3 class="font-label-eyebrow text-label-eyebrow text-on-surface uppercase">3. Policy</h3>
+<div class="flex flex-col gap-md">
+<div class="flex flex-col gap-2">
+<label class="font-label-eyebrow text-label-eyebrow text-on-surface-variant uppercase">Slot Duration</label>
+<select class="w-full rounded-md border-outline-variant bg-surface-container-lowest text-on-surface font-body-md text-body-md focus:ring-primary focus:border-primary shadow-sm py-2 px-3">
+<option>30 min</option>
+<option selected="">60 min</option>
+<option>90 min</option>
+<option>120 min</option>
+</select>
+</div>
+<div class="flex flex-col gap-2">
+<label class="font-label-eyebrow text-label-eyebrow text-on-surface-variant uppercase">Advance Notice (Hours)</label>
+<input class="w-full rounded-md border-outline-variant bg-surface-container-lowest text-on-surface font-body-md text-body-md focus:ring-primary focus:border-primary shadow-sm py-2 px-3" type="number" value="2"/>
+</div>
+<div class="flex flex-col gap-2">
+<label class="font-label-eyebrow text-label-eyebrow text-on-surface-variant uppercase">Cancellation Policy</label>
+<textarea class="w-full rounded-md border-outline-variant bg-surface-container-lowest text-on-surface font-body-md text-body-md focus:ring-primary focus:border-primary shadow-sm py-2 px-3 resize-none" placeholder="Enter terms..." rows="3"></textarea>
+</div>
+</div>
+</section>
+<!-- Live Preview Strip -->
+<section class="bg-primary-container text-on-primary-container rounded-lg p-sm text-sm flex items-center gap-3">
+<span class="material-symbols-outlined text-secondary">visibility</span>
+<span class="font-body-md text-body-md text-sm leading-tight">
+<strong>Guests see:</strong> Instant confirmation · up to 8 guests · free cancellation 2h
+            </span>
+</section>
+</main>
+<!-- Sticky Bottom Save Bar -->
+<div class="fixed bottom-0 left-0 w-full bg-surface-container-lowest/90 backdrop-blur-lg border-t border-surface-variant p-4 z-40 pb-6 flex justify-between items-center px-margin-mobile shadow-[0_-4px_20px_rgba(0,0,0,0.05)]">
+<span class="font-body-md text-body-md text-sm text-on-surface-variant italic">Unsaved changes</span>
+<div class="flex gap-3">
+<button class="px-4 py-2 rounded-full font-button text-button text-on-surface-variant hover:bg-surface-container transition-colors">Discard</button>
+<button class="px-6 py-2 rounded-full bg-secondary text-on-secondary font-button text-button hover:opacity-90 active:scale-95 transition-all shadow-md">Save</button>
+</div>
+</div>
+<style>
+        /* Utility for hiding scrollbar in horizontal scroll areas */
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</body></html>

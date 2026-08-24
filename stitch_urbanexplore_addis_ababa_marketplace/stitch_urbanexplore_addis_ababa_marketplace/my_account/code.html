@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Account Hub - UrbanExplore</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;family=Playfair+Display:wght@600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-error-container": "#93000a",
+                        "surface-container-high": "#eae7e7",
+                        "on-primary-fixed-variant": "#364764",
+                        "error-container": "#ffdad6",
+                        "on-error": "#ffffff",
+                        "surface-container-low": "#f6f3f2",
+                        "secondary-container": "#f9dca8",
+                        "tertiary": "#0b0500",
+                        "primary-fixed-dim": "#b5c7ea",
+                        "primary": "#000615",
+                        "secondary-fixed": "#fcdfab",
+                        "surface-container-highest": "#e4e2e1",
+                        "surface-dim": "#dcd9d8",
+                        "on-secondary-fixed-variant": "#57441d",
+                        "on-secondary": "#ffffff",
+                        "outline-variant": "#c4c6ce",
+                        "on-surface-variant": "#44474d",
+                        "surface-variant": "#e4e2e1",
+                        "on-tertiary": "#ffffff",
+                        "secondary": "#705b32",
+                        "primary-container": "#0b1f3a",
+                        "on-tertiary-fixed-variant": "#5d4215",
+                        "background": "#fcf9f8",
+                        "tertiary-container": "#2d1b00",
+                        "surface-bright": "#fcf9f8",
+                        "inverse-primary": "#b5c7ea",
+                        "secondary-fixed-dim": "#dfc391",
+                        "on-primary-container": "#7587a7",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container": "#f0edec",
+                        "on-tertiary-container": "#a3814e",
+                        "on-secondary-fixed": "#261900",
+                        "error": "#ba1a1a",
+                        "tertiary-fixed-dim": "#e8c088",
+                        "on-background": "#1b1c1b",
+                        "primary-fixed": "#d6e3ff",
+                        "on-tertiary-fixed": "#291800",
+                        "outline": "#75777e",
+                        "on-surface": "#1b1c1b",
+                        "on-primary": "#ffffff",
+                        "inverse-on-surface": "#f3f0ef",
+                        "surface": "#fcf9f8",
+                        "on-primary-fixed": "#071c36",
+                        "inverse-surface": "#303030",
+                        "surface-tint": "#4d5f7d",
+                        "on-secondary-container": "#756036",
+                        "tertiary-fixed": "#ffddb1"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px",
+                        "2xl": "1rem",
+                        "3xl": "1.5rem"
+                    },
+                    "spacing": {
+                        "margin-mobile": "20px",
+                        "xxl": "48px",
+                        "margin-desktop": "64px",
+                        "sm": "12px",
+                        "base": "4px",
+                        "gutter": "16px",
+                        "xl": "32px",
+                        "xs": "8px",
+                        "lg": "24px",
+                        "md": "16px"
+                    },
+                    "fontFamily": {
+                        "body-md": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "button": ["Inter"],
+                        "headline-lg": ["Playfair Display"],
+                        "display-lg": ["Playfair Display"],
+                        "label-eyebrow": ["Inter"],
+                        "headline-sm": ["Playfair Display"],
+                        "price-tag": ["Playfair Display"]
+                    },
+                    "fontSize": {
+                        "body-md": ["16px", { "lineHeight": "1.5", "fontWeight": "400" }],
+                        "body-lg": ["18px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "button": ["14px", { "letterSpacing": "0.02em", "fontWeight": "600" }],
+                        "headline-lg-mobile": ["28px", { "lineHeight": "1.2", "fontWeight": "600" }],
+                        "headline-lg": ["32px", { "lineHeight": "1.2", "fontWeight": "600" }],
+                        "display-lg": ["48px", { "lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "label-eyebrow": ["11px", { "lineHeight": "16px", "letterSpacing": "0.15em", "fontWeight": "600" }],
+                        "headline-sm": ["24px", { "lineHeight": "1.3", "fontWeight": "600" }],
+                        "price-tag": ["20px", { "fontWeight": "700" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .perforated-edge {
+            background-image: radial-gradient(circle at 10px 10px, transparent 10px, inherit 11px);
+            background-size: 100% 20px;
+            background-position: -10px 0;
+            background-repeat: repeat-y;
+        }
+        
+        .ticket-stub {
+            clip-path: polygon(0 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md antialiased pb-32">
+<!-- Header -->
+<header class="fixed top-0 w-full z-50 flex justify-between items-center px-margin-mobile h-16 bg-surface/90 backdrop-blur-md shadow-sm">
+<button aria-label="Go back" class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-container-high transition-colors text-on-surface">
+<span class="material-symbols-outlined text-2xl">arrow_back_ios_new</span>
+</button>
+<h1 class="font-headline-sm text-headline-sm text-on-surface">Account</h1>
+<div class="w-10"></div> <!-- Spacer for centering -->
+</header>
+<!-- Main Content -->
+<main class="pt-24 px-margin-mobile flex flex-col gap-xl max-w-lg mx-auto">
+<!-- Profile Summary -->
+<section class="flex flex-col items-center gap-md py-lg bg-surface-container-lowest rounded-3xl shadow-[0_4px_20px_rgba(0,0,0,0.06)] px-lg relative text-center">
+<button aria-label="Edit Profile" class="absolute top-4 right-4 w-10 h-10 flex items-center justify-center rounded-full bg-surface-container hover:bg-surface-container-high transition-colors text-primary">
+<span class="material-symbols-outlined text-[20px]">edit</span>
+</button>
+<div class="relative w-24 h-24 rounded-full overflow-hidden shadow-sm ring-4 ring-surface-container-low">
+<img alt="Abebe Kebede Profile Picture" class="w-full h-full object-cover" data-alt="A high-quality, professional headshot of an Ethiopian man in his mid-30s. He has a warm, welcoming smile and is wearing a crisp, casual but smart button-down shirt in a light ivory color. The background is softly blurred, showing a modern, well-lit cafe interior in Addis Ababa with warm natural sunlight. The image is bright, high-contrast, and has a premium editorial feel, aligning with a sophisticated lifestyle app aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCrohXa6ZTbH2Oikrgy7DyGfoPaz4eucqH0vnAspRZ6WxLud03uEfEi83a-6T6Q-97ZMhAI0P8wbhphiYvoM_FiIahylxTlf7wvJC8pt6QTuFWv9Rv8WuVaFlQI5aLwqBU4xPbhqgPDq1kgXPUEOMhG5iFxVHVYx5bvl2BPCgyla49mVLceZrwjZuKefSGrJ-Ov7QPY-RDebilnS11lf8EEIakfSCdf5skGVemNmcRBAJX8zb250V1k"/>
+</div>
+<div>
+<h2 class="font-headline-sm text-headline-sm text-primary mb-1">Abebe Kebede</h2>
+<span class="inline-block px-3 py-1 bg-secondary-container text-on-secondary-container font-label-eyebrow text-label-eyebrow uppercase rounded-full">CUSTOMER</span>
+</div>
+</section>
+<!-- Profile Details Card -->
+<section class="bg-surface-container-lowest rounded-3xl shadow-[0_4px_20px_rgba(0,0,0,0.06)] p-lg flex flex-col gap-4">
+<h3 class="font-headline-sm text-headline-sm text-primary mb-2">Profile Details</h3>
+<div class="flex flex-col">
+<div class="flex justify-between items-center py-sm border-b border-surface-variant cursor-pointer hover:bg-surface-container-low transition-colors -mx-lg px-lg">
+<span class="text-on-surface-variant text-body-md">Name</span>
+<div class="flex items-center gap-xs">
+<span class="text-on-surface font-button text-button">Abebe Kebede</span>
+<span class="material-symbols-outlined text-outline-variant text-[20px]">chevron_right</span>
+</div>
+</div>
+<div class="flex justify-between items-center py-sm border-b border-surface-variant cursor-pointer hover:bg-surface-container-low transition-colors -mx-lg px-lg">
+<span class="text-on-surface-variant text-body-md">Phone</span>
+<div class="flex items-center gap-xs">
+<span class="text-on-surface font-button text-button">+251 91 123 4567</span>
+<span class="material-symbols-outlined text-outline-variant text-[20px]">chevron_right</span>
+</div>
+</div>
+<div class="flex justify-between items-center py-sm border-b border-surface-variant cursor-pointer hover:bg-surface-container-low transition-colors -mx-lg px-lg">
+<span class="text-on-surface-variant text-body-md">City</span>
+<div class="flex items-center gap-xs">
+<span class="text-on-surface font-button text-button">Addis Ababa (Bole)</span>
+<span class="material-symbols-outlined text-outline-variant text-[20px]">chevron_right</span>
+</div>
+</div>
+<div class="flex justify-between items-center py-sm cursor-pointer hover:bg-surface-container-low transition-colors -mx-lg px-lg">
+<span class="text-on-surface-variant text-body-md">Language</span>
+<div class="flex items-center gap-xs">
+<span class="text-on-surface font-button text-button">English / አማርኛ</span>
+<span class="material-symbols-outlined text-outline-variant text-[20px]">chevron_right</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Food Profile Card -->
+<section class="bg-surface-container-lowest rounded-3xl shadow-[0_4px_20px_rgba(0,0,0,0.06)] p-lg flex flex-col gap-md">
+<h3 class="font-headline-sm text-headline-sm text-primary">My Food Profile</h3>
+<div class="flex flex-col gap-2">
+<span class="font-label-eyebrow text-label-eyebrow text-on-surface-variant uppercase">Dietary Preferences</span>
+<div class="flex flex-wrap gap-xs">
+<span class="inline-block px-4 py-2 bg-secondary-container text-on-secondary-container font-button text-button rounded-full border border-secondary-fixed">Orthodox fasting</span>
+<span class="inline-block px-4 py-2 bg-secondary-container text-on-secondary-container font-button text-button rounded-full border border-secondary-fixed">Vegetarian</span>
+</div>
+</div>
+<div class="flex flex-col gap-2 mt-2">
+<span class="font-label-eyebrow text-label-eyebrow text-on-surface-variant uppercase">Allergies</span>
+<div class="flex flex-wrap gap-xs">
+<span class="inline-block px-4 py-2 bg-secondary-container text-on-secondary-container font-button text-button rounded-full border border-secondary-fixed">Peanuts</span>
+</div>
+</div>
+<a class="text-secondary font-button text-button mt-4 hover:opacity-80 transition-opacity" href="#">Edit preferences</a>
+</section>
+<!-- My Reservations Card -->
+<section class="bg-surface-container-lowest rounded-3xl shadow-[0_4px_20px_rgba(0,0,0,0.06)] p-lg flex flex-col gap-md">
+<h3 class="font-headline-sm text-headline-sm text-primary">Recent Reservations</h3>
+<div class="flex flex-col gap-4">
+<!-- Row 1 -->
+<div class="flex flex-col gap-2 pb-4 border-b border-surface-variant">
+<div class="flex justify-between items-start">
+<h4 class="font-headline-sm text-[18px] text-primary">Enat Signature</h4>
+<span class="inline-block px-2 py-1 bg-[#E8F5E9] text-[#2E7D32] font-label-eyebrow text-label-eyebrow uppercase rounded-md tracking-wider">CONFIRMED</span>
+</div>
+<div class="flex items-center gap-2 text-on-surface-variant text-[14px]">
+<span class="material-symbols-outlined text-[16px]">calendar_today</span>
+<span>Oct 14 · 19:30</span>
+<span class="w-1 h-1 rounded-full bg-outline-variant mx-1"></span>
+<span class="material-symbols-outlined text-[16px]">group</span>
+<span>2 Guests</span>
+</div>
+</div>
+<!-- Row 2 -->
+<div class="flex flex-col gap-2 pb-4 border-b border-surface-variant">
+<div class="flex justify-between items-start">
+<h4 class="font-headline-sm text-[18px] text-primary">Castelli Restaurant</h4>
+<span class="inline-block px-2 py-1 bg-primary text-on-primary font-label-eyebrow text-label-eyebrow uppercase rounded-md tracking-wider">COMPLETED</span>
+</div>
+<div class="flex items-center gap-2 text-on-surface-variant text-[14px]">
+<span class="material-symbols-outlined text-[16px]">calendar_today</span>
+<span>Oct 12 · 20:00</span>
+<span class="w-1 h-1 rounded-full bg-outline-variant mx-1"></span>
+<span class="material-symbols-outlined text-[16px]">group</span>
+<span>4 Guests</span>
+</div>
+</div>
+<!-- Row 3 -->
+<div class="flex flex-col gap-2">
+<div class="flex justify-between items-start opacity-60">
+<h4 class="font-headline-sm text-[18px] text-primary">The Golden Tulip</h4>
+<span class="inline-block px-2 py-1 bg-surface-variant text-on-surface-variant font-label-eyebrow text-label-eyebrow uppercase rounded-md tracking-wider">CANCELLED</span>
+</div>
+<div class="flex items-center gap-2 text-on-surface-variant text-[14px] opacity-60">
+<span class="material-symbols-outlined text-[16px]">calendar_today</span>
+<span>Oct 10 · 13:00</span>
+<span class="w-1 h-1 rounded-full bg-outline-variant mx-1"></span>
+<span class="material-symbols-outlined text-[16px]">group</span>
+<span>2 Guests</span>
+</div>
+</div>
+</div>
+<button class="w-full mt-4 py-3 bg-white border border-secondary text-secondary font-button text-button rounded-full hover:bg-surface-container-low transition-colors">
+                Explore restaurants
+            </button>
+</section>
+<!-- My Tickets Card -->
+<section class="bg-surface-container-lowest rounded-3xl shadow-[0_4px_20px_rgba(0,0,0,0.06)] p-lg flex flex-col gap-md">
+<h3 class="font-headline-sm text-headline-sm text-primary mb-2">My Tickets</h3>
+<div class="flex flex-col gap-6 relative">
+<!-- Stub 1 -->
+<div class="ticket-stub bg-primary text-on-primary rounded-xl p-md shadow-md relative overflow-hidden flex min-h-[120px]">
+<div class="w-3/4 pr-4 border-r-2 border-dashed border-on-primary/30 flex flex-col justify-between">
+<div>
+<span class="inline-block mb-2 px-2 py-1 bg-secondary-container text-on-secondary-container font-label-eyebrow text-[10px] uppercase rounded tracking-widest">UPCOMING</span>
+<h4 class="font-headline-sm text-[20px] leading-tight text-secondary-fixed">Addis Jazz Festival</h4>
+</div>
+<div class="text-on-primary-fixed-variant text-[14px] mt-4 font-button">Oct 12 · 18:00</div>
+</div>
+<div class="w-1/4 flex items-center justify-center pl-4">
+<div class="w-12 h-12 bg-white rounded flex items-center justify-center p-1">
+<div class="w-full h-full bg-black"></div> <!-- Placeholder QR -->
+</div>
+</div>
+</div>
+<!-- Stub 2 -->
+<div class="ticket-stub bg-surface-container-high text-on-surface rounded-xl p-md shadow-sm relative overflow-hidden flex min-h-[100px] opacity-80">
+<div class="w-3/4 pr-4 border-r-2 border-dashed border-outline-variant flex flex-col justify-between">
+<div>
+<span class="inline-block mb-2 px-2 py-1 bg-surface-variant text-on-surface-variant font-label-eyebrow text-[10px] uppercase rounded tracking-widest">ATTENDED</span>
+<h4 class="font-headline-sm text-[18px] leading-tight text-on-surface opacity-80">Modern Art Exhibition</h4>
+</div>
+<div class="text-on-surface-variant text-[14px] mt-2 font-button opacity-80">Oct 5</div>
+</div>
+</div>
+</div>
+</section>
+<!-- App Settings Card -->
+<section class="bg-surface-container-lowest rounded-3xl shadow-[0_4px_20px_rgba(0,0,0,0.06)] p-lg flex flex-col gap-2">
+<div class="flex justify-between items-center py-sm border-b border-surface-variant -mx-lg px-lg">
+<span class="text-on-surface-variant text-body-md font-button text-button">Dark Mode</span>
+<button aria-label="Toggle Dark Mode" class="w-12 h-6 bg-surface-variant rounded-full relative p-1 cursor-not-allowed opacity-50">
+<div class="w-4 h-4 bg-white rounded-full shadow-sm absolute left-1"></div>
+</button>
+</div>
+<div class="flex justify-between items-center py-sm cursor-pointer hover:bg-surface-container-low transition-colors -mx-lg px-lg mt-2">
+<span class="text-error font-button text-button">Sign Out</span>
+<span class="material-symbols-outlined text-error text-[20px]">logout</span>
+</div>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-6 bg-surface/80 backdrop-blur-lg shadow-[0_4px_20px_rgba(0,0,0,0.06)] rounded-full mx-margin-mobile mb-4 overflow-hidden md:hidden">
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container-high transition-colors p-2 rounded-lg" href="#">
+<span class="material-symbols-outlined text-[24px]" data-icon="home">home</span>
+<span class="font-label-eyebrow text-label-eyebrow mt-1">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container-high transition-colors p-2 rounded-lg" href="#">
+<span class="material-symbols-outlined text-[24px]" data-icon="restaurant">restaurant</span>
+<span class="font-label-eyebrow text-label-eyebrow mt-1">Eat</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container-high transition-colors p-2 rounded-lg" href="#">
+<span class="material-symbols-outlined text-[24px]" data-icon="event">event</span>
+<span class="font-label-eyebrow text-label-eyebrow mt-1">Events</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container-high transition-colors p-2 rounded-lg" href="#">
+<span class="material-symbols-outlined text-[24px]" data-icon="directions_car">directions_car</span>
+<span class="font-label-eyebrow text-label-eyebrow mt-1">Ride</span>
+</a>
+<!-- Active Tab -->
+<a class="flex flex-col items-center justify-center bg-primary text-secondary-fixed rounded-full px-4 py-2 hover:bg-surface-container-high transition-colors translate-y-[-2px]" href="#">
+<span class="material-symbols-outlined text-[24px]" data-icon="person" style="font-variation-settings: 'FILL' 1;">person</span>
+<span class="font-label-eyebrow text-label-eyebrow mt-1">Account</span>
+</a>
+</nav>
+</body></html>

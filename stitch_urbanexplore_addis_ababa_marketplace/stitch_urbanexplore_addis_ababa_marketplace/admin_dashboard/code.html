@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Admin Console</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&amp;family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#D7B778",
+                        "on-primary": "#07192B",
+                        "secondary": "#D7B778",
+                        "on-secondary": "#07192B",
+                        "background": "#07192B",
+                        "on-background": "#F5EFE8",
+                        "surface": "#0B1D31",
+                        "on-surface": "#F5EFE8",
+                        "surface-variant": "#11263c",
+                        "on-surface-variant": "rgba(245, 239, 232, 0.7)",
+                        "error": "#ff4d4d",
+                        "on-error": "#ffffff",
+                        "success": "#4CAF50",
+                        "on-success": "#ffffff",
+                        "warning": "#FFC107",
+                        "on-warning": "#07192B",
+                        "outline": "rgba(245, 239, 232, 0.2)",
+                        "outline-variant": "rgba(245, 239, 232, 0.1)",
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    spacing: {
+                        "md": "16px",
+                        "margin-desktop": "64px",
+                        "gutter": "16px",
+                        "margin-mobile": "20px",
+                        "xxl": "48px",
+                        "lg": "24px",
+                        "sm": "12px",
+                        "xl": "32px",
+                        "xs": "8px",
+                        "base": "4px"
+                    },
+                    fontFamily: {
+                        "headline-sm": ["Playfair Display"],
+                        "headline-lg": ["Playfair Display"],
+                        "display-lg": ["Playfair Display"],
+                        "button": ["Inter"],
+                        "body-md": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "label-eyebrow": ["Inter"],
+                        "price-tag": ["Playfair Display"],
+                        "mono": ["ui-monospace", "SFMono-Regular", "Menlo", "Monaco", "Consolas", "Liberation Mono", "Courier New", "monospace"]
+                    },
+                    fontSize: {
+                        "headline-sm": ["24px", { "lineHeight": "1.3", "fontWeight": "600" }],
+                        "headline-lg": ["32px", { "lineHeight": "1.2", "fontWeight": "600" }],
+                        "display-lg": ["48px", { "lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "button": ["14px", { "letterSpacing": "0.02em", "fontWeight": "600" }],
+                        "body-md": ["16px", { "lineHeight": "1.5", "fontWeight": "400" }],
+                        "body-lg": ["18px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "label-eyebrow": ["11px", { "lineHeight": "16px", "letterSpacing": "0.15em", "fontWeight": "600" }],
+                        "price-tag": ["20px", { "fontWeight": "700" }],
+                        "metric": ["24px", { "fontWeight": "700", "fontFamily": "Inter" }]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body { background-color: #07192B; color: #F5EFE8; }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .glass-panel { background: rgba(11, 29, 49, 0.8); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(245, 239, 232, 0.05); }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md antialiased pb-24 md:pb-0">
+<!-- Top App Bar -->
+<header class="fixed top-0 w-full z-50 flex justify-between items-center px-margin-mobile h-16 bg-background/90 backdrop-blur-md shadow-sm border-b border-outline-variant">
+<div class="flex items-center gap-4">
+<button class="text-on-background hover:opacity-80 transition-opacity">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<h1 class="font-headline-sm text-headline-sm text-primary tracking-tight">Admin Console</h1>
+</div>
+<div class="flex items-center gap-4">
+<button class="text-on-background hover:opacity-80 transition-opacity relative">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-0 right-0 w-2 h-2 bg-error rounded-full"></span>
+</button>
+<button class="text-on-background hover:opacity-80 transition-opacity">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">account_circle</span>
+</button>
+</div>
+</header>
+<main class="pt-24 px-margin-mobile md:px-margin-desktop max-w-7xl mx-auto flex flex-col gap-xl">
+<!-- Metrics Strip -->
+<section>
+<h2 class="font-label-eyebrow text-label-eyebrow text-on-surface-variant uppercase mb-sm">Live Operations</h2>
+<div class="flex overflow-x-auto hide-scrollbar gap-sm snap-x pb-2">
+<div class="glass-panel p-md rounded-lg min-w-[140px] snap-start shrink-0 flex flex-col justify-between h-24">
+<span class="font-label-eyebrow text-label-eyebrow text-on-surface-variant">TOTAL USERS</span>
+<div class="flex items-baseline gap-2">
+<span class="text-metric text-on-background">12.4k</span>
+<span class="text-success text-xs">▲</span>
+</div>
+</div>
+<div class="glass-panel p-md rounded-lg min-w-[140px] snap-start shrink-0 flex flex-col justify-between h-24">
+<span class="font-label-eyebrow text-label-eyebrow text-on-surface-variant">BUSINESSES</span>
+<div class="flex items-baseline gap-2">
+<span class="text-metric text-on-background">842</span>
+</div>
+</div>
+<div class="glass-panel p-md rounded-lg min-w-[140px] snap-start shrink-0 flex flex-col justify-between h-24">
+<span class="font-label-eyebrow text-label-eyebrow text-on-surface-variant">ORGANIZERS</span>
+<div class="flex items-baseline gap-2">
+<span class="text-metric text-on-background">156</span>
+</div>
+</div>
+<div class="glass-panel p-md rounded-lg min-w-[140px] snap-start shrink-0 flex flex-col justify-between h-24">
+<span class="font-label-eyebrow text-label-eyebrow text-on-surface-variant">ACTIVE LISTINGS</span>
+<div class="flex items-baseline gap-2">
+<span class="text-metric text-on-background">2.1k</span>
+</div>
+</div>
+<div class="glass-panel p-md rounded-lg min-w-[160px] snap-start shrink-0 flex flex-col justify-between h-24 border-l-2 border-primary">
+<span class="font-label-eyebrow text-label-eyebrow text-primary">GMV EST.</span>
+<div class="flex items-baseline gap-2">
+<span class="text-metric text-primary">4.2M</span>
+<span class="text-success text-xs">▲</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Moderation Queue -->
+<section class="glass-panel rounded-xl p-md md:p-lg border border-outline-variant shadow-[0_4px_20px_rgba(0,0,0,0.2)]">
+<div class="flex justify-between items-center mb-md border-b border-outline-variant pb-sm">
+<h2 class="font-headline-sm text-headline-sm text-on-background">Pending Verification</h2>
+<span class="bg-warning/20 text-warning font-label-eyebrow text-label-eyebrow px-2 py-1 rounded-full">3 REQUIRES ACTION</span>
+</div>
+<div class="flex flex-col gap-sm">
+<!-- Item 1 -->
+<div class="flex flex-col sm:flex-row gap-md p-sm bg-surface-variant/50 rounded-lg border border-outline-variant items-start sm:items-center">
+<div class="w-full sm:w-20 h-20 rounded bg-surface shrink-0 overflow-hidden relative">
+<img class="w-full h-full object-cover opacity-80 mix-blend-luminosity" data-alt="A macro photograph of an official looking business license document resting on a dark navy velvet background, high contrast lighting highlighting the seal." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDx5shfH_UTItaklMlnTq8EIa6xdW-_tZ6lDvQVNBQKdz4PioSM_MLeUscpdBx2KGT9SA7gSS4d-GHyxqpJhfKUrnG0PqnnqamKcbo31xBQ9CpxbBGgQ86LrbrN2KVFdOeGmOfyVAndJnKVrZhr11WPE_ACVX5kaob3TGaRDy2Ws4MVPXpcyTNYCzsl0sgJdOZbXXafYdRtsiTXE_-91R96enlVtTHlacG166xAk7g6far_GkYuPbbT"/>
+</div>
+<div class="flex-1 flex flex-col gap-1">
+<h3 class="font-body-lg text-body-lg text-on-background font-semibold">Sky Lounge</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">Restaurant · Submitted 2h ago</p>
+<p class="text-xs text-on-surface-variant flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">description</span> License_Doc_v2.pdf</p>
+</div>
+<div class="flex sm:flex-col gap-2 w-full sm:w-auto mt-2 sm:mt-0">
+<button class="flex-1 sm:flex-none bg-success/10 text-success hover:bg-success hover:text-on-success border border-success px-4 py-2 rounded-full font-button text-button transition-colors text-center">Verify</button>
+<button class="flex-1 sm:flex-none bg-transparent text-error hover:bg-error/10 border border-error px-4 py-2 rounded-full font-button text-button transition-colors text-center">Reject</button>
+</div>
+</div>
+<!-- Item 2 -->
+<div class="flex flex-col sm:flex-row gap-md p-sm bg-surface-variant/50 rounded-lg border border-outline-variant items-start sm:items-center">
+<div class="w-full sm:w-20 h-20 rounded bg-surface shrink-0 overflow-hidden relative">
+<img class="w-full h-full object-cover opacity-80 mix-blend-luminosity" data-alt="A close up view of a stack of legal documents and identity cards resting on a dark slate table, moody cinematic lighting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC6SRwdrswb9Qr0NLwUwneMvBSgxtuYOpVJqNZIU4cD99bLuIzugpHwHdQ4jueXiEIDkprikSw1mqddkSc5QA9O7fhhphmboKhggjAzsxC-4ibRsicfpTjqW2zHvaGupowQABvqpPdZwMbdhhAClnNAmIVFrocbgzQaXWQbwjj9kDx2ncPqFvaidhCSXo94fnU0oxHCnDcsxsz66uj764qhVFjyEWR4wS7ohBQdrFeCYVEPuQjSzZzg"/>
+</div>
+<div class="flex-1 flex flex-col gap-1">
+<h3 class="font-body-lg text-body-lg text-on-background font-semibold">Addis Rides (Fleet)</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">Transport · Submitted 5h ago</p>
+<p class="text-xs text-on-surface-variant flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">description</span> Fleet_Reg_2024.pdf</p>
+</div>
+<div class="flex sm:flex-col gap-2 w-full sm:w-auto mt-2 sm:mt-0">
+<button class="flex-1 sm:flex-none bg-success/10 text-success hover:bg-success hover:text-on-success border border-success px-4 py-2 rounded-full font-button text-button transition-colors text-center">Verify</button>
+<button class="flex-1 sm:flex-none bg-transparent text-error hover:bg-error/10 border border-error px-4 py-2 rounded-full font-button text-button transition-colors text-center">Reject</button>
+</div>
+</div>
+</div>
+</section>
+<!-- Directory Table -->
+<section class="glass-panel rounded-xl overflow-hidden border border-outline-variant">
+<div class="p-md border-b border-outline-variant flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+<h2 class="font-headline-sm text-headline-sm text-on-background">Directory</h2>
+<div class="relative w-full sm:w-64">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+<input class="w-full bg-surface-variant/50 border border-outline-variant rounded-full py-2 pl-10 pr-4 text-sm text-on-background focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary placeholder-on-surface-variant" placeholder="Search entities..." type="text"/>
+</div>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="border-b border-outline-variant bg-surface-variant/30 font-label-eyebrow text-label-eyebrow text-on-surface-variant">
+<th class="p-sm md:p-md font-semibold">Entity</th>
+<th class="p-sm md:p-md font-semibold">Role</th>
+<th class="p-sm md:p-md font-semibold">Status</th>
+<th class="p-sm md:p-md font-semibold text-right">Actions</th>
+</tr>
+</thead>
+<tbody class="font-body-md text-sm divide-y divide-outline-variant/50">
+<tr class="hover:bg-surface-variant/20 transition-colors">
+<td class="p-sm md:p-md">
+<div class="font-semibold text-on-background">Kategna Restaurant</div>
+<div class="text-xs text-on-surface-variant">ID: PRT-9921</div>
+</td>
+<td class="p-sm md:p-md text-on-surface-variant">Partner</td>
+<td class="p-sm md:p-md">
+<span class="inline-flex items-center gap-1.5 px-2 py-1 rounded-md bg-success/10 text-success text-xs font-medium border border-success/20">
+<span class="w-1.5 h-1.5 rounded-full bg-success"></span> Active
+                                </span>
+</td>
+<td class="p-sm md:p-md text-right">
+<button class="text-on-surface-variant hover:text-primary transition-colors"><span class="material-symbols-outlined text-[20px]">more_vert</span></button>
+</td>
+</tr>
+<tr class="hover:bg-surface-variant/20 transition-colors">
+<td class="p-sm md:p-md">
+<div class="font-semibold text-on-background">Yared Alemu</div>
+<div class="text-xs text-on-surface-variant">ID: USR-4412</div>
+</td>
+<td class="p-sm md:p-md text-on-surface-variant">User</td>
+<td class="p-sm md:p-md">
+<span class="inline-flex items-center gap-1.5 px-2 py-1 rounded-md bg-warning/10 text-warning text-xs font-medium border border-warning/20">
+<span class="w-1.5 h-1.5 rounded-full bg-warning"></span> Pending
+                                </span>
+</td>
+<td class="p-sm md:p-md text-right">
+<button class="text-on-surface-variant hover:text-primary transition-colors"><span class="material-symbols-outlined text-[20px]">more_vert</span></button>
+</td>
+</tr>
+<tr class="hover:bg-surface-variant/20 transition-colors">
+<td class="p-sm md:p-md">
+<div class="font-semibold text-on-background">Ethio Events Co.</div>
+<div class="text-xs text-on-surface-variant">ID: ORG-003</div>
+</td>
+<td class="p-sm md:p-md text-on-surface-variant">Organizer</td>
+<td class="p-sm md:p-md">
+<span class="inline-flex items-center gap-1.5 px-2 py-1 rounded-md bg-error/10 text-error text-xs font-medium border border-error/20">
+<span class="w-1.5 h-1.5 rounded-full bg-error"></span> Suspended
+                                </span>
+</td>
+<td class="p-sm md:p-md text-right">
+<button class="text-on-surface-variant hover:text-primary transition-colors"><span class="material-symbols-outlined text-[20px]">more_vert</span></button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="p-sm text-center border-t border-outline-variant">
+<button class="font-button text-button text-primary hover:opacity-80 transition-opacity">View All Entities</button>
+</div>
+</section>
+<!-- Audit Log -->
+<section class="mb-xl">
+<h2 class="font-label-eyebrow text-label-eyebrow text-on-surface-variant uppercase mb-sm pl-2">System Audit Log</h2>
+<div class="bg-surface-variant/30 rounded-lg p-sm border border-outline-variant/30 font-mono text-xs text-on-surface-variant leading-relaxed h-32 overflow-y-auto hide-scrollbar space-y-1">
+<div class="flex gap-2"><span class="text-success">[OK]</span> <span>Admin_1 verified Castelli Restaurant · 2m ago</span></div>
+<div class="flex gap-2"><span class="text-error">[WARN]</span> <span>System auto-suspended User_92 (Fraud Risk) · 15m ago</span></div>
+<div class="flex gap-2"><span class="text-success">[OK]</span> <span>Admin_3 approved Payout_REQ_772 · 42m ago</span></div>
+<div class="flex gap-2"><span class="text-primary">[INFO]</span> <span>Nightly DB Backup completed successfully · 3h ago</span></div>
+<div class="flex gap-2"><span class="text-success">[OK]</span> <span>Admin_1 logged in (IP: 192.168.1.1) · 4h ago</span></div>
+</div>
+</section>
+</main>
+<!-- Bottom Nav Bar (Mobile Only) -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-6 pt-2 bg-surface/80 backdrop-blur-lg border-t border-outline-variant/30 shadow-[0_-4px_20px_rgba(0,0,0,0.2)]">
+<button class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary transition-colors px-4 py-2">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-label-eyebrow text-[10px] mt-1">Overview</span>
+</button>
+<button class="flex flex-col items-center justify-center bg-primary text-on-primary rounded-full px-5 py-2 translate-y-[-4px] shadow-lg">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">gavel</span>
+<span class="font-label-eyebrow text-[10px] mt-1 font-bold">Queue</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary transition-colors px-4 py-2">
+<span class="material-symbols-outlined">group</span>
+<span class="font-label-eyebrow text-[10px] mt-1">Entities</span>
+</button>
+</nav>
+</body></html>

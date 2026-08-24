@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Restaurants Catalogue - UrbanExplore</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&amp;family=Playfair+Display:wght@600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "tertiary": "#0b0500",
+                    "on-primary-fixed-variant": "#364764",
+                    "surface-tint": "#4d5f7d",
+                    "surface": "#fcf9f8",
+                    "secondary-fixed-dim": "#dfc391",
+                    "surface-container-low": "#f6f3f2",
+                    "tertiary-fixed": "#ffddb1",
+                    "surface-container": "#f0edec",
+                    "on-primary": "#ffffff",
+                    "surface-container-lowest": "#ffffff",
+                    "secondary-fixed": "#fcdfab",
+                    "primary-fixed": "#d6e3ff",
+                    "on-secondary-fixed-variant": "#57441d",
+                    "tertiary-fixed-dim": "#e8c088",
+                    "secondary": "#705b32",
+                    "on-secondary-container": "#756036",
+                    "surface-variant": "#e4e2e1",
+                    "on-error": "#ffffff",
+                    "on-primary-container": "#7587a7",
+                    "on-secondary-fixed": "#261900",
+                    "surface-container-highest": "#e4e2e1",
+                    "inverse-on-surface": "#f3f0ef",
+                    "secondary-container": "#f9dca8",
+                    "error": "#ba1a1a",
+                    "on-primary-fixed": "#071c36",
+                    "on-error-container": "#93000a",
+                    "error-container": "#ffdad6",
+                    "primary": "#000615",
+                    "on-tertiary-fixed-variant": "#5d4215",
+                    "on-background": "#1b1c1b",
+                    "on-secondary": "#ffffff",
+                    "on-tertiary-container": "#a3814e",
+                    "surface-dim": "#dcd9d8",
+                    "on-surface-variant": "#44474d",
+                    "on-surface": "#1b1c1b",
+                    "outline": "#75777e",
+                    "primary-fixed-dim": "#b5c7ea",
+                    "on-tertiary-fixed": "#291800",
+                    "surface-bright": "#fcf9f8",
+                    "background": "#fcf9f8",
+                    "inverse-surface": "#303030",
+                    "inverse-primary": "#b5c7ea",
+                    "primary-container": "#0b1f3a",
+                    "tertiary-container": "#2d1b00",
+                    "surface-container-high": "#eae7e7",
+                    "outline-variant": "#c4c6ce",
+                    "on-tertiary": "#ffffff"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "xxl": "48px",
+                    "gutter": "16px",
+                    "xl": "32px",
+                    "lg": "24px",
+                    "base": "4px",
+                    "md": "16px",
+                    "sm": "12px",
+                    "xs": "8px",
+                    "margin-desktop": "64px",
+                    "margin-mobile": "20px"
+            },
+            "fontFamily": {
+                    "label-eyebrow": [
+                            "Inter"
+                    ],
+                    "price-tag": [
+                            "Playfair Display"
+                    ],
+                    "headline-sm": [
+                            "Playfair Display"
+                    ],
+                    "headline-lg": [
+                            "Playfair Display"
+                    ],
+                    "body-lg": [
+                            "Inter"
+                    ],
+                    "button": [
+                            "Inter"
+                    ],
+                    "display-lg": [
+                            "Playfair Display"
+                    ],
+                    "body-md": [
+                            "Inter"
+                    ]
+            },
+            "fontSize": {
+                    "label-eyebrow": [
+                            "11px",
+                            {
+                                    "lineHeight": "16px",
+                                    "letterSpacing": "0.15em",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "price-tag": [
+                            "20px",
+                            {
+                                    "fontWeight": "700"
+                            }
+                    ],
+                    "headline-sm": [
+                            "24px",
+                            {
+                                    "lineHeight": "1.3",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "headline-lg": [
+                            "32px",
+                            {
+                                    "lineHeight": "1.2",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "body-lg": [
+                            "18px",
+                            {
+                                    "lineHeight": "1.6",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "button": [
+                            "14px",
+                            {
+                                    "letterSpacing": "0.02em",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "display-lg": [
+                            "48px",
+                            {
+                                    "lineHeight": "1.1",
+                                    "letterSpacing": "-0.02em",
+                                    "fontWeight": "700"
+                            }
+                    ],
+                    "body-md": [
+                            "16px",
+                            {
+                                    "lineHeight": "1.5",
+                                    "fontWeight": "400"
+                            }
+                    ]
+            }
+    },
+        },
+      }
+    </script>
+<style>
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .backdrop-blur-custom {
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md min-h-screen pb-32">
+<!-- Sticky Search Header -->
+<header class="sticky top-0 z-40 bg-surface/80 backdrop-blur-custom pt-safe-top pb-sm px-margin-mobile flex flex-col gap-sm">
+<div class="flex items-center gap-sm mt-4">
+<button aria-label="Go back" class="w-10 h-10 flex items-center justify-center rounded-full bg-surface-container-high text-on-surface hover:bg-surface-variant transition-colors">
+<span class="material-symbols-outlined" style="font-variation-settings: 'wght' 300;">chevron_left</span>
+</button>
+<div class="flex-1 relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline" style="font-variation-settings: 'wght' 300;">search</span>
+<input class="w-full h-10 pl-10 pr-4 rounded-full bg-surface-container-high border-none text-body-md font-body-md focus:ring-1 focus:ring-primary placeholder-outline/70" placeholder="Find restaurants, cuisines..." type="text"/>
+</div>
+<button aria-label="Filter options" class="w-10 h-10 flex items-center justify-center rounded-full bg-surface-container-high text-on-surface hover:bg-surface-variant transition-colors" onclick="document.getElementById('filter-sheet').classList.remove('translate-y-full')">
+<span class="material-symbols-outlined" style="font-variation-settings: 'wght' 300;">tune</span>
+</button>
+</div>
+<!-- Category Chips -->
+<div class="flex overflow-x-auto gap-xs pb-2 hide-scrollbar snap-x snap-mandatory">
+<button class="snap-start flex-shrink-0 px-4 py-2 rounded-full bg-primary text-on-primary font-button text-button whitespace-nowrap shadow-sm hover:opacity-90 transition-opacity">
+                All
+            </button>
+<button class="snap-start flex-shrink-0 px-4 py-2 rounded-full bg-surface-container border border-outline-variant/30 text-on-surface font-button text-button whitespace-nowrap hover:bg-surface-variant transition-colors">
+                Modern African
+            </button>
+<button class="snap-start flex-shrink-0 px-4 py-2 rounded-full bg-surface-container border border-outline-variant/30 text-on-surface font-button text-button whitespace-nowrap hover:bg-surface-variant transition-colors">
+                Japanese
+            </button>
+<button class="snap-start flex-shrink-0 px-4 py-2 rounded-full bg-surface-container border border-outline-variant/30 text-on-surface font-button text-button whitespace-nowrap hover:bg-surface-variant transition-colors">
+                Mediterranean
+            </button>
+<button class="snap-start flex-shrink-0 px-4 py-2 rounded-full bg-surface-container border border-outline-variant/30 text-on-surface font-button text-button whitespace-nowrap hover:bg-surface-variant transition-colors">
+                Café
+            </button>
+</div>
+</header>
+<main class="px-margin-mobile flex flex-col gap-lg mt-md">
+<!-- Featured Hero Card -->
+<section aria-label="Featured Restaurant">
+<div class="relative w-full aspect-[4/5] md:aspect-video rounded-xl overflow-hidden shadow-[0_4px_20px_rgba(0,0,0,0.06)] group cursor-pointer">
+<img alt="Featured Restaurant" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="A highly detailed cinematic shot of a modern, upscale African restaurant interior in Addis Ababa. Warm ambient lighting highlights rich mahogany wood textures and subtle gold accents. The atmosphere is sophisticated and inviting, typical of a high-end editorial spread. A beautifully plated dish is visible on a table in the foreground." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDszyLBZYmuiVRWxqVSJJiRR53hBArQl25i9Q03c70IYwvzbdCb3jJe3YE3Ft8cbJvtAWkTrs0izEFMtdG0Io42-7oTPGrpapi5S58dopcLnHipnI3oS0wEZkdPaDz6yBq0l6xruPIOQFsFxd2470qvKOGiq3GJcSFy7t6rMiGTu90do1WZoGxl-MuwWQ_Xdy8VuhDT15Pqm2psXU5Fz2rzeeB3sMQNjntkphjyPanCQ1MgKxq6raPT"/>
+<div class="absolute inset-0 bg-gradient-to-t from-primary/90 via-primary/40 to-transparent"></div>
+<div class="absolute top-4 left-4 bg-secondary-fixed text-on-secondary-fixed font-label-eyebrow text-label-eyebrow px-3 py-1 rounded-full uppercase tracking-widest shadow-sm">
+                    Featured
+                </div>
+<div class="absolute top-4 right-4 bg-surface/90 backdrop-blur-sm px-2 py-1 rounded-full flex items-center gap-1 shadow-sm">
+<span class="material-symbols-outlined text-secondary" style="font-size: 14px; font-variation-settings: 'FILL' 1;">star</span>
+<span class="font-button text-button text-on-surface">4.9</span>
+</div>
+<div class="absolute bottom-0 left-0 w-full p-6 flex flex-col gap-sm">
+<div>
+<h2 class="font-headline-lg text-headline-lg text-on-primary">Enat Signature</h2>
+<p class="font-body-md text-body-md text-on-primary/80 mt-1">Modern Ethiopian Fusion · Bole</p>
+</div>
+<button class="w-full bg-secondary text-on-secondary font-button text-button py-3 rounded-full hover:bg-on-secondary-container transition-colors shadow-sm flex items-center justify-center gap-2">
+                        Reserve Table
+                        <span class="material-symbols-outlined" style="font-size: 18px;">arrow_forward</span>
+</button>
+</div>
+</div>
+</section>
+<!-- Listing Grid -->
+<section aria-label="Restaurant Listings" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-lg">
+<!-- Standard Card 1 -->
+<div class="bg-surface-container-lowest rounded-xl overflow-hidden shadow-[0_4px_20px_rgba(0,0,0,0.06)] group hover:-translate-y-[2px] transition-all duration-150 cursor-pointer">
+<div class="relative w-full aspect-[4/3] overflow-hidden rounded-t-xl">
+<img alt="Sushi Restaurant" class="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" data-alt="A highly detailed close-up shot of a pristine Japanese sushi platter served on an elegant black slate board. The lighting is crisp and bright, showcasing the vibrant colors of fresh tuna and salmon against a clean, minimalist background. The style is modern editorial, evoking a premium dining experience." src="https://lh3.googleusercontent.com/aida-public/AB6AXuByKHRyjDSOyNinLRpoDiAJxMogxtWPuqKNNh0vq5TSqdvzIxp3jk_n1Vh6BIgLucIEUtx1DW-xwLipTZnm4T9sdzB8WDLdPlL3NXQmnH1nVkybA1eyy_E2QPzsEuwrGXhBuKOeZFJ3bSr-GGrapOXaUEa8pY___PNpfkuupUEhpbKhuL5kSuDaqPojtLxC_cPa_NSkC3VhG5OuL-AnA1Qgqtgej_pGOKyhWWUVM-xtbYnFVAIn1VYZ"/>
+<div class="absolute top-3 left-3 bg-surface/90 backdrop-blur-sm px-2 py-1 rounded-full flex items-center gap-1 shadow-sm">
+<span class="material-symbols-outlined text-secondary" style="font-size: 14px; font-variation-settings: 'FILL' 1;">star</span>
+<span class="font-button text-button text-on-surface">4.7</span>
+</div>
+<button aria-label="Save restaurant" class="absolute top-3 right-3 w-8 h-8 flex items-center justify-center rounded-full bg-surface/90 backdrop-blur-sm text-on-surface hover:text-error transition-colors shadow-sm">
+<span class="material-symbols-outlined" style="font-size: 18px;">favorite</span>
+</button>
+</div>
+<div class="p-4 flex flex-col gap-xs">
+<h3 class="font-headline-sm text-headline-sm text-on-surface truncate">Sakura House</h3>
+<div class="flex items-center gap-1 text-on-surface-variant font-body-md text-sm">
+<span class="material-symbols-outlined" style="font-size: 16px;">location_on</span>
+<span class="truncate">Kazanchis Area</span>
+</div>
+<div class="flex items-center gap-2 text-on-surface-variant font-label-eyebrow text-label-eyebrow mt-1 opacity-70">
+<span>JAPANESE</span>
+<span>·</span>
+<span>OPEN UNTIL 10PM</span>
+</div>
+</div>
+</div>
+<!-- Standard Card 2 -->
+<div class="bg-surface-container-lowest rounded-xl overflow-hidden shadow-[0_4px_20px_rgba(0,0,0,0.06)] group hover:-translate-y-[2px] transition-all duration-150 cursor-pointer">
+<div class="relative w-full aspect-[4/3] overflow-hidden rounded-t-xl">
+<img alt="Mediterranean Cafe" class="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" data-alt="A bright, sunlit Mediterranean cafe setting outdoors. White marble tables are adorned with colorful tapas, fresh olives, and glasses of iced beverages. The warm, golden hour light creates soft shadows, giving the scene a relaxed, luxurious resort feel." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCFJozdYRJo_wbXFiseIEfsT2y-MpBDd4E_EkTYgCQ-CYPgXJBbV6Y1ybb0UzDmCckALqRC4vjUYcNsIWxp7cXD706hvXRZNIMfZsiPsa-8o4uXcwKnLhaQSDq7Zp_eeZTV_2VK2ogC6y33xaeXpnAW51D1uAN6aNxFyBeJhft-81uYvsWp7rx0ok9h4eL139e6o69pGFrJNrtEsOH1u64ebsruD-DD36NAVuoSNNuRTz-O9n0RLQKY"/>
+<div class="absolute top-3 left-3 bg-surface/90 backdrop-blur-sm px-2 py-1 rounded-full flex items-center gap-1 shadow-sm">
+<span class="material-symbols-outlined text-secondary" style="font-size: 14px; font-variation-settings: 'FILL' 1;">star</span>
+<span class="font-button text-button text-on-surface">4.5</span>
+</div>
+<button aria-label="Save restaurant" class="absolute top-3 right-3 w-8 h-8 flex items-center justify-center rounded-full bg-surface/90 backdrop-blur-sm text-on-surface hover:text-error transition-colors shadow-sm">
+<span class="text-error" style="font-size: 18px; font-variation-settings: 'FILL' 1;">favorite</span>
+</button>
+</div>
+<div class="p-4 flex flex-col gap-xs">
+<h3 class="font-headline-sm text-headline-sm text-on-surface truncate">Olive &amp; Vine</h3>
+<div class="flex items-center gap-1 text-on-surface-variant font-body-md text-sm">
+<span class="material-symbols-outlined" style="font-size: 16px;">location_on</span>
+<span class="truncate">Bole Medhanialem</span>
+</div>
+<div class="flex items-center gap-2 text-on-surface-variant font-label-eyebrow text-label-eyebrow mt-1 opacity-70">
+<span>MEDITERRANEAN</span>
+<span>·</span>
+<span>OPEN UNTIL 11PM</span>
+</div>
+</div>
+</div>
+<!-- No Photo Variation -->
+<div class="bg-surface-container-lowest rounded-xl overflow-hidden shadow-[0_4px_20px_rgba(0,0,0,0.06)] group hover:-translate-y-[2px] transition-all duration-150 cursor-pointer">
+<div class="relative w-full aspect-[4/3] overflow-hidden rounded-t-xl bg-gradient-to-br from-primary to-primary-container flex items-center justify-center">
+<span class="font-display-lg text-display-lg text-secondary-fixed opacity-90" style="font-size: 80px;">T</span>
+<div class="absolute top-3 left-3 bg-surface/90 backdrop-blur-sm px-2 py-1 rounded-full flex items-center gap-1 shadow-sm">
+<span class="material-symbols-outlined text-secondary" style="font-size: 14px; font-variation-settings: 'FILL' 1;">star</span>
+<span class="font-button text-button text-on-surface">4.8</span>
+</div>
+<button aria-label="Save restaurant" class="absolute top-3 right-3 w-8 h-8 flex items-center justify-center rounded-full bg-surface/90 backdrop-blur-sm text-on-surface hover:text-error transition-colors shadow-sm">
+<span class="material-symbols-outlined" style="font-size: 18px;">favorite</span>
+</button>
+</div>
+<div class="p-4 flex flex-col gap-xs">
+<h3 class="font-headline-sm text-headline-sm text-on-surface truncate">Taitu Heritage</h3>
+<div class="flex items-center gap-1 text-on-surface-variant font-body-md text-sm">
+<span class="material-symbols-outlined" style="font-size: 16px;">location_on</span>
+<span class="truncate">Piassa Area</span>
+</div>
+<div class="flex items-center gap-2 text-on-surface-variant font-label-eyebrow text-label-eyebrow mt-1 opacity-70">
+<span>TRADITIONAL</span>
+<span>·</span>
+<span>OPEN UNTIL 9PM</span>
+</div>
+</div>
+</div>
+<!-- Standard Card 3 -->
+<div class="bg-surface-container-lowest rounded-xl overflow-hidden shadow-[0_4px_20px_rgba(0,0,0,0.06)] group hover:-translate-y-[2px] transition-all duration-150 cursor-pointer">
+<div class="relative w-full aspect-[4/3] overflow-hidden rounded-t-xl">
+<img alt="Artisanal Cafe" class="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" data-alt="A highly detailed interior shot of a minimalist, industrial-chic modern cafe. Exposed brick walls, warm pendant lighting, and sleek wooden tables create a cozy yet sophisticated atmosphere. A barista is visible in the background preparing artisanal coffee." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD1Fo-tAUoDuckDILjQbOB47jBj22qbSHf7RHFwtJbDP3k0yfeAxub065OMkSrz_KGxN0d9UIlEx8XMSvrB7uMPakmT4_Lz08suC4L_PKLibz0TTuxkvRLgK7vpu3cS9LgTUQ6Q7CNAVGhuW-LJpsraAHBdqHdXex7O-A9JMJUHUXDtRBobklgbZkXmrZEEgqewTUFydEPqrRYaBIYilkMt7g-VaWhaCMNyP7HShXAHT-SlsWircCtA"/>
+<div class="absolute top-3 left-3 bg-surface/90 backdrop-blur-sm px-2 py-1 rounded-full flex items-center gap-1 shadow-sm">
+<span class="material-symbols-outlined text-secondary" style="font-size: 14px; font-variation-settings: 'FILL' 1;">star</span>
+<span class="font-button text-button text-on-surface">4.6</span>
+</div>
+<button aria-label="Save restaurant" class="absolute top-3 right-3 w-8 h-8 flex items-center justify-center rounded-full bg-surface/90 backdrop-blur-sm text-on-surface hover:text-error transition-colors shadow-sm">
+<span class="material-symbols-outlined" style="font-size: 18px;">favorite</span>
+</button>
+</div>
+<div class="p-4 flex flex-col gap-xs">
+<h3 class="font-headline-sm text-headline-sm text-on-surface truncate">The Bean Canvas</h3>
+<div class="flex items-center gap-1 text-on-surface-variant font-body-md text-sm">
+<span class="material-symbols-outlined" style="font-size: 16px;">location_on</span>
+<span class="truncate">Sarbet</span>
+</div>
+<div class="flex items-center gap-2 text-on-surface-variant font-label-eyebrow text-label-eyebrow mt-1 opacity-70">
+<span>CAFÉ</span>
+<span>·</span>
+<span>CLOSES 8PM</span>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Bottom Nav Bar (Shared Component) -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-6 bg-surface/80 backdrop-blur-lg dark:bg-surface-dim/80 text-primary dark:text-primary-fixed shadow-[0_4px_20px_rgba(0,0,0,0.06)] rounded-full mx-margin-mobile mb-4 overflow-hidden md:hidden">
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container-high transition-colors p-2 rounded-lg" href="#">
+<span class="material-symbols-outlined">home</span>
+<span class="font-label-eyebrow text-label-eyebrow mt-1">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-primary text-secondary-fixed rounded-full px-4 py-2 hover:bg-surface-container-high transition-colors translate-y-[-2px] transition-all duration-150" href="#">
+<span class="material-symbols-outlined">restaurant</span>
+<span class="font-label-eyebrow text-label-eyebrow mt-1">Eat</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container-high transition-colors p-2 rounded-lg" href="#">
+<span class="material-symbols-outlined">event</span>
+<span class="font-label-eyebrow text-label-eyebrow mt-1">Events</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container-high transition-colors p-2 rounded-lg" href="#">
+<span class="material-symbols-outlined">directions_car</span>
+<span class="font-label-eyebrow text-label-eyebrow mt-1">Ride</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container-high transition-colors p-2 rounded-lg" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="font-label-eyebrow text-label-eyebrow mt-1">Account</span>
+</a>
+</nav>
+<!-- Filter Bottom Sheet (Hidden by default) -->
+<div class="fixed inset-x-0 bottom-0 z-[60] bg-surface-container-lowest rounded-t-3xl shadow-[0_-4px_20px_rgba(0,0,0,0.1)] transform translate-y-full transition-transform duration-300 ease-out flex flex-col max-h-[85vh]" id="filter-sheet">
+<div class="flex items-center justify-between p-6 border-b border-surface-variant">
+<h2 class="font-headline-sm text-headline-sm text-on-surface">Filters</h2>
+<button class="w-8 h-8 flex items-center justify-center rounded-full bg-surface-container-high text-on-surface hover:bg-surface-variant" onclick="document.getElementById('filter-sheet').classList.add('translate-y-full')">
+<span class="material-symbols-outlined" style="font-size: 20px;">close</span>
+</button>
+</div>
+<div class="p-6 overflow-y-auto flex flex-col gap-xl">
+<!-- Sort Section -->
+<div class="flex flex-col gap-sm">
+<h3 class="font-label-eyebrow text-label-eyebrow text-on-surface-variant uppercase tracking-widest">Sort By</h3>
+<div class="flex flex-wrap gap-2">
+<button class="px-4 py-2 rounded-full bg-primary text-on-primary font-button text-button">Recommended</button>
+<button class="px-4 py-2 rounded-full bg-surface-container border border-outline-variant/30 text-on-surface font-button text-button">Highest Rated</button>
+<button class="px-4 py-2 rounded-full bg-surface-container border border-outline-variant/30 text-on-surface font-button text-button">Distance</button>
+</div>
+</div>
+<!-- Price Section -->
+<div class="flex flex-col gap-sm">
+<h3 class="font-label-eyebrow text-label-eyebrow text-on-surface-variant uppercase tracking-widest">Price Range (Average)</h3>
+<div class="flex flex-wrap gap-2">
+<button class="px-4 py-2 rounded-full bg-surface-container border border-outline-variant/30 text-on-surface font-button text-button">Under 300 ETB</button>
+<button class="px-4 py-2 rounded-full bg-primary text-on-primary font-button text-button">300 - 700 ETB</button>
+<button class="px-4 py-2 rounded-full bg-surface-container border border-outline-variant/30 text-on-surface font-button text-button">700+ ETB</button>
+</div>
+</div>
+<!-- Rating Slider (Visual Rep) -->
+<div class="flex flex-col gap-sm">
+<div class="flex justify-between items-center">
+<h3 class="font-label-eyebrow text-label-eyebrow text-on-surface-variant uppercase tracking-widest">Minimum Rating</h3>
+<span class="font-button text-button text-on-surface">4.0+</span>
+</div>
+<div class="w-full h-2 bg-surface-variant rounded-full mt-2 relative">
+<div class="absolute left-0 top-0 h-full bg-secondary w-4/5 rounded-l-full"></div>
+<div class="absolute top-1/2 -translate-y-1/2 left-4/5 w-6 h-6 bg-surface-container-lowest border-2 border-secondary rounded-full shadow-sm"></div>
+</div>
+<div class="flex justify-between text-xs font-body-md text-on-surface-variant mt-1">
+<span>Any</span>
+<span>5.0</span>
+</div>
+</div>
+</div>
+<div class="p-4 border-t border-surface-variant bg-surface-container-lowest mt-auto">
+<button class="w-full bg-primary text-on-primary font-button text-button py-3 rounded-full hover:bg-primary/90 transition-colors shadow-sm" onclick="document.getElementById('filter-sheet').classList.add('translate-y-full')">
+                Apply Filters (24 Results)
+            </button>
+</div>
+</div>
+</body></html>

@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>UrbanExplore - Home</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&amp;family=Playfair+Display:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary": "#0b0500",
+                        "on-primary-fixed-variant": "#364764",
+                        "surface-tint": "#4d5f7d",
+                        "surface": "#fcf9f8",
+                        "secondary-fixed-dim": "#dfc391",
+                        "surface-container-low": "#f6f3f2",
+                        "tertiary-fixed": "#ffddb1",
+                        "surface-container": "#f0edec",
+                        "on-primary": "#ffffff",
+                        "surface-container-lowest": "#ffffff",
+                        "secondary-fixed": "#fcdfab",
+                        "primary-fixed": "#d6e3ff",
+                        "on-secondary-fixed-variant": "#57441d",
+                        "tertiary-fixed-dim": "#e8c088",
+                        "secondary": "#705b32",
+                        "on-secondary-container": "#756036",
+                        "surface-variant": "#e4e2e1",
+                        "on-error": "#ffffff",
+                        "on-primary-container": "#7587a7",
+                        "on-secondary-fixed": "#261900",
+                        "surface-container-highest": "#e4e2e1",
+                        "inverse-on-surface": "#f3f0ef",
+                        "secondary-container": "#f9dca8",
+                        "error": "#ba1a1a",
+                        "on-primary-fixed": "#071c36",
+                        "on-error-container": "#93000a",
+                        "error-container": "#ffdad6",
+                        "primary": "#000615",
+                        "on-tertiary-fixed-variant": "#5d4215",
+                        "on-background": "#1b1c1b",
+                        "on-secondary": "#ffffff",
+                        "on-tertiary-container": "#a3814e",
+                        "surface-dim": "#dcd9d8",
+                        "on-surface-variant": "#44474d",
+                        "on-surface": "#1b1c1b",
+                        "outline": "#75777e",
+                        "primary-fixed-dim": "#b5c7ea",
+                        "on-tertiary-fixed": "#291800",
+                        "surface-bright": "#fcf9f8",
+                        "background": "#fcf9f8",
+                        "inverse-surface": "#303030",
+                        "inverse-primary": "#b5c7ea",
+                        "primary-container": "#0b1f3a",
+                        "tertiary-container": "#2d1b00",
+                        "surface-container-high": "#eae7e7",
+                        "outline-variant": "#c4c6ce",
+                        "on-tertiary": "#ffffff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "xxl": "48px",
+                        "gutter": "16px",
+                        "xl": "32px",
+                        "lg": "24px",
+                        "base": "4px",
+                        "md": "16px",
+                        "sm": "12px",
+                        "xs": "8px",
+                        "margin-desktop": "64px",
+                        "margin-mobile": "20px"
+                    },
+                    "fontFamily": {
+                        "label-eyebrow": ["Inter"],
+                        "price-tag": ["Playfair Display"],
+                        "headline-sm": ["Playfair Display"],
+                        "headline-lg": ["Playfair Display"],
+                        "body-lg": ["Inter"],
+                        "button": ["Inter"],
+                        "display-lg": ["Playfair Display"],
+                        "body-md": ["Inter"]
+                    },
+                    "fontSize": {
+                        "label-eyebrow": ["11px", { "lineHeight": "16px", "letterSpacing": "0.15em", "fontWeight": "600" }],
+                        "price-tag": ["20px", { "fontWeight": "700" }],
+                        "headline-sm": ["24px", { "lineHeight": "1.3", "fontWeight": "600" }],
+                        "headline-lg": ["32px", { "lineHeight": "1.2", "fontWeight": "600" }],
+                        "body-lg": ["18px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "button": ["14px", { "letterSpacing": "0.02em", "fontWeight": "600" }],
+                        "display-lg": ["48px", { "lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-md": ["16px", { "lineHeight": "1.5", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
+        .bg-radial-wash {
+            background: radial-gradient(circle at top right, rgba(252, 223, 171, 0.2) 0%, rgba(252, 249, 248, 0) 60%);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md min-h-screen relative pb-32">
+<!-- TopAppBar (JSON) -->
+<header class="fixed top-0 w-full z-50 flex justify-between items-center px-margin-mobile h-16 bg-primary/90 backdrop-blur-md shadow-sm">
+<button class="text-on-primary hover:opacity-80 transition-opacity">
+<span class="material-symbols-outlined" data-icon="menu">menu</span>
+</button>
+<div class="font-headline-sm text-headline-sm text-on-primary font-bold tracking-tight">UrbanExplore</div>
+<button class="text-on-primary hover:opacity-80 transition-opacity">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+</header>
+<main class="pt-16 pb-xxl px-margin-mobile md:hidden">
+<!-- Hero Section -->
+<section class="py-xl bg-radial-wash flex flex-col gap-lg border-b border-surface-variant">
+<div class="flex flex-col gap-xs">
+<span class="font-label-eyebrow text-label-eyebrow text-secondary uppercase">ADDIS ABABA · EAT · GO OUT · GET THERE</span>
+<h1 class="font-display-lg text-display-lg text-primary">Find a place you'll love.</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant">Discover the finest experiences curated just for you.</p>
+</div>
+<!-- Unified Search -->
+<div class="flex items-center bg-surface-container-lowest border border-outline-variant rounded-full px-4 py-3 shadow-[0_4px_20px_rgba(0,0,0,0.06)]">
+<span class="material-symbols-outlined text-outline mr-3" data-icon="search">search</span>
+<input class="flex-1 bg-transparent border-none outline-none font-body-md text-on-surface placeholder:text-outline focus:ring-0" placeholder="Restaurants, events…" type="text"/>
+<button class="ml-2 w-8 h-8 flex items-center justify-center bg-secondary-container text-on-secondary-container rounded-full">
+<span class="material-symbols-outlined text-[18px]" data-icon="tune">tune</span>
+</button>
+</div>
+<!-- Trust Strip -->
+<div class="flex flex-wrap justify-between gap-2 mt-2">
+<div class="flex items-center gap-1 text-on-surface-variant font-label-eyebrow text-label-eyebrow">
+<span class="material-symbols-outlined text-[14px]" data-icon="verified">verified</span> Verified partners
+                </div>
+<div class="flex items-center gap-1 text-on-surface-variant font-label-eyebrow text-label-eyebrow">
+<span class="material-symbols-outlined text-[14px]" data-icon="schedule">schedule</span> Real-time
+                </div>
+<div class="flex items-center gap-1 text-on-surface-variant font-label-eyebrow text-label-eyebrow">
+<span class="material-symbols-outlined text-[14px]" data-icon="local_atm">local_atm</span> Fares in ETB
+                </div>
+</div>
+</section>
+<!-- Category Chips -->
+<section class="py-lg overflow-x-auto no-scrollbar">
+<div class="flex gap-sm whitespace-nowrap px-1">
+<button class="px-6 py-2 bg-primary text-on-primary font-button text-button rounded-full shadow-[0_4px_20px_rgba(0,0,0,0.06)]">Restaurants</button>
+<button class="px-6 py-2 bg-surface text-on-surface border border-outline-variant font-button text-button rounded-full">Events</button>
+<button class="px-6 py-2 bg-surface text-on-surface border border-outline-variant font-button text-button rounded-full">Rides</button>
+<button class="px-6 py-2 bg-surface text-on-surface border border-outline-variant font-button text-button rounded-full">Cafés</button>
+<button class="px-6 py-2 bg-surface text-on-surface border border-outline-variant font-button text-button rounded-full">Bars</button>
+</div>
+</section>
+<!-- Trending Restaurants -->
+<section class="py-xl flex flex-col gap-md">
+<div class="flex justify-between items-end">
+<div class="flex flex-col">
+<span class="font-label-eyebrow text-label-eyebrow text-secondary uppercase mb-1">MOST BOOKED THIS WEEK</span>
+<h2 class="font-headline-sm text-headline-sm text-primary">Trending Restaurants</h2>
+</div>
+<a class="font-button text-button text-secondary underline decoration-1 underline-offset-4" href="#">See all</a>
+</div>
+<div class="flex overflow-x-auto gap-md no-scrollbar snap-x snap-mandatory pb-4">
+<!-- Card 1 -->
+<div class="min-w-[85vw] snap-center bg-surface-container-lowest rounded-lg shadow-[0_4px_20px_rgba(0,0,0,0.06)] overflow-hidden">
+<div class="relative w-full aspect-[4/3]">
+<img class="w-full h-full object-cover" data-alt="A beautifully plated contemporary dish on a rustic ceramic plate, soft natural window light, warm high-end editorial restaurant atmosphere in Addis Ababa, white tablecloth, shallow depth of field, vibrant colors, premium dining." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAABVO__y3t6Hb5YTbfL8TRynLjJs1nPGP4LhLvYMwQgBgBSB1KO0UVopGAbLPrDd_bOzqldDTKxmsv-hPoyP-Nqis_BsiwNjsHgOqs4s1DhnCdCZ8IL1sdkWJIlbGLCNZYcBW8U1ymyqetaeWjq5GwIgEJCcNHSBJIlVojLXnEVLd7V0sItO8IaR8oiVDKed4ceqDFkQTjUp7uJdl67dugzxTi8Zi-jUIXSs76KjiYXkaA2TMnp8nH"/>
+<div class="absolute top-3 left-3 bg-surface-container-lowest text-primary font-button text-button px-2 py-1 rounded shadow-sm flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]" data-icon="star" data-weight="fill" style="font-variation-settings: 'FILL' 1;">star</span> 4.8
+                        </div>
+<button class="absolute top-3 right-3 w-8 h-8 bg-surface-container-lowest rounded-full flex items-center justify-center shadow-sm text-on-surface">
+<span class="material-symbols-outlined text-[18px]" data-icon="favorite">favorite</span>
+</button>
+</div>
+<div class="p-4 flex flex-col gap-1">
+<h3 class="font-headline-sm text-[20px] font-semibold text-primary">Castelli Restaurant</h3>
+<div class="flex items-center gap-4 text-on-surface-variant text-sm mt-1">
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]" data-icon="location_on">location_on</span> Piazza</span>
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]" data-icon="restaurant">restaurant</span> Italian</span>
+</div>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="min-w-[85vw] snap-center bg-surface-container-lowest rounded-lg shadow-[0_4px_20px_rgba(0,0,0,0.06)] overflow-hidden">
+<div class="relative w-full aspect-[4/3]">
+<img class="w-full h-full object-cover" data-alt="An elegant interior of a modern Ethiopian fusion restaurant in Addis Ababa. Warm amber lighting highlights gold accents and polished dark wood tables. A perfectly arranged traditional coffee ceremony set sits on a table. Premium, inviting, cosmopolitan editorial style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCjfNHKnyFu8aTCrQx6OZC5h9LxIobiCDs2ZiuOFfWfyEGSAy-0edNwcHUA9a1EhIbnBx5QkGD3hj2Aut1GqwUe0peosP892BEM2R5cbBq-vk8dmJrcXuAL3hLO7dktcsYhEWd6Y15mImB4p-gO4LAW7gFTbkVw11UFrdtSbseDybXSHIji5G6Y9pf8abrhCWrhWdn49VlIfAnAxu95so73pNiuD8uyARMVhWwhbX4JCbCJ4ybmogz_"/>
+<div class="absolute top-3 left-3 bg-surface-container-lowest text-primary font-button text-button px-2 py-1 rounded shadow-sm flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]" data-icon="star" data-weight="fill" style="font-variation-settings: 'FILL' 1;">star</span> 4.9
+                        </div>
+<button class="absolute top-3 right-3 w-8 h-8 bg-surface-container-lowest rounded-full flex items-center justify-center shadow-sm text-on-surface">
+<span class="material-symbols-outlined text-[18px]" data-icon="favorite">favorite</span>
+</button>
+</div>
+<div class="p-4 flex flex-col gap-1">
+<h3 class="font-headline-sm text-[20px] font-semibold text-primary">Kategna</h3>
+<div class="flex items-center gap-4 text-on-surface-variant text-sm mt-1">
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]" data-icon="location_on">location_on</span> Bole</span>
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]" data-icon="restaurant">restaurant</span> Ethiopian</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- This Week's Events -->
+<section class="py-xl flex flex-col gap-md">
+<h2 class="font-headline-sm text-headline-sm text-primary">This Week's Events</h2>
+<div class="relative w-full rounded-xl overflow-hidden shadow-[0_4px_20px_rgba(0,0,0,0.06)] mb-4">
+<img class="w-full h-64 object-cover" data-alt="A vibrant live jazz performance in an upscale lounge in Addis Ababa. Musicians playing saxophones and double bass under moody, warm dramatic spotlighting. High-contrast editorial style, deep navy and rich gold tones, energetic yet sophisticated atmosphere." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDS08s2MqD93hIVCS8JT2rh1NouMJMum4I5RmFP-rQcKmh6e_mq637o4QKidjVK0F8yF6jDnBu4U3k5iD8JhI9i43Zc68cUGnbKPTepqplQ1aJx7LtWaGvKEBi8RjPP25Uz__c6E2WXVgTXFPHnQNzSd7aNGgZWO9k2Rzy113mCX8OhTbi89NRIWYtADbinLBUd-mBV9YBskd0-X-JJ-C0m3qbkAiaRjaDfvudC1-Daq0OCwzWStyHJ"/>
+<div class="absolute inset-0 bg-gradient-to-t from-primary via-primary/50 to-transparent"></div>
+<div class="absolute top-4 left-4 bg-surface-container-lowest text-primary font-button text-button px-3 py-1 rounded shadow-sm">
+                    12 Oct
+                </div>
+<div class="absolute bottom-4 left-4 right-4 flex flex-col gap-2">
+<h3 class="font-headline-sm text-headline-sm text-on-primary leading-tight">Ethio-Jazz Night Under the Stars</h3>
+<p class="font-body-md text-on-primary/80 flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]" data-icon="location_on">location_on</span> Fendika Cultural Center
+                    </p>
+<div class="flex justify-between items-center mt-2">
+<span class="font-label-eyebrow text-label-eyebrow text-secondary-container uppercase">From ETB 350</span>
+<button class="bg-secondary-container text-on-secondary-container font-button text-button px-4 py-2 rounded-full">Book now</button>
+</div>
+</div>
+</div>
+<div class="flex flex-col gap-4">
+<div class="flex gap-4 items-center bg-surface-container-lowest p-3 rounded-lg shadow-[0_4px_20px_rgba(0,0,0,0.06)]">
+<img class="w-20 h-20 object-cover rounded" data-alt="Close up of artisanal coffee roasting in a chic Addis Ababa café. Rich brown beans turning, soft steam rising, warm sunlight streaming through a window. Premium editorial lifestyle photography." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBqwukBrDkZ45Dz9eApcn6IbP9pyAU6WiWEFTlZM_JuR_yHsYtH7oAfiPQ-6ZYa4bOUKF4LZhu---FywrGtizgm7cPYa2iD2R2vNlFQb_dwb1NdRKGTkqDsvQoOu7APkUitXYRCzHzS4krV2lWKCAx9U0CiSMeTjLKIJjqQaroCpcMpqFjKVv-EZT9tqF1BBrqYKNZ-J7vR9LBEkWl5y4OziIRg8M85WAq-Iv42FIkA-h1ApK2nsZm_"/>
+<div class="flex-1 flex flex-col">
+<span class="text-xs font-semibold text-secondary mb-1">TOMORROW</span>
+<h4 class="font-headline-sm text-[16px] font-semibold text-primary">Artisanal Coffee Tasting</h4>
+<p class="text-sm text-on-surface-variant">Tomoca Coffee · Piazza</p>
+</div>
+</div>
+<div class="flex gap-4 items-center bg-surface-container-lowest p-3 rounded-lg shadow-[0_4px_20px_rgba(0,0,0,0.06)]">
+<img class="w-20 h-20 object-cover rounded" data-alt="A sophisticated art exhibition opening in Addis Ababa. Abstract contemporary paintings on clean white gallery walls, soft track lighting, elegantly dressed attendees mingling in the background. High-key light-mode editorial." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBHRSabw_bIS6nDG1AXKEX0tHie_X9IBtIUJ6vRXEOJRK9nbOxQG2bX8WB24gBr_AtALdcnd3t4RuS_duMkWJnak4Gxvj-CH1NaF1yuVHUU2DvRjcO1MJOBDf_rbYXBRR4q0G3h-AuYg8_Bwq6Two5H3tZoIk8KkJc0zZECYwB0B68eu3NLm76E1hoZH7Q8ulVOT0gWFxHQjn53zAFhgpiuj2ZXaAS60SCK2MCq7lB4W_OKRVHmubQO"/>
+<div class="flex-1 flex flex-col">
+<span class="text-xs font-semibold text-secondary mb-1">SATURDAY</span>
+<h4 class="font-headline-sm text-[16px] font-semibold text-primary">Modern Art Exhibition</h4>
+<p class="text-sm text-on-surface-variant">St. George Gallery</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Promo Banner -->
+<section class="my-lg bg-primary rounded-xl p-6 flex items-center justify-between shadow-[0_4px_20px_rgba(0,0,0,0.06)] relative overflow-hidden">
+<!-- Decorative subtle pattern/gradient instead of inline svg -->
+<div class="absolute inset-0 opacity-20" style="background-image: radial-gradient(#dfc391 1px, transparent 1px); background-size: 20px 20px;"></div>
+<div class="flex flex-col gap-4 relative z-10 w-2/3">
+<h2 class="font-headline-sm text-headline-sm text-on-primary">Book it.<br/>Then ride.</h2>
+<button class="bg-secondary-fixed text-on-secondary-fixed font-button text-button px-5 py-2 rounded-full self-start">Estimate a fare</button>
+</div>
+<div class="w-1/3 relative z-10 flex justify-end">
+<span class="material-symbols-outlined text-[64px] text-secondary-fixed" data-icon="directions_car">directions_car</span>
+</div>
+</section>
+</main>
+<!-- BottomNavBar (JSON) -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-6 bg-surface/80 backdrop-blur-lg shadow-[0_4px_20px_rgba(0,0,0,0.06)] rounded-t-full pt-4 md:hidden">
+<a class="flex flex-col items-center justify-center bg-primary text-secondary-fixed rounded-full px-4 py-2 hover:bg-surface-container-high transition-colors translate-y-[-2px] transition-all duration-150" href="#">
+<span class="material-symbols-outlined" data-icon="home">home</span>
+<span class="font-label-eyebrow text-label-eyebrow mt-1">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container-high transition-colors px-4 py-2 rounded-full" href="#">
+<span class="material-symbols-outlined" data-icon="restaurant">restaurant</span>
+<span class="font-label-eyebrow text-label-eyebrow mt-1">Eat</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container-high transition-colors px-4 py-2 rounded-full" href="#">
+<span class="material-symbols-outlined" data-icon="event">event</span>
+<span class="font-label-eyebrow text-label-eyebrow mt-1">Events</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container-high transition-colors px-4 py-2 rounded-full" href="#">
+<span class="material-symbols-outlined" data-icon="directions_car">directions_car</span>
+<span class="font-label-eyebrow text-label-eyebrow mt-1">Ride</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container-high transition-colors px-4 py-2 rounded-full" href="#">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+<span class="font-label-eyebrow text-label-eyebrow mt-1">Account</span>
+</a>
+</nav>
+</body></html>

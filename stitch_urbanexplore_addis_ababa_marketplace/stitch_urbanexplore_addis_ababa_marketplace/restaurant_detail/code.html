@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Restaurant Detail - UrbanExplore</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&amp;family=Playfair+Display:wght@600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "tertiary": "#0b0500",
+                      "on-primary-fixed-variant": "#364764",
+                      "surface-tint": "#4d5f7d",
+                      "surface": "#fcf9f8",
+                      "secondary-fixed-dim": "#dfc391",
+                      "surface-container-low": "#f6f3f2",
+                      "tertiary-fixed": "#ffddb1",
+                      "surface-container": "#f0edec",
+                      "on-primary": "#ffffff",
+                      "surface-container-lowest": "#ffffff",
+                      "secondary-fixed": "#fcdfab",
+                      "primary-fixed": "#d6e3ff",
+                      "on-secondary-fixed-variant": "#57441d",
+                      "tertiary-fixed-dim": "#e8c088",
+                      "secondary": "#705b32",
+                      "on-secondary-container": "#756036",
+                      "surface-variant": "#e4e2e1",
+                      "on-error": "#ffffff",
+                      "on-primary-container": "#7587a7",
+                      "on-secondary-fixed": "#261900",
+                      "surface-container-highest": "#e4e2e1",
+                      "inverse-on-surface": "#f3f0ef",
+                      "secondary-container": "#f9dca8",
+                      "error": "#ba1a1a",
+                      "on-primary-fixed": "#071c36",
+                      "on-error-container": "#93000a",
+                      "error-container": "#ffdad6",
+                      "primary": "#000615",
+                      "on-tertiary-fixed-variant": "#5d4215",
+                      "on-background": "#1b1c1b",
+                      "on-secondary": "#ffffff",
+                      "on-tertiary-container": "#a3814e",
+                      "surface-dim": "#dcd9d8",
+                      "on-surface-variant": "#44474d",
+                      "on-surface": "#1b1c1b",
+                      "outline": "#75777e",
+                      "primary-fixed-dim": "#b5c7ea",
+                      "on-tertiary-fixed": "#291800",
+                      "surface-bright": "#fcf9f8",
+                      "background": "#fcf9f8",
+                      "inverse-surface": "#303030",
+                      "inverse-primary": "#b5c7ea",
+                      "primary-container": "#0b1f3a",
+                      "tertiary-container": "#2d1b00",
+                      "surface-container-high": "#eae7e7",
+                      "outline-variant": "#c4c6ce",
+                      "on-tertiary": "#ffffff"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "xxl": "48px",
+                      "gutter": "16px",
+                      "xl": "32px",
+                      "lg": "24px",
+                      "base": "4px",
+                      "md": "16px",
+                      "sm": "12px",
+                      "xs": "8px",
+                      "margin-desktop": "64px",
+                      "margin-mobile": "20px"
+              },
+              "fontFamily": {
+                      "label-eyebrow": [
+                              "Inter"
+                      ],
+                      "price-tag": [
+                              "Playfair Display"
+                      ],
+                      "headline-sm": [
+                              "Playfair Display"
+                      ],
+                      "headline-lg": [
+                              "Playfair Display"
+                      ],
+                      "body-lg": [
+                              "Inter"
+                      ],
+                      "button": [
+                              "Inter"
+                      ],
+                      "display-lg": [
+                              "Playfair Display"
+                      ],
+                      "body-md": [
+                              "Inter"
+                      ]
+              },
+              "fontSize": {
+                      "label-eyebrow": [
+                              "11px",
+                              {
+                                      "lineHeight": "16px",
+                                      "letterSpacing": "0.15em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "price-tag": [
+                              "20px",
+                              {
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "headline-sm": [
+                              "24px",
+                              {
+                                      "lineHeight": "1.3",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "headline-lg": [
+                              "32px",
+                              {
+                                      "lineHeight": "1.2",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-lg": [
+                              "18px",
+                              {
+                                      "lineHeight": "1.6",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "button": [
+                              "14px",
+                              {
+                                      "letterSpacing": "0.02em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "display-lg": [
+                              "48px",
+                              {
+                                      "lineHeight": "1.1",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "body-md": [
+                              "16px",
+                              {
+                                      "lineHeight": "1.5",
+                                      "fontWeight": "400"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+      </script>
+<style>
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md antialiased pb-24">
+<!-- Top Navigation (Back button over image) -->
+<div class="fixed top-0 w-full z-50 flex justify-between items-center px-margin-mobile h-16 pt-safe-top pointer-events-none">
+<button class="w-10 h-10 rounded-full bg-surface/80 backdrop-blur-md flex items-center justify-center text-primary shadow-sm pointer-events-auto transition-transform active:scale-95">
+<span class="material-symbols-outlined" data-icon="arrow_back">arrow_back</span>
+</button>
+<div class="flex gap-3 pointer-events-auto">
+<button class="w-10 h-10 rounded-full bg-surface/80 backdrop-blur-md flex items-center justify-center text-primary shadow-sm transition-transform active:scale-95">
+<span class="material-symbols-outlined" data-icon="ios_share">ios_share</span>
+</button>
+<button class="w-10 h-10 rounded-full bg-surface/80 backdrop-blur-md flex items-center justify-center text-primary shadow-sm transition-transform active:scale-95">
+<span class="material-symbols-outlined" data-icon="bookmark_border">bookmark_border</span>
+</button>
+</div>
+</div>
+<!-- Full Bleed Hero Image -->
+<div class="w-full h-64 relative">
+<img class="w-full h-full object-cover" data-alt="A cinematic, wide-angle shot of a luxurious restaurant interior in Addis Ababa. Warm golden lighting highlights polished dark wood tables and plush velvet seating. High-contrast editorial style, emphasizing premium dining experience, soft ambient shadows, pristine white tablecloths, vibrant atmosphere." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBHeNpsv5YcR_Rwe5SSlroYq7UosIdPvWmTEawollryN6Zj-yW3qGTcU3jkYIdQuPSxvSVRdfAP0hKQ06A8H6o2fYaAVJOYAyAsCqP9-BN3RZ-sjU4MQCNKPsjzElTS06LKT0Uf3xthCVwXh2SfbY8_efBoyPCtfNAC71zps-03mUp90YLn3Bslm_GSFVXs0lql8Jd2fRM_dTQVPgpyXAKX6GZCdyC_gt0fjjqNaqukrjsNgYyKrRvd"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
+</div>
+<!-- Floating Identity Card -->
+<main class="px-margin-mobile relative -mt-[56px] z-10 space-y-xl">
+<div class="bg-surface-container-lowest rounded-xl p-md shadow-[0_4px_20px_rgba(0,0,0,0.06)] relative">
+<div class="flex justify-between items-start mb-4">
+<div class="flex-1">
+<div class="flex items-center gap-2 mb-1">
+<span class="font-label-eyebrow text-label-eyebrow text-secondary uppercase tracking-widest bg-secondary-container px-2 py-0.5 rounded-full">Premium</span>
+</div>
+<h1 class="font-headline-sm text-headline-sm text-primary mb-1">The Golden Tulip</h1>
+<div class="flex items-center text-on-surface-variant font-body-md text-sm gap-2">
+<div class="flex items-center text-secondary">
+<span class="material-symbols-outlined text-base" data-icon="star" data-weight="fill" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="font-bold ml-1">4.8</span>
+</div>
+<span>·</span>
+<span>Fine Dining &amp; Continental</span>
+<span>·</span>
+<span>$$$</span>
+</div>
+</div>
+<div class="w-16 h-16 rounded-lg overflow-hidden border border-surface-variant shadow-sm flex-shrink-0 bg-surface">
+<img class="w-full h-full object-contain p-2" data-alt="A minimalist, high-end restaurant logo featuring a stylized gold tulip on a crisp white background. The design is elegant, symmetrical, and uses fine lines, perfectly aligned with a premium editorial aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB8WpArZgPWmL3R-3J-CQPcBiKzSNaxaziBHmaL76yS9nj8693vHwTNlyEkC0DzomXYcvSaQZYWxXnZWyO7RXxdn6x6oiyXN05xV_c793Gfdb9gTuqI0IIscJfA8e_3CjD47c392hw30wXPAIQ1ddVlIF3ejyGrPGqa1ifkkOb57NzoHC-EP_0lHijv_-ms240ly_FXmDArckIgTmpufqrPayGIitXdZ_sCfG5_ajPgVjexOWTBBYMs"/>
+</div>
+</div>
+<div class="h-px bg-surface-variant w-full my-4"></div>
+<div class="flex items-center justify-between">
+<div class="flex items-start gap-3 flex-1 pr-4">
+<span class="material-symbols-outlined text-outline mt-0.5" data-icon="location_on">location_on</span>
+<div>
+<p class="font-body-md text-on-surface text-sm">Bole Medhanialem, Namibia Street</p>
+<p class="font-body-md text-on-surface-variant text-sm mt-0.5">2.4 km away</p>
+</div>
+</div>
+<button class="flex items-center justify-center w-10 h-10 rounded-full bg-primary-container text-on-primary-container transition-transform active:scale-95 shrink-0">
+<span class="material-symbols-outlined" data-icon="directions">directions</span>
+</button>
+</div>
+</div>
+<!-- Availability Banner -->
+<div class="bg-surface-container-low rounded-lg p-3 flex items-center gap-3 border border-surface-variant">
+<div class="w-2.5 h-2.5 rounded-full bg-green-500 animate-pulse"></div>
+<p class="font-body-md text-sm text-on-surface">Available now · next slot <strong>7:30 PM</strong></p>
+</div>
+<!-- Quick Action Grid -->
+<div class="grid grid-cols-4 gap-3">
+<button class="flex flex-col items-center justify-center gap-2 p-3 rounded-xl border border-surface-variant bg-surface-container-lowest active:bg-surface-container-low transition-colors">
+<span class="material-symbols-outlined text-primary" data-icon="restaurant_menu">restaurant_menu</span>
+<span class="font-label-eyebrow text-label-eyebrow text-primary">Menu</span>
+</button>
+<button class="flex flex-col items-center justify-center gap-2 p-3 rounded-xl border border-surface-variant bg-surface-container-lowest active:bg-surface-container-low transition-colors">
+<span class="material-symbols-outlined text-primary" data-icon="event_seat">event_seat</span>
+<span class="font-label-eyebrow text-label-eyebrow text-primary">Reserve</span>
+</button>
+<button class="flex flex-col items-center justify-center gap-2 p-3 rounded-xl border border-surface-variant bg-surface-container-lowest active:bg-surface-container-low transition-colors">
+<span class="material-symbols-outlined text-primary" data-icon="add_circle">add_circle</span>
+<span class="font-label-eyebrow text-label-eyebrow text-primary">Follow</span>
+</button>
+<button class="flex flex-col items-center justify-center gap-2 p-3 rounded-xl border border-surface-variant bg-surface-container-lowest active:bg-surface-container-low transition-colors">
+<span class="material-symbols-outlined text-primary" data-icon="favorite_border">favorite_border</span>
+<span class="font-label-eyebrow text-label-eyebrow text-primary">Save</span>
+</button>
+</div>
+<!-- Photo Gallery Snap Row -->
+<section>
+<h2 class="font-headline-sm text-headline-sm text-primary mb-4 text-xl">Atmosphere</h2>
+<div class="flex overflow-x-auto gap-4 snap-x snap-mandatory hide-scrollbar pb-4 -mx-margin-mobile px-margin-mobile">
+<div class="snap-start shrink-0 w-64 h-48 rounded-xl overflow-hidden relative shadow-sm">
+<img class="w-full h-full object-cover" data-alt="A close-up shot of an exquisitely plated gourmet dish, featuring seared scallops with vibrant microgreens and a drizzle of rich sauce. High-key lighting, bright white plate, shallow depth of field, premium editorial food photography style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD7BY2DanFoRSQ0CtvyPMvaDf8r1WrMydpcQ-Azp8kmZBfr5zGrxXmX0XEprFecGJgQADZ9IvHWD4_bdv8-u9n1wFLJQetiCjadgnL76Az0Hg_3wedCDFZ5fRtb0gJ9TUiyvPlo267MGKr71DY3-D7oFPRitsi5GhUOTpD6h-h-gfY-TeZfj7fCtiMK3ZbAJb-cv3QgB4U1l6XI46WqfQ3vpLBuDIhUqzAUAGmpUY5NNFQuyk3_7FwQ"/>
+</div>
+<div class="snap-start shrink-0 w-64 h-48 rounded-xl overflow-hidden relative shadow-sm">
+<img class="w-full h-full object-cover" data-alt="The elegant bar area of a premium restaurant. Crystal glasses line the warmly lit shelves, dark mahogany wood accents, soft glowing ambient light reflecting off polished brass fixtures. Sophisticated, exclusive mood." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD-5zcXWUjPi7bxFN5O23G0sjv2xVqz3SX0aVfut89SJERInDoUcoWPU58FfyCw7ayHZPydSCXcbPrAcanIwq38AvwghB1hIrR9v-llBmoyKKqoiVHWUBj9SQvSlMLZGK195kA0L7_4uOgc-wYscDEeRTBWpgkWAqQMqQ69zrjceifBphN3E2HqJZnrELhoelJRYJcARBo_-nInhJmlx8tW0h8Ng0JbgEqLxcuAN_en9KuS1fh2dLL5"/>
+</div>
+<div class="snap-start shrink-0 w-64 h-48 rounded-xl overflow-hidden relative shadow-sm">
+<img class="w-full h-full object-cover" data-alt="A beautifully set table for two beside a large window looking out onto the city of Addis Ababa at twilight. Crisp ivory linens, glowing candle light, sparkling cutlery, evoking a romantic and high-end dining experience." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB55qFkiUq-_46Xlniqekga4XbZCasOHXbLInfNZkCH4AYD-LdMpi7wEpOZP8m1GK5SX-NjJ2enWUWqP5BGz-FHkjTN-f0I96vV05fGKY08UtL0t2wvwA-omGpwAaIRa5fSSt-9EjP_t_0NYipgjhSgcQYMbFB_gIFO0jq01wy7dtWuxHjojlqPBQRVvp833m_OwyyNcDjI5AE4MweLrywCt7MRiQtC2v3fKciHomR5P2tmLQBVra6J"/>
+</div>
+</div>
+</section>
+<!-- About Paragraph -->
+<section>
+<h2 class="font-headline-sm text-headline-sm text-primary mb-3 text-xl">The Experience</h2>
+<p class="font-body-md text-on-surface-variant leading-relaxed">
+                Experience culinary excellence in the heart of Addis Ababa. The Golden Tulip offers a curated selection of fine dining and continental dishes, blending local ingredients with international techniques. Perfect for intimate dinners, business meetings, and special celebrations.
+            </p>
+</section>
+<!-- Highlights List -->
+<section class="bg-surface-container-low p-md rounded-xl">
+<h2 class="font-headline-sm text-headline-sm text-primary mb-4 text-xl">Highlights</h2>
+<ul class="space-y-4">
+<li class="flex items-center gap-3">
+<span class="material-symbols-outlined text-secondary" data-icon="local_bar">local_bar</span>
+<span class="font-body-md text-on-surface">Full Service Bar &amp; Mixology</span>
+</li>
+<li class="flex items-center gap-3">
+<span class="material-symbols-outlined text-secondary" data-icon="park">park</span>
+<span class="font-body-md text-on-surface">Outdoor Terrace Seating</span>
+</li>
+<li class="flex items-center gap-3">
+<span class="material-symbols-outlined text-secondary" data-icon="wifi">wifi</span>
+<span class="font-body-md text-on-surface">Complimentary High-Speed Wi-Fi</span>
+</li>
+<li class="flex items-center gap-3">
+<span class="material-symbols-outlined text-secondary" data-icon="local_parking">local_parking</span>
+<span class="font-body-md text-on-surface">Valet Parking Available</span>
+</li>
+</ul>
+</section>
+<!-- Cuisine Tags -->
+<section>
+<h2 class="font-headline-sm text-headline-sm text-primary mb-3 text-xl">Cuisine</h2>
+<div class="flex flex-wrap gap-2">
+<span class="px-3 py-1.5 rounded-full border border-surface-variant bg-surface-container-lowest font-body-md text-sm text-on-surface">Continental</span>
+<span class="px-3 py-1.5 rounded-full border border-surface-variant bg-surface-container-lowest font-body-md text-sm text-on-surface">Steakhouse</span>
+<span class="px-3 py-1.5 rounded-full border border-surface-variant bg-surface-container-lowest font-body-md text-sm text-on-surface">Seafood</span>
+<span class="px-3 py-1.5 rounded-full border border-surface-variant bg-surface-container-lowest font-body-md text-sm text-on-surface">Vegetarian Friendly</span>
+</div>
+</section>
+<!-- Opening Hours Table -->
+<section class="mb-8">
+<h2 class="font-headline-sm text-headline-sm text-primary mb-4 text-xl">Opening Hours</h2>
+<div class="bg-surface-container-lowest border border-surface-variant rounded-xl overflow-hidden shadow-sm">
+<div class="flex justify-between p-3 border-b border-surface-variant bg-secondary/10">
+<span class="font-body-md font-semibold text-secondary">Today (Thu)</span>
+<span class="font-body-md font-semibold text-secondary">11:00 AM - 11:00 PM</span>
+</div>
+<div class="flex justify-between p-3 border-b border-surface-variant">
+<span class="font-body-md text-on-surface-variant">Friday</span>
+<span class="font-body-md text-on-surface">11:00 AM - 12:00 AM</span>
+</div>
+<div class="flex justify-between p-3 border-b border-surface-variant">
+<span class="font-body-md text-on-surface-variant">Saturday</span>
+<span class="font-body-md text-on-surface">10:00 AM - 12:00 AM</span>
+</div>
+<div class="flex justify-between p-3">
+<span class="font-body-md text-on-surface-variant">Sunday</span>
+<span class="font-body-md text-on-surface">10:00 AM - 10:00 PM</span>
+</div>
+</div>
+</section>
+</main>
+<!-- Sticky Bottom Dual CTA Bar -->
+<div class="fixed bottom-0 left-0 w-full z-50 bg-surface/90 backdrop-blur-lg border-t border-surface-variant px-margin-mobile py-4 shadow-[0_-4px_20px_rgba(0,0,0,0.05)]">
+<div class="flex gap-3 max-w-lg mx-auto">
+<button class="flex-1 py-3 px-4 rounded-full border-2 border-primary text-primary font-button text-button flex items-center justify-center gap-2 active:bg-surface-variant transition-colors">
+<span class="material-symbols-outlined text-sm" data-icon="directions_car">directions_car</span>
+                Go by Ride
+            </button>
+<button class="flex-[1.5] py-3 px-4 rounded-full bg-primary text-on-primary font-button text-button flex items-center justify-center gap-2 active:scale-[0.98] transition-transform">
+<span class="material-symbols-outlined text-sm" data-icon="event_available">event_available</span>
+                Book a Table
+            </button>
+</div>
+</div>
+</body></html>

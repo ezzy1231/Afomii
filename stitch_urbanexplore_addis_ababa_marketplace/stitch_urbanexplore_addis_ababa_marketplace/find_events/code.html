@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Events - UrbanExplore</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&amp;family=Playfair+Display:wght@600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "tertiary": "#0b0500",
+                      "on-primary-fixed-variant": "#364764",
+                      "surface-tint": "#4d5f7d",
+                      "surface": "#fcf9f8",
+                      "secondary-fixed-dim": "#dfc391",
+                      "surface-container-low": "#f6f3f2",
+                      "tertiary-fixed": "#ffddb1",
+                      "surface-container": "#f0edec",
+                      "on-primary": "#ffffff",
+                      "surface-container-lowest": "#ffffff",
+                      "secondary-fixed": "#fcdfab",
+                      "primary-fixed": "#d6e3ff",
+                      "on-secondary-fixed-variant": "#57441d",
+                      "tertiary-fixed-dim": "#e8c088",
+                      "secondary": "#705b32",
+                      "on-secondary-container": "#756036",
+                      "surface-variant": "#e4e2e1",
+                      "on-error": "#ffffff",
+                      "on-primary-container": "#7587a7",
+                      "on-secondary-fixed": "#261900",
+                      "surface-container-highest": "#e4e2e1",
+                      "inverse-on-surface": "#f3f0ef",
+                      "secondary-container": "#f9dca8",
+                      "error": "#ba1a1a",
+                      "on-primary-fixed": "#071c36",
+                      "on-error-container": "#93000a",
+                      "error-container": "#ffdad6",
+                      "primary": "#000615",
+                      "on-tertiary-fixed-variant": "#5d4215",
+                      "on-background": "#1b1c1b",
+                      "on-secondary": "#ffffff",
+                      "on-tertiary-container": "#a3814e",
+                      "surface-dim": "#dcd9d8",
+                      "on-surface-variant": "#44474d",
+                      "on-surface": "#1b1c1b",
+                      "outline": "#75777e",
+                      "primary-fixed-dim": "#b5c7ea",
+                      "on-tertiary-fixed": "#291800",
+                      "surface-bright": "#fcf9f8",
+                      "background": "#fcf9f8",
+                      "inverse-surface": "#303030",
+                      "inverse-primary": "#b5c7ea",
+                      "primary-container": "#0b1f3a",
+                      "tertiary-container": "#2d1b00",
+                      "surface-container-high": "#eae7e7",
+                      "outline-variant": "#c4c6ce",
+                      "on-tertiary": "#ffffff"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "xxl": "48px",
+                      "gutter": "16px",
+                      "xl": "32px",
+                      "lg": "24px",
+                      "base": "4px",
+                      "md": "16px",
+                      "sm": "12px",
+                      "xs": "8px",
+                      "margin-desktop": "64px",
+                      "margin-mobile": "20px"
+              },
+              "fontFamily": {
+                      "label-eyebrow": [
+                              "Inter"
+                      ],
+                      "price-tag": [
+                              "Playfair Display"
+                      ],
+                      "headline-sm": [
+                              "Playfair Display"
+                      ],
+                      "headline-lg": [
+                              "Playfair Display"
+                      ],
+                      "body-lg": [
+                              "Inter"
+                      ],
+                      "button": [
+                              "Inter"
+                      ],
+                      "display-lg": [
+                              "Playfair Display"
+                      ],
+                      "body-md": [
+                              "Inter"
+                      ]
+              },
+              "fontSize": {
+                      "label-eyebrow": [
+                              "11px",
+                              {
+                                      "lineHeight": "16px",
+                                      "letterSpacing": "0.15em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "price-tag": [
+                              "20px",
+                              {
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "headline-sm": [
+                              "24px",
+                              {
+                                      "lineHeight": "1.3",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "headline-lg": [
+                              "32px",
+                              {
+                                      "lineHeight": "1.2",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-lg": [
+                              "18px",
+                              {
+                                      "lineHeight": "1.6",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "button": [
+                              "14px",
+                              {
+                                      "letterSpacing": "0.02em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "display-lg": [
+                              "48px",
+                              {
+                                      "lineHeight": "1.1",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "body-md": [
+                              "16px",
+                              {
+                                      "lineHeight": "1.5",
+                                      "fontWeight": "400"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+      </script>
+<style>
+        .hide-scroll::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scroll {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        
+        .line-clamp-2 {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+      </style>
+</head>
+<body class="bg-background text-on-background font-body-md min-h-screen pb-32">
+<!-- TopAppBar (Hidden on mobile) -->
+<header class="hidden md:flex fixed top-0 w-full z-50 justify-between items-center px-margin-mobile h-16 bg-primary/90 backdrop-blur-md shadow-sm">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-on-primary text-[24px]" style="font-variation-settings: 'FILL' 0;">menu</span>
+<span class="font-headline-sm text-headline-sm text-on-primary">UrbanExplore</span>
+</div>
+<span class="material-symbols-outlined text-on-primary text-[24px]" style="font-variation-settings: 'FILL' 0;">notifications</span>
+</header>
+<!-- Sticky Search Header -->
+<div class="sticky top-0 z-40 bg-surface/95 backdrop-blur-md px-margin-mobile pt-sm pb-sm shadow-sm md:mt-16 md:hidden">
+<div class="relative w-full">
+<span class="material-symbols-outlined absolute left-sm top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+<input class="w-full bg-surface-container-high rounded-full pl-10 pr-4 py-3 text-body-md font-body-md outline-none focus:ring-2 focus:ring-secondary/50 placeholder:text-on-surface-variant" placeholder="Search experiences..." type="text"/>
+<span class="material-symbols-outlined absolute right-sm top-1/2 -translate-y-1/2 text-on-surface-variant bg-surface rounded-full p-1 shadow-sm">tune</span>
+</div>
+<!-- Date Chips -->
+<div class="flex gap-2 mt-4 overflow-x-auto hide-scroll pb-2">
+<button class="shrink-0 bg-primary text-on-primary rounded-full px-4 py-1.5 font-button text-button">Today</button>
+<button class="shrink-0 border border-outline-variant text-on-surface rounded-full px-4 py-1.5 font-button text-button hover:bg-surface-container transition-colors">This weekend</button>
+<button class="shrink-0 border border-outline-variant text-on-surface rounded-full px-4 py-1.5 font-button text-button hover:bg-surface-container transition-colors">This month</button>
+<button class="shrink-0 border border-outline-variant text-on-surface rounded-full px-4 py-1.5 font-button text-button hover:bg-surface-container transition-colors">All</button>
+</div>
+</div>
+<main class="md:px-margin-desktop md:pt-32">
+<!-- Featured Event Poster -->
+<section class="relative w-full aspect-[16/10] md:rounded-xl overflow-hidden md:mt-lg shadow-[0_4px_20px_rgba(0,0,0,0.06)] group cursor-pointer">
+<div class="absolute inset-0 bg-cover bg-center" data-alt="A high-quality, professional photograph of a sophisticated outdoor evening gathering in Addis Ababa. Elegant people mingling under soft, warm string lights. The scene is illuminated by ambient, golden hour lighting, creating a premium, inviting, and cultured atmosphere. Subtle architectural details of a luxury venue in the background. High contrast editorial style." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCvRFaC59eop1LXC6RjDojd8lKJabg7DcDLVTKxcPHaMR1FSN-FVhRnrQOjMKTaeQfAfc82T7fiJ7fiGIcnN5BbEr3w141K8zVKPD2tURjZXfgI8nrnhCBJAq788zCC4wKDqIvi1epV4d9JMh6P2xY_aMEUicW5W0Bl2ENyog1PTwD1-mFofh2aeWqUnDtM4H-IpIp6RKdyciZo3mhOnDN27VvL6ABVyCGIp0x7CgzNNFgn_63gbYSO')"></div>
+<div class="absolute inset-0 bg-gradient-to-t from-primary/90 via-primary/40 to-transparent"></div>
+<!-- Date Badge -->
+<div class="absolute top-4 right-margin-mobile bg-on-primary/95 backdrop-blur-sm rounded-lg flex flex-col items-center justify-center p-2 min-w-[56px] shadow-md">
+<span class="font-label-eyebrow text-label-eyebrow text-secondary uppercase">Oct</span>
+<span class="font-headline-sm text-headline-sm text-primary -mt-1">12</span>
+</div>
+<div class="absolute bottom-0 left-0 w-full p-margin-mobile flex flex-col justify-end">
+<h2 class="font-headline-lg text-[28px] leading-[1.2] font-semibold text-on-primary mb-2 shadow-sm">Addis Jazz Festival 2024</h2>
+<div class="flex items-center gap-2 text-on-primary/90 text-sm font-body-md mb-4">
+<span class="material-symbols-outlined text-[16px]">calendar_month</span>
+<span>18:00 - 23:30</span>
+<span class="w-1 h-1 rounded-full bg-on-primary/50 mx-1"></span>
+<span class="material-symbols-outlined text-[16px]">location_on</span>
+<span>Ghion Hotel Gardens</span>
+</div>
+<div class="flex items-center justify-between mt-auto">
+<div class="bg-on-primary text-primary px-3 py-1.5 rounded-full font-label-eyebrow text-label-eyebrow tracking-widest uppercase">
+                        From ETB 350
+                    </div>
+<button class="bg-secondary text-on-secondary px-6 py-2.5 rounded-full font-button text-button hover:opacity-90 transition-opacity">
+                        Book Experience
+                    </button>
+</div>
+</div>
+</section>
+<!-- Upcoming Experiences Grid -->
+<section class="px-margin-mobile mt-xl md:px-0">
+<h3 class="font-headline-sm text-headline-sm text-on-background mb-lg border-b border-outline-variant pb-2">Upcoming Experiences</h3>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-lg">
+<!-- Standard Card -->
+<article class="bg-surface-container-lowest rounded-xl overflow-hidden shadow-[0_4px_20px_rgba(0,0,0,0.06)] hover:-translate-y-1 transition-transform duration-150 group">
+<div class="relative h-48 w-full bg-surface-container">
+<div class="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-105" data-alt="A close-up, beautifully styled shot of traditional Ethiopian coffee ceremony items. Rich dark roasted coffee beans, a stylized jebena (clay pot), and delicate small cups on a wooden tray. Soft, natural morning light filtering in. Warm, inviting editorial aesthetic. High clarity and contrast." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAKarJiP4Jcdlwy4URajSDA9uM7ditrLGarQ6jJtockoksk8-mE2CniYI3KAI2FVvSZ1oM7FuUPzFLu3kvs106g0Yd1tLQOwGEwqFR9wf0J_d0fPOjNNr37uckhgKekBqF0oK8FoREpSy-IIrzCaPSANIAGqcyOGwaBwpYgwbhUoLgfjnmzAi-Wkjz6IHFqWL_usVFe6nKADeyoAVyarzqsTD7KBq_a1gNaaan3R2nJxg0DGN4pw5Vn')"></div>
+<!-- Date Badge -->
+<div class="absolute top-3 right-3 bg-on-primary/95 backdrop-blur-sm rounded-md flex flex-col items-center justify-center p-1.5 min-w-[48px] shadow-sm">
+<span class="font-label-eyebrow text-[9px] text-secondary uppercase leading-none">Nov</span>
+<span class="font-price-tag text-[16px] text-primary leading-none mt-1">05</span>
+</div>
+</div>
+<div class="p-4 flex flex-col h-full">
+<span class="font-label-eyebrow text-label-eyebrow text-secondary uppercase mb-1">Culinary Arts</span>
+<h4 class="font-headline-sm text-[20px] text-on-background mb-2">Modern Buna Ceremony</h4>
+<p class="font-body-md text-on-surface-variant text-sm line-clamp-2 mb-4">Experience a contemporary take on the traditional Ethiopian coffee ceremony, led by master roaster Elias.</p>
+<div class="mt-auto flex items-center justify-between pt-4 border-t border-surface-variant">
+<div class="bg-secondary-container text-on-secondary-container px-3 py-1 rounded-full font-label-eyebrow text-label-eyebrow">
+                                ETB 500
+                            </div>
+<button class="bg-primary text-on-primary px-4 py-1.5 rounded-full font-button text-button text-sm hover:opacity-90 transition-opacity">
+                                Book Tickets
+                            </button>
+</div>
+</div>
+</article>
+<!-- Sold Out Card -->
+<article class="bg-surface-container-lowest rounded-xl overflow-hidden shadow-[0_4px_20px_rgba(0,0,0,0.06)] relative opacity-75 grayscale-[0.3]">
+<!-- Ribbon -->
+<div class="absolute top-4 -left-8 bg-error text-on-error font-label-eyebrow text-label-eyebrow py-1 px-10 transform -rotate-45 z-10 shadow-sm uppercase tracking-widest">
+                        Sold Out
+                    </div>
+<div class="relative h-48 w-full bg-surface-container">
+<div class="absolute inset-0 bg-cover bg-center" data-alt="A dynamic, high-contrast shot of a contemporary art gallery exhibition in Addis Ababa. Abstract colorful paintings on pristine white walls. Warm, directional gallery spotlights highlighting the artwork. People blurred in motion in the background, signifying a busy, sold-out event. Premium, cultured aesthetic." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDxNy3MSG63lugd-RbTLZkMtACDWrd20xuOHmTjqWtryeRJXLH3kENb171nzd0UTFVpF-S6e19312Dzu-yygVn0uXbW-AI9oSCkQ58n5LGICWj5e80ViqtHDKmbvtRMkfHZMtL7Hr8gVdJnWJEqTg-a-VGHQcQoSbLYQzgix1Me8QRAGTBYEQfJX7uAl12H4TZQ27by1wdqehonH6OdTSeScmVMOG6mFo2F5uUUvMocVr2fpypJX_lT')"></div>
+<div class="absolute top-3 right-3 bg-on-primary/95 backdrop-blur-sm rounded-md flex flex-col items-center justify-center p-1.5 min-w-[48px] shadow-sm">
+<span class="font-label-eyebrow text-[9px] text-secondary uppercase leading-none">Oct</span>
+<span class="font-price-tag text-[16px] text-primary leading-none mt-1">22</span>
+</div>
+</div>
+<div class="p-4 flex flex-col h-full">
+<span class="font-label-eyebrow text-label-eyebrow text-secondary uppercase mb-1">Exhibition</span>
+<h4 class="font-headline-sm text-[20px] text-on-background mb-2">Urban Canvas Gallery Opening</h4>
+<p class="font-body-md text-on-surface-variant text-sm line-clamp-2 mb-4">An exclusive first look at emerging local contemporary artists. Featuring live music and wine tasting.</p>
+<div class="mt-auto flex items-center justify-between pt-4 border-t border-surface-variant">
+<div class="bg-surface-variant text-on-surface-variant px-3 py-1 rounded-full font-label-eyebrow text-label-eyebrow">
+                                ETB 1200
+                            </div>
+<button class="border border-outline-variant text-outline px-4 py-1.5 rounded-full font-button text-button text-sm cursor-not-allowed">
+                                Waitlist
+                            </button>
+</div>
+</div>
+</article>
+<!-- Draft Card -->
+<article class="bg-surface-container-lowest rounded-xl overflow-hidden shadow-sm opacity-50 relative border border-dashed border-outline-variant">
+<div class="absolute top-3 left-3 bg-surface-variant text-on-surface-variant font-label-eyebrow text-label-eyebrow px-3 py-1 rounded-full z-10 uppercase tracking-widest">
+                        Preview
+                    </div>
+<div class="relative h-48 w-full bg-surface-container">
+<div class="absolute inset-0 bg-cover bg-center filter blur-[2px]" data-alt="A scenic, wide-angle shot of Entoto Park at dawn. Misty, cool atmosphere with subtle sunlight breaking through eucalyptus trees. A winding path inviting hikers. The image is slightly muted, representing a draft or upcoming event. Editorial, nature-focused aesthetic." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuD1Xy2UU7EouEhiEAzxjVsjY80pMC7b_KWfr5D0iFTxT6kpJBgUb-UrYkray76tLiOhiyQ_KlaljlWNRMZ42m8DAV1cNStphgl993rWMGGbx_rm7kkVNxAjuuwx2dHA3ncP4sAadEOb7RGYOyRBwE1aTHn6gaBo5PHW8Rwvk2GLHK6-ROJwP0FytyDQpn9AeEK7wqwELfymQoj0JZBBh6egBc8k0XgnXheG7MC4WvurJnx6or4h-tca')"></div>
+<div class="absolute top-3 right-3 bg-on-primary/80 backdrop-blur-sm rounded-md flex flex-col items-center justify-center p-1.5 min-w-[48px] shadow-sm">
+<span class="font-label-eyebrow text-[9px] text-secondary uppercase leading-none">TBD</span>
+<span class="font-price-tag text-[16px] text-primary leading-none mt-1">--</span>
+</div>
+</div>
+<div class="p-4 flex flex-col h-full">
+<span class="font-label-eyebrow text-label-eyebrow text-secondary uppercase mb-1">Wellness</span>
+<h4 class="font-headline-sm text-[20px] text-on-background mb-2">Entoto Sunrise Hike</h4>
+<p class="font-body-md text-on-surface-variant text-sm line-clamp-2 mb-4">Join a guided meditation and light hike through the historic eucalyptus forests of Mount Entoto.</p>
+<div class="mt-auto flex items-center justify-between pt-4 border-t border-surface-variant">
+<div class="bg-surface-variant text-on-surface-variant px-3 py-1 rounded-full font-label-eyebrow text-label-eyebrow">
+                                Coming Soon
+                            </div>
+</div>
+</div>
+</article>
+</div>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-6 pt-4 bg-surface/80 backdrop-blur-lg rounded-[24px_24px_0_0] shadow-[0_-4px_20px_rgba(0,0,0,0.06)]">
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container-high transition-colors p-2 rounded-lg" href="#">
+<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 0;">home</span>
+<span class="font-label-eyebrow text-[10px]">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container-high transition-colors p-2 rounded-lg" href="#">
+<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 0;">restaurant</span>
+<span class="font-label-eyebrow text-[10px]">Eat</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-primary text-secondary-fixed rounded-full px-5 py-2 -translate-y-1 transition-all duration-150 shadow-md" href="#">
+<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 1;">event</span>
+<span class="font-label-eyebrow text-[10px]">Events</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container-high transition-colors p-2 rounded-lg" href="#">
+<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 0;">directions_car</span>
+<span class="font-label-eyebrow text-[10px]">Ride</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container-high transition-colors p-2 rounded-lg" href="#">
+<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 0;">person</span>
+<span class="font-label-eyebrow text-[10px]">Account</span>
+</a>
+</nav>
+</body></html>

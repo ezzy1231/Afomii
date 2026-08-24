@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>UrbanExplore - Go &amp; Book Ride</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&amp;family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "on-secondary-container": "#756036",
+                      "primary-container": "#0b1f3a",
+                      "on-error-container": "#93000a",
+                      "tertiary-fixed": "#ffddb1",
+                      "surface-tint": "#4d5f7d",
+                      "surface-container-lowest": "#ffffff",
+                      "surface-container-highest": "#e4e2e1",
+                      "on-tertiary-container": "#a3814e",
+                      "error-container": "#ffdad6",
+                      "tertiary-container": "#2d1b00",
+                      "primary": "#000615",
+                      "inverse-primary": "#b5c7ea",
+                      "surface-bright": "#fcf9f8",
+                      "on-secondary-fixed": "#261900",
+                      "on-primary-fixed-variant": "#364764",
+                      "on-secondary": "#ffffff",
+                      "outline-variant": "#c4c6ce",
+                      "surface-container-low": "#f6f3f2",
+                      "surface-container": "#f0edec",
+                      "inverse-surface": "#303030",
+                      "on-primary": "#ffffff",
+                      "secondary-container": "#f9dca8",
+                      "primary-fixed-dim": "#b5c7ea",
+                      "on-background": "#1b1c1b",
+                      "secondary-fixed": "#fcdfab",
+                      "on-primary-fixed": "#071c36",
+                      "on-secondary-fixed-variant": "#57441d",
+                      "secondary-fixed-dim": "#dfc391",
+                      "tertiary-fixed-dim": "#e8c088",
+                      "on-primary-container": "#7587a7",
+                      "tertiary": "#0b0500",
+                      "outline": "#75777e",
+                      "secondary": "#705b32",
+                      "inverse-on-surface": "#f3f0ef",
+                      "on-error": "#ffffff",
+                      "surface-container-high": "#eae7e7",
+                      "surface-variant": "#e4e2e1",
+                      "on-surface": "#1b1c1b",
+                      "error": "#ba1a1a",
+                      "surface-dim": "#dcd9d8",
+                      "surface": "#fcf9f8",
+                      "on-tertiary-fixed-variant": "#5d4215",
+                      "background": "#fcf9f8",
+                      "on-tertiary": "#ffffff",
+                      "on-surface-variant": "#44474d",
+                      "on-tertiary-fixed": "#291800",
+                      "primary-fixed": "#d6e3ff"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "sm": "12px",
+                      "lg": "24px",
+                      "md": "16px",
+                      "xs": "8px",
+                      "gutter": "16px",
+                      "xl": "32px",
+                      "margin-desktop": "64px",
+                      "xxl": "48px",
+                      "base": "4px",
+                      "margin-mobile": "20px"
+              },
+              "fontFamily": {
+                      "headline-sm": [
+                              "Playfair Display"
+                      ],
+                      "display-lg": [
+                              "Playfair Display"
+                      ],
+                      "price-tag": [
+                              "Playfair Display"
+                      ],
+                      "headline-lg": [
+                              "Playfair Display"
+                      ],
+                      "body-md": [
+                              "Inter"
+                      ],
+                      "button": [
+                              "Inter"
+                      ],
+                      "body-lg": [
+                              "Inter"
+                      ],
+                      "label-eyebrow": [
+                              "Inter"
+                      ]
+              },
+              "fontSize": {
+                      "headline-sm": [
+                              "24px",
+                              {
+                                      "lineHeight": "1.3",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "display-lg": [
+                              "48px",
+                              {
+                                      "lineHeight": "1.1",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "price-tag": [
+                              "20px",
+                              {
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "headline-lg": [
+                              "32px",
+                              {
+                                      "lineHeight": "1.2",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-md": [
+                              "16px",
+                              {
+                                      "lineHeight": "1.5",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "button": [
+                              "14px",
+                              {
+                                      "letterSpacing": "0.02em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-lg": [
+                              "18px",
+                              {
+                                      "lineHeight": "1.6",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "label-eyebrow": [
+                              "11px",
+                              {
+                                      "lineHeight": "16px",
+                                      "letterSpacing": "0.15em",
+                                      "fontWeight": "600"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+      </script>
+</head>
+<body class="bg-surface text-on-surface font-body-md min-h-screen pb-40">
+<div class="max-w-md mx-auto relative h-full bg-surface">
+<!-- Header -->
+<header class="px-margin-mobile pt-lg pb-md flex items-center justify-between sticky top-0 bg-surface/90 backdrop-blur-md z-10 shadow-sm">
+<div class="flex items-center gap-md">
+<button class="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center hover:bg-surface-container-highest transition-colors active:scale-95">
+<span class="material-symbols-outlined text-on-surface" data-icon="arrow_back">arrow_back</span>
+</button>
+<div>
+<h1 class="font-headline-sm text-headline-sm text-primary">Go &amp; Book Ride</h1>
+<p class="font-label-eyebrow text-label-eyebrow text-on-surface-variant uppercase tracking-wider mt-1">Fare upfront in ETB · meter rates, no surge</p>
+</div>
+</div>
+<div class="bg-primary text-on-primary font-label-eyebrow text-[10px] uppercase px-2 py-1 rounded-full flex items-center gap-1 shadow-sm">
+                SECURE <span class="material-symbols-outlined text-[12px]" data-icon="check" data-weight="fill" style="font-variation-settings: 'FILL' 1;">check</span>
+</div>
+</header>
+<main class="px-margin-mobile space-y-md mt-sm">
+<!-- Context Card -->
+<div class="bg-surface-container-lowest rounded-xl p-md shadow-[0_4px_20px_rgba(0,0,0,0.06)] flex items-center gap-md cursor-pointer hover:shadow-md transition-shadow">
+<div class="w-12 h-12 rounded-lg bg-surface-container overflow-hidden shrink-0">
+<img alt="Castelli Restaurant" class="w-full h-full object-cover" data-alt="A warm, inviting photo of the facade of Castelli Restaurant in Addis Ababa, bathed in golden hour light. The architecture is slightly rustic, with warm tones and classic detailing, hinting at an upscale dining experience. High contrast lighting typical of professional editorial photography. Shot in a bright, optimistic light-mode aesthetic, emphasizing warmth and hospitality." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAhCyrYfWNSUHgbjEBxt6iv-KCYpVFpxDQUSjP8lrWZj3ZkYGKxyvUwGAIYC5Ib0UeqA28g2IPqfj5TgTEpKuJU6-PCzoKhkn_wl8m2v0jmaae6v3dre2SdGOcR1t0tUkde1UJa8SA4eN6BtWAu0_4W5BZo4lMn4TzGYCUwj_VV5yCYvH8gw5vudKBjOO-MZWaa7huXGtlOtH7pfWyi1IrORATtHYEB8nAkmrQpvq7WiJ6xtrYYUBJy"/>
+</div>
+<div class="flex-1">
+<p class="font-body-md text-on-surface font-medium">Getting to Castelli Restaurant</p>
+<p class="font-label-eyebrow text-label-eyebrow text-on-surface-variant uppercase mt-1">Destination set · tap trip card to change</p>
+</div>
+<span class="material-symbols-outlined text-outline" data-icon="chevron_right">chevron_right</span>
+</div>
+<!-- Route Inputs Card -->
+<div class="bg-surface-container-lowest rounded-xl p-md shadow-[0_4px_20px_rgba(0,0,0,0.06)] relative">
+<div class="flex gap-md items-start">
+<div class="flex flex-col items-center mt-3 h-full shrink-0">
+<div class="w-4 h-4 rounded-full border-2 border-primary"></div>
+<div class="w-0.5 h-10 border-l-2 border-dashed border-outline-variant my-1"></div>
+<div class="w-4 h-4 rounded-full bg-error flex items-center justify-center">
+<div class="w-1.5 h-1.5 bg-surface-container-lowest rounded-full"></div>
+</div>
+</div>
+<div class="flex-1 space-y-sm w-full">
+<div class="relative w-full">
+<input class="w-full bg-surface-container-low border-0 rounded-lg py-3 px-sm text-sm font-body-md text-on-surface-variant focus:ring-1 focus:ring-primary focus:bg-surface-container-lowest transition-colors truncate" readonly="" type="text" value="Current location detected — tap to refresh"/>
+</div>
+<div class="relative w-full">
+<input class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg py-3 px-sm text-sm font-body-md text-on-surface font-medium focus:ring-1 focus:ring-primary focus:border-primary transition-colors truncate" type="text" value="Castelli Restaurant, Piazza"/>
+</div>
+</div>
+</div>
+</div>
+<!-- Manual distance fallback -->
+<div class="border border-dashed border-on-secondary-container/50 bg-secondary-container/10 rounded-xl p-md flex items-end gap-sm">
+<div class="flex-1">
+<label class="block font-label-eyebrow text-label-eyebrow text-on-secondary-fixed-variant uppercase mb-2">Trip distance (km) — works without maps</label>
+<input class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg py-2 px-sm text-sm font-body-md text-on-surface focus:ring-1 focus:ring-primary" placeholder="e.g. 4.2" type="number"/>
+</div>
+<button class="bg-primary text-on-primary font-button text-button px-4 py-2 rounded-lg shrink-0 active:scale-95 transition-transform">
+                    Compare
+                </button>
+</div>
+<!-- Map preview -->
+<div class="relative w-full h-52 rounded-xl overflow-hidden bg-surface-container shadow-[0_4px_20px_rgba(0,0,0,0.06)] group">
+<img alt="Map" class="absolute inset-0 w-full h-full object-cover" data-alt="A clean, minimalist street map of the Piazza area in Addis Ababa. The map features a light cream background with subtle grey roads and a distinct golden-yellow route polyline tracing a path. The style is modern, abstract, and high-end, avoiding cluttered labels. Bright, soft lighting aesthetic, typical of premium navigation interfaces." data-location="Addis Ababa" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA7BMptzhE4nAYLuls23xHRm9RmGvQdW_DkDAhZdMIjpI720bGcqW7lH0-sT9D3v42k_Fi8F27SgelBLOTXqPpuUUBMo5Us6XzIn6MxEI37m3eftFJoJZ0dCaFa1EsodxkabL0WmzDEYcT7KQjc7E2ZtxSIoPu7fmfeMJXVGySJLC-rQ4-uZb5oZhrLfvajt2E2zyskmFXjDcq-lu5BNE4QRHVrFj82joyJgX3nlD_HHgN1jxsdXveE"/>
+<div class="absolute inset-0 bg-gradient-to-t from-surface-container-lowest/80 to-transparent"></div>
+<div class="absolute bottom-md left-md right-md flex items-center justify-between">
+<p class="font-label-eyebrow text-label-eyebrow text-on-surface-variant bg-surface-container-lowest/90 backdrop-blur px-3 py-1.5 rounded-lg shadow-sm">Map is optional — fares work with distance only.</p>
+<button class="w-8 h-8 rounded-full bg-surface-container-lowest shadow-sm flex items-center justify-center hover:bg-surface-container transition-colors">
+<span class="material-symbols-outlined text-sm text-primary" data-icon="fullscreen">fullscreen</span>
+</button>
+</div>
+</div>
+<!-- Choose a ride panel -->
+<div class="mt-lg">
+<div class="flex items-center justify-between mb-md">
+<h2 class="font-headline-sm text-headline-sm text-primary">Choose a ride</h2>
+<span class="bg-[#e6f4ea] text-[#137333] font-label-eyebrow text-[10px] uppercase px-2 py-1 rounded-full font-bold">Fare upfront · ETB · No surge</span>
+</div>
+<div class="space-y-sm">
+<!-- Option 1: Selected -->
+<label class="flex items-center p-md bg-secondary-fixed/20 border-2 border-secondary-fixed rounded-xl cursor-pointer relative overflow-hidden transition-all">
+<div class="w-10 h-10 rounded-full bg-secondary-fixed text-on-secondary-fixed flex items-center justify-center font-headline-sm text-lg font-bold shrink-0">L</div>
+<div class="ml-sm flex-1">
+<div class="flex items-center gap-2">
+<span class="font-body-md font-semibold text-on-surface">Lada Classic · Blue &amp; White</span>
+<span class="material-symbols-outlined text-xs text-on-surface-variant" data-icon="person">person</span>
+<span class="text-xs text-on-surface-variant">4</span>
+</div>
+<p class="font-label-eyebrow text-label-eyebrow text-on-surface-variant uppercase mt-0.5">4 mins away</p>
+</div>
+<div class="text-right">
+<p class="font-price-tag text-price-tag text-on-surface">ETB 172</p>
+<p class="font-label-eyebrow text-[9px] text-on-secondary-fixed-variant uppercase">UPFRONT</p>
+</div>
+<div class="absolute top-0 right-0 bg-secondary-fixed text-on-secondary-fixed text-[10px] font-bold px-2 py-0.5 rounded-bl-lg">Best Value</div>
+</label>
+<!-- Option 2: Inactive -->
+<label class="flex items-center p-md bg-surface-container-lowest border border-outline-variant/40 rounded-xl cursor-pointer hover:border-outline-variant transition-all">
+<div class="w-10 h-10 rounded-full bg-surface-container text-on-surface-variant flex items-center justify-center font-headline-sm text-lg font-bold shrink-0">R</div>
+<div class="ml-sm flex-1">
+<div class="flex items-center gap-2">
+<span class="font-body-md font-semibold text-on-surface">Ride Premium · Sedan</span>
+<span class="material-symbols-outlined text-xs text-on-surface-variant" data-icon="person">person</span>
+<span class="text-xs text-on-surface-variant">4</span>
+</div>
+<p class="font-label-eyebrow text-label-eyebrow text-on-surface-variant uppercase mt-0.5">2 mins away</p>
+</div>
+<div class="text-right">
+<p class="font-price-tag text-lg font-semibold text-on-surface">ETB 240</p>
+</div>
+<div class="absolute -top-3 -right-3 opacity-0 group-hover:opacity-100 transition-opacity">
+<div class="w-4 h-4 rounded-full border-2 border-outline-variant"></div>
+</div>
+<div class="absolute top-2 right-2 border border-outline-variant/30 text-on-surface-variant text-[10px] px-2 py-0.5 rounded-full">Fastest</div>
+</label>
+<!-- Option 3: Inactive -->
+<label class="flex items-center p-md bg-surface-container-lowest border border-outline-variant/40 rounded-xl cursor-pointer hover:border-outline-variant transition-all">
+<div class="w-10 h-10 rounded-full bg-primary text-on-primary flex items-center justify-center font-headline-sm text-lg font-bold shrink-0">F</div>
+<div class="ml-sm flex-1">
+<div class="flex items-center gap-2">
+<span class="font-body-md font-semibold text-on-surface">Feres Plus · Luxury</span>
+<span class="material-symbols-outlined text-xs text-on-surface-variant" data-icon="person">person</span>
+<span class="text-xs text-on-surface-variant">4</span>
+</div>
+<p class="font-label-eyebrow text-label-eyebrow text-on-surface-variant uppercase mt-0.5">6 mins away</p>
+</div>
+<div class="text-right">
+<p class="font-price-tag text-lg font-semibold text-on-surface">ETB 310</p>
+</div>
+</label>
+</div>
+</div>
+</main>
+<!-- Sticky Bottom Bar -->
+<div class="fixed bottom-0 left-0 w-full md:max-w-md md:left-1/2 md:-translate-x-1/2 bg-surface/95 backdrop-blur-xl border-t border-outline-variant/20 px-margin-mobile pt-sm pb-8 z-40 shadow-[0_-10px_30px_rgba(0,0,0,0.05)]">
+<div class="flex items-center justify-center gap-2 mb-sm text-xs font-medium text-on-surface-variant">
+<span>8 mins</span>
+<span class="w-1 h-1 rounded-full bg-outline-variant"></span>
+<span>4.2 km</span>
+<span class="w-1 h-1 rounded-full bg-outline-variant"></span>
+<span>1-4 pax</span>
+<span class="w-1 h-1 rounded-full bg-outline-variant"></span>
+<span class="flex items-center gap-1 text-primary"><span class="material-symbols-outlined text-[14px]" data-icon="lock" data-weight="fill" style="font-variation-settings: 'FILL' 1;">lock</span> Secure Pay</span>
+</div>
+<div class="flex gap-sm">
+<button class="flex-1 py-3 px-4 border-2 border-primary text-primary rounded-full font-button text-button font-bold flex items-center justify-center gap-2 active:bg-primary/5 transition-colors">
+<span class="material-symbols-outlined text-[18px]" data-icon="navigation">navigation</span>
+                    Go / Open nav
+                </button>
+<button class="flex-[1.5] py-3 px-4 bg-secondary-fixed text-on-secondary-fixed rounded-full font-button text-button font-bold shadow-sm active:scale-[0.98] transition-transform">
+                    Book · ETB 172
+                </button>
+</div>
+</div>
+</div>
+</body></html>

@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Partner Onboarding - UrbanExplore</title>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS with specific configuration -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary": "#0b0500",
+                        "on-tertiary-fixed-variant": "#5d4215",
+                        "on-surface-variant": "#44474d",
+                        "surface-container-lowest": "#ffffff",
+                        "on-tertiary": "#ffffff",
+                        "on-error": "#ffffff",
+                        "secondary-fixed": "#fcdfab",
+                        "on-tertiary-fixed": "#291800",
+                        "surface-dim": "#dcd9d8",
+                        "inverse-on-surface": "#f3f0ef",
+                        "primary": "#000615",
+                        "secondary": "#705b32",
+                        "tertiary-fixed-dim": "#e8c088",
+                        "inverse-surface": "#303030",
+                        "outline-variant": "#c4c6ce",
+                        "surface-container-high": "#eae7e7",
+                        "on-secondary-fixed-variant": "#57441d",
+                        "on-primary-fixed-variant": "#364764",
+                        "surface-variant": "#e4e2e1",
+                        "surface-container": "#f0edec",
+                        "surface-container-low": "#f6f3f2",
+                        "primary-fixed-dim": "#b5c7ea",
+                        "on-secondary-fixed": "#261900",
+                        "primary-fixed": "#d6e3ff",
+                        "error-container": "#ffdad6",
+                        "background": "#fcf9f8",
+                        "secondary-container": "#f9dca8",
+                        "outline": "#75777e",
+                        "on-secondary-container": "#756036",
+                        "on-surface": "#1b1c1b",
+                        "secondary-fixed-dim": "#dfc391",
+                        "tertiary-fixed": "#ffddb1",
+                        "surface": "#fcf9f8",
+                        "surface-tint": "#4d5f7d",
+                        "on-primary-fixed": "#071c36",
+                        "surface-container-highest": "#e4e2e1",
+                        "tertiary-container": "#2d1b00",
+                        "on-primary-container": "#7587a7",
+                        "on-tertiary-container": "#a3814e",
+                        "inverse-primary": "#b5c7ea",
+                        "surface-bright": "#fcf9f8",
+                        "on-primary": "#ffffff",
+                        "on-background": "#1b1c1b",
+                        "on-error-container": "#93000a",
+                        "primary-container": "#0b1f3a",
+                        "on-secondary": "#ffffff",
+                        "error": "#ba1a1a"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "margin-desktop": "64px",
+                        "gutter": "16px",
+                        "xl": "32px",
+                        "base": "4px",
+                        "xs": "8px",
+                        "md": "16px",
+                        "lg": "24px",
+                        "xxl": "48px",
+                        "sm": "12px",
+                        "margin-mobile": "20px"
+                    },
+                    "fontFamily": {
+                        "headline-lg": ["Playfair Display", "serif"],
+                        "display-lg": ["Playfair Display", "serif"],
+                        "button": ["Inter", "sans-serif"],
+                        "price-tag": ["Playfair Display", "serif"],
+                        "body-lg": ["Inter", "sans-serif"],
+                        "headline-sm": ["Playfair Display", "serif"],
+                        "label-eyebrow": ["Inter", "sans-serif"],
+                        "body-md": ["Inter", "sans-serif"]
+                    },
+                    "fontSize": {
+                        "headline-lg": ["32px", { "lineHeight": "1.2", "fontWeight": "600" }],
+                        "display-lg": ["48px", { "lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "button": ["14px", { "letterSpacing": "0.02em", "fontWeight": "600" }],
+                        "price-tag": ["20px", { "fontWeight": "700" }],
+                        "body-lg": ["18px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "headline-sm": ["24px", { "lineHeight": "1.3", "fontWeight": "600" }],
+                        "label-eyebrow": ["11px", { "lineHeight": "16px", "letterSpacing": "0.15em", "fontWeight": "600" }],
+                        "body-md": ["16px", { "lineHeight": "1.5", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        /* Fallback imports for fonts if not already loaded globally */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Playfair+Display:wght@600;700&display=swap');
+    </style>
+</head>
+<body class="bg-surface text-on-surface font-body-md min-h-screen flex flex-col antialiased selection:bg-secondary-container selection:text-on-secondary-container">
+<!-- Decorative Editorial Header Image -->
+<div class="w-full h-40 bg-cover bg-center bg-no-repeat relative shrink-0" data-alt="A sophisticated, high-end editorial shot of a pristine, white marble countertop in a modern café setting. Soft, natural morning light pours in, casting gentle shadows across a neatly arranged set of ceramic espresso cups and a glinting antique gold spoon. The overall mood is warm, welcoming, and premium, utilizing a color palette of rich ivory, subtle espresso browns, and elegant metallic accents to convey culinary excellence." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuB8q1EwJ2eo_KxQJLZOV4BSTjHDJ4Jg3fQI40zBTZC_qXfzRNRydGE2Y1cCy7kOfpJNzLBmgqNAC7Yc4nw4vWbnN-4yNtS_WBoJdiqYwVbibLi-KkAQxjxp44-3kP4P7ItrNLMw4J83CLt4zVPqJuffsS5dgawNfR4TgesQv51I4cNHKVWa91_toxamzhEGJuq_7KUUhyOEDcmF9QC8hIKXCefw78iCIZUumY_959iJRVbAVPOq6UDK')">
+<!-- Gradient Overlay to blend seamlessly into the background -->
+<div class="absolute inset-0 bg-gradient-to-t from-surface via-surface/60 to-transparent"></div>
+<!-- Simplified Header Branding (Suppressed Nav for Transactional Flow) -->
+<header class="absolute top-0 left-0 w-full px-margin-mobile py-lg flex justify-center z-10">
+<span class="font-headline-sm text-headline-sm text-primary tracking-tight">UrbanExplore Partners</span>
+</header>
+</div>
+<!-- Main Content Area -->
+<main class="flex-1 w-full max-w-3xl mx-auto px-margin-mobile pb-[120px] -mt-8 relative z-20">
+<!-- Progress Stepper -->
+<nav aria-label="Progress" class="mb-xl">
+<div class="flex items-center justify-between relative">
+<!-- Connecting Line -->
+<div class="absolute left-[10%] right-[10%] top-1/2 -translate-y-1/2 h-[1px] bg-outline-variant z-0"></div>
+<!-- Step 1: Business (Active) -->
+<div class="relative z-10 flex flex-col items-center gap-base bg-surface px-2">
+<div class="w-8 h-8 rounded-full bg-primary text-on-primary flex items-center justify-center font-label-eyebrow text-label-eyebrow shadow-sm">1</div>
+<span class="font-label-eyebrow text-label-eyebrow text-primary">Business</span>
+</div>
+<!-- Step 2: Contact -->
+<div class="relative z-10 flex flex-col items-center gap-base bg-surface px-2">
+<div class="w-8 h-8 rounded-full bg-surface-container-high text-on-surface-variant flex items-center justify-center font-label-eyebrow text-label-eyebrow border border-surface-variant">2</div>
+<span class="font-label-eyebrow text-label-eyebrow text-outline">Contact</span>
+</div>
+<!-- Step 3: Listing -->
+<div class="relative z-10 flex flex-col items-center gap-base bg-surface px-2">
+<div class="w-8 h-8 rounded-full bg-surface-container-high text-on-surface-variant flex items-center justify-center font-label-eyebrow text-label-eyebrow border border-surface-variant">3</div>
+<span class="font-label-eyebrow text-label-eyebrow text-outline">Listing</span>
+</div>
+</div>
+</nav>
+<!-- Form Header -->
+<div class="mb-xl">
+<h1 class="font-headline-lg text-headline-lg text-primary mb-xs">Business Details</h1>
+<p class="font-body-md text-body-md text-on-surface-variant">Define your brand's presence on our curated marketplace.</p>
+</div>
+<form class="space-y-xxl">
+<!-- Section: Core Identity -->
+<section class="space-y-lg">
+<!-- Business Name Input -->
+<div class="flex flex-col gap-base group">
+<label class="font-label-eyebrow text-label-eyebrow text-on-surface-variant uppercase group-focus-within:text-primary transition-colors" for="business-name">Business Name</label>
+<input class="w-full bg-transparent border-b border-outline-variant py-sm text-on-surface font-body-lg focus:outline-none focus:border-primary transition-colors placeholder:text-outline-variant/60" id="business-name" placeholder="e.g. The Blue Nile Reserve" type="text"/>
+</div>
+<!-- Category Select -->
+<div class="flex flex-col gap-base group relative">
+<label class="font-label-eyebrow text-label-eyebrow text-on-surface-variant uppercase group-focus-within:text-primary transition-colors" for="category">Category</label>
+<select class="w-full bg-transparent border-b border-outline-variant py-sm text-on-surface font-body-lg focus:outline-none focus:border-primary transition-colors appearance-none pr-10 cursor-pointer" id="category">
+<option disabled="" selected="" value="">Select primary category...</option>
+<option value="restaurant">Restaurant</option>
+<option value="cafe">Café</option>
+<option value="bakery">Bakery</option>
+<option value="bar">Bar</option>
+<option value="juice">Juice house</option>
+</select>
+<span class="material-symbols-outlined absolute right-0 bottom-sm text-outline pointer-events-none">expand_more</span>
+</div>
+</section>
+<!-- Section: Editorial Description -->
+<section class="flex flex-col gap-base group">
+<div class="flex justify-between items-end mb-xs">
+<label class="font-label-eyebrow text-label-eyebrow text-on-surface-variant uppercase group-focus-within:text-primary transition-colors" for="description">Editorial Description</label>
+<span class="font-label-eyebrow text-label-eyebrow text-outline-variant" id="char-counter">0 / 500</span>
+</div>
+<textarea class="w-full bg-surface-container-lowest border border-outline-variant rounded-xl p-md text-on-surface font-body-md focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all resize-none shadow-sm placeholder:text-outline-variant/60" id="description" oninput="document.getElementById('char-counter').innerText = this.value.length + ' / 500'" placeholder="Describe your atmosphere, culinary philosophy, and what makes your establishment a premier destination..." rows="5"></textarea>
+</section>
+<!-- Section: Visual Assets -->
+<section>
+<h2 class="font-label-eyebrow text-label-eyebrow text-on-surface-variant uppercase mb-md">Visual Assets</h2>
+<div class="flex flex-col sm:flex-row gap-md">
+<!-- Logo Upload Tile -->
+<button class="w-full sm:w-32 h-32 shrink-0 rounded-xl bg-surface-container-low border border-dashed border-outline-variant flex flex-col items-center justify-center gap-xs hover:bg-surface-container transition-colors group relative overflow-hidden" type="button">
+<span class="material-symbols-outlined text-outline group-hover:text-primary transition-colors text-3xl">add</span>
+<span class="font-label-eyebrow text-label-eyebrow text-outline group-hover:text-primary transition-colors">Logo</span>
+<!-- Hidden file input for actual functionality (mocked here) -->
+<input accept="image/*" class="absolute inset-0 opacity-0 cursor-pointer" type="file"/>
+</button>
+<!-- Cover Upload Tile (Wide) -->
+<button class="flex-1 h-32 rounded-xl bg-surface-container-low border border-dashed border-outline-variant flex flex-col items-center justify-center gap-xs hover:bg-surface-container transition-colors group relative overflow-hidden" type="button">
+<span class="material-symbols-outlined text-outline group-hover:text-primary transition-colors text-3xl">landscape</span>
+<span class="font-label-eyebrow text-label-eyebrow text-outline group-hover:text-primary transition-colors">Cover Photo (Wide)</span>
+<input accept="image/*" class="absolute inset-0 opacity-0 cursor-pointer" type="file"/>
+</button>
+</div>
+</section>
+<!-- Section: Verification & Callout -->
+<section>
+<h2 class="font-label-eyebrow text-label-eyebrow text-on-surface-variant uppercase mb-md">Legal &amp; Verification</h2>
+<!-- License Upload Note -->
+<div class="flex items-center gap-sm mb-md">
+<button class="flex items-center gap-sm px-6 py-3 rounded-full border border-outline text-on-surface-variant font-button text-button hover:bg-surface-container-low transition-colors" type="button">
+<span class="material-symbols-outlined text-lg">upload_file</span>
+                        Upload Business License
+                    </button>
+<span class="font-label-eyebrow text-label-eyebrow text-outline">For verification</span>
+</div>
+<!-- Gold Info Callout -->
+<div class="bg-secondary-container/30 border border-secondary/20 rounded-xl p-md flex items-start gap-md mt-lg shadow-sm">
+<span class="material-symbols-outlined text-on-secondary-container shrink-0 mt-0.5" style="font-variation-settings: 'FILL' 1;">verified</span>
+<p class="font-body-md text-body-md text-on-secondary-container">Listings go live after a quick verification review. Ensure your details match official documents.</p>
+</div>
+</section>
+</form>
+</main>
+<!-- Sticky Bottom Navigation (Action Bar) -->
+<div class="fixed bottom-0 left-0 w-full bg-surface/80 backdrop-blur-lg border-t border-surface-container z-50 shadow-[0_-4px_20px_rgba(0,0,0,0.04)]">
+<div class="max-w-3xl mx-auto px-margin-mobile py-4 flex items-center justify-between gap-md">
+<button class="px-6 py-3 font-button text-button text-primary hover:bg-surface-container rounded-full transition-colors">
+                Back
+            </button>
+<button class="flex-1 sm:flex-none sm:w-64 bg-primary text-on-primary py-3 px-8 rounded-full font-button text-button hover:opacity-90 transition-opacity text-center shadow-sm hover:shadow-md hover:-translate-y-[1px] transform duration-150 ease-out">
+                Continue to Contact
+            </button>
+</div>
+</div>
+</body></html>

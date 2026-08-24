@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>UrbanExplore - Preferences</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&amp;family=Playfair+Display:wght@600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+                "tertiary": "#0b0500",
+                "on-tertiary-fixed-variant": "#5d4215",
+                "on-surface-variant": "#44474d",
+                "surface-container-lowest": "#ffffff",
+                "on-tertiary": "#ffffff",
+                "on-error": "#ffffff",
+                "secondary-fixed": "#fcdfab",
+                "on-tertiary-fixed": "#291800",
+                "surface-dim": "#dcd9d8",
+                "inverse-on-surface": "#f3f0ef",
+                "primary": "#000615",
+                "secondary": "#705b32",
+                "tertiary-fixed-dim": "#e8c088",
+                "inverse-surface": "#303030",
+                "outline-variant": "#c4c6ce",
+                "surface-container-high": "#eae7e7",
+                "on-secondary-fixed-variant": "#57441d",
+                "on-primary-fixed-variant": "#364764",
+                "surface-variant": "#e4e2e1",
+                "surface-container": "#f0edec",
+                "surface-container-low": "#f6f3f2",
+                "primary-fixed-dim": "#b5c7ea",
+                "on-secondary-fixed": "#261900",
+                "primary-fixed": "#d6e3ff",
+                "error-container": "#ffdad6",
+                "background": "#fcf9f8",
+                "secondary-container": "#f9dca8",
+                "outline": "#75777e",
+                "on-secondary-container": "#756036",
+                "on-surface": "#1b1c1b",
+                "secondary-fixed-dim": "#dfc391",
+                "tertiary-fixed": "#ffddb1",
+                "surface": "#fcf9f8",
+                "surface-tint": "#4d5f7d",
+                "on-primary-fixed": "#071c36",
+                "surface-container-highest": "#e4e2e1",
+                "tertiary-container": "#2d1b00",
+                "on-primary-container": "#7587a7",
+                "on-tertiary-container": "#a3814e",
+                "inverse-primary": "#b5c7ea",
+                "surface-bright": "#fcf9f8",
+                "on-primary": "#ffffff",
+                "on-background": "#1b1c1b",
+                "on-error-container": "#93000a",
+                "primary-container": "#0b1f3a",
+                "on-secondary": "#ffffff",
+                "error": "#ba1a1a"
+        },
+        "borderRadius": {
+                "DEFAULT": "0.25rem",
+                "lg": "0.5rem",
+                "xl": "0.75rem",
+                "full": "9999px"
+        },
+        "spacing": {
+                "margin-desktop": "64px",
+                "gutter": "16px",
+                "xl": "32px",
+                "base": "4px",
+                "xs": "8px",
+                "md": "16px",
+                "lg": "24px",
+                "xxl": "48px",
+                "sm": "12px",
+                "margin-mobile": "20px"
+        },
+        "fontFamily": {
+                "headline-lg": [
+                        "Playfair Display"
+                ],
+                "display-lg": [
+                        "Playfair Display"
+                ],
+                "button": [
+                        "Inter"
+                ],
+                "price-tag": [
+                        "Playfair Display"
+                ],
+                "body-lg": [
+                        "Inter"
+                ],
+                "headline-sm": [
+                        "Playfair Display"
+                ],
+                "label-eyebrow": [
+                        "Inter"
+                ],
+                "body-md": [
+                        "Inter"
+                ]
+        },
+        "fontSize": {
+                "headline-lg": [
+                        "32px",
+                        {
+                                "lineHeight": "1.2",
+                                "fontWeight": "600"
+                        }
+                ],
+                "display-lg": [
+                        "48px",
+                        {
+                                "lineHeight": "1.1",
+                                "letterSpacing": "-0.02em",
+                                "fontWeight": "700"
+                        }
+                ],
+                "button": [
+                        "14px",
+                        {
+                                "letterSpacing": "0.02em",
+                                "fontWeight": "600"
+                        }
+                ],
+                "price-tag": [
+                        "20px",
+                        {
+                                "fontWeight": "700"
+                        }
+                ],
+                "body-lg": [
+                        "18px",
+                        {
+                                "lineHeight": "1.6",
+                                "fontWeight": "400"
+                        }
+                ],
+                "headline-sm": [
+                        "24px",
+                        {
+                                "lineHeight": "1.3",
+                                "fontWeight": "600"
+                        }
+                ],
+                "label-eyebrow": [
+                        "11px",
+                        {
+                                "lineHeight": "16px",
+                                "letterSpacing": "0.15em",
+                                "fontWeight": "600"
+                        }
+                ],
+                "body-md": [
+                        "16px",
+                        {
+                                "lineHeight": "1.5",
+                                "fontWeight": "400"
+                        }
+                ]
+        }
+},
+    },
+  }
+</script>
+<style>
+        .material-symbols-outlined {
+          font-variation-settings:
+          'FILL' 0,
+          'wght' 400,
+          'GRAD' 0,
+          'opsz' 24
+        }
+        
+        .chip-checkbox:checked + label {
+            background-color: theme('colors.secondary-fixed');
+            color: theme('colors.on-secondary-fixed');
+            border-color: theme('colors.secondary-fixed');
+        }
+        
+        /* Custom scrollbar for horizontal lists */
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background min-h-screen flex flex-col font-body-md">
+<!-- Top AppBar (Simplified for Transactional Flow - Nav Suppressed) -->
+<header class="fixed top-0 w-full z-50 flex justify-center items-center px-margin-mobile h-16 bg-surface/80 backdrop-blur-md">
+<h1 class="font-headline-sm text-headline-sm text-primary tracking-tight">UrbanExplore</h1>
+</header>
+<!-- Main Content Area -->
+<main class="flex-grow pt-24 pb-32 px-margin-mobile md:px-margin-desktop flex justify-center w-full">
+<div class="w-full max-w-2xl">
+<!-- Stepper -->
+<div class="flex justify-between items-center mb-xl relative">
+<!-- Connecting Line -->
+<div class="absolute left-0 top-1/2 -translate-y-1/2 w-full h-0.5 bg-surface-variant -z-10"></div>
+<div class="absolute left-0 top-1/2 -translate-y-1/2 w-1/2 h-0.5 bg-secondary-fixed -z-10"></div>
+<!-- Step 1 -->
+<div class="flex flex-col items-center gap-2 bg-background px-2">
+<div class="w-8 h-8 rounded-full bg-secondary-fixed flex items-center justify-center shadow-sm">
+<span class="material-symbols-outlined text-on-secondary-fixed text-sm">check</span>
+</div>
+<span class="font-label-eyebrow text-label-eyebrow text-on-surface-variant uppercase">Account</span>
+</div>
+<!-- Step 2 -->
+<div class="flex flex-col items-center gap-2 bg-background px-2">
+<div class="w-8 h-8 rounded-full bg-secondary-fixed flex items-center justify-center shadow-sm">
+<span class="material-symbols-outlined text-on-secondary-fixed text-sm">check</span>
+</div>
+<span class="font-label-eyebrow text-label-eyebrow text-on-surface-variant uppercase">About You</span>
+</div>
+<!-- Step 3 (Current) -->
+<div class="flex flex-col items-center gap-2 bg-background px-2">
+<div class="w-8 h-8 rounded-full bg-background border-2 border-secondary-fixed flex items-center justify-center shadow-[0_4px_20px_rgba(0,0,0,0.06)]">
+<span class="font-body-md text-on-surface font-semibold">3</span>
+</div>
+<span class="font-label-eyebrow text-label-eyebrow text-primary uppercase">Preferences</span>
+</div>
+</div>
+<!-- Content Card -->
+<div class="bg-surface-container-lowest rounded-xl shadow-[0_4px_20px_rgba(0,0,0,0.06)] p-lg md:p-xxl">
+<div class="mb-xl text-center">
+<h2 class="font-headline-lg text-headline-lg text-primary mb-2">Curate your experience</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant">Tell us what you like so we can recommend the best spots in Addis.</p>
+</div>
+<form class="space-y-xl" id="preferencesForm">
+<!-- Dietary Preferences Section -->
+<section>
+<h3 class="font-headline-sm text-headline-sm text-primary mb-md">Dietary Preferences</h3>
+<div class="flex flex-wrap gap-sm">
+<div class="relative">
+<input class="peer sr-only chip-checkbox" id="diet-veg" type="checkbox"/>
+<label class="inline-flex items-center px-4 py-2 rounded-full border border-outline-variant text-on-surface cursor-pointer hover:bg-surface-container-low transition-colors font-button text-button" for="diet-veg">
+                                    Vegetarian
+                                </label>
+</div>
+<div class="relative">
+<input class="peer sr-only chip-checkbox" id="diet-vegan" type="checkbox"/>
+<label class="inline-flex items-center px-4 py-2 rounded-full border border-outline-variant text-on-surface cursor-pointer hover:bg-surface-container-low transition-colors font-button text-button" for="diet-vegan">
+                                    Vegan
+                                </label>
+</div>
+<div class="relative">
+<input class="peer sr-only chip-checkbox" id="diet-pesc" type="checkbox"/>
+<label class="inline-flex items-center px-4 py-2 rounded-full border border-outline-variant text-on-surface cursor-pointer hover:bg-surface-container-low transition-colors font-button text-button" for="diet-pesc">
+                                    Pescatarian
+                                </label>
+</div>
+<div class="relative">
+<input class="peer sr-only chip-checkbox" id="diet-keto" type="checkbox"/>
+<label class="inline-flex items-center px-4 py-2 rounded-full border border-outline-variant text-on-surface cursor-pointer hover:bg-surface-container-low transition-colors font-button text-button" for="diet-keto">
+                                    Keto
+                                </label>
+</div>
+<div class="relative">
+<input class="peer sr-only chip-checkbox" id="diet-halal" type="checkbox"/>
+<label class="inline-flex items-center px-4 py-2 rounded-full border border-outline-variant text-on-surface cursor-pointer hover:bg-surface-container-low transition-colors font-button text-button" for="diet-halal">
+                                    Halal
+                                </label>
+</div>
+<div class="relative">
+<input checked="" class="peer sr-only chip-checkbox" id="diet-orthodox" type="checkbox"/>
+<label class="inline-flex items-center px-4 py-2 rounded-full border border-secondary-fixed bg-secondary-fixed text-on-secondary-fixed cursor-pointer transition-colors font-button text-button" for="diet-orthodox">
+                                    Orthodox fasting
+                                </label>
+</div>
+</div>
+</section>
+<hr class="border-surface-variant"/>
+<!-- Allergies Section -->
+<section>
+<h3 class="font-headline-sm text-headline-sm text-primary mb-md">Allergies &amp; Restrictions</h3>
+<div class="flex flex-wrap gap-sm">
+<div class="relative">
+<input checked="" class="peer sr-only chip-checkbox" id="allergy-peanuts" type="checkbox"/>
+<label class="inline-flex items-center px-4 py-2 rounded-full border border-secondary-fixed bg-secondary-fixed text-on-secondary-fixed cursor-pointer transition-colors font-button text-button" for="allergy-peanuts">
+                                    Peanuts
+                                </label>
+</div>
+<div class="relative">
+<input class="peer sr-only chip-checkbox" id="allergy-dairy" type="checkbox"/>
+<label class="inline-flex items-center px-4 py-2 rounded-full border border-outline-variant text-on-surface cursor-pointer hover:bg-surface-container-low transition-colors font-button text-button" for="allergy-dairy">
+                                    Dairy
+                                </label>
+</div>
+<div class="relative">
+<input class="peer sr-only chip-checkbox" id="allergy-gluten" type="checkbox"/>
+<label class="inline-flex items-center px-4 py-2 rounded-full border border-outline-variant text-on-surface cursor-pointer hover:bg-surface-container-low transition-colors font-button text-button" for="allergy-gluten">
+                                    Gluten
+                                </label>
+</div>
+<div class="relative">
+<input class="peer sr-only chip-checkbox" id="allergy-shellfish" type="checkbox"/>
+<label class="inline-flex items-center px-4 py-2 rounded-full border border-outline-variant text-on-surface cursor-pointer hover:bg-surface-container-low transition-colors font-button text-button" for="allergy-shellfish">
+                                    Shellfish
+                                </label>
+</div>
+<div class="relative">
+<input class="peer sr-only chip-checkbox" id="allergy-eggs" type="checkbox"/>
+<label class="inline-flex items-center px-4 py-2 rounded-full border border-outline-variant text-on-surface cursor-pointer hover:bg-surface-container-low transition-colors font-button text-button" for="allergy-eggs">
+                                    Eggs
+                                </label>
+</div>
+</div>
+</section>
+<hr class="border-surface-variant"/>
+<!-- Personal Details (Optional) -->
+<section class="space-y-lg">
+<h3 class="font-headline-sm text-headline-sm text-primary">Personal Details <span class="text-on-surface-variant font-body-md font-normal">(Optional)</span></h3>
+<!-- Birth Date with Calendar Toggle -->
+<div class="space-y-2">
+<div class="flex justify-between items-end mb-2">
+<label class="font-label-eyebrow text-label-eyebrow text-on-surface-variant uppercase block">Birth Date</label>
+<div class="flex items-center bg-surface-container rounded-lg p-1">
+<button class="px-3 py-1 text-xs font-semibold rounded bg-surface-container-lowest shadow-sm text-primary" type="button">Gregorian</button>
+<button class="px-3 py-1 text-xs font-semibold rounded text-on-surface-variant hover:text-primary" type="button">Ethiopian</button>
+</div>
+</div>
+<input class="w-full bg-transparent border-0 border-b-2 border-outline-variant focus:border-primary focus:ring-0 px-0 py-2 font-body-lg text-primary transition-colors" type="date"/>
+</div>
+<!-- Gender Select -->
+<div class="space-y-2">
+<label class="font-label-eyebrow text-label-eyebrow text-on-surface-variant uppercase block" for="gender">Gender</label>
+<select class="w-full bg-transparent border-0 border-b-2 border-outline-variant focus:border-primary focus:ring-0 px-0 py-2 font-body-lg text-primary transition-colors appearance-none" id="gender">
+<option disabled="" selected="" value="">Select gender</option>
+<option value="female">Female</option>
+<option value="male">Male</option>
+<option value="non-binary">Non-binary</option>
+<option value="prefer-not">Prefer not to say</option>
+</select>
+</div>
+</section>
+</form>
+</div>
+</div>
+</main>
+<!-- Sticky Bottom Action Bar -->
+<div class="fixed bottom-0 left-0 w-full z-50 bg-surface-container-lowest/95 backdrop-blur-md shadow-[0_-4px_20px_rgba(0,0,0,0.05)] border-t border-surface-variant px-margin-mobile py-lg">
+<div class="max-w-2xl mx-auto flex justify-between items-center">
+<button class="font-button text-button text-on-surface-variant hover:text-primary transition-colors px-4 py-2" type="button">
+                Back
+            </button>
+<button class="bg-primary text-on-primary font-button text-button px-8 py-3 rounded-full hover:opacity-90 hover:-translate-y-[2px] transition-all duration-150 shadow-md" type="button">
+                Complete Setup
+            </button>
+</div>
+</div>
+</body></html>

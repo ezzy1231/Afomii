@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Event Detail - UrbanExplore</title>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Configuration -->
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "tertiary": "#0b0500",
+                    "on-primary-fixed-variant": "#364764",
+                    "surface-tint": "#4d5f7d",
+                    "surface": "#fcf9f8",
+                    "secondary-fixed-dim": "#dfc391",
+                    "surface-container-low": "#f6f3f2",
+                    "tertiary-fixed": "#ffddb1",
+                    "surface-container": "#f0edec",
+                    "on-primary": "#ffffff",
+                    "surface-container-lowest": "#ffffff",
+                    "secondary-fixed": "#fcdfab",
+                    "primary-fixed": "#d6e3ff",
+                    "on-secondary-fixed-variant": "#57441d",
+                    "tertiary-fixed-dim": "#e8c088",
+                    "secondary": "#705b32",
+                    "on-secondary-container": "#756036",
+                    "surface-variant": "#e4e2e1",
+                    "on-error": "#ffffff",
+                    "on-primary-container": "#7587a7",
+                    "on-secondary-fixed": "#261900",
+                    "surface-container-highest": "#e4e2e1",
+                    "inverse-on-surface": "#f3f0ef",
+                    "secondary-container": "#f9dca8",
+                    "error": "#ba1a1a",
+                    "on-primary-fixed": "#071c36",
+                    "on-error-container": "#93000a",
+                    "error-container": "#ffdad6",
+                    "primary": "#000615",
+                    "on-tertiary-fixed-variant": "#5d4215",
+                    "on-background": "#1b1c1b",
+                    "on-secondary": "#ffffff",
+                    "on-tertiary-container": "#a3814e",
+                    "surface-dim": "#dcd9d8",
+                    "on-surface-variant": "#44474d",
+                    "on-surface": "#1b1c1b",
+                    "outline": "#75777e",
+                    "primary-fixed-dim": "#b5c7ea",
+                    "on-tertiary-fixed": "#291800",
+                    "surface-bright": "#fcf9f8",
+                    "background": "#fcf9f8",
+                    "inverse-surface": "#303030",
+                    "inverse-primary": "#b5c7ea",
+                    "primary-container": "#0b1f3a",
+                    "tertiary-container": "#2d1b00",
+                    "surface-container-high": "#eae7e7",
+                    "outline-variant": "#c4c6ce",
+                    "on-tertiary": "#ffffff"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "xxl": "48px",
+                    "gutter": "16px",
+                    "xl": "32px",
+                    "lg": "24px",
+                    "base": "4px",
+                    "md": "16px",
+                    "sm": "12px",
+                    "xs": "8px",
+                    "margin-desktop": "64px",
+                    "margin-mobile": "20px"
+            },
+            "fontFamily": {
+                    "label-eyebrow": [
+                            "Inter"
+                    ],
+                    "price-tag": [
+                            "Playfair Display"
+                    ],
+                    "headline-sm": [
+                            "Playfair Display"
+                    ],
+                    "headline-lg": [
+                            "Playfair Display"
+                    ],
+                    "body-lg": [
+                            "Inter"
+                    ],
+                    "button": [
+                            "Inter"
+                    ],
+                    "display-lg": [
+                            "Playfair Display"
+                    ],
+                    "body-md": [
+                            "Inter"
+                    ]
+            },
+            "fontSize": {
+                    "label-eyebrow": [
+                            "11px",
+                            {
+                                    "lineHeight": "16px",
+                                    "letterSpacing": "0.15em",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "price-tag": [
+                            "20px",
+                            {
+                                    "fontWeight": "700"
+                            }
+                    ],
+                    "headline-sm": [
+                            "24px",
+                            {
+                                    "lineHeight": "1.3",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "headline-lg": [
+                            "32px",
+                            {
+                                    "lineHeight": "1.2",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "body-lg": [
+                            "18px",
+                            {
+                                    "lineHeight": "1.6",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "button": [
+                            "14px",
+                            {
+                                    "letterSpacing": "0.02em",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "display-lg": [
+                            "48px",
+                            {
+                                    "lineHeight": "1.1",
+                                    "letterSpacing": "-0.02em",
+                                    "fontWeight": "700"
+                            }
+                    ],
+                    "body-md": [
+                            "16px",
+                            {
+                                    "lineHeight": "1.5",
+                                    "fontWeight": "400"
+                            }
+                    ]
+            }
+          }
+        }
+      }
+    </script>
+<style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Playfair+Display:wght@600;700&display=swap');
+        
+        .glass-overlay {
+            background: linear-gradient(to top, rgba(0, 6, 21, 0.9) 0%, rgba(0, 6, 21, 0) 100%);
+        }
+        
+        .dashed-tear {
+            border-top: 2px dashed #e4e2e1;
+            position: relative;
+        }
+        .dashed-tear::before, .dashed-tear::after {
+            content: '';
+            position: absolute;
+            top: -10px;
+            width: 20px;
+            height: 20px;
+            background-color: #fcf9f8;
+            border-radius: 50%;
+        }
+        .dashed-tear::before { left: -30px; }
+        .dashed-tear::after { right: -30px; }
+        
+        /* Hide scrollbar for ticket area if needed */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md antialiased pb-32">
+<!-- TopNav - Transparent/Back -->
+<div class="fixed top-0 w-full z-50 flex justify-between items-center px-margin-mobile h-16 pt-4 pointer-events-none">
+<button class="w-10 h-10 rounded-full bg-surface/20 backdrop-blur-md flex items-center justify-center text-on-primary pointer-events-auto shadow-sm">
+<span class="material-symbols-outlined">arrow_back</span>
+</button>
+<button class="w-10 h-10 rounded-full bg-surface/20 backdrop-blur-md flex items-center justify-center text-on-primary pointer-events-auto shadow-sm">
+<span class="material-symbols-outlined" data-weight="fill" style="font-variation-settings: 'FILL' 1;">favorite</span>
+</button>
+</div>
+<!-- Hero Image section -->
+<div class="relative h-72 w-full">
+<img class="w-full h-full object-cover" data-alt="A vibrant outdoor evening concert in Addis Ababa, warm golden hour lighting reflecting off traditional architecture, a large stage with warm glowing amber and gold lights, a well-dressed cosmopolitan crowd enjoying the music. High-contrast, editorial premium style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDEzwy6AIR9Xca6-Tx_GgXXIrXZxnN1yimXlLNwKT7q3vWiRJFzdTLzl7P5q8jArj76okHHCvd4jCZgBhOQKKrpT-YNOBnJpdDRQP_yYsWN_FZGqgesVyX1LhTkb5JH_jT6OTDmZP9Becy3bFQh8p6vQZ-zUBnes1nlYtsoAKo-_CZ1ZJMIQ1BXkrCGAIYjDUqW00yGawNi2eOO1S9If8cwEc8AGFMIMCiNRyUoQ34xpG98kApABJkX"/>
+<!-- Gradient Overlay -->
+<div class="absolute inset-0 glass-overlay flex flex-col justify-end p-margin-mobile pb-xl">
+<!-- Date Badge -->
+<div class="bg-on-primary text-primary px-3 py-1 rounded w-fit mb-3">
+<span class="font-label-eyebrow text-label-eyebrow uppercase tracking-widest text-primary">Oct 24</span>
+</div>
+<!-- Title -->
+<h1 class="font-headline-lg text-headline-lg text-on-primary mb-2 leading-tight drop-shadow-md">Jazz Night Under the Stars</h1>
+<!-- Organizer -->
+<div class="flex items-center text-on-primary/90 font-body-md text-sm">
+<span>Hosted by EthioJazz Collective</span>
+<span class="material-symbols-outlined ml-1 text-secondary-fixed text-[16px]">verified</span>
+</div>
+</div>
+</div>
+<!-- Main Content -->
+<main class="px-margin-mobile pt-lg flex flex-col gap-xl">
+<!-- Info Card Row -->
+<div class="bg-surface-container-lowest rounded-xl p-md shadow-[0_4px_20px_rgba(0,0,0,0.06)] flex flex-col gap-md">
+<div class="flex items-start gap-4">
+<div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-surface-tint">schedule</span>
+</div>
+<div>
+<h3 class="font-button text-button text-on-background">Thursday, October 24</h3>
+<p class="font-body-md text-sm text-on-surface-variant mt-1">7:00 PM - 11:30 PM (EAT)</p>
+</div>
+</div>
+<div class="h-px bg-surface-variant w-full"></div>
+<div class="flex items-start gap-4">
+<div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-surface-tint">location_on</span>
+</div>
+<div class="flex-1">
+<h3 class="font-button text-button text-on-background">Fendika Cultural Center</h3>
+<p class="font-body-md text-sm text-on-surface-variant mt-1 line-clamp-1">Zewditu St, Addis Ababa</p>
+</div>
+<a class="text-secondary font-button text-button whitespace-nowrap self-center underline underline-offset-4" href="#">View Map</a>
+</div>
+</div>
+<!-- Organizer Card -->
+<div class="bg-surface-container-lowest rounded-xl p-md shadow-[0_4px_20px_rgba(0,0,0,0.06)] flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="w-12 h-12 rounded-full overflow-hidden bg-surface-variant shrink-0">
+<img class="w-full h-full object-cover" data-alt="A sophisticated portrait of a jazz musician in Addis Ababa, wearing traditional yet modern clothing, shot in a warm, dimly lit studio with a saxophone resting on their shoulder. Editorial premium photography." src="https://lh3.googleusercontent.com/aida-public/AB6AXuByxla9YNoWpK_knEXFuho3W3Q6upJPbIcMiEiWQc4n4jhV-XCAE0hkhZMOvJa5htXi4WBAhhWof6Paaf8iQeAaktRykY6sGde-68DlYJpwwF8-M0wg-ie_s5nZjqik11ZdN4YQRVm8VLxDNaZaZNNwAnCJLPZWIxex1JuO-Lov6eTr8oGavR5C3ZmnHBAO9IRejrhxwBPssCjefgia4GvS6CRIeosw-N_S02KYdj0CIYdNxvJOoC7M"/>
+</div>
+<div>
+<div class="flex items-center gap-1">
+<h4 class="font-button text-button text-on-background">EthioJazz Collective</h4>
+<span class="material-symbols-outlined text-secondary-fixed text-[16px]">verified</span>
+</div>
+<p class="font-body-md text-xs text-on-surface-variant mt-1">12k Followers</p>
+</div>
+</div>
+<button class="border border-secondary-fixed-dim text-on-secondary-container font-button text-button px-4 py-2 rounded-full hover:bg-surface-container-low transition-colors">
+                Follow
+            </button>
+</div>
+<!-- Location Map Card -->
+<div class="bg-surface-container-lowest rounded-xl overflow-hidden shadow-[0_4px_20px_rgba(0,0,0,0.06)] relative h-40">
+<img class="w-full h-full object-cover" data-alt="A stylized, clean, minimalist map of Addis Ababa, Ethiopia, using warm ivory and muted taupe tones. A prominent gold pin marks a central location. Soft lighting, high-end editorial aesthetic." data-location="Addis Ababa" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAgD17AolSpey8KbNoABB2TpB3ZsFgUyISW1v_yItwj6_1GAnFO-9LT6Avsg9uIEnj3HMxL9FTw17m_wyh7woxgO5Df3zpK22iqfKkIK5V1ECU8Tw6F85IOA-f6h5tMhRNDefzSDOxQMhZ0LCnbtT0GLhW23L3x6rvZA0jM-ko14vkZxqxJkFdmaF0qLZrB__jndE62Qw9x0NtoZceA2nbSKxbyMLrBdRaQqtIfGDBPBY2HkLujydIs"/>
+<!-- Muted overlay to make it look 'muted' -->
+<div class="absolute inset-0 bg-surface/30 mix-blend-multiply"></div>
+<!-- Pin -->
+<div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-error drop-shadow-md">
+<span class="material-symbols-outlined text-4xl" data-weight="fill" style="font-variation-settings: 'FILL' 1;">location_on</span>
+</div>
+</div>
+<!-- Ticket Selection Panel -->
+<div class="bg-surface-container-lowest border border-surface-variant rounded-xl overflow-hidden shadow-[0_4px_20px_rgba(0,0,0,0.06)]">
+<div class="bg-primary text-on-primary px-md py-3">
+<h2 class="font-headline-sm text-headline-sm text-xl">Select Tickets</h2>
+</div>
+<div class="flex flex-col">
+<!-- Standard Tier -->
+<div class="p-md border-b border-surface-variant flex justify-between items-center bg-surface-bright">
+<div>
+<h4 class="font-button text-button text-on-background">Standard Entry</h4>
+<p class="font-price-tag text-price-tag text-on-background mt-1">ETB 500</p>
+<p class="font-label-eyebrow text-label-eyebrow text-secondary mt-1">23 LEFT</p>
+</div>
+<div class="flex items-center gap-3">
+<button class="w-8 h-8 rounded-full border border-outline-variant flex items-center justify-center text-on-surface-variant disabled:opacity-50">
+<span class="material-symbols-outlined text-sm">remove</span>
+</button>
+<span class="font-button text-button w-4 text-center">2</span>
+<button class="w-8 h-8 rounded-full bg-secondary-fixed text-on-secondary-fixed flex items-center justify-center hover:opacity-90">
+<span class="material-symbols-outlined text-sm">add</span>
+</button>
+</div>
+</div>
+<!-- VIP Tier -->
+<div class="p-md flex justify-between items-center bg-surface">
+<div class="opacity-60">
+<h4 class="font-button text-button text-on-background">VIP Balcony</h4>
+<p class="font-price-tag text-price-tag text-on-background mt-1">ETB 1,500</p>
+<p class="font-label-eyebrow text-label-eyebrow text-error mt-1">SOLD OUT</p>
+</div>
+<div class="flex items-center gap-3 opacity-60 pointer-events-none">
+<button class="w-8 h-8 rounded-full border border-outline-variant flex items-center justify-center text-on-surface-variant">
+<span class="material-symbols-outlined text-sm">remove</span>
+</button>
+<span class="font-button text-button w-4 text-center">0</span>
+<button class="w-8 h-8 rounded-full border border-outline-variant text-on-surface-variant flex items-center justify-center">
+<span class="material-symbols-outlined text-sm">add</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Sticky Bottom Action Bar -->
+<div class="fixed bottom-0 left-0 w-full bg-surface-bright/95 backdrop-blur-xl border-t border-surface-variant px-margin-mobile py-4 z-40 shadow-[0_-4px_20px_rgba(0,0,0,0.05)]">
+<div class="flex items-center justify-between mb-4">
+<span class="font-body-lg text-body-lg text-on-surface-variant">Total</span>
+<span class="font-price-tag text-price-tag text-2xl text-on-background">ETB 1,000</span>
+</div>
+<button class="w-full bg-primary text-on-primary font-button text-button rounded-full py-4 mb-3 hover:bg-primary-container transition-colors shadow-sm">
+            Book 2 Tickets
+        </button>
+<!-- Quick Actions -->
+<div class="grid grid-cols-2 gap-3">
+<button class="bg-secondary-fixed/20 text-on-secondary-container rounded-lg py-2 flex items-center justify-center gap-2 font-button text-button text-xs">
+<span class="material-symbols-outlined text-sm">directions</span>
+                Navigate
+            </button>
+<button class="bg-secondary-fixed/20 text-on-secondary-container rounded-lg py-2 flex items-center justify-center gap-2 font-button text-button text-xs">
+<span class="material-symbols-outlined text-sm">local_taxi</span>
+                Book Ride
+            </button>
+</div>
+</div>
+</body></html>

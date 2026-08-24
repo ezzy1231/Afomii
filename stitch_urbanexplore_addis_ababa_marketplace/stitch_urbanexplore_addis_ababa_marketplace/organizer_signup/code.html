@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Partner Onboarding - UrbanExplore</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;family=Playfair+Display:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "tertiary": "#0b0500",
+                        "on-tertiary-fixed-variant": "#5d4215",
+                        "on-surface-variant": "#44474d",
+                        "surface-container-lowest": "#ffffff",
+                        "on-tertiary": "#ffffff",
+                        "on-error": "#ffffff",
+                        "secondary-fixed": "#fcdfab",
+                        "on-tertiary-fixed": "#291800",
+                        "surface-dim": "#dcd9d8",
+                        "inverse-on-surface": "#f3f0ef",
+                        "primary": "#000615",
+                        "secondary": "#705b32",
+                        "tertiary-fixed-dim": "#e8c088",
+                        "inverse-surface": "#303030",
+                        "outline-variant": "#c4c6ce",
+                        "surface-container-high": "#eae7e7",
+                        "on-secondary-fixed-variant": "#57441d",
+                        "on-primary-fixed-variant": "#364764",
+                        "surface-variant": "#e4e2e1",
+                        "surface-container": "#f0edec",
+                        "surface-container-low": "#f6f3f2",
+                        "primary-fixed-dim": "#b5c7ea",
+                        "on-secondary-fixed": "#261900",
+                        "primary-fixed": "#d6e3ff",
+                        "error-container": "#ffdad6",
+                        "background": "#fcf9f8",
+                        "secondary-container": "#f9dca8",
+                        "outline": "#75777e",
+                        "on-secondary-container": "#756036",
+                        "on-surface": "#1b1c1b",
+                        "secondary-fixed-dim": "#dfc391",
+                        "tertiary-fixed": "#ffddb1",
+                        "surface": "#fcf9f8",
+                        "surface-tint": "#4d5f7d",
+                        "on-primary-fixed": "#071c36",
+                        "surface-container-highest": "#e4e2e1",
+                        "tertiary-container": "#2d1b00",
+                        "on-primary-container": "#7587a7",
+                        "on-tertiary-container": "#a3814e",
+                        "inverse-primary": "#b5c7ea",
+                        "surface-bright": "#fcf9f8",
+                        "on-primary": "#ffffff",
+                        "on-background": "#1b1c1b",
+                        "on-error-container": "#93000a",
+                        "primary-container": "#0b1f3a",
+                        "on-secondary": "#ffffff",
+                        "error": "#ba1a1a"
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    spacing: {
+                        "margin-desktop": "64px",
+                        "gutter": "16px",
+                        "xl": "32px",
+                        "base": "4px",
+                        "xs": "8px",
+                        "md": "16px",
+                        "lg": "24px",
+                        "xxl": "48px",
+                        "sm": "12px",
+                        "margin-mobile": "20px"
+                    },
+                    fontFamily: {
+                        "headline-lg": ["Playfair Display"],
+                        "display-lg": ["Playfair Display"],
+                        "button": ["Inter"],
+                        "price-tag": ["Playfair Display"],
+                        "body-lg": ["Inter"],
+                        "headline-sm": ["Playfair Display"],
+                        "label-eyebrow": ["Inter"],
+                        "body-md": ["Inter"]
+                    },
+                    fontSize: {
+                        "headline-lg": ["32px", { lineHeight: "1.2", fontWeight: "600" }],
+                        "display-lg": ["48px", { lineHeight: "1.1", letterSpacing: "-0.02em", fontWeight: "700" }],
+                        "button": ["14px", { letterSpacing: "0.02em", fontWeight: "600" }],
+                        "price-tag": ["20px", { fontWeight: "700" }],
+                        "body-lg": ["18px", { lineHeight: "1.6", fontWeight: "400" }],
+                        "headline-sm": ["24px", { lineHeight: "1.3", fontWeight: "600" }],
+                        "label-eyebrow": ["11px", { lineHeight: "16px", letterSpacing: "0.15em", fontWeight: "600" }],
+                        "body-md": ["16px", { lineHeight: "1.5", fontWeight: "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        /* Base styles to ensure consistency */
+        body {
+            background-color: #fcf9f8; /* bg-background */
+            color: #1b1c1b; /* text-on-background */
+            -webkit-font-smoothing: antialiased;
+        }
+        
+        /* Custom scrollbar for horizontal chip list on narrow screens */
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background min-h-screen flex flex-col">
+<!-- Minimal Header (Nav Shell Suppressed per rules for Onboarding/Transactional) -->
+<header class="py-lg px-margin-mobile md:px-margin-desktop flex items-center justify-between sticky top-0 bg-background/95 backdrop-blur-sm z-40">
+<button class="w-10 h-10 flex items-center justify-center rounded-full bg-surface-container shadow-sm hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined text-primary">close</span>
+</button>
+<span class="font-headline-sm text-headline-sm text-primary">Partner Setup</span>
+<div class="w-10"></div> <!-- Balancer -->
+</header>
+<!-- Main Content Area -->
+<main class="flex-1 px-margin-mobile md:px-margin-desktop pb-xxl max-w-4xl mx-auto w-full flex flex-col gap-xl">
+<!-- Progress Stepper -->
+<div class="relative w-full py-4 mb-4">
+<!-- Connecting Line -->
+<div class="absolute left-0 top-1/2 -translate-y-1/2 w-full h-0.5 bg-surface-variant -z-10 rounded-full"></div>
+<div class="absolute left-0 top-1/2 -translate-y-1/2 w-1/2 h-0.5 bg-primary -z-10 rounded-full"></div>
+<div class="flex items-start justify-between">
+<!-- Step 1 (Active/Completed) -->
+<div class="flex flex-col items-center gap-2 bg-background px-2 relative">
+<div class="w-8 h-8 rounded-full bg-primary text-on-primary flex items-center justify-center font-label-eyebrow text-label-eyebrow shadow-sm">
+<span class="material-symbols-outlined text-sm">check</span>
+</div>
+<span class="font-label-eyebrow text-label-eyebrow text-primary text-center">Organization</span>
+</div>
+<!-- Step 2 (Current) -->
+<div class="flex flex-col items-center gap-2 bg-background px-2 relative">
+<div class="w-8 h-8 rounded-full bg-primary text-on-primary flex items-center justify-center font-label-eyebrow text-label-eyebrow shadow-sm">
+                        2
+                    </div>
+<span class="font-label-eyebrow text-label-eyebrow text-primary text-center">Contact &amp; Payout</span>
+</div>
+<!-- Step 3 (Upcoming) -->
+<div class="flex flex-col items-center gap-2 bg-background px-2 relative">
+<div class="w-8 h-8 rounded-full bg-surface-container border border-outline-variant text-on-surface-variant flex items-center justify-center font-label-eyebrow text-label-eyebrow">
+                        3
+                    </div>
+<span class="font-label-eyebrow text-label-eyebrow text-on-surface-variant text-center">First Event</span>
+</div>
+</div>
+</div>
+<!-- Form Cards Container -->
+<div class="flex flex-col gap-lg">
+<!-- Card 1: Organization Details -->
+<section class="bg-surface-container-lowest rounded-xl p-md md:p-lg lg:p-xl shadow-[0_4px_20px_rgba(0,0,0,0.06)] flex flex-col gap-lg border border-surface-variant/30">
+<div>
+<h2 class="font-headline-sm text-headline-sm text-primary mb-1">Organization Profile</h2>
+<p class="font-body-md text-body-md text-on-surface-variant">This information will be displayed publicly to attendees.</p>
+</div>
+<!-- Logo Upload -->
+<div class="flex items-center gap-6">
+<div class="w-24 h-24 md:w-32 md:h-32 rounded-xl bg-surface-container border-2 border-dashed border-outline-variant flex items-center justify-center overflow-hidden cursor-pointer hover:bg-surface-container-high transition-colors group relative">
+<div class="absolute inset-0 bg-primary/5 hidden group-hover:block transition-opacity"></div>
+<span class="material-symbols-outlined text-outline text-3xl group-hover:scale-110 transition-transform">add_photo_alternate</span>
+</div>
+<div class="flex flex-col gap-1">
+<span class="font-button text-button text-primary">Upload Logo Tile</span>
+<span class="font-body-md text-body-md text-on-surface-variant text-sm">Recommended 512x512px. PNG or JPG under 2MB.</span>
+</div>
+</div>
+<!-- Inputs: Name -->
+<div class="flex flex-col relative mt-2 group">
+<label class="font-label-eyebrow text-label-eyebrow text-secondary absolute top-2 left-0 transition-all">ORGANIZATION NAME</label>
+<input class="w-full bg-transparent border-b border-outline-variant focus:border-secondary outline-none pt-7 pb-2 px-0 font-body-lg text-body-lg text-primary placeholder-outline-variant/70 transition-colors focus:ring-0 rounded-none" placeholder="e.g. Addis Nights Collective" type="text"/>
+</div>
+<!-- Chips: Type -->
+<div class="flex flex-col gap-3 mt-2">
+<span class="font-label-eyebrow text-label-eyebrow text-on-surface-variant uppercase tracking-widest">Type</span>
+<div class="flex flex-wrap gap-2 hide-scrollbar">
+<!-- Active Chip -->
+<button class="px-5 py-2.5 rounded-full bg-primary text-on-primary font-button text-button border border-primary transition-transform active:scale-95">Promoter</button>
+<!-- Inactive Chips -->
+<button class="px-5 py-2.5 rounded-full border border-outline-variant text-on-surface-variant font-button text-button hover:bg-surface-container-low transition-colors active:scale-95">Venue</button>
+<button class="px-5 py-2.5 rounded-full border border-outline-variant text-on-surface-variant font-button text-button hover:bg-surface-container-low transition-colors active:scale-95">Community</button>
+<button class="px-5 py-2.5 rounded-full border border-outline-variant text-on-surface-variant font-button text-button hover:bg-surface-container-low transition-colors active:scale-95">Nightlife</button>
+<button class="px-5 py-2.5 rounded-full border border-outline-variant text-on-surface-variant font-button text-button hover:bg-surface-container-low transition-colors active:scale-95">Culture</button>
+</div>
+</div>
+<!-- Textarea: Bio -->
+<div class="flex flex-col relative mt-2">
+<label class="font-label-eyebrow text-label-eyebrow text-on-surface-variant absolute top-3 left-4">BIO</label>
+<textarea class="w-full bg-surface-container-low border border-surface-variant rounded-xl focus:border-secondary outline-none pt-9 pb-4 px-4 font-body-md text-body-md text-primary placeholder-outline-variant/70 resize-none transition-colors focus:ring-0" placeholder="Tell attendees what makes your events special..." rows="4"></textarea>
+</div>
+<div class="w-full h-px bg-surface-variant my-2"></div>
+<!-- Contact Info Section -->
+<div>
+<h3 class="font-headline-sm text-headline-sm text-primary mb-4">Contact Info</h3>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<div class="flex flex-col relative bg-surface-container-low rounded-lg px-4 pt-6 pb-2 border border-transparent focus-within:border-secondary transition-colors">
+<label class="font-label-eyebrow text-label-eyebrow text-on-surface-variant absolute top-2 left-4">PUBLIC EMAIL</label>
+<input class="w-full bg-transparent border-none outline-none p-0 font-body-md text-body-md text-primary focus:ring-0 placeholder-outline-variant/70" placeholder="hello@example.com" type="email"/>
+</div>
+<div class="flex flex-col relative bg-surface-container-low rounded-lg px-4 pt-6 pb-2 border border-transparent focus-within:border-secondary transition-colors">
+<label class="font-label-eyebrow text-label-eyebrow text-on-surface-variant absolute top-2 left-4">PHONE</label>
+<input class="w-full bg-transparent border-none outline-none p-0 font-body-md text-body-md text-primary focus:ring-0 placeholder-outline-variant/70" placeholder="+251 ..." type="tel"/>
+</div>
+<div class="flex flex-col relative bg-surface-container-low rounded-lg px-4 pt-6 pb-2 border border-transparent focus-within:border-secondary transition-colors md:col-span-2">
+<label class="font-label-eyebrow text-label-eyebrow text-on-surface-variant absolute top-2 left-4">WEBSITE (OPTIONAL)</label>
+<input class="w-full bg-transparent border-none outline-none p-0 font-body-md text-body-md text-primary focus:ring-0 placeholder-outline-variant/70" placeholder="https://..." type="url"/>
+</div>
+</div>
+</div>
+</section>
+<!-- Card 2: Payout Details (Secure) -->
+<section class="bg-surface-container-lowest rounded-xl p-md md:p-lg lg:p-xl shadow-[0_4px_20px_rgba(0,0,0,0.06)] flex flex-col gap-lg border border-surface-variant/30">
+<div class="flex flex-col sm:flex-row sm:items-start justify-between gap-4 border-b border-surface-variant pb-6">
+<div>
+<h2 class="font-headline-sm text-headline-sm text-primary flex items-center gap-2 mb-1">
+                            Payout Details
+                        </h2>
+<p class="font-body-md text-body-md text-on-surface-variant">Required before you can publish paid events.</p>
+</div>
+<div class="flex items-center gap-1.5 bg-surface-container px-3 py-1.5 rounded-full h-fit w-fit">
+<span class="material-symbols-outlined text-sm text-secondary" style="font-variation-settings: 'FILL' 1;">lock</span>
+<span class="font-label-eyebrow text-label-eyebrow text-secondary">OPTIONAL SECURE</span>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5 pt-2">
+<div class="flex flex-col relative bg-surface-container-lowest border border-outline-variant rounded-lg px-4 pt-6 pb-2 focus-within:border-primary transition-colors md:col-span-2">
+<label class="font-label-eyebrow text-label-eyebrow text-on-surface-variant absolute top-2 left-4">BANK NAME</label>
+<select class="w-full bg-transparent border-none outline-none p-0 font-body-md text-body-md text-primary focus:ring-0 appearance-none cursor-pointer">
+<option disabled="" selected="" value="">Select your bank...</option>
+<option value="cbe">Commercial Bank of Ethiopia (CBE)</option>
+<option value="awash">Awash Bank</option>
+<option value="dashen">Dashen Bank</option>
+<option value="boa">Bank of Abyssinia</option>
+</select>
+<span class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-outline-variant pointer-events-none">expand_more</span>
+</div>
+<div class="flex flex-col relative bg-surface-container-lowest border border-outline-variant rounded-lg px-4 pt-6 pb-2 focus-within:border-primary transition-colors">
+<label class="font-label-eyebrow text-label-eyebrow text-on-surface-variant absolute top-2 left-4">ACCOUNT HOLDER NAME</label>
+<input class="w-full bg-transparent border-none outline-none p-0 font-body-md text-body-md text-primary focus:ring-0 placeholder-outline-variant/70" placeholder="As it appears on account" type="text"/>
+</div>
+<div class="flex flex-col relative bg-surface-container-lowest border border-outline-variant rounded-lg px-4 pt-6 pb-2 focus-within:border-primary transition-colors">
+<label class="font-label-eyebrow text-label-eyebrow text-on-surface-variant absolute top-2 left-4">ACCOUNT NUMBER</label>
+<input class="w-full bg-transparent border-none outline-none p-0 font-body-md text-body-md text-primary focus:ring-0 placeholder-outline-variant/70" placeholder="0000 0000 0000" type="text"/>
+</div>
+</div>
+<!-- Verification Docs Upload Row -->
+<div class="mt-2 bg-surface-container-low p-4 rounded-xl border border-dashed border-outline-variant flex flex-col sm:flex-row items-center gap-4 group hover:bg-surface-container transition-colors cursor-pointer">
+<div class="w-12 h-12 rounded-full bg-surface-container-highest flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-primary text-xl">upload_file</span>
+</div>
+<div class="flex flex-col flex-1 text-center sm:text-left">
+<span class="font-button text-button text-primary">Upload Verification Documents</span>
+<span class="font-body-md text-body-md text-on-surface-variant text-sm mt-0.5">Business registration or valid ID (PDF, JPG up to 10MB)</span>
+</div>
+<button class="px-5 py-2 rounded-full border border-outline-variant text-primary font-button text-button whitespace-nowrap bg-surface-container-lowest group-hover:border-primary transition-colors">
+                        Browse Files
+                    </button>
+</div>
+</section>
+<!-- Footer Actions & Consent -->
+<section class="flex flex-col gap-8 mt-4 mb-xl">
+<!-- Consent Checkbox -->
+<label class="flex items-start gap-4 cursor-pointer p-4 rounded-lg hover:bg-surface-container-low transition-colors -mx-4 sm:mx-0">
+<div class="relative flex items-center mt-0.5">
+<input class="peer h-5 w-5 cursor-pointer appearance-none rounded-md border-2 border-outline-variant checked:border-primary checked:bg-primary transition-all focus:ring-2 focus:ring-primary/20" type="checkbox"/>
+<span class="material-symbols-outlined absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-on-primary text-[16px] opacity-0 peer-checked:opacity-100 pointer-events-none">check</span>
+</div>
+<span class="font-body-md text-body-md text-on-surface-variant text-sm leading-relaxed">
+                        I agree to the <a class="text-primary font-semibold underline decoration-primary/30 hover:decoration-primary transition-colors" href="#">Organizer Terms of Service</a> and <a class="text-primary font-semibold underline decoration-primary/30 hover:decoration-primary transition-colors" href="#">Privacy Policy</a>. I confirm that I have the authority to create this account and manage payouts on behalf of the organization.
+                    </span>
+</label>
+<!-- CTA -->
+<button class="w-full sm:w-auto sm:self-end py-4 px-8 rounded-full bg-primary text-on-primary font-button text-button text-base hover:opacity-90 active:scale-[0.98] transition-all flex items-center justify-center gap-3 shadow-[0_4px_12px_rgba(0,6,21,0.2)]">
+                    Create organizer account
+                    <span class="material-symbols-outlined text-lg">arrow_forward</span>
+</button>
+</section>
+</div>
+</main>
+</body></html>
