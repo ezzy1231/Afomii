@@ -17,7 +17,7 @@ Stitch followed our token system exactly (ivory #FCF9F8 / navy #0B1F3A / gold #C
 | `organizer_signup` | `app/auth/signup/organizer/page.tsx` | ⬜ TODO | Org type chips, payout card |
 | `sign_in` | `app/auth/signin/page.tsx` | 🟡 minor | Verify error banner + email-confirm pending state styling |
 | `my_account` | `app/settings/page.tsx` | ⬜ TODO | Ticket-stub wallet list + reservation status pills |
-| `partner_overview` | `app/dashboard/restaurant/page.tsx` | ⬜ TODO | Dark console KPI cards + today timeline + quick-action rail (biggest gap) |
+| `partner_overview` | `app/dashboard/restaurant/page.tsx` | ✅ **ported** | Dark console (#07192B/#0B1D31), KPI grid (real counts only — no fake trends), today's timeline w/ inline confirm/reject via server action + contacts RPC; trends deferred until historical data exists |
 | `reservations_inbox` | `app/dashboard/restaurant/reservations/page.tsx` | ⬜ TODO | Day/Week/Month segmented control, slot grouping, inline confirm/reject |
 | `menu_manager` | `app/dashboard/restaurant/menu/page.tsx` | ⬜ TODO | Category tabs + item rows w/ availability toggle + edit modal |
 | `branch_configuration` | `components/dashboard/branch-manager.tsx` | ⬜ TODO | Segmented booking-mode control + live preview strip + sticky save bar |
