@@ -1,3 +1,5 @@
+import { redirect } from 'next/navigation'
+import { createClient } from '@/lib/supabase/server'
 import { Sidebar } from '@/components/dashboard/sidebar'
 
 const navItems = [
@@ -8,11 +10,24 @@ const navItems = [
   { label: 'Settings', href: '/settings', icon: '⚙️' },
 ]
 
-export default function AdminDashboardLayout({
+export default async function AdminDashboardLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
+  // Admin console guard — RLS limits data, this gate limits the surface.
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) redirect('/auth/signin')
+
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('role')
+    .eq('id', user.id)
+    .maybeSingle()
+
+  if ((profile?.role as string | undefined) !== 'system_admin') redirect('/')
+
   return (
     <div className="flex min-h-screen bg-app-bg">
       <Sidebar title="Admin Panel" navItems={navItems} />
