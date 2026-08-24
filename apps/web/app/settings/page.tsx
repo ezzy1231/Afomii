@@ -43,15 +43,7 @@ export default async function SettingsPage() {
             <div>
               <p className="font-semibold text-app-fg">{fullName || '—'}</p>
               <p className="text-sm text-app-muted">{user.email}</p>
-              <span
-                className={`inline-flex mt-1.5 text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full ${
-                  role === 'food_business'
-                    ? 'bg-gold/20 text-app-fg'
-                    : role === 'event_organizer'
-                    ? 'bg-gold/20 text-app-fg'
-                    : 'bg-gold/20 text-app-fg'
-                }`}
-              >
+              <span className="inline-flex mt-1.5 text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-gold/20 text-gold-soft">
                 {role === 'food_business'
                   ? 'Food Business'
                   : role === 'event_organizer'
@@ -106,7 +98,15 @@ export default async function SettingsPage() {
               ))}
             </div>
           ) : (
-            <p className="text-sm text-app-muted">You have no reservations yet.</p>
+            <div className="rounded-xl border border-dashed border-gold/40 bg-app-input p-6 text-center">
+              <p className="font-semibold text-app-fg">No reservations yet</p>
+              <p className="mt-1 text-sm text-app-muted">
+                Find a table and your bookings will live here.
+              </p>
+              <Link href="/restaurants" className="btn-accent mt-4 inline-block !py-2.5 text-sm">
+                Explore restaurants
+              </Link>
+            </div>
           )}
         </section>
 

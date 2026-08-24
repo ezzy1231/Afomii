@@ -24,6 +24,11 @@ import { cn } from '@/lib/utils'
 
 const PHOTO_POOL = ['/places/food-1.jpg', '/places/food-2.jpg', '/places/food-3.jpg']
 
+const WEEK_DAYS = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'] as const
+const DAY_SHORT: Record<(typeof WEEK_DAYS)[number], string> = {
+  mon: 'Mon', tue: 'Tue', wed: 'Wed', thu: 'Thu', fri: 'Fri', sat: 'Sat', sun: 'Sun',
+}
+
 export default function RestaurantDetail({ restaurant }: { restaurant: Restaurant }) {
   const [selectedBranch, setSelectedBranch] = useState(restaurant.branches[0]?.id ?? null)
   const [followed, setFollowed] = useState(false)
@@ -33,6 +38,8 @@ export default function RestaurantDetail({ restaurant }: { restaurant: Restauran
     ? [...new Set(branch.menuItems.map((item) => item.category))]
     : []
   const initial = restaurant.name.charAt(0).toUpperCase()
+  // JS getDay(): 0=Sunday … 6=Saturday → our keys are 'mon'-first
+  const todayKey = (['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'] as const)[new Date().getDay()]
 
   const photos = [
     ...(restaurant.coverUrl ? [restaurant.coverUrl] : []),
@@ -40,9 +47,6 @@ export default function RestaurantDetail({ restaurant }: { restaurant: Restauran
   ].slice(0, 4)
 
   const highlights = ['Rooftop Dining', 'Live Music', 'Signature Cocktails']
-  const hoursLabel = restaurant.openingHours?.mon?.[0]
-    ? `Mon - Sun: ${restaurant.openingHours.mon[0].open} - ${restaurant.openingHours.mon[0].close}`
-    : 'Open daily'
 
   return (
     <div className="mx-auto max-w-7xl px-4 pb-28 pt-5 sm:px-6 lg:px-8">
@@ -212,14 +216,14 @@ export default function RestaurantDetail({ restaurant }: { restaurant: Restauran
                 View all ›
               </span>
             </div>
-            <div className="grid grid-cols-4 gap-2">
+            <div className="snap-row">
               {photos.map((src, i) => (
-                <div key={`${src}-${i}`} className="relative aspect-square overflow-hidden rounded-lg bg-app-input">
+                <div key={`${src}-${i}`} className="relative aspect-[4/3] overflow-hidden rounded-lg bg-app-input">
                   <Image
                     src={src}
                     alt={`${restaurant.name} photo ${i + 1}`}
                     fill
-                    sizes="120px"
+                    sizes="(max-width: 640px) 82vw, (max-width: 1024px) 46vw, 300px"
                     className="object-cover"
                   />
                 </div>
@@ -250,9 +254,8 @@ export default function RestaurantDetail({ restaurant }: { restaurant: Restauran
               {[
                 { icon: Star, title: 'HIGHLIGHTS', body: highlights.join(' • ') },
                 { icon: CarFront, title: 'PARKING', body: 'Valet Available • Free Parking' },
-                { icon: Clock3, title: 'OPENING HOURS', body: hoursLabel },
               ].map(({ icon: Icon, title, body }) => (
-                <div key={title} className={cn('flex gap-3', title !== 'OPENING HOURS' && 'mb-4')}>
+                <div key={title} className="mb-4 flex gap-3">
                   <Icon className="mt-0.5 size-4 shrink-0 text-gold-soft" />
                   <div>
                     <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-app-fg">
@@ -262,6 +265,52 @@ export default function RestaurantDetail({ restaurant }: { restaurant: Restauran
                   </div>
                 </div>
               ))}
+
+              {/* Per-day opening hours with today highlighted (Stitch artboard pattern) */}
+              <div className="flex gap-3">
+                <Clock3 className="mt-0.5 size-4 shrink-0 text-gold-soft" />
+                <div className="min-w-0 flex-1">
+                  <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-app-fg">
+                    OPENING HOURS
+                  </p>
+                  {restaurant.openingHours && Object.keys(restaurant.openingHours).length > 0 ? (
+                    <table className="mt-1.5 w-full max-w-[260px] text-sm">
+                      <tbody>
+                        {WEEK_DAYS.map((day) => {
+                          const range = restaurant.openingHours?.[day]?.[0]
+                          const isToday = day === todayKey
+                          return (
+                            <tr
+                              key={day}
+                              className={cn(isToday && '-mx-2 rounded-md bg-gold/10')}
+                            >
+                              <td
+                                className={cn(
+                                  'py-1 pl-2 pr-3 text-left',
+                                  isToday ? 'font-bold text-app-fg' : 'text-app-muted'
+                                )}
+                              >
+                                {DAY_SHORT[day]}
+                                {isToday && <span className="sr-only"> (today)</span>}
+                              </td>
+                              <td
+                                className={cn(
+                                  'py-1 pr-2 text-right tabular-nums',
+                                  isToday ? 'font-bold text-app-fg' : 'text-app-muted'
+                                )}
+                              >
+                                {range ? `${range.open} – ${range.close}` : 'Closed'}
+                              </td>
+                            </tr>
+                          )
+                        })}
+                      </tbody>
+                    </table>
+                  ) : (
+                    <p className="mt-0.5 text-sm text-app-muted">Open daily — hours vary</p>
+                  )}
+                </div>
+              </div>
             </div>
           </div>
 

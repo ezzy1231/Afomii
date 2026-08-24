@@ -11,6 +11,7 @@ import {
   Globe2,
   Heart,
   Music2,
+  MapPin,
   PartyPopper,
   Search,
   SearchX,
@@ -450,7 +451,7 @@ export default function ExploreCatalogue({
                       {featured.detail}
                     </span>
                     <span className="flex items-center gap-1.5">
-                      <Star className="size-3.5" />
+                      <MapPin className="size-3.5" />
                       {featured.location}
                     </span>
                     <span className="price-pill !bg-white/15 !text-white backdrop-blur-sm">

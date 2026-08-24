@@ -12,17 +12,37 @@ export default function SignInPage() {
   const [showPw, setShowPw] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [confirmPending, setConfirmPending] = useState<string | null>(null)
+
+  function humanizeError(message: string): string {
+    // Supabase error strings are developer-facing; show people-friendly copy.
+    if (/invalid login credentials/i.test(message)) return 'Invalid email or password.'
+    if (/rate limit/i.test(message)) return 'Too many attempts. Please wait a moment and try again.'
+    return message
+  }
+
+  async function handleResend() {
+    if (!confirmPending) return
+    const supabase = createClient()
+    await supabase.auth.resend({ type: 'signup', email: confirmPending })
+    setError('Confirmation email re-sent. Check your inbox.')
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setError(null)
+    setConfirmPending(null)
     setLoading(true)
 
     const supabase = createClient()
     const { error } = await supabase.auth.signInWithPassword({ email, password })
 
     if (error) {
-      setError(error.message)
+      if (error.status === 400 && /confirm/i.test(error.message)) {
+        setConfirmPending(email)
+      } else {
+        setError(humanizeError(error.message))
+      }
       setLoading(false)
       return
     }
@@ -48,9 +68,40 @@ export default function SignInPage() {
           Sign in to your UrbanExplore account
         </p>
 
-        {error && (
-          <div className="mb-5 rounded-lg bg-danger/10 border border-danger/30 text-danger text-sm px-4 py-3">{error}</div>
-        )}
+        {confirmPending ? (
+          <div className="mb-5 rounded-lg border border-gold/30 bg-gold/10 px-4 py-4">
+            <div className="flex items-start gap-3">
+              <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-gold/20 text-gold-soft">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="h-4 w-4">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" />
+                </svg>
+              </span>
+              <div>
+                <p className="text-sm font-semibold text-app-fg">Confirm your email first</p>
+                <p className="mt-0.5 text-sm text-app-muted">
+                  We sent a confirmation link to <strong className="text-app-fg">{confirmPending}</strong>. Click it, then sign in.
+                </p>
+                <button
+                  type="button"
+                  onClick={handleResend}
+                  className="mt-2 text-xs font-semibold text-gold hover:underline"
+                >
+                  Resend confirmation email
+                </button>
+              </div>
+            </div>
+          </div>
+        ) : error ? (
+          <div
+            role="alert"
+            className="mb-5 flex items-center gap-2.5 rounded-lg bg-danger/10 border border-danger/30 text-danger text-sm px-4 py-3"
+          >
+            <svg viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4 shrink-0">
+              <path fillRule="evenodd" d="M18 10A8 8 0 1 1 2 10a8 8 0 0 1 16 0Zm-8-4a.75.75 0 0 1 .75.75v3.5a.75.75 0 0 1-1.5 0v-3.5A.75.75 0 0 1 10 6Zm0 8a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z" clipRule="evenodd" />
+            </svg>
+            {error}
+          </div>
+        ) : null}
 
         <form onSubmit={handleSubmit} className="space-y-5" noValidate>
           <div>
