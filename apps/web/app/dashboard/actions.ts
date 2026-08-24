@@ -329,6 +329,7 @@ export async function updateBranchBookingConfig(input: {
   maxGuestPerTable: number
   slotDurationMinutes: number
   advanceNoticeHours: number
+  cancellationPolicy?: string
 }): Promise<DashboardActionState> {
   const parsed = bookingConfigInputSchema.safeParse(input)
   if (!parsed.success) return { ok: false, message: firstIssue(parsed.error) }
@@ -361,6 +362,9 @@ export async function updateBranchBookingConfig(input: {
     max_guest_per_table: parsed.data.maxGuestPerTable,
     slot_duration_minutes: parsed.data.slotDurationMinutes,
     advance_notice_hours: parsed.data.advanceNoticeHours,
+    ...(parsed.data.cancellationPolicy !== undefined
+      ? { cancellation_policy: parsed.data.cancellationPolicy }
+      : {}),
   })
 
   if (error) {
@@ -417,4 +421,40 @@ export async function updateRestaurantHours(input: {
   revalidatePath('/dashboard/restaurant/branches')
   revalidatePath('/restaurants')
   return { ok: true, message: 'Opening hours saved.' }
+}
+
+export async function setBusinessVerification(
+  businessId: string,
+  approve: boolean
+): Promise<DashboardActionState> {
+  const idCheck = uuidSchema.safeParse(businessId)
+  if (!idCheck.success) return { ok: false, message: 'Invalid business identifier.' }
+
+  const { supabase, user, role } = await getCurrentUserRole()
+  if (!user) return { ok: false, message: 'Please sign in again to continue.' }
+  if (role !== 'system_admin') {
+    return { ok: false, message: 'Only platform admins can verify businesses.' }
+  }
+
+  const { error } = await supabase
+    .from('businesses')
+    .update({ status: approve ? 'active' : 'rejected', is_verified: approve })
+    .eq('id', idCheck.data)
+
+  if (error) {
+    logActionError('setBusinessVerification', error)
+    return defaultErrorState
+  }
+
+  const { error: auditError } = await supabase.from('audit_logs').insert({
+    actor_id: user.id,
+    action: approve ? 'business_verification_approved' : 'business_verification_rejected',
+    entity_type: 'business',
+    entity_id: idCheck.data,
+    metadata: { status: approve ? 'active' : 'rejected' },
+  })
+  if (auditError) logActionError('setBusinessVerification.audit', auditError)
+
+  revalidatePath('/dashboard/admin')
+  return { ok: true, message: approve ? 'Business verified.' : 'Business rejected.' }
 }

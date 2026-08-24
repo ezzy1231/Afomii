@@ -52,6 +52,7 @@ export const bookingConfigInputSchema = z.object({
   maxGuestPerTable: z.coerce.number().int().min(1).max(500),
   slotDurationMinutes: z.coerce.number().int().min(10).max(480),
   advanceNoticeHours: z.coerce.number().int().min(0).max(720),
+  cancellationPolicy: z.string().trim().max(500).optional(),
 });
 
 export const openingHoursSchema = z.record(
