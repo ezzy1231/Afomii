@@ -1,4 +1,4 @@
-# FoodRide / UrbanExplore — Stitch Prompt Pack
+# UrbanExplore — Stitch Prompt Pack
 
 > Paste the **Global Style Preamble** at the start of every Stitch conversation (or into your first prompt), then use one prompt per page.
 > Phases match the implementation order in `UI_REDESIGN_V2.md`. Prompts encode our **real data model** (Supabase tables, roles, statuses, ETB pricing) so exported designs map 1:1 to the codebase.

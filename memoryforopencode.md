@@ -184,19 +184,13 @@ Protects `/dashboard/*` and `/settings/*`:
 - Auth Slice 3: CategoryPicker radio screens (business 13 / organizer 11 categories), full dietary (16) + allergy (11) checklists, EC/GC birth calendar, country field
 - Real Addis Ababa seed: `packages/supabase/seed-places.sql` (12 venues, run in Supabase SQL editor — NOT yet run), photos in `apps/web/public/places/`
 - `/vision` mockup gallery page
+- Slice 5: organizer public profile `/organizers/[id]` built (`OrganizerProfile.tsx`, date-ribbon signature; `getOrganizerDetail` in queries.ts with fallback samples `sample-organizer` / `addis-nightlife-collective`; live path uses real columns id/name/description/is_verified + subscription-count followers)
+- Ticket tier CRUD now persists: server actions `saveTicketTier`/`deleteTicketTier` in `app/dashboard/organizer/tickets/actions.ts` (ownership checks via events.organizer_id, sold-count preserved on resize, tiers with sales can't be deleted); page is a server component loading real events+tiers; client `tiers-manager.tsx`
+- Hold-release bug FIXED: purchase failure path calls new `release_ticket_hold(p_hold_id, p_user_id)` RPC (migration 0006) restoring inventory atomically; success marks hold 'completed' instead of deleting
+- Migration `0006_hold_release_and_cron.sql`: release_ticket_hold RPC + pg_cron schedule ('*/5 * * * *') for release_expired_holds() — NEEDS RUNNING in Supabase SQL editor
 
 **Known issues / TODO next session:**
-1. Run `packages/supabase/seed-places.sql` in Supabase SQL editor to see real restaurants
-2. Slice 5: organizer public profile page `/organizers/[id]` (AJE-style) — not built
-3. Ticket tier CRUD (`/dashboard/organizer/tickets`) still saves to local state only — needs server actions persisting to `ticket_types`
-4. `release_expired_holds()` has no scheduler (needs pg_cron migration)
-5. Hold-release bug fixed? NO — `events/actions.ts` still deletes hold row even if purchase insert fails (inventory leak on failure path)
-6. Google Maps API key in `.env.local` is referrer-restricted; server-side Places fetch needs a separate key (`scripts/fetch-places.mjs` ready)
-7. Final QA pass: touch targets, reduced-motion, 320px sweep, Lighthouse
-
-### Original limitations (pre-redesign, still partially relevant)
-
-1. ~~Database not connected~~ — Supabase is wired for catalogue/auth/reservations/tickets
-2. Server Actions write directly to Supabase (accepted architecture per IMPLEMENTATION_PLAN.md)
-3. ~~No seed data~~ — seed-places.sql ready (run manually)
+1. Run `packages/supabase/seed-places.sql` AND `migrations/0006_hold_release_and_cron.sql` in Supabase SQL editor
+2. Google Maps API key in `.env.local` is referrer-restricted; server-side Places fetch needs a separate key (`scripts/fetch-places.mjs` ready)
+3. Final QA pass partially done (touch targets ≥44px, reduced-motion respected, build clean incl. `/organizers/[id]` and `/dashboard/organizer/tickets`); remaining: Lighthouse mobile pass, full 320px–1440px visual sweep
 4. Redis/NestJS retained for future trusted ops only
