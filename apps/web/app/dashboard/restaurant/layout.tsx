@@ -15,9 +15,9 @@ export default function RestaurantDashboardLayout({
   children: React.ReactNode
 }) {
   return (
-    <div className="flex min-h-screen">
+    <div className="flex min-h-screen bg-app-bg">
       <Sidebar title="Restaurant" navItems={navItems} />
-      <main className="flex-1 bg-[var(--bg-primary)] overflow-auto">
+      <main className="min-w-0 flex-1 overflow-auto bg-app-bg">
         {children}
       </main>
     </div>

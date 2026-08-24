@@ -2,6 +2,18 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import {
+  BarChart3,
+  CalendarDays,
+  CalendarRange,
+  LayoutDashboard,
+  MapPin,
+  Settings,
+  Store,
+  Ticket,
+  Users,
+  type LucideIcon,
+} from "lucide-react";
 import { cn } from "../../lib/utils";
 
 type NavItem = {
@@ -13,6 +25,21 @@ type NavItem = {
 type SidebarProps = {
   title: string;
   navItems: NavItem[];
+};
+
+const navIcons: Record<string, LucideIcon> = {
+  Overview: LayoutDashboard,
+  Dashboard: LayoutDashboard,
+  Reservations: CalendarRange,
+  Branches: MapPin,
+  Menu: Store,
+  Analytics: BarChart3,
+  Events: CalendarDays,
+  Calendar: CalendarDays,
+  Tickets: Ticket,
+  Users,
+  Businesses: Store,
+  Settings,
 };
 
 export function Sidebar({ title, navItems }: SidebarProps) {
@@ -28,8 +55,8 @@ export function Sidebar({ title, navItems }: SidebarProps) {
   return (
     <>
       {/* Desktop sidebar */}
-      <aside className="hidden lg:flex w-64 shrink-0 sticky top-0 h-screen bg-navy text-ivory flex-col">
-        <div className="p-6 border-b border-white/10">
+      <aside className="hidden h-screen w-72 shrink-0 sticky top-0 lg:flex flex-col border-r border-white/10 bg-navy text-ivory">
+        <div className="border-b border-white/10 p-7">
           <Link href="/" className="flex items-baseline gap-2">
             <span className="font-serif text-xl font-bold text-gold">
               UrbanExplore
@@ -40,7 +67,7 @@ export function Sidebar({ title, navItems }: SidebarProps) {
           </Link>
         </div>
 
-        <div className="px-6 pt-6 pb-2">
+        <div className="px-6 pb-2 pt-7">
           <h2 className="text-[10px] font-semibold uppercase tracking-[0.18em] text-ivory/50">
             {title}
           </h2>
@@ -49,18 +76,19 @@ export function Sidebar({ title, navItems }: SidebarProps) {
         <nav className="flex-1 px-3 space-y-1 overflow-y-auto">
           {navItems.map((item) => {
             const active = isActive(item.href);
+            const Icon = navIcons[item.label] ?? BarChart3;
             return (
               <Link
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  "flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200",
+                  "flex min-h-11 items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-medium transition-all duration-200",
                   active
-                    ? "bg-white/10 text-gold"
+                    ? "bg-gold/15 text-gold shadow-[inset_0_0_0_1px_rgba(215,183,120,0.22)]"
                     : "text-ivory/60 hover:bg-white/5 hover:text-ivory"
                 )}
               >
-                <span className="text-base">{item.icon}</span>
+                <Icon className="size-4" strokeWidth={active ? 2.3 : 1.8} />
                 {item.label}
               </Link>
             );
@@ -85,24 +113,25 @@ export function Sidebar({ title, navItems }: SidebarProps) {
 
       {/* Mobile tab strip */}
       <nav
-        className="lg:hidden sticky top-0 z-30 bg-navy text-ivory overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        className="sticky top-0 z-30 overflow-x-auto border-b border-white/10 bg-navy/95 text-ivory nav-blur lg:hidden [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         aria-label="Dashboard"
       >
         <div className="flex gap-1 px-3 py-2">
           {navItems.map((item) => {
             const active = isActive(item.href);
+            const Icon = navIcons[item.label] ?? BarChart3;
             return (
               <Link
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  "flex shrink-0 items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-medium transition-colors",
+                  "flex min-h-10 shrink-0 items-center gap-1.5 rounded-xl px-3.5 py-1.5 text-xs font-medium transition-colors",
                   active
                     ? "bg-white/10 text-gold"
                     : "text-ivory/60 hover:text-ivory"
                 )}
               >
-                <span>{item.icon}</span>
+                <Icon className="size-3.5" />
                 {item.label}
               </Link>
             );

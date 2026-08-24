@@ -44,6 +44,7 @@ const config: Config = {
         },
         "app-bg": "rgb(var(--bg-primary-rgb) / <alpha-value>)",
         "app-fg": "rgb(var(--text-primary-rgb) / <alpha-value>)",
+        "app-card": "rgb(var(--bg-card-rgb) / <alpha-value>)",
         "app-panel": "rgb(var(--bg-card-rgb) / <alpha-value>)",
         "app-input": "rgb(var(--bg-input-rgb) / <alpha-value>)",
         "app-elevated": "rgb(var(--bg-elevated-rgb) / <alpha-value>)",

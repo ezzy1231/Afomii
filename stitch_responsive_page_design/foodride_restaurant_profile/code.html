@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Sky Garden Restaurant - FoodRide</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&amp;family=Playfair+Display:wght@600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-surface-variant": "#44474d",
+                    "surface-tint": "#4d5f7d",
+                    "on-error": "#ffffff",
+                    "tertiary-fixed": "#e5e2dd",
+                    "on-error-container": "#93000a",
+                    "tertiary-fixed-dim": "#c8c6c2",
+                    "on-surface": "#1b1c1c",
+                    "secondary-fixed-dim": "#dfc391",
+                    "on-secondary": "#ffffff",
+                    "tertiary": "#060605",
+                    "on-tertiary-container": "#888682",
+                    "on-secondary-fixed-variant": "#57441d",
+                    "secondary": "#705b32",
+                    "secondary-container": "#f9dca8",
+                    "on-primary-container": "#7587a7",
+                    "primary": "#000615",
+                    "surface-container-high": "#eae7e7",
+                    "error-container": "#ffdad6",
+                    "outline": "#75777e",
+                    "on-background": "#1b1c1c",
+                    "surface-container-low": "#f6f3f2",
+                    "primary-fixed-dim": "#b5c7ea",
+                    "surface-variant": "#e4e2e1",
+                    "surface-container-lowest": "#ffffff",
+                    "outline-variant": "#c4c6ce",
+                    "on-secondary-fixed": "#261900",
+                    "secondary-fixed": "#fcdfab",
+                    "on-primary-fixed": "#071c36",
+                    "surface-bright": "#fcf9f8",
+                    "on-primary": "#ffffff",
+                    "surface": "#fcf9f8",
+                    "tertiary-container": "#1f1f1c",
+                    "error": "#ba1a1a",
+                    "on-secondary-container": "#756036",
+                    "surface-dim": "#dcd9d9",
+                    "background": "#fcf9f8",
+                    "primary-container": "#0b1f3a",
+                    "surface-container-highest": "#e4e2e1",
+                    "inverse-primary": "#b5c7ea",
+                    "inverse-on-surface": "#f3f0f0",
+                    "surface-container": "#f0eded",
+                    "inverse-surface": "#303030",
+                    "on-tertiary": "#ffffff",
+                    "on-tertiary-fixed": "#1c1c19",
+                    "on-primary-fixed-variant": "#364764",
+                    "primary-fixed": "#d6e3ff",
+                    "on-tertiary-fixed-variant": "#474743"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "spacing": {
+                    "lg": "40px",
+                    "md": "24px",
+                    "xs": "4px",
+                    "gutter": "16px",
+                    "margin-desktop": "32px",
+                    "sm": "12px",
+                    "base": "8px",
+                    "xl": "64px",
+                    "margin-mobile": "16px"
+            },
+            "fontFamily": {
+                    "headline-lg-mobile": [
+                            "Playfair Display"
+                    ],
+                    "headline-lg": [
+                            "Playfair Display"
+                    ],
+                    "title-lg": [
+                            "Inter"
+                    ],
+                    "body-lg": [
+                            "Inter"
+                    ],
+                    "headline-md": [
+                            "Playfair Display"
+                    ],
+                    "label-md": [
+                            "Inter"
+                    ],
+                    "display-lg": [
+                            "Playfair Display"
+                    ],
+                    "body-md": [
+                            "Inter"
+                    ]
+            },
+            "fontSize": {
+                    "headline-lg-mobile": [
+                            "28px",
+                            {
+                                    "lineHeight": "36px",
+                                    "fontWeight": "700"
+                            }
+                    ],
+                    "headline-lg": [
+                            "32px",
+                            {
+                                    "lineHeight": "40px",
+                                    "fontWeight": "700"
+                            }
+                    ],
+                    "title-lg": [
+                            "20px",
+                            {
+                                    "lineHeight": "28px",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "body-lg": [
+                            "16px",
+                            {
+                                    "lineHeight": "24px",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "headline-md": [
+                            "24px",
+                            {
+                                    "lineHeight": "32px",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "label-md": [
+                            "12px",
+                            {
+                                    "lineHeight": "16px",
+                                    "letterSpacing": "0.05em",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "display-lg": [
+                            "48px",
+                            {
+                                    "lineHeight": "56px",
+                                    "letterSpacing": "-0.02em",
+                                    "fontWeight": "700"
+                            }
+                    ],
+                    "body-md": [
+                            "14px",
+                            {
+                                    "lineHeight": "20px",
+                                    "fontWeight": "400"
+                            }
+                    ]
+            }
+    },
+        },
+      }
+    </script>
+<style>
+        body { background-color: #F8F5F0; } /* Ivory Background */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(224, 224, 224, 0.5);
+            box-shadow: 0 4px 20px rgba(11, 31, 58, 0.05);
+        }
+    </style>
+</head>
+<body class="text-on-surface font-body-md antialiased pb-24 md:pb-0">
+<!-- Top Navigation (Web Only) -->
+<header class="hidden md:flex justify-between items-center w-full px-margin-desktop py-4 bg-primary-container dark:bg-primary-container text-on-primary dark:text-on-primary sticky top-0 z-50">
+<div class="flex items-center gap-gutter">
+<span class="text-secondary-fixed font-headline-lg font-bold tracking-tight">FoodRide</span>
+</div>
+<nav class="flex gap-lg">
+<a class="text-on-primary-container opacity-80 hover:bg-primary/10 transition-colors py-2 px-4 rounded-lg" href="#">Home</a>
+<a class="text-secondary-fixed font-bold border-b-2 border-secondary-fixed opacity-70 transition-opacity duration-150 py-2 px-4" href="#">Restaurants</a>
+<a class="text-on-primary-container opacity-80 hover:bg-primary/10 transition-colors py-2 px-4 rounded-lg" href="#">Events</a>
+<a class="text-on-primary-container opacity-80 hover:bg-primary/10 transition-colors py-2 px-4 rounded-lg" href="#">Ride</a>
+</nav>
+<div class="flex items-center gap-4">
+<button class="p-2 rounded-full hover:bg-primary/10 transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="p-2 rounded-full hover:bg-primary/10 transition-colors">
+<span class="material-symbols-outlined">person</span>
+</button>
+</div>
+</header>
+<!-- Mobile Header Actions (Over Image) -->
+<div class="md:hidden absolute top-0 left-0 w-full p-margin-mobile flex justify-between items-center z-20">
+<button class="w-10 h-10 rounded-full bg-primary/50 backdrop-blur-md flex items-center justify-center text-on-primary">
+<span class="material-symbols-outlined">arrow_back</span>
+</button>
+<div class="flex gap-2">
+<button class="w-10 h-10 rounded-full bg-primary/50 backdrop-blur-md flex items-center justify-center text-on-primary">
+<span class="material-symbols-outlined">share</span>
+</button>
+<button class="w-10 h-10 rounded-full bg-primary/50 backdrop-blur-md flex items-center justify-center text-on-primary">
+<span class="material-symbols-outlined">bookmark_border</span>
+</button>
+</div>
+</div>
+<!-- Hero Image Section -->
+<section class="relative w-full h-[40vh] md:h-[60vh] bg-primary">
+<div class="absolute inset-0 bg-gradient-to-t from-primary/80 to-transparent z-10"></div>
+<img class="w-full h-full object-cover" data-alt="A breathtaking twilight view of a luxury rooftop restaurant called Sky Garden. The setting is illuminated by warm, golden fairy lights stringing across elegant glass structures. The atmosphere is sophisticated and inviting, with meticulously set tables overlooking a glowing cityscape. Deep navy and soft gold tones dominate the mood." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCXZoP8eH0kU2UdZ_3-L87J87p_i5xg3Q_p_2qdK901_8SylauhqHxn0i6NufugRrtgajq0U3aOSpaD9NynAiNjswHXWxrcwzok3wupOxbXh2a0O7VYRWfHxbT6GGViOjm-yWY3yF4SEaDpgc2bR8rePHIbBqmTWyDTdoxXZ86oaIRAa_F35-ohlYJW7Qh2GTqA6XqsMuKtNGJySWqBQhVxmn5N4zR8-_vpIa0Nu9zk0wZieqgi1LPv4A"/>
+<!-- Floating Logo Desktop -->
+<div class="hidden md:flex absolute bottom-margin-desktop left-margin-desktop z-20 glass-card p-4 rounded-xl items-center gap-4">
+<div class="w-16 h-16 bg-primary rounded-lg flex items-center justify-center">
+<span class="material-symbols-outlined text-secondary-fixed text-[32px]">park</span>
+</div>
+<div>
+<h1 class="text-primary font-headline-md font-bold">SKY GARDEN</h1>
+<p class="text-on-surface-variant font-label-md tracking-widest uppercase">Restaurant</p>
+</div>
+</div>
+</section>
+<!-- Main Content Container -->
+<main class="max-w-7xl mx-auto px-margin-mobile md:px-margin-desktop -mt-6 md:-mt-12 relative z-20">
+<!-- Header Info Card -->
+<div class="glass-card rounded-xl p-md mb-md">
+<div class="flex justify-between items-start mb-4">
+<div>
+<h1 class="font-headline-lg-mobile md:font-headline-lg text-primary mb-2">Sky Garden Restaurant</h1>
+<div class="flex items-center gap-2 text-on-surface-variant font-body-md">
+<span class="material-symbols-outlined text-secondary-fixed" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="font-bold text-primary">4.7</span>
+<span>(1,248 reviews)</span>
+<span class="mx-2">•</span>
+<span>$$$</span>
+</div>
+</div>
+<div class="bg-secondary text-on-secondary px-3 py-1 rounded-full flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">verified</span>
+<span class="font-label-md uppercase">Premium</span>
+</div>
+</div>
+<div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 py-4 border-t border-surface-variant">
+<div class="flex items-start gap-2">
+<span class="material-symbols-outlined text-on-surface-variant mt-1">location_on</span>
+<div>
+<p class="font-title-lg text-primary">Bole, Addis Ababa</p>
+<p class="font-body-md text-on-surface-variant">Africa Avenue, Near World Bank</p>
+</div>
+</div>
+<button class="flex items-center gap-2 border border-outline px-4 py-2 rounded-lg hover:bg-surface-variant transition-colors">
+<span class="material-symbols-outlined">directions</span>
+<span class="font-title-lg">Directions</span>
+</button>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-gutter">
+<!-- Left Column: Details & Menu -->
+<div class="md:col-span-2 space-y-md">
+<!-- Quick Actions -->
+<div class="glass-card rounded-xl p-4 flex justify-around items-center">
+<button class="flex flex-col items-center gap-2 text-primary hover:text-secondary transition-colors">
+<span class="material-symbols-outlined text-[28px]">menu_book</span>
+<span class="font-label-md">Menu</span>
+</button>
+<button class="flex flex-col items-center gap-2 text-primary hover:text-secondary transition-colors">
+<span class="material-symbols-outlined text-[28px]">calendar_add_on</span>
+<span class="font-label-md">Reserve</span>
+</button>
+<button class="flex flex-col items-center gap-2 text-primary hover:text-secondary transition-colors">
+<span class="material-symbols-outlined text-[28px]">person_add</span>
+<span class="font-label-md">Follow</span>
+</button>
+<button class="flex flex-col items-center gap-2 text-primary hover:text-secondary transition-colors">
+<span class="material-symbols-outlined text-[28px]">bookmark_border</span>
+<span class="font-label-md">Save</span>
+</button>
+</div>
+<!-- Photos & Videos -->
+<div class="glass-card rounded-xl p-md">
+<div class="flex justify-between items-center mb-4">
+<h2 class="font-title-lg text-primary">Photos &amp; Videos</h2>
+<a class="text-secondary font-label-md uppercase flex items-center" href="#">View All <span class="material-symbols-outlined text-[16px]">chevron_right</span></a>
+</div>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-2">
+<div class="relative aspect-square rounded-lg overflow-hidden group">
+<img class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300" data-alt="A beautifully plated gourmet dish featuring seared scallops with a vibrant saffron purée and microgreens, set on a dark slate plate. Soft, moody lighting highlights the textures, conveying a high-end culinary experience." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCzuS77FPOIUzKoUSZwFzTV4iTpZoCFO2-xOcgNsFZjvrAYpmrH2zL7i-Mtkx0wPjUEBdQzmwRGrhTrhm8ROtDzPq04meq2WhaBgTqlklukxMAg5WpY7gYyfnKdsBkdbOiE4nfI1YZD3IIb3IJeIwU0L7K__RDmSgqT8emcTYLYafyd4hmYQrIMR8oU2MhJZIaKPxCALz3bnxFUa5WozdtjfJOD9c1RZuL15jX2UhVrPar1xVqf8gtpUA"/>
+<div class="absolute inset-0 bg-black/30 flex items-center justify-center">
+<span class="material-symbols-outlined text-white text-[32px]">play_circle</span>
+</div>
+</div>
+<img class="aspect-square w-full h-full object-cover rounded-lg" data-alt="A juicy, perfectly cooked filet mignon resting on a bed of truffle mashed potatoes, garnished with a rich red wine reduction. Shot in warm, appetizing light suitable for a luxury restaurant menu." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBIkUkYBgyoohCl64bLz1aj-BrXqMzHZ-Zglg_ng6Dy6i1V04EXbUWPN25AhOB2yrcNRJTPGepWCn6x9kpiGkxCTx51ZZE5NzDbHQiPy_3Dw7I2miQS81KtJkiV-25sb4eOu-dBpxmo4A_t1EDwWnrGQBBPzjwaTIM3WiS9EY2NTH6fzh0_fX6_g6XMBhrUPOPr15x2-O9J4yqOmljvkOTuiPaYwxY6dB6UIMEyipbz3rPC_9gaqqMwFw"/>
+<img class="aspect-square w-full h-full object-cover rounded-lg hidden md:block" data-alt="An elegant interior shot of a fine dining restaurant table set for two. Crisp white linens, sparkling crystal wine glasses, and silver cutlery sit under a modern, warm chandelier light against a deep navy backdrop." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCmOpyOVDAkBE8GkcTM0a5df4in_fqECLpU718FvL_JhCF345At-QONXJC5bjkt5AM2maptcJ1AONZmgazyxTrk9vCQ7amOq-rLXiTQypnqiC_DFh3KPXA5TA-6uzvIecIuqUn2r2w8NvhAOzgdsiYLlW_8a2j30dt68DwCmb6ALAGihTZIMY5MZANrVriMNz8H5j_dRaTOHjjAHkQe2ni82CZsTalj0ba2K7F36a5J6yi77j2GMogUcQ"/>
+<img class="aspect-square w-full h-full object-cover rounded-lg hidden md:block" data-alt="A decadent chocolate lava cake with a scoop of vanilla bean ice cream melting slightly on top, presented on an elegant white porcelain plate with artistic caramel drizzles." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCO9tgFQjtivdoDwKs1jD1-_gf3POGNL1elXNKoWVfSoj3kYAE7pDJ6Kdwhw2JKeNg7GZmzxECRXH4l2wT5Dl-MgUrnmd_GD_GV7fZC6HHLjg2Nw-cz2XZ5YPFQuFWYYWpNDPnyzINw_ylXcH0Go39IS-PAFHtbUBmhTaPMUo70jWzt07zfy0ccA8dni1sLKpdRtUWmqO60SkJ3KRQAoeTqoiNZui5OzZM9lTzDFykMryoLBfbu6SbfJw"/>
+</div>
+</div>
+<!-- About & Features Bento -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-gutter">
+<div class="glass-card rounded-xl p-md flex flex-col justify-between">
+<div>
+<h2 class="font-title-lg text-primary mb-2">About Sky Garden</h2>
+<p class="font-body-md text-on-surface-variant line-clamp-4">Sky Garden offers a unique fine dining experience with beautiful ambiance, top-quality dishes, and exceptional service. Enjoy our panoramic city views while indulging in a culinary journey crafted by our award-winning chefs.</p>
+</div>
+<div class="mt-4 flex flex-wrap gap-2">
+<span class="bg-primary text-on-primary px-3 py-1 rounded-full font-label-md flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">local_pizza</span> Italian</span>
+<span class="bg-surface-variant text-primary border border-outline-variant px-3 py-1 rounded-full font-label-md flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">set_meal</span> Continental</span>
+</div>
+</div>
+<div class="glass-card rounded-xl p-md space-y-4">
+<div class="flex items-start gap-3">
+<span class="material-symbols-outlined text-secondary">star</span>
+<div>
+<h3 class="font-label-md uppercase text-primary">Highlights</h3>
+<p class="font-body-md text-on-surface-variant">Rooftop Dining • Live Music</p>
+</div>
+</div>
+<div class="flex items-start gap-3">
+<span class="material-symbols-outlined text-secondary">local_parking</span>
+<div>
+<h3 class="font-label-md uppercase text-primary">Parking</h3>
+<p class="font-body-md text-on-surface-variant">Valet Available • Free Parking</p>
+</div>
+</div>
+<div class="flex items-start gap-3">
+<span class="material-symbols-outlined text-secondary">schedule</span>
+<div>
+<h3 class="font-label-md uppercase text-primary">Opening Hours</h3>
+<p class="font-body-md text-on-surface-variant">Mon - Sun: 8:00 AM - 11:00 PM</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Right Column: Booking Widget & Map -->
+<div class="space-y-md">
+<!-- Reservation Widget -->
+<div class="glass-card rounded-xl p-md bg-white">
+<h2 class="font-headline-md text-primary border-b border-surface-variant pb-4 mb-4">Reserve a Table</h2>
+<form class="space-y-4">
+<div>
+<label class="font-label-md text-on-surface-variant block mb-1">Date</label>
+<div class="relative">
+<input class="w-full border-outline-variant rounded-lg font-body-md text-primary focus:border-primary focus:ring-primary py-2 px-3 pl-10" type="date" value="2024-10-25"/>
+<span class="material-symbols-outlined absolute left-3 top-2.5 text-on-surface-variant">calendar_today</span>
+</div>
+</div>
+<div>
+<label class="font-label-md text-on-surface-variant block mb-2">Time</label>
+<div class="grid grid-cols-4 gap-2">
+<button class="border border-outline-variant rounded-lg py-2 font-body-md text-primary hover:border-primary" type="button">6:00 PM</button>
+<button class="border border-outline-variant rounded-lg py-2 font-body-md text-primary hover:border-primary" type="button">6:30 PM</button>
+<button class="bg-secondary text-on-secondary rounded-lg py-2 font-body-md font-bold shadow-md" type="button">7:00 PM</button>
+<button class="border border-outline-variant rounded-lg py-2 font-body-md text-primary hover:border-primary" type="button">7:30 PM</button>
+</div>
+</div>
+<div>
+<label class="font-label-md text-on-surface-variant block mb-1">Guests</label>
+<div class="flex items-center border border-outline-variant rounded-lg p-1">
+<span class="material-symbols-outlined text-on-surface-variant ml-2">group</span>
+<span class="font-body-md text-primary ml-2 flex-grow">2 Guests</span>
+<button class="p-1 text-on-surface-variant hover:text-primary" type="button"><span class="material-symbols-outlined">remove</span></button>
+<button class="p-1 text-on-surface-variant hover:text-primary" type="button"><span class="material-symbols-outlined">add</span></button>
+</div>
+</div>
+<button class="w-full bg-secondary-fixed text-on-secondary-fixed font-title-lg font-bold py-3 rounded-lg mt-2 shadow-lg hover:bg-secondary-container transition-colors" type="button">
+                            Confirm Reservation
+                        </button>
+<div class="space-y-2 mt-4 text-on-surface-variant font-body-md text-sm">
+<p class="flex items-center gap-2"><span class="material-symbols-outlined text-[16px] text-green-600">check_circle</span> Instant Confirmation</p>
+<p class="flex items-center gap-2"><span class="material-symbols-outlined text-[16px] text-green-600">check_circle</span> No Prepayment Required</p>
+</div>
+</form>
+</div>
+<!-- Location Map Snippet -->
+<div class="glass-card rounded-xl overflow-hidden">
+<img class="w-full h-48 object-cover" data-alt="A clean, modern stylized map showing a route to a destination in Addis Ababa. The map uses a light theme with subtle blue route lines and clear pin markers, fitting a premium logistics app interface." data-location="Addis Ababa" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB6by_gfdGHG2sM02MCgONqAuEjL2DFzGDK9Dkt6fTZEW3CfV7d87wXsJD980WtJe6B9cydu6FKh4aJU5tuLTWBQqBoI9lJFlJmDxJNePWv7OhOg7hGaxlnnakItsYsU87dOrp82Gnj63XLS9UZiyTnvBEl6d8gV4kmXfHx5mnJllugDvNW6GJoryBToMucZCb8RLPphTNrwWKg71gJOl6Hd7wz8IYWqWDbACvU_PPVBroyhV93bTxJxg"/>
+<div class="p-4 bg-white">
+<p class="font-title-lg text-primary">16 min (5.4 km)</p>
+<p class="font-body-md text-on-surface-variant mb-4">Fastest route now due to traffic</p>
+<div class="grid grid-cols-2 gap-2">
+<button class="bg-secondary-fixed text-on-secondary-fixed font-title-lg py-2 rounded-lg flex items-center justify-center gap-2">
+<span class="material-symbols-outlined">navigation</span> GO
+                            </button>
+<button class="border border-primary text-primary font-title-lg py-2 rounded-lg flex items-center justify-center gap-2">
+<span class="material-symbols-outlined">directions_car</span> BOOK RIDE
+                            </button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Bottom Navigation (Mobile Only) -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full z-50 flex justify-around items-center py-3 bg-primary-container shadow-[0_-4px_20px_rgba(0,0,0,0.1)]">
+<a class="flex flex-col items-center justify-center text-on-primary-container opacity-60 hover:text-secondary-fixed-dim transition-all" href="#">
+<span class="material-symbols-outlined">home</span>
+<span class="text-label-md font-label-md mt-1">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-secondary-fixed font-bold scale-110 transition-transform duration-100" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">restaurant</span>
+<span class="text-label-md font-label-md mt-1">Restaurants</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-primary-container opacity-60 hover:text-secondary-fixed-dim transition-all" href="#">
+<span class="material-symbols-outlined">event</span>
+<span class="text-label-md font-label-md mt-1">Events</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-primary-container opacity-60 hover:text-secondary-fixed-dim transition-all" href="#">
+<span class="material-symbols-outlined">directions_car</span>
+<span class="text-label-md font-label-md mt-1">Ride</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-primary-container opacity-60 hover:text-secondary-fixed-dim transition-all" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="text-label-md font-label-md mt-1">Profile</span>
+</a>
+</nav>
+<!-- Footer (Web Only) -->
+<footer class="hidden md:block w-full py-xl px-margin-desktop bg-primary-container border-t border-on-primary-container/20 mt-xl">
+<div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-lg">
+<div>
+<span class="text-headline-md font-headline-md text-secondary-fixed">FoodRide</span>
+<p class="text-on-primary-container opacity-70 mt-2 font-body-md">Discover. Reserve. Go.</p>
+</div>
+<div class="grid grid-cols-2 gap-4 text-on-primary font-body-md">
+<a class="hover:text-secondary-fixed transition-colors" href="#">Discover</a>
+<a class="hover:text-secondary-fixed transition-colors" href="#">Book</a>
+<a class="hover:text-secondary-fixed transition-colors" href="#">Go</a>
+<a class="hover:text-secondary-fixed transition-colors" href="#">Enjoy</a>
+<a class="hover:text-secondary-fixed transition-colors" href="#">Terms</a>
+<a class="hover:text-secondary-fixed transition-colors" href="#">Privacy</a>
+</div>
+<div class="text-right text-on-primary-container opacity-70 font-body-md">
+                © 2024 FoodRide Global. All rights reserved.
+            </div>
+</div>
+</footer>
+</body></html>

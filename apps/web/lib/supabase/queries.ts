@@ -305,7 +305,7 @@ function buildSampleRestaurantDetail(item: CatalogueItem): RestaurantDetail {
     branches: [
       {
         id: `${item.id}-branch-1`,
-        branchName: `${item.name} â€” ${item.location}`,
+        branchName: `${item.name} — ${item.location}`,
         address: item.location,
         latitude: null,
         longitude: null,
@@ -357,6 +357,138 @@ function nextOccurrence(detail: string): Date {
   return result
 }
 
+export type OrganizerEvent = {
+  id: string
+  title: string
+  category: string
+  venueName: string
+  startDateTime: string
+  coverImageUrl: string | null
+  status: string
+  priceFrom: number | null
+}
+
+export type OrganizerDetail = {
+  id: string
+  name: string
+  bio: string | null
+  logoUrl: string | null
+  coverUrl: string | null
+  isVerified: boolean
+  city: string
+  followerCount: number
+  rating: string | null
+  events: OrganizerEvent[]
+}
+
+export async function getOrganizerDetail(id: string): Promise<OrganizerDetail | null> {
+  const supabase = await createClient()
+
+  const { data: org, error } = await supabase
+    .from('organizers')
+    .select('id, name, bio, logo_url, cover_url, is_verified, city, follower_count, rating')
+    .eq('id', id)
+    .maybeSingle()
+
+  if (error || !org) {
+    const sample = fallbackOrganizers.find((o) => o.id === id)
+    return sample ?? null
+  }
+
+  const { data: events } = await supabase
+    .from('events')
+    .select(
+      'id, title, category, venue_name, starts_at, end_date_time, cover_image_url, status, ticket_types(price)'
+    )
+    .eq('organizer_id', id)
+    .eq('status', 'published')
+    .order('starts_at', { ascending: true })
+
+  const mappedEvents: OrganizerEvent[] = (events ?? []).map((e: any) => {
+    const prices = (e.ticket_types ?? [])
+      .map((t: any) => Number(t.price))
+      .filter((n: number) => !Number.isNaN(n))
+    return {
+      id: e.id,
+      title: e.title,
+      category: e.category ?? '',
+      venueName: e.venue_name ?? '',
+      startDateTime: e.starts_at ?? '',
+      coverImageUrl: e.cover_image_url ?? null,
+      status: e.status,
+      priceFrom: prices.length ? Math.min(...prices) : null,
+    }
+  })
+
+  return {
+    id: org.id,
+    name: org.name,
+    bio: org.bio ?? null,
+    logoUrl: org.logo_url ?? null,
+    coverUrl: org.cover_url ?? null,
+    isVerified: org.is_verified ?? false,
+    city: org.city ?? 'Addis Ababa',
+    followerCount: org.follower_count ?? 0,
+    rating: org.rating != null ? String(org.rating) : null,
+    events: mappedEvents,
+  }
+}
+
+const fallbackOrganizers: OrganizerDetail[] = [
+  {
+    id: 'sample-organizer',
+    name: 'UrbanExplore Presents',
+    bio: 'Addis Ababa’s resident curators of food, music and after-dark culture. We stage the city’s most-talked-about nights — and the quiet ones worth leaving the house for.',
+    logoUrl: null,
+    coverUrl: null,
+    isVerified: true,
+    city: 'Addis Ababa',
+    followerCount: 12400,
+    rating: '4.8',
+    events: fallbackEvents.map((e) => {
+      const detail = buildSampleEventDetail(e)
+      const prices = detail.ticketTypes.map((t) => t.price)
+      return {
+        id: detail.id,
+        title: detail.title,
+        category: detail.category,
+        venueName: detail.venueName,
+        startDateTime: detail.startDateTime,
+        coverImageUrl: detail.coverImageUrl,
+        status: detail.status,
+        priceFrom: prices.length ? Math.min(...prices) : null,
+      }
+    }),
+  },
+  {
+    id: 'addis-nightlife-collective',
+    name: 'Addis Nightlife Collective',
+    bio: 'A roaming collective of DJs, chefs and makers. No fixed venue — we turn warehouses, rooftops and galleries into one night only.',
+    logoUrl: null,
+    coverUrl: null,
+    isVerified: true,
+    city: 'Addis Ababa',
+    followerCount: 8120,
+    rating: '4.7',
+    events: fallbackEvents
+      .filter((e) => ['1', '3', '4'].includes(e.id))
+      .map((e) => {
+        const detail = buildSampleEventDetail(e)
+        const prices = detail.ticketTypes.map((t) => t.price)
+        return {
+          id: detail.id,
+          title: detail.title,
+          category: detail.category,
+          venueName: detail.venueName,
+          startDateTime: detail.startDateTime,
+          coverImageUrl: detail.coverImageUrl,
+          status: detail.status,
+          priceFrom: prices.length ? Math.min(...prices) : null,
+        }
+      }),
+  },
+]
+
 function buildSampleEventDetail(item: CatalogueItem): EventDetail {
   const start = nextOccurrence(item.detail)
   const end = new Date(start.getTime() + 3 * 60 * 60 * 1000)
@@ -364,7 +496,7 @@ function buildSampleEventDetail(item: CatalogueItem): EventDetail {
   return {
     id: item.id,
     title: item.name,
-    description: `${item.name} â€” ${item.category}. Join us for a memorable experience at ${item.location}. Doors open 30 minutes before start.`,
+    description: `${item.name} — ${item.category}. Join us for a memorable experience at ${item.location}. Doors open 30 minutes before start.`,
     category: item.category,
     venueName: item.location,
     latitude: null,

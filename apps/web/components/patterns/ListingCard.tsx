@@ -65,16 +65,15 @@ export function ListingCard({ item, type, href, saved, className }: ListingCardP
     <Link
       href={href}
       className={cn(
-        "group flex w-full items-center gap-3 rounded-2xl border border-app-border bg-app-panel p-3 transition-all duration-200 hover:border-gold/40 hover:shadow-[var(--shadow-md)] active:scale-[0.99]",
+        "group flex w-full items-center gap-3 rounded-2xl border border-app-border bg-app-card p-3 shadow-soft transition-all duration-200 hover:-translate-y-0.5 hover:border-gold/40 hover:shadow-card active:scale-[0.99]",
         className
       )}
     >
       <div className="relative shrink-0">
         <Thumb item={item} className="size-16 rounded-xl" initialClass="font-serif text-2xl font-bold text-gold-soft" />
-        <button
-          type="button"
-          aria-label={saved ? "Unsave" : "Save"}
-          className="absolute right-1 top-1 flex size-6 items-center justify-center rounded-full bg-app-bg/60 backdrop-blur-sm"
+        <span
+          aria-label={saved ? "Saved" : "Not saved"}
+          className="absolute right-1 top-1 flex size-6 items-center justify-center rounded-full bg-app-bg/70 backdrop-blur-sm"
         >
           <Heart
             className={cn(
@@ -82,7 +81,7 @@ export function ListingCard({ item, type, href, saved, className }: ListingCardP
               saved ? "fill-danger text-danger" : "text-app-fg/70"
             )}
           />
-        </button>
+        </span>
       </div>
 
       <div className="min-w-0 flex-1">
@@ -115,7 +114,7 @@ export function ListingCardLarge({ item, type, href, className }: ListingCardPro
     <Link
       href={href}
       className={cn(
-        "group flex w-full flex-col overflow-hidden rounded-2xl border border-app-border bg-app-panel transition-all duration-200 hover:border-gold/40 hover:shadow-[var(--shadow-md)] active:scale-[0.99]",
+        "group flex w-full flex-col overflow-hidden rounded-2xl border border-app-border bg-app-card shadow-soft transition-all duration-200 hover:-translate-y-0.5 hover:border-gold/40 hover:shadow-card active:scale-[0.99]",
         className
       )}
     >

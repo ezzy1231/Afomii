@@ -23,7 +23,7 @@ export default function MobileNavigation({ isAuthenticated }: { isAuthenticated:
 
   return (
     <nav
-      className="fixed inset-x-3 bottom-[calc(0.75rem+env(safe-area-inset-bottom))] z-50 mx-auto flex max-w-md items-center justify-around rounded-3xl border border-app-border bg-app-panel/95 px-2 py-1.5 nav-blur shadow-[var(--shadow-lg)] md:hidden"
+      className="fixed inset-x-3 bottom-[calc(0.75rem+env(safe-area-inset-bottom))] z-50 mx-auto flex max-w-md items-center justify-around rounded-2xl border border-app-border bg-app-card/95 px-1.5 py-1.5 nav-blur shadow-[0_16px_40px_rgba(2,12,28,0.22)] md:hidden"
       aria-label="Primary"
     >
       {items.map(({ href, label, icon: Icon }) => {
@@ -34,15 +34,15 @@ export default function MobileNavigation({ isAuthenticated }: { isAuthenticated:
             href={href}
             aria-current={active ? 'page' : undefined}
             className={cn(
-              'flex min-h-12 min-w-14 flex-col items-center justify-center gap-0.5 rounded-2xl px-3 py-1 text-[10px] font-medium transition-all active:scale-90',
-              active && 'bg-gold/10'
+              'flex min-h-12 min-w-12 flex-col items-center justify-center gap-0.5 rounded-xl px-2 py-1 text-[10px] font-medium transition-all active:scale-90',
+              active && 'bg-navy text-ivory shadow-sm'
             )}
           >
             <Icon
-              className={cn('size-[18px]', active ? 'text-gold-soft' : 'text-app-muted')}
+              className={cn('size-[18px]', active ? 'text-gold' : 'text-app-muted')}
               strokeWidth={active ? 2.4 : 1.8}
             />
-            <span className={cn(active ? 'font-semibold text-gold-soft' : 'text-app-muted')}>
+            <span className={cn(active ? 'font-semibold text-ivory' : 'text-app-muted')}>
               {label}
             </span>
           </Link>
@@ -52,15 +52,15 @@ export default function MobileNavigation({ isAuthenticated }: { isAuthenticated:
         href={accountHref}
         aria-current={accountActive ? 'page' : undefined}
         className={cn(
-          'flex min-h-12 min-w-14 flex-col items-center justify-center gap-0.5 rounded-2xl px-3 py-1 text-[10px] font-medium transition-all active:scale-90',
-          accountActive && 'bg-gold/10'
+          'flex min-h-12 min-w-12 flex-col items-center justify-center gap-0.5 rounded-xl px-2 py-1 text-[10px] font-medium transition-all active:scale-90',
+          accountActive && 'bg-navy text-ivory shadow-sm'
         )}
       >
         <UserRound
-          className={cn('size-[18px]', accountActive ? 'text-gold-soft' : 'text-app-muted')}
+          className={cn('size-[18px]', accountActive ? 'text-gold' : 'text-app-muted')}
           strokeWidth={accountActive ? 2.4 : 1.8}
         />
-        <span className={cn(accountActive ? 'font-semibold text-gold-soft' : 'text-app-muted')}>
+        <span className={cn(accountActive ? 'font-semibold text-ivory' : 'text-app-muted')}>
           Account
         </span>
       </Link>

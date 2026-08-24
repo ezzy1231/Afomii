@@ -18,10 +18,10 @@ export function SectionHeader({
   className,
 }: SectionHeaderProps) {
   return (
-    <div className={cn("mb-4 flex items-end justify-between gap-4", className)}>
+    <div className={cn("mb-5 flex items-end justify-between gap-4", className)}>
       <div className="min-w-0">
         {eyebrow && (
-          <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-gold-soft">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gold-soft">
             {eyebrow}
           </p>
         )}
@@ -32,7 +32,7 @@ export function SectionHeader({
       {href && (
         <Link
           href={href}
-          className="inline-flex shrink-0 items-center gap-0.5 rounded-full px-2 py-1 text-sm font-semibold text-gold-soft transition-colors hover:text-gold"
+          className="inline-flex min-h-10 shrink-0 items-center gap-0.5 rounded-full px-3 py-1 text-sm font-semibold text-gold-soft transition-colors hover:bg-gold/10 hover:text-gold"
         >
           {actionLabel}
           <ChevronRight className="size-4" />

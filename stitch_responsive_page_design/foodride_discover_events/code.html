@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>FoodRide - Events</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&amp;family=Inter:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-primary": "#ffffff",
+                        "surface-container-high": "#eae7e7",
+                        "tertiary": "#060605",
+                        "inverse-on-surface": "#f3f0f0",
+                        "secondary-fixed-dim": "#dfc391",
+                        "on-error": "#ffffff",
+                        "tertiary-fixed-dim": "#c8c6c2",
+                        "primary-container": "#0b1f3a",
+                        "on-tertiary-fixed-variant": "#474743",
+                        "secondary-container": "#f9dca8",
+                        "surface-variant": "#e4e2e1",
+                        "on-primary-container": "#7587a7",
+                        "surface-container-low": "#f6f3f2",
+                        "primary": "#000615",
+                        "surface-tint": "#4d5f7d",
+                        "on-surface-variant": "#44474d",
+                        "inverse-surface": "#303030",
+                        "outline-variant": "#c4c6ce",
+                        "secondary": "#705b32",
+                        "on-primary-fixed": "#071c36",
+                        "background": "#fcf9f8",
+                        "secondary-fixed": "#fcdfab",
+                        "on-secondary": "#ffffff",
+                        "on-surface": "#1b1c1c",
+                        "on-tertiary": "#ffffff",
+                        "outline": "#75777e",
+                        "primary-fixed-dim": "#b5c7ea",
+                        "surface-dim": "#dcd9d9",
+                        "on-tertiary-container": "#888682",
+                        "error": "#ba1a1a",
+                        "tertiary-fixed": "#e5e2dd",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container": "#f0eded",
+                        "on-background": "#1b1c1c",
+                        "on-secondary-fixed": "#261900",
+                        "inverse-primary": "#b5c7ea",
+                        "surface": "#fcf9f8",
+                        "on-error-container": "#93000a",
+                        "on-primary-fixed-variant": "#364764",
+                        "on-secondary-container": "#756036",
+                        "surface-bright": "#fcf9f8",
+                        "surface-container-highest": "#e4e2e1",
+                        "on-secondary-fixed-variant": "#57441d",
+                        "on-tertiary-fixed": "#1c1c19",
+                        "tertiary-container": "#1f1f1c",
+                        "error-container": "#ffdad6",
+                        "primary-fixed": "#d6e3ff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "xs": "4px",
+                        "lg": "40px",
+                        "md": "24px",
+                        "gutter": "16px",
+                        "margin-mobile": "16px",
+                        "sm": "12px",
+                        "xl": "64px",
+                        "base": "8px",
+                        "margin-desktop": "32px"
+                    },
+                    "fontFamily": {
+                        "headline-lg-mobile": ["Playfair Display"],
+                        "body-lg": ["Inter"],
+                        "title-lg": ["Inter"],
+                        "body-md": ["Inter"],
+                        "headline-lg": ["Playfair Display"],
+                        "display-lg": ["Playfair Display"],
+                        "headline-md": ["Playfair Display"],
+                        "label-md": ["Inter"]
+                    },
+                    "fontSize": {
+                        "headline-lg-mobile": ["28px", { "lineHeight": "36px", "fontWeight": "700" }],
+                        "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "title-lg": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "fontWeight": "700" }],
+                        "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { background-color: #F8F5F0; }
+        .ambient-shadow { box-shadow: 0 10px 40px -10px rgba(11, 31, 58, 0.1); }
+    </style>
+</head>
+<body class="font-body-md text-on-surface antialiased pb-24 md:pb-0">
+<!-- TopAppBar (Web) -->
+<header class="hidden md:flex bg-primary-container text-on-primary justify-between items-center w-full px-margin-desktop py-4 sticky top-0 z-40">
+<div class="text-title-lg font-headline-lg text-secondary-fixed">FoodRide</div>
+<nav class="flex gap-lg">
+<a class="text-on-primary-container opacity-80 text-label-md font-label-md hover:bg-primary/10 transition-colors px-2 py-1 rounded" href="#">Home</a>
+<a class="text-on-primary-container opacity-80 text-label-md font-label-md hover:bg-primary/10 transition-colors px-2 py-1 rounded" href="#">Restaurants</a>
+<a class="text-secondary-fixed font-bold border-b-2 border-secondary-fixed text-label-md font-label-md hover:bg-primary/10 transition-colors px-2 py-1 rounded" href="#">Events</a>
+<a class="text-on-primary-container opacity-80 text-label-md font-label-md hover:bg-primary/10 transition-colors px-2 py-1 rounded" href="#">Ride</a>
+<a class="text-on-primary-container opacity-80 text-label-md font-label-md hover:bg-primary/10 transition-colors px-2 py-1 rounded" href="#">Profile</a>
+</nav>
+<div class="flex items-center">
+<button class="p-2 hover:bg-primary/10 rounded-full transition-colors">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+</div>
+</header>
+<!-- TopAppBar (Mobile) -->
+<header class="md:hidden bg-primary-container text-on-primary flex justify-between items-center w-full px-margin-mobile py-4 sticky top-0 z-40">
+<div class="text-title-lg font-headline-lg text-secondary-fixed">FoodRide</div>
+<button class="p-2 hover:bg-primary/10 rounded-full transition-colors">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+</header>
+<main class="max-w-7xl mx-auto px-margin-mobile md:px-margin-desktop py-lg">
+<!-- Header & Search -->
+<section class="mb-lg">
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile md:font-display-lg md:text-display-lg mb-sm text-primary">Exclusive Events</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant mb-md max-w-2xl">Discover and book premium experiences, from intimate jazz nights to grand galas. Arrive in style with FoodRide.</p>
+<div class="bg-surface-container-lowest p-sm rounded-lg ambient-shadow flex flex-col md:flex-row gap-sm items-center border border-surface-variant">
+<div class="flex-1 w-full relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+<input class="w-full bg-transparent border-none pl-10 focus:ring-0 text-body-lg font-body-lg text-on-surface placeholder:text-outline h-12" placeholder="Search events..." type="text"/>
+</div>
+<div class="h-px md:h-8 w-full md:w-px bg-surface-variant"></div>
+<div class="flex gap-2 w-full md:w-auto overflow-x-auto pb-2 md:pb-0 scrollbar-hide">
+<button class="whitespace-nowrap px-4 py-2 rounded-full bg-primary text-on-primary font-label-md text-label-md flex items-center gap-1">
+<span>All Dates</span>
+<span class="material-symbols-outlined text-[16px]">expand_more</span>
+</button>
+<button class="whitespace-nowrap px-4 py-2 rounded-full border border-outline-variant text-on-surface font-label-md text-label-md hover:bg-surface-container-low transition-colors">This Weekend</button>
+<button class="whitespace-nowrap px-4 py-2 rounded-full border border-outline-variant text-on-surface font-label-md text-label-md hover:bg-surface-container-low transition-colors">Next Week</button>
+</div>
+</div>
+<div class="flex gap-2 mt-md overflow-x-auto pb-2 scrollbar-hide">
+<button class="whitespace-nowrap px-4 py-1.5 rounded-full bg-secondary-container text-on-secondary-container font-label-md text-label-md border border-transparent">All Categories</button>
+<button class="whitespace-nowrap px-4 py-1.5 rounded-full border border-outline-variant text-on-surface font-label-md text-label-md hover:bg-surface-container-low transition-colors flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">music_note</span> Jazz</button>
+<button class="whitespace-nowrap px-4 py-1.5 rounded-full border border-outline-variant text-on-surface font-label-md text-label-md hover:bg-surface-container-low transition-colors flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">local_activity</span> Concerts</button>
+<button class="whitespace-nowrap px-4 py-1.5 rounded-full border border-outline-variant text-on-surface font-label-md text-label-md hover:bg-surface-container-low transition-colors flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">festival</span> Festivals</button>
+<button class="whitespace-nowrap px-4 py-1.5 rounded-full border border-outline-variant text-on-surface font-label-md text-label-md hover:bg-surface-container-low transition-colors flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">wine_bar</span> Gala</button>
+</div>
+</section>
+<!-- Featured Event -->
+<section class="mb-xl">
+<div class="relative rounded-xl overflow-hidden h-[400px] md:h-[500px] group flex flex-col justify-end">
+<div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBTiGcolYtl4lq8JFNCNwYyqHGRp-A7nMyCqK2naLMWQQ3HPUeoED7tJsInVzIVMzAu7h6SOlf_Esy3ncQNNFIv4JmSo93edFaJTFoaKHsl9YTw-43iChcZs7tlnXROsW-yOMUnxg6IDhJ329XvZd7wT2vzrKiZXL9SE91kp9g8I9BHkRmbou_PEqjBRe8-Eh-xHTe3gUQ-2g4MFtVMXpxbie4e00jpT3G7XfGQAWYJVmPUINBH4_exTF3JbJBQo2CHVBs')"></div>
+<div class="absolute inset-0 bg-gradient-to-t from-primary/90 via-primary/40 to-transparent"></div>
+<div class="relative p-md md:p-lg z-10 w-full md:w-2/3">
+<span class="inline-block px-2 py-1 bg-secondary-fixed text-on-secondary-fixed font-label-md text-label-md rounded mb-sm uppercase tracking-wider">Featured</span>
+<h2 class="font-headline-lg-mobile text-headline-lg-mobile md:font-display-lg md:text-display-lg text-on-primary mb-2">Symphony Under the Stars</h2>
+<p class="font-body-lg text-body-lg text-inverse-primary mb-md line-clamp-2">An exclusive evening of classical masterpieces performed by the City Philharmonic. Includes premium seating and dedicated VIP car service drop-off.</p>
+<div class="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
+<div class="flex items-center gap-2 text-on-primary/80 font-body-md text-body-md">
+<span class="material-symbols-outlined text-[18px]">calendar_today</span>
+<span>Sat, Oct 14 • 7:30 PM</span>
+</div>
+<div class="flex items-center gap-2 text-on-primary/80 font-body-md text-body-md">
+<span class="material-symbols-outlined text-[18px]">location_on</span>
+<span>Grand Botanic Gardens</span>
+</div>
+</div>
+<button class="mt-md px-6 py-3 bg-secondary-fixed text-on-secondary-fixed font-label-md text-label-md rounded-lg hover:bg-secondary-container transition-colors flex items-center gap-2 w-full sm:w-auto justify-center">
+                        Book VIP Experience
+                        <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</button>
+</div>
+</div>
+</section>
+<!-- Event Grid -->
+<section>
+<h3 class="font-headline-md text-headline-md text-primary mb-md border-b border-surface-variant pb-2">Upcoming Experiences</h3>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-md">
+<!-- Card 1 -->
+<div class="bg-surface-container-lowest rounded-lg ambient-shadow overflow-hidden flex flex-col border border-surface-variant hover:border-outline-variant transition-colors group cursor-pointer">
+<div class="h-48 relative overflow-hidden">
+<div class="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-105" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuA6mBH_C_rMRzbsN17J3qpENMDic6U6uwVDmJVdq1aUBH1_W2AHP-Tu_tfdRFi8du3p6L5t4X_ioTHJw0IwkVYfE27xb97cYb3Md6GERSV9VdhZ46QfSG4AUo9hdydGMI1GmaGzjxf95V_ZfeCPplv6KrlguiEewKZgD5g0pa535A9yPYHCBKKWzF5jtN5R5X_pXctCPu3ZYnO5aRcgB1kT-rOn3p_KalICuBLyerSxeonCHigC6mH9PK9zxneHSZcKwqc')"></div>
+<div class="absolute top-2 right-2 bg-surface-container-lowest/90 backdrop-blur-sm px-2 py-1 rounded text-primary font-label-md text-label-md flex flex-col items-center shadow-sm">
+<span class="text-[10px] uppercase text-outline">Oct</span>
+<span class="text-body-lg font-bold leading-none">20</span>
+</div>
+</div>
+<div class="p-sm flex-1 flex flex-col">
+<div class="flex justify-between items-start mb-1">
+<span class="text-xs font-label-md text-secondary tracking-wider uppercase">Jazz</span>
+</div>
+<h4 class="font-headline-md text-[20px] leading-tight text-primary mb-1">Midnight Blue Note</h4>
+<p class="font-body-md text-body-md text-on-surface-variant mb-4 flex-1">Intimate club setting featuring the Marcus Trio. Two drink minimum.</p>
+<div class="border-t border-surface-variant pt-3 flex justify-between items-center">
+<div class="text-sm font-label-md text-outline">Starts at $45</div>
+<button class="px-4 py-2 bg-primary text-on-primary font-label-md text-label-md rounded hover:bg-primary-container transition-colors">Book Tickets</button>
+</div>
+</div>
+</div>
+<!-- Card 2 (Placeholder Image) -->
+<div class="bg-surface-container-lowest rounded-lg ambient-shadow overflow-hidden flex flex-col border border-surface-variant hover:border-outline-variant transition-colors group cursor-pointer">
+<div class="h-48 relative overflow-hidden">
+<div class="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-105" data-alt="A sophisticated gala event setting. Elegant tables arranged in a grand ballroom with crystal chandeliers providing warm, golden lighting. Attendees in formal wear mingle in the background. High contrast, luxury photography style highlighting the premium atmosphere. Deep navy shadows and sparkling light accents." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAaPuTDEXQG6G2BXPfDi6rvjn5KO1Vrs0G_ES5ZzJ87KWaKNA0GaEBK5YFzAoXpl6NIRWp7ZBmGBWFgxnminztBkBl2iTgbnc4d7yIA0xtGAtjaR-gTpZlqXgm7f4DWzqCmz8wleziCHkPdJ-0xoBMAFWMa-oHqaTpxVvcuLQ-mlG1iJZFu1RARTfpFK4N8_W_Ak7F7yaU7RQv9uBeKMmqr4gsPCWscO9tFFVKmZGlEBUPOCMnrQYol_A')"></div>
+<div class="absolute top-2 right-2 bg-surface-container-lowest/90 backdrop-blur-sm px-2 py-1 rounded text-primary font-label-md text-label-md flex flex-col items-center shadow-sm">
+<span class="text-[10px] uppercase text-outline">Nov</span>
+<span class="text-body-lg font-bold leading-none">05</span>
+</div>
+</div>
+<div class="p-sm flex-1 flex flex-col">
+<div class="flex justify-between items-start mb-1">
+<span class="text-xs font-label-md text-secondary tracking-wider uppercase">Gala</span>
+</div>
+<h4 class="font-headline-md text-[20px] leading-tight text-primary mb-1">Autumn Charity Ball</h4>
+<p class="font-body-md text-body-md text-on-surface-variant mb-4 flex-1">Annual fundraiser featuring a 5-course dinner and silent auction. Black tie required.</p>
+<div class="border-t border-surface-variant pt-3 flex justify-between items-center">
+<div class="text-sm font-label-md text-outline">Starts at $250</div>
+<button class="px-4 py-2 bg-primary text-on-primary font-label-md text-label-md rounded hover:bg-primary-container transition-colors">Book Tickets</button>
+</div>
+</div>
+</div>
+<!-- Card 3 (Placeholder Image) -->
+<div class="bg-surface-container-lowest rounded-lg ambient-shadow overflow-hidden flex flex-col border border-surface-variant hover:border-outline-variant transition-colors group cursor-pointer">
+<div class="h-48 relative overflow-hidden">
+<div class="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-105" data-alt="A high-end culinary festival outdoors during golden hour. Neatly arranged tasting booths with white canopies on a manicured lawn. Patrons holding wine glasses interacting with chefs. Warm, inviting sunlight casting long shadows. Premium, lifestyle editorial aesthetic." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuConXwaDhg4RYEhPgAzQy8sy59tKusHnoOKNDABi-ggDJJv37Xj91sj7lYBuLsRz_0FsYP-bVNR1CGMM27hGUwRtI_GGH5OLoycepj0lIqxFLRnZIqgt1S8lKOPVLXYBvxHs21Xb0vlZORdV7afUOjSmJEs9OHnoESbs5jnrbLC7UiY2yUdDdty5eHpO9Vz1w5Lm0QJcuoV5pbXZRKO4a3q0byjqNea9DnTO35gwvrscn3C6KBP7tnpQA')"></div>
+<div class="absolute top-2 right-2 bg-surface-container-lowest/90 backdrop-blur-sm px-2 py-1 rounded text-primary font-label-md text-label-md flex flex-col items-center shadow-sm">
+<span class="text-[10px] uppercase text-outline">Nov</span>
+<span class="text-body-lg font-bold leading-none">12</span>
+</div>
+</div>
+<div class="p-sm flex-1 flex flex-col">
+<div class="flex justify-between items-start mb-1">
+<span class="text-xs font-label-md text-secondary tracking-wider uppercase">Festival</span>
+</div>
+<h4 class="font-headline-md text-[20px] leading-tight text-primary mb-1">Taste of the Valley</h4>
+<p class="font-body-md text-body-md text-on-surface-variant mb-4 flex-1">Exclusive tasting event featuring 20 top regional chefs and boutique wineries.</p>
+<div class="border-t border-surface-variant pt-3 flex justify-between items-center">
+<div class="text-sm font-label-md text-outline">Starts at $120</div>
+<button class="px-4 py-2 bg-primary text-on-primary font-label-md text-label-md rounded hover:bg-primary-container transition-colors">Book Tickets</button>
+</div>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar (Mobile) -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full z-50 flex justify-around items-center py-3 bg-primary-container shadow-lg">
+<a class="flex flex-col items-center justify-center text-on-primary-container opacity-60 hover:text-secondary-fixed-dim transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="home">home</span>
+<span class="text-label-md font-label-md mt-1">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-primary-container opacity-60 hover:text-secondary-fixed-dim transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="restaurant">restaurant</span>
+<span class="text-label-md font-label-md mt-1">Restaurants</span>
+</a>
+<a class="flex flex-col items-center justify-center text-secondary-fixed font-bold scale-110 hover:text-secondary-fixed-dim transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="event" style="font-variation-settings: 'FILL' 1;">event</span>
+<span class="text-label-md font-label-md mt-1">Events</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-primary-container opacity-60 hover:text-secondary-fixed-dim transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="directions_car">directions_car</span>
+<span class="text-label-md font-label-md mt-1">Ride</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-primary-container opacity-60 hover:text-secondary-fixed-dim transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+<span class="text-label-md font-label-md mt-1">Profile</span>
+</a>
+</nav>
+<!-- Footer -->
+<footer class="bg-primary-container text-on-primary w-full py-xl px-margin-desktop mt-xl">
+<div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-lg border-t border-on-primary-container/20 pt-lg">
+<div>
+<div class="text-headline-md font-headline-md text-secondary-fixed mb-4">FoodRide</div>
+<p class="text-body-md font-body-md text-on-primary-container opacity-70">Premium hospitality and mobility experiences.</p>
+</div>
+<div class="flex flex-col gap-2">
+<a class="text-on-primary-container opacity-70 hover:text-on-primary transition-colors text-body-md font-body-md hover:underline underline-offset-4" href="#">Discover</a>
+<a class="text-on-primary-container opacity-70 hover:text-on-primary transition-colors text-body-md font-body-md hover:underline underline-offset-4" href="#">Book</a>
+<a class="text-on-primary-container opacity-70 hover:text-on-primary transition-colors text-body-md font-body-md hover:underline underline-offset-4" href="#">Go</a>
+<a class="text-on-primary-container opacity-70 hover:text-on-primary transition-colors text-body-md font-body-md hover:underline underline-offset-4" href="#">Enjoy</a>
+</div>
+<div class="flex flex-col gap-2 md:items-end">
+<a class="text-on-primary-container opacity-70 hover:text-on-primary transition-colors text-body-md font-body-md hover:underline underline-offset-4" href="#">Terms</a>
+<a class="text-on-primary-container opacity-70 hover:text-on-primary transition-colors text-body-md font-body-md hover:underline underline-offset-4" href="#">Privacy</a>
+<p class="text-body-md font-body-md text-on-primary-container opacity-70 mt-4">© 2024 FoodRide Global. All rights reserved.</p>
+</div>
+</div>
+</footer>
+</body></html>

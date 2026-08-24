@@ -2,71 +2,37 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { MapPin, Search } from 'lucide-react'
-import { cn } from '@/lib/utils'
-
-const TABS = [
-  { key: 'food', label: 'Food', href: '/restaurants', placeholder: 'Search restaurants, cuisines...' },
-  { key: 'events', label: 'Events', href: '/events', placeholder: 'Search events, concerts...' },
-  { key: 'rides', label: 'Rides', href: '/ride', placeholder: 'Where to?' },
-] as const
+import { ArrowUpRight, Search } from 'lucide-react'
 
 export default function HomeSearch() {
   const router = useRouter()
-  const [tab, setTab] = useState<(typeof TABS)[number]['key']>('food')
   const [query, setQuery] = useState('')
-
-  const active = TABS.find((t) => t.key === tab)!
 
   function submit(e: React.FormEvent) {
     e.preventDefault()
     const q = query.trim()
-    router.push(q && tab !== 'rides' ? `${active.href}?q=${encodeURIComponent(q)}` : active.href)
+    router.push(q ? `/restaurants?q=${encodeURIComponent(q)}` : '/restaurants')
   }
 
   return (
-    <div className="rounded-lg bg-app-card p-2 shadow-[var(--shadow-lg)] sm:p-3">
-      <div className="mb-2 grid grid-cols-3">
-        {TABS.map((t) => (
-          <button
-            key={t.key}
-            type="button"
-            onClick={() => setTab(t.key)}
-            className={cn(
-              'relative py-2.5 text-sm font-semibold transition-colors',
-              tab === t.key ? 'text-app-fg' : 'text-app-muted hover:text-app-fg'
-            )}
-          >
-            {t.label}
-            {tab === t.key && (
-              <span className="absolute inset-x-6 bottom-0 h-0.5 rounded-full bg-navy dark:bg-gold" />
-            )}
-          </button>
-        ))}
-      </div>
-
-      <form onSubmit={submit} className="flex flex-col gap-2 sm:flex-row">
-        <div className="flex min-w-0 flex-1 items-center gap-2.5 rounded-md border border-app-border bg-app-bg px-3.5 py-2.5">
-          <Search className="size-4 shrink-0 text-app-muted" />
+    <form onSubmit={submit} className="flex items-center gap-2 rounded-2xl border border-white/15 bg-app-card/95 p-2 shadow-[0_20px_55px_rgba(1,12,28,0.3)] backdrop-blur-xl">
+        <div className="flex min-h-12 min-w-0 flex-1 items-center gap-3 px-3">
+          <Search className="size-[18px] shrink-0 text-gold-soft" />
           <input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder={active.placeholder}
+            placeholder="Search restaurants or cuisines"
             className="min-w-0 flex-1 bg-transparent text-sm text-app-fg outline-none placeholder:text-app-muted"
-            aria-label="Search"
+            aria-label="Search restaurants"
           />
-        </div>
-        <div className="hidden items-center gap-2 rounded-md border border-app-border bg-app-bg px-3.5 py-2.5 lg:flex">
-          <MapPin className="size-4 shrink-0 text-app-muted" />
-          <span className="text-sm text-app-fg">Addis Ababa</span>
         </div>
         <button
           type="submit"
-          className="rounded-md bg-navy px-7 py-2.5 text-sm font-semibold text-ivory transition-transform active:scale-[0.98]"
+          className="inline-flex min-h-12 shrink-0 items-center justify-center gap-1.5 rounded-xl bg-gold px-4 text-sm font-bold text-navy transition-all hover:brightness-105 active:scale-[0.98] sm:px-5"
         >
-          Search
+          Explore
+          <ArrowUpRight className="size-4" />
         </button>
-      </form>
-    </div>
+    </form>
   )
 }

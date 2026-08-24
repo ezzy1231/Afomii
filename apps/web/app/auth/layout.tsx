@@ -2,8 +2,8 @@ import Link from 'next/link'
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen bg-[var(--bg-primary)] flex flex-col">
-      <header className="px-6 py-5">
+    <div className="min-h-screen bg-app-bg flex flex-col">
+      <header className="border-b border-app-border bg-app-card/85 px-6 py-5 nav-blur">
         <Link href="/" className="inline-flex items-center gap-2">
           <span className="font-serif text-2xl font-bold text-navy">UrbanExplore</span>
         </Link>

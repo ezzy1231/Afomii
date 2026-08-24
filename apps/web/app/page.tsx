@@ -37,35 +37,28 @@ export default async function HomePage() {
       <main className="flex-1 bg-app-bg text-app-fg">
         {/* Hero */}
         <section className="relative">
-          <div className="absolute inset-0">
-            <Image
-              src="/places/food-3.jpg"
-              alt=""
-              fill
-              priority
-              sizes="100vw"
-              className="object-cover"
-            />
-            <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(11,31,58,0.72),rgba(11,31,58,0.82))]" />
-          </div>
+          <div
+            className="absolute inset-0 bg-[radial-gradient(circle_at_12%_0%,rgba(194,168,120,0.24),transparent_29%),radial-gradient(circle_at_88%_100%,rgba(67,97,139,0.34),transparent_34%),linear-gradient(135deg,#0b1f3a,#07192b_54%,#102e4f)]"
+            aria-hidden
+          />
+          <div className="absolute inset-x-0 bottom-0 h-px bg-gold/30" aria-hidden />
 
-          <div className="relative mx-auto flex max-w-7xl flex-col items-center px-4 pb-20 pt-16 text-center sm:px-6 sm:pt-24 lg:px-8">
-            <h1 className="font-serif text-4xl font-bold text-white sm:text-6xl">
-              Discover. Book. Go.
+          <div className="relative mx-auto flex max-w-7xl flex-col items-center px-4 pb-16 pt-20 text-center sm:px-6 sm:pb-20 sm:pt-24 lg:px-8">
+            <h1 className="max-w-3xl font-serif text-4xl font-bold leading-[0.98] tracking-tight text-white sm:text-6xl">
+              Find a place you’ll love.
             </h1>
-            <p className="mt-3 max-w-xl text-base text-white/85 sm:text-lg">
-              Your all-in-one platform for premium dining, exclusive events, and
-              luxury rides.
+            <p className="mt-4 max-w-xl text-base leading-7 text-white/75 sm:text-lg">
+              Great dining in Addis Ababa, thoughtfully curated.
             </p>
 
-            <div className="mt-8 w-full max-w-2xl">
+            <div className="mt-8 w-full max-w-xl text-left">
               <HomeSearch />
             </div>
           </div>
         </section>
 
         {/* Trending Restaurants */}
-        <section className="mx-auto mt-12 max-w-7xl px-4 sm:px-6 lg:px-8">
+        <section className="mx-auto mt-14 max-w-7xl px-4 sm:px-6 lg:px-8">
           <SectionHeader
             title="Trending Restaurants"
             eyebrow="Most booked this week"

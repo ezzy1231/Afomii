@@ -19,6 +19,7 @@ import {
   Ticket,
   Utensils,
   Wine,
+  X,
 } from 'lucide-react'
 import type { CatalogueItem } from '@/lib/catalogue'
 import { CategoryChips, EmptyState, FilterSheet } from '@/components/patterns'
@@ -145,6 +146,7 @@ export default function ExploreCatalogue({
   initialQuery?: string
 }) {
   const [query, setQuery] = useState(initialQuery)
+  const [searchOpen, setSearchOpen] = useState(Boolean(initialQuery))
   const [saved, setSaved] = useState<string[]>([])
   const [activeFilter, setActiveFilter] = useState('All')
   const [filtersOpen, setFiltersOpen] = useState(false)
@@ -197,45 +199,74 @@ export default function ExploreCatalogue({
   return (
     <section className="pb-24">
       {type === 'restaurants' ? (
-        /* Navy hero band */
-        <div className="bg-navy">
-          <div className="mx-auto max-w-7xl px-4 py-14 text-center sm:px-6 lg:px-8">
-            <h1 className="mx-auto max-w-2xl font-serif text-3xl font-bold text-white sm:text-5xl">
-              Find your next culinary experience
+        <div className="mx-auto max-w-7xl px-4 pt-14 sm:px-6 lg:px-8">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-gold-soft">Dining guide</p>
+          <div className="mt-2 flex flex-wrap items-center justify-between gap-4">
+            <h1 className="font-serif text-4xl font-bold leading-tight text-app-fg sm:text-5xl">
+              Find a table worth remembering.
             </h1>
-            <form
-              action="/restaurants"
-              className="mx-auto mt-7 flex max-w-2xl items-center gap-2 rounded-lg bg-app-card p-2 shadow-[var(--shadow-lg)]"
+            <button
+              type="button"
+              onClick={() => setSearchOpen((open) => !open)}
+              className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-app-border bg-app-card px-4 text-sm font-semibold text-app-fg shadow-soft transition hover:border-gold/50"
+              aria-expanded={searchOpen}
             >
-              <Search className="ml-2 size-4 shrink-0 text-app-muted" />
+              <Search className="size-4 text-gold-soft" />
+              Search restaurants
+            </button>
+          </div>
+          <p className="mt-3 max-w-xl text-base text-app-muted">
+            Discover trusted places for every kind of gathering, from quick lunches to special evenings.
+          </p>
+          {searchOpen && (
+            <div className="mt-5 flex max-w-xl items-center gap-3 rounded-xl border border-app-border bg-app-card px-3 shadow-soft">
+              <Search className="size-[18px] shrink-0 text-gold-soft" />
               <input
-                name="q"
-                defaultValue={query}
-                className="min-w-0 flex-1 bg-transparent py-2 text-sm text-app-fg outline-none placeholder:text-app-muted"
-                placeholder="Search by restaurant, cuisine, or location"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                autoFocus
+                className="min-h-11 min-w-0 flex-1 bg-transparent text-sm text-app-fg outline-none placeholder:text-app-muted"
+                placeholder="Restaurant, cuisine, or neighbourhood"
                 aria-label="Search restaurants"
               />
               <button
-                type="submit"
-                className="rounded-md bg-navy px-6 py-2.5 text-sm font-semibold text-ivory"
+                type="button"
+                onClick={() => {
+                  setQuery('')
+                  setSearchOpen(false)
+                }}
+                className="flex size-8 shrink-0 items-center justify-center rounded-lg text-app-muted transition hover:bg-app-input hover:text-app-fg"
+                aria-label="Close restaurant search"
               >
-                Search
+                <X className="size-4" />
               </button>
-            </form>
-          </div>
+            </div>
+          )}
         </div>
       ) : (
-        /* Events header */
-        <div className="mx-auto max-w-7xl px-4 pt-10 sm:px-6 lg:px-8">
-          <h1 className="font-serif text-4xl font-bold sm:text-5xl">Exclusive Events</h1>
+        <div className="mx-auto max-w-7xl px-4 pt-14 sm:px-6 lg:px-8">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-gold-soft">What’s on</p>
+          <div className="mt-2 flex flex-wrap items-center justify-between gap-4">
+            <h1 className="font-serif text-4xl font-bold leading-tight sm:text-5xl">Your next great night out.</h1>
+            <button
+              type="button"
+              onClick={() => setSearchOpen((open) => !open)}
+              className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-app-border bg-app-card px-4 text-sm font-semibold text-app-fg shadow-soft transition hover:border-gold/50"
+              aria-expanded={searchOpen}
+            >
+              <Search className="size-4 text-gold-soft" />
+              Search
+            </button>
+          </div>
           <p className="mt-3 max-w-xl text-base text-app-muted">
             Discover and book premium experiences, from intimate jazz nights to grand
             galas. Arrive in style with UrbanExplore.
           </p>
 
-          <div className="mt-6 flex flex-col gap-3 rounded-lg border border-app-border bg-app-card p-3 shadow-[var(--shadow-sm)] sm:flex-row sm:items-center">
-            <div className="flex min-w-0 flex-1 items-center gap-2.5 px-2">
-              <Search className="size-4 shrink-0 text-app-muted" />
+          <div className="mt-7 flex flex-wrap items-center gap-2">
+            {searchOpen && (
+              <div className="flex min-h-11 min-w-[min(100%,22rem)] flex-1 items-center gap-2.5 rounded-xl border border-app-border bg-app-card px-3 shadow-soft">
+              <Search className="size-[18px] shrink-0 text-gold-soft" />
               <input
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
@@ -243,15 +274,27 @@ export default function ExploreCatalogue({
                 placeholder="Search events..."
                 aria-label="Search events"
               />
+              <button
+                type="button"
+                onClick={() => {
+                  setQuery('')
+                  setSearchOpen(false)
+                }}
+                className="flex size-8 shrink-0 items-center justify-center rounded-lg text-app-muted transition hover:bg-app-input hover:text-app-fg"
+                aria-label="Close event search"
+              >
+                <X className="size-4" />
+              </button>
             </div>
-            <div className="flex shrink-0 gap-2">
+            )}
+            <div className="flex shrink-0 flex-wrap gap-2">
               {dateChips.map((chip) => (
                 <button
                   key={chip}
                   type="button"
                   onClick={() => setDateRange(chip)}
                   className={cn(
-                    'rounded-md px-3.5 py-2 text-xs font-semibold transition-colors',
+                    'min-h-10 rounded-xl px-3.5 py-2 text-xs font-semibold transition-colors',
                     dateRange === chip
                       ? 'bg-navy text-ivory'
                       : 'border border-app-border text-app-muted hover:text-app-fg'
@@ -435,7 +478,7 @@ export default function ExploreCatalogue({
               return (
                 <article
                   key={item.id}
-                  className="overflow-hidden rounded-xl border border-app-border bg-app-card shadow-[var(--shadow-sm)] transition-all hover:shadow-[var(--shadow-md)]"
+                  className="overflow-hidden rounded-2xl border border-app-border bg-app-card shadow-soft transition-all hover:-translate-y-0.5 hover:border-gold/40 hover:shadow-card"
                 >
                   <Link href={detailHref} className="relative block h-40">
                     {item.imageUrl ? (
@@ -491,7 +534,7 @@ export default function ExploreCatalogue({
             return (
               <article
                 key={item.id}
-                className="overflow-hidden rounded-xl border border-app-border bg-app-card shadow-[var(--shadow-sm)] transition-all hover:shadow-[var(--shadow-md)]"
+                className="overflow-hidden rounded-2xl border border-app-border bg-app-card shadow-soft transition-all hover:-translate-y-0.5 hover:border-gold/40 hover:shadow-card"
               >
                 <div className="relative h-40">
                   <Link href={detailHref} className="block h-full">
