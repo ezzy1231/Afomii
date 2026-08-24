@@ -2,8 +2,22 @@ import Link from "next/link";
 import { cn } from "../../lib/utils";
 
 type StickyActionBarProps = {
-  primary: { label: string; href?: string; onClick?: () => void; disabled?: boolean };
-  secondary?: { label: string; href?: string; onClick?: () => void; disabled?: boolean };
+  primary: {
+    label: string;
+    href?: string;
+    onClick?: () => void;
+    disabled?: boolean;
+    type?: "button" | "submit";
+    /** `navy` matches the Stitch wizard artboards' primary CTA. */
+    tone?: "gold" | "navy";
+  };
+  secondary?: {
+    label: string;
+    href?: string;
+    onClick?: () => void;
+    disabled?: boolean;
+    type?: "button" | "submit";
+  };
   className?: string;
 };
 
@@ -15,19 +29,24 @@ export function StickyActionBar({
   secondary,
   className,
 }: StickyActionBarProps) {
+  const primaryCls =
+    primary.tone === "navy"
+      ? "bg-navy text-ivory shadow-lg shadow-navy/25"
+      : "bg-gold text-navy shadow-lg shadow-gold/20";
+
   const primaryBtn = primary.href ? (
     <Link
       href={primary.href}
-      className={cn(baseBtn, "bg-gold text-navy shadow-lg shadow-gold/20")}
+      className={cn(baseBtn, primaryCls)}
     >
       {primary.label}
     </Link>
   ) : (
     <button
-      type="button"
+      type={primary.type ?? "button"}
       onClick={primary.onClick}
       disabled={primary.disabled}
-      className={cn(baseBtn, "bg-gold text-navy shadow-lg shadow-gold/20")}
+      className={cn(baseBtn, primaryCls)}
     >
       {primary.label}
     </button>
@@ -43,7 +62,7 @@ export function StickyActionBar({
       </Link>
     ) : (
       <button
-        type="button"
+        type={secondary.type ?? "button"}
         onClick={secondary.onClick}
         disabled={secondary.disabled}
         className={cn(baseBtn, "border border-app-border bg-app-panel text-app-fg")}

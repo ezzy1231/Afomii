@@ -4,8 +4,9 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { CategoryPicker, type CategoryOption } from '@/components/auth/CategoryPicker'
-
-const STEPS = 4
+import { SignupStepper } from '@/components/auth/SignupStepper'
+import { StickyActionBar } from '@/components/patterns/StickyActionBar'
+import { FileUploadTile, DocumentUploadRow } from '@/components/auth/FileUploadTile'
 
 const CATEGORIES: CategoryOption[] = [
   { label: 'Restaurant', icon: '🍽️' },
@@ -37,33 +38,6 @@ interface FormData {
   phone: string
   website: string
   plan: 'free' | 'premium_monthly' | 'premium_yearly'
-}
-
-function StepIndicator({ current }: { current: number }) {
-  const labels = ['Account', 'Business', 'Location', 'Plan']
-  return (
-    <div className="flex items-center justify-center gap-1 mb-8">
-      {Array.from({ length: STEPS }, (_, i) => i + 1).map((n) => (
-        <div key={n} className="flex items-center gap-1">
-          <div className="flex flex-col items-center">
-            <div
-              className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-colors ${
-                n < current ? 'bg-gold text-white' : n === current ? 'bg-navy text-white' : 'bg-[var(--border)] text-app-muted'
-              }`}
-            >
-              {n < current ? (
-                <svg viewBox="0 0 20 20" fill="currentColor" className="w-3.5 h-3.5">
-                  <path fillRule="evenodd" d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.05-.143Z" clipRule="evenodd" />
-                </svg>
-              ) : n}
-            </div>
-            <span className={`text-[10px] mt-0.5 ${n === current ? 'text-navy font-medium' : 'text-app-muted'}`}>{labels[n - 1]}</span>
-          </div>
-          {n < STEPS && <div className={`w-8 h-px mb-4 ${n < current ? 'bg-gold' : 'bg-[var(--border)]'}`} />}
-        </div>
-      ))}
-    </div>
-  )
 }
 
 const PLANS = [
@@ -102,9 +76,9 @@ const Field = ({
   children: React.ReactNode
 }) => (
   <div>
-    <label className="block text-sm font-medium text-app-fg mb-1.5">
+    <label className="eyebrow mb-1.5 block">
       {label}
-      {optional && <span className="text-app-muted font-normal ml-1">(optional)</span>}
+      {optional && <span className="ml-1 font-medium normal-case tracking-normal text-app-muted">(optional)</span>}
     </label>
     {children}
   </div>
@@ -128,6 +102,12 @@ export default function BusinessSignupPage() {
   function set(field: keyof FormData, value: string) {
     setForm((p) => ({ ...p, [field]: value }))
   }
+
+  // Visual-asset and license selections are held client-side only until a
+  // storage bucket exists; they intentionally do not reach the signUp payload.
+  const [logoName, setLogoName] = useState<string | null>(null)
+  const [coverName, setCoverName] = useState<string | null>(null)
+  const [licenseName, setLicenseName] = useState<string | null>(null)
 
   function validate(): string | null {
     if (step === 1) {
@@ -214,7 +194,12 @@ export default function BusinessSignupPage() {
 
   return (
       <div className="w-full max-w-lg">
-        <div className="card-elevated animate-fade-in-up p-8 md:p-10">
+        <div className="hero-warm animate-fade-in-up mb-4 rounded-xl border border-app-border py-5 text-center shadow-card">
+          <span className="font-serif text-xl font-bold text-app-fg">
+            UrbanExplore <span className="text-gold-soft">Partners</span>
+          </span>
+        </div>
+        <div className="card-elevated p-8 md:p-10">
           <Link href="/auth/role" className="inline-flex items-center gap-1.5 text-xs text-app-muted hover:text-app-fg mb-6">
           <svg viewBox="0 0 20 20" fill="currentColor" className="w-3.5 h-3.5">
             <path fillRule="evenodd" d="M17 10a.75.75 0 0 1-.75.75H5.612l4.158 3.96a.75.75 0 1 1-1.04 1.08l-5.5-5.25a.75.75 0 0 1 0-1.08l5.5-5.25a.75.75 0 1 1 1.04 1.08L5.612 9.25H16.25A.75.75 0 0 1 17 10Z" clipRule="evenodd" />
@@ -222,7 +207,7 @@ export default function BusinessSignupPage() {
           Back to role selection
         </Link>
 
-        <StepIndicator current={step} />
+        <SignupStepper steps={['Account', 'Business', 'Contact', 'Listing']} current={step} />
 
         {error && (
           <div className="mb-5 rounded-lg bg-danger/10 border border-danger/30 text-danger text-sm px-4 py-3">
@@ -240,29 +225,76 @@ export default function BusinessSignupPage() {
               <Field label="Password"><input type="password" value={form.password} onChange={(e) => set('password', e.target.value)} placeholder="Min. 8 characters" className={inputCls} /></Field>
               <Field label="Confirm password"><input type="password" value={form.confirmPassword} onChange={(e) => set('confirmPassword', e.target.value)} placeholder="Repeat password" className={inputCls} /></Field>
             </div>
-            <button onClick={next} className="btn-primary w-full !py-2.5">Continue</button>
+            <StickyActionBar
+              className="mt-6"
+              primary={{ label: 'Continue', onClick: next, tone: 'navy' }}
+            />
           </div>
         )}
 
         {step === 2 && (
           <div>
-            <h1 className="font-serif text-2xl font-bold text-app-fg mb-1">About your venue</h1>
-            <p className="text-sm text-app-muted mb-6">Tell customers what makes your venue stand out on UrbanExplore</p>
-            <div className="space-y-4">
+            <h1 className="font-serif text-2xl font-bold text-app-fg mb-1">Business details</h1>
+            <p className="text-sm text-app-muted mb-6">Define your brand&apos;s presence on our curated marketplace</p>
+            <div className="space-y-5">
               <Field label="Business name">
-                <input type="text" value={form.businessName} onChange={(e) => set('businessName', e.target.value)} placeholder="Bella Cucina" className={inputCls} />
+                <input type="text" value={form.businessName} onChange={(e) => set('businessName', e.target.value)} placeholder="e.g. The Blue Nile Reserve" className={inputCls} />
               </Field>
               <Field label="Business category">
                 <CategoryPicker options={CATEGORIES} value={form.category} onChange={(v) => set('category', v)} />
               </Field>
-              <Field label="Short description" optional>
-                <textarea value={form.description} onChange={(e) => set('description', e.target.value)} placeholder="A cosy Italian trattoria in the heart of the city…" rows={3} className={`${inputCls} resize-none`} />
-              </Field>
+              <div>
+                <div className="mb-1.5 flex items-baseline justify-between">
+                  <label className="eyebrow block">
+                    Editorial description
+                    <span className="ml-1 font-medium normal-case tracking-normal text-app-muted">(optional)</span>
+                  </label>
+                  <span aria-hidden className="text-[11px] font-semibold tabular-nums tracking-widest text-app-muted">
+                    {form.description.length} / 500
+                  </span>
+                </div>
+                <textarea
+                  value={form.description}
+                  onChange={(e) => set('description', e.target.value.slice(0, 500))}
+                  placeholder="Describe your atmosphere, culinary philosophy, and what makes your establishment a premier destination…"
+                  rows={4}
+                  maxLength={500}
+                  className={`${inputCls} resize-none`}
+                />
+              </div>
+
+              <div className="border-t border-[var(--border)] pt-5">
+                <h3 className="mb-1 font-serif text-base font-semibold text-app-fg">Visual assets</h3>
+                <p className="mb-3 text-xs text-app-muted">Strong photography gets listings featured.</p>
+                <div className="grid grid-cols-2 gap-3">
+                  <FileUploadTile label="Logo" variant="square" fileName={logoName} onSelect={(f) => setLogoName(f?.name ?? null)} />
+                  <FileUploadTile label="Cover Photo (Wide)" variant="wide" fileName={coverName} onSelect={(f) => setCoverName(f?.name ?? null)} />
+                </div>
+              </div>
+
+              <div className="border-t border-[var(--border)] pt-5">
+                <h3 className="mb-1 font-serif text-base font-semibold text-app-fg">Legal &amp; verification</h3>
+                <p className="mb-3 text-xs text-app-muted">For verification</p>
+                <DocumentUploadRow
+                  label="Upload Business License"
+                  fileName={licenseName}
+                  onSelect={(f) => setLicenseName(f?.name ?? null)}
+                />
+                <div className="mt-3 flex items-start gap-2.5 rounded-md border border-gold/25 bg-gold/10 px-3.5 py-3">
+                  <svg viewBox="0 0 20 20" fill="currentColor" className="mt-0.5 h-4 w-4 shrink-0 text-gold-soft">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16Zm3.857-9.809a.75.75 0 0 0-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 1 0-1.06 1.061l2.5 2.5a.75.75 0 0 0 1.137-.089l4-5.5Z" clipRule="evenodd" />
+                  </svg>
+                  <p className="text-xs leading-relaxed text-app-muted">
+                    Listings go live after a quick verification review. Ensure your details match official documents.
+                  </p>
+                </div>
+              </div>
             </div>
-            <div className="flex gap-3 mt-6">
-              <button onClick={back} className="btn-secondary flex-1 !py-2.5">Back</button>
-              <button onClick={next} className="btn-primary flex-1 !py-2.5">Continue</button>
-            </div>
+            <StickyActionBar
+              className="mt-8"
+              secondary={{ label: 'Back', onClick: back }}
+              primary={{ label: 'Continue to Contact', onClick: next, tone: 'navy' }}
+            />
           </div>
         )}
 
@@ -271,18 +303,19 @@ export default function BusinessSignupPage() {
             <h1 className="font-serif text-2xl font-bold text-app-fg mb-1">Location & contact</h1>
             <p className="text-sm text-app-muted mb-6">Help customers find and contact your venue on UrbanExplore</p>
             <div className="space-y-4">
-              <Field label="Street address" optional><input type="text" value={form.address} onChange={(e) => set('address', e.target.value)} placeholder="123 Main St" className={inputCls} /></Field>
+              <Field label="Street address" optional><input type="text" value={form.address} onChange={(e) => set('address', e.target.value)} placeholder="Bole Road, Kirkos" className={inputCls} /></Field>
               <div className="grid grid-cols-2 gap-4">
-                <Field label="City"><input type="text" value={form.city} onChange={(e) => set('city', e.target.value)} placeholder="New York" className={inputCls} /></Field>
-                <Field label="Country"><input type="text" value={form.country} onChange={(e) => set('country', e.target.value)} placeholder="USA" className={inputCls} /></Field>
+                <Field label="City"><input type="text" value={form.city} onChange={(e) => set('city', e.target.value)} placeholder="Addis Ababa" className={inputCls} /></Field>
+                <Field label="Country"><input type="text" value={form.country} onChange={(e) => set('country', e.target.value)} placeholder="Ethiopia" className={inputCls} /></Field>
               </div>
-              <Field label="Phone" optional><input type="tel" value={form.phone} onChange={(e) => set('phone', e.target.value)} placeholder="+1 (555) 000-0000" className={inputCls} /></Field>
+              <Field label="Phone" optional><input type="tel" value={form.phone} onChange={(e) => set('phone', e.target.value)} placeholder="+251 91 234 5678" className={inputCls} /></Field>
               <Field label="Website" optional><input type="url" value={form.website} onChange={(e) => set('website', e.target.value)} placeholder="https://yourrestaurant.com" className={inputCls} /></Field>
             </div>
-            <div className="flex gap-3 mt-6">
-              <button onClick={back} className="btn-secondary flex-1 !py-2.5">Back</button>
-              <button onClick={next} className="btn-primary flex-1 !py-2.5">Continue</button>
-            </div>
+            <StickyActionBar
+              className="mt-6"
+              secondary={{ label: 'Back', onClick: back }}
+              primary={{ label: 'Continue to Listing', onClick: next, tone: 'navy' }}
+            />
           </div>
         )}
 
@@ -310,7 +343,7 @@ export default function BusinessSignupPage() {
                     <div className="flex items-center gap-2 mb-0.5">
                       <span className="text-sm font-semibold text-app-fg">{plan.name}</span>
                       {plan.badge && (
-                        <span className="text-[10px] bg-gold/20 text-gold-dark font-bold px-1.5 py-0.5 rounded uppercase tracking-wide">{plan.badge}</span>
+                        <span className="text-[10px] bg-gold/20 text-gold-soft font-bold px-1.5 py-0.5 rounded uppercase tracking-wide">{plan.badge}</span>
                       )}
                     </div>
                     <div className="text-lg font-bold text-app-fg">
@@ -330,12 +363,16 @@ export default function BusinessSignupPage() {
                 </label>
               ))}
             </div>
-            <div className="flex gap-3">
-              <button type="button" onClick={back} className="btn-secondary flex-1 !py-2.5">Back</button>
-              <button type="submit" disabled={loading} className="btn-primary flex-1 !py-2.5">
-                {loading ? 'Creating account…' : 'Create account'}
-              </button>
-            </div>
+            <StickyActionBar
+              className="mt-2"
+              secondary={{ label: 'Back', onClick: back }}
+              primary={{
+                type: 'submit',
+                tone: 'navy',
+                disabled: loading,
+                label: loading ? 'Creating account…' : 'Create account',
+              }}
+            />
           </form>
         )}
 

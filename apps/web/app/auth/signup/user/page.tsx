@@ -3,6 +3,8 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
+import { SignupStepper } from '@/components/auth/SignupStepper'
+import { StickyActionBar } from '@/components/patterns/StickyActionBar'
 
 const STEPS = 3
 
@@ -47,33 +49,6 @@ interface FormData {
   allergies: string[]
 }
 
-function StepIndicator({ current }: { current: number }) {
-  return (
-    <div className="flex items-center justify-center gap-2 mb-8">
-      {Array.from({ length: STEPS }, (_, i) => i + 1).map((n) => (
-        <div key={n} className="flex items-center gap-2">
-          <div
-            className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-colors ${
-              n < current
-                ? 'bg-gold text-white'
-                : n === current
-                ? 'bg-navy text-white'
-                : 'bg-[var(--border)] text-app-muted'
-            }`}
-          >
-            {n < current ? (
-              <svg viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
-                <path fillRule="evenodd" d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.05-.143Z" clipRule="evenodd" />
-              </svg>
-            ) : n}
-          </div>
-          {n < STEPS && <div className={`w-10 h-px ${n < current ? 'bg-gold' : 'bg-[var(--border)]'}`} />}
-        </div>
-      ))}
-    </div>
-  )
-}
-
 function ToggleChip({
   label,
   active,
@@ -86,11 +61,12 @@ function ToggleChip({
   return (
     <button
       type="button"
+      aria-pressed={active}
       onClick={onClick}
-      className={`text-xs px-3 py-1.5 rounded-full border font-medium transition-colors ${
+      className={`min-h-[36px] rounded-full border px-4 py-2 text-sm font-semibold transition-colors ${
         active
-          ? 'bg-navy text-white border-navy'
-          : 'bg-[var(--bg-card)] text-app-muted border-[var(--border)] hover:border-navy/40'
+          ? 'border-gold bg-gold text-navy'
+          : 'border-app-border bg-app-card text-app-muted hover:border-gold/50 hover:text-app-fg'
       }`}
     >
       {label}
@@ -231,7 +207,7 @@ export default function UserSignupPage() {
           Back to role selection
         </Link>
 
-        <StepIndicator current={step} />
+        <SignupStepper steps={['Account', 'About You', 'Preferences']} current={step} />
 
         {step === 1 && (
           <>
@@ -246,7 +222,7 @@ export default function UserSignupPage() {
 
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-app-fg mb-1.5">Full name</label>
+                <label className="eyebrow mb-1.5 block">Full name</label>
                 <input
                   type="text"
                   autoComplete="name"
@@ -257,7 +233,7 @@ export default function UserSignupPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-app-fg mb-1.5">Email address</label>
+                <label className="eyebrow mb-1.5 block">Email address</label>
                 <input
                   type="email"
                   autoComplete="email"
@@ -268,7 +244,7 @@ export default function UserSignupPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-app-fg mb-1.5">Password</label>
+                <label className="eyebrow mb-1.5 block">Password</label>
                 <input
                   type="password"
                   autoComplete="new-password"
@@ -279,7 +255,7 @@ export default function UserSignupPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-app-fg mb-1.5">Confirm password</label>
+                <label className="eyebrow mb-1.5 block">Confirm password</label>
                 <input
                   type="password"
                   autoComplete="new-password"
@@ -291,12 +267,10 @@ export default function UserSignupPage() {
               </div>
             </div>
 
-            <button
-              onClick={handleNext}
-              className="btn-primary w-full !py-2.5"
-            >
-              Continue
-            </button>
+            <StickyActionBar
+              className="mt-6"
+              primary={{ label: 'Continue', onClick: handleNext, tone: 'navy' }}
+            />
           </>
         )}
 
@@ -308,7 +282,7 @@ export default function UserSignupPage() {
             <div className="space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-app-fg mb-1.5">Language</label>
+                  <label className="eyebrow mb-1.5 block">Language</label>
                   <select
                     value={form.language}
                     onChange={(e) => set('language', e.target.value)}
@@ -321,7 +295,7 @@ export default function UserSignupPage() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-app-fg mb-1.5">Birth date</label>
+                  <label className="eyebrow mb-1.5 block">Birth date</label>
                   <div className="mb-1.5 inline-flex rounded-md border border-app-border p-0.5">
                     {([
                       { key: 'gc', label: 'Gregorian (GC)' },
@@ -350,7 +324,7 @@ export default function UserSignupPage() {
                 </div>
               </div>
               <div>
-                <label className="block text-sm font-medium text-app-fg mb-1.5">Gender</label>
+                <label className="eyebrow mb-1.5 block">Gender</label>
                 <select
                   value={form.gender}
                   onChange={(e) => set('gender', e.target.value)}
@@ -364,7 +338,7 @@ export default function UserSignupPage() {
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-app-fg mb-1.5">
+                  <label className="eyebrow mb-1.5 block">
                     Country
                   </label>
                   <select
@@ -378,8 +352,8 @@ export default function UserSignupPage() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-app-fg mb-1.5">
-                    City <span className="text-app-muted font-normal">(optional)</span>
+                  <label className="eyebrow mb-1.5 block">
+                    City <span className="ml-1 font-medium normal-case tracking-normal text-app-muted">(optional)</span>
                   </label>
                   <input
                     type="text"
@@ -391,8 +365,8 @@ export default function UserSignupPage() {
                 </div>
               </div>
               <div>
-                <label className="block text-sm font-medium text-app-fg mb-1.5">
-                  Phone number <span className="text-app-muted font-normal">(optional)</span>
+                <label className="eyebrow mb-1.5 block">
+                  Phone number <span className="ml-1 font-medium normal-case tracking-normal text-app-muted">(optional)</span>
                 </label>
                 <input
                   type="tel"
@@ -427,28 +401,19 @@ export default function UserSignupPage() {
               </div>
             </div>
 
-            <div className="flex gap-3 mt-6">
-              <button
-                onClick={() => { setError(null); setStep(1) }}
-                className="btn-secondary flex-1 !py-2.5"
-              >
-                Back
-              </button>
-              <button
-                onClick={() => { setError(null); setStep(3) }}
-                className="btn-primary flex-1 !py-2.5"
-              >
-                Continue
-              </button>
-            </div>
+            <StickyActionBar
+              className="mt-6"
+              secondary={{ label: 'Back', onClick: () => { setError(null); setStep(1) } }}
+              primary={{ label: 'Continue', onClick: () => { setError(null); setStep(3) }, tone: 'navy' }}
+            />
           </>
         )}
 
         {step === 3 && (
           <form onSubmit={handleSubmit}>
-            <h1 className="font-serif text-2xl font-bold text-app-fg mb-1">Your preferences</h1>
+            <h1 className="font-serif text-2xl font-bold text-app-fg mb-1">Curate your experience</h1>
             <p className="text-sm text-app-muted mb-6">
-              Step 3 of {STEPS} — Help us personalise your experience
+              Tell us what you like so we can recommend the best spots in Addis.
             </p>
 
             {error && (
@@ -457,10 +422,9 @@ export default function UserSignupPage() {
               </div>
             )}
 
-            <div className="mb-5">
-              <p className="text-sm font-medium text-app-fg mb-2.5">
-                Dietary preferences <span className="text-app-muted font-normal">(select all that apply)</span>
-              </p>
+            <div>
+              <h3 className="font-serif text-lg font-semibold text-app-fg">Dietary preferences</h3>
+              <p className="mb-3 mt-0.5 text-xs text-app-muted">Select all that apply</p>
               <div className="flex flex-wrap gap-2">
                 {DIETARY_OPTIONS.map((opt) => (
                   <ToggleChip
@@ -473,10 +437,11 @@ export default function UserSignupPage() {
               </div>
             </div>
 
-            <div className="mb-6">
-              <p className="text-sm font-medium text-app-fg mb-2.5">
-                Allergies <span className="text-app-muted font-normal">(select all that apply)</span>
-              </p>
+            <hr className="my-6 border-[var(--border)]" />
+
+            <div>
+              <h3 className="font-serif text-lg font-semibold text-app-fg">Allergies &amp; restrictions</h3>
+              <p className="mb-3 mt-0.5 text-xs text-app-muted">Select all that apply</p>
               <div className="flex flex-wrap gap-2">
                 {ALLERGY_OPTIONS.map((opt) => (
                   <ToggleChip
@@ -489,22 +454,16 @@ export default function UserSignupPage() {
               </div>
             </div>
 
-            <div className="flex gap-3">
-              <button
-                type="button"
-                onClick={() => { setError(null); setStep(2) }}
-                className="btn-secondary flex-1 !py-2.5"
-              >
-                Back
-              </button>
-              <button
-                type="submit"
-                disabled={loading}
-                className="btn-primary flex-1 !py-2.5"
-              >
-                {loading ? 'Creating account…' : 'Create account'}
-              </button>
-            </div>
+            <StickyActionBar
+              className="mt-8"
+              secondary={{ label: 'Back', onClick: () => { setError(null); setStep(2) } }}
+              primary={{
+                type: 'submit',
+                tone: 'navy',
+                disabled: loading,
+                label: loading ? 'Completing setup…' : 'Complete Setup',
+              }}
+            />
           </form>
         )}
 

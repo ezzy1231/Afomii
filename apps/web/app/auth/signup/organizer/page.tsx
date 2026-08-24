@@ -4,8 +4,15 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { CategoryPicker, type CategoryOption } from '@/components/auth/CategoryPicker'
-
-const STEPS = 4
+import { SignupStepper } from '@/components/auth/SignupStepper'
+import { StickyActionBar } from '@/components/patterns/StickyActionBar'
+import { FileUploadTile } from '@/components/auth/FileUploadTile'
+import {
+  PayoutDetailsFields,
+  payoutDetailsValue,
+  type PayoutDetails,
+} from '@/components/auth/PayoutDetailsFields'
+import { ConsentCheckbox } from '@/components/auth/ConsentCheckbox'
 
 const CATEGORIES: CategoryOption[] = [
   { label: 'Event Organizer', icon: '🎪' },
@@ -35,29 +42,6 @@ interface FormData {
   phone: string
   website: string
   plan: 'free' | 'premium_monthly' | 'premium_yearly'
-}
-
-function StepIndicator({ current }: { current: number }) {
-  const labels = ['Account', 'Org', 'Location', 'Plan']
-  return (
-    <div className="flex items-center justify-center gap-1 mb-8">
-      {Array.from({ length: STEPS }, (_, i) => i + 1).map((n) => (
-        <div key={n} className="flex items-center gap-1">
-          <div className="flex flex-col items-center">
-            <div               className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-colors ${n < current ? 'bg-gold text-white' : n === current ? 'bg-navy text-white' : 'bg-[var(--border)] text-app-muted'}`}>
-              {n < current ? (
-                <svg viewBox="0 0 20 20" fill="currentColor" className="w-3.5 h-3.5">
-                  <path fillRule="evenodd" d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.05-.143Z" clipRule="evenodd" />
-                </svg>
-              ) : n}
-            </div>
-            <span className={`text-[10px] mt-0.5 ${n === current ? 'text-navy font-medium' : 'text-app-muted'}`}>{labels[n - 1]}</span>
-          </div>
-          {n < STEPS && <div className={`w-8 h-px mb-4 ${n < current ? 'bg-gold' : 'bg-[var(--border)]'}`} />}
-        </div>
-      ))}
-    </div>
-  )
 }
 
 const PLANS = [
@@ -90,8 +74,8 @@ const inputCls = 'input-premium'
 
 const Field = ({ label, optional, children }: { label: string; optional?: boolean; children: React.ReactNode }) => (
   <div>
-    <label className="block text-sm font-medium text-app-fg mb-1.5">
-      {label}{optional && <span className="text-app-muted font-normal ml-1">(optional)</span>}
+    <label className="eyebrow mb-1.5 block">
+      {label}{optional && <span className="ml-1 font-medium normal-case tracking-normal text-app-muted">(optional)</span>}
     </label>
     {children}
   </div>
@@ -113,6 +97,12 @@ export default function OrganizerSignupPage() {
   function set(field: keyof FormData, value: string) {
     setForm((p) => ({ ...p, [field]: value }))
   }
+
+  // Client-side-only selections until a storage bucket exists.
+  const [logoName, setLogoName] = useState<string | null>(null)
+  const [payoutDocsName, setPayoutDocsName] = useState<string | null>(null)
+  const [payout, setPayout] = useState<PayoutDetails>(() => payoutDetailsValue())
+  const [consented, setConsented] = useState(false)
 
   function validate(): string | null {
     if (step === 1) {
@@ -161,6 +151,9 @@ export default function OrganizerSignupPage() {
           org_phone: form.phone,
           org_website: form.website,
           org_plan: form.plan,
+          org_payout_bank: payout.bank,
+          org_payout_account_holder: payout.accountHolder,
+          org_payout_account_number: payout.accountNumber,
         },
         emailRedirectTo: `${window.location.origin}/auth/callback`,
       },
@@ -197,7 +190,12 @@ export default function OrganizerSignupPage() {
 
   return (
       <div className="w-full max-w-lg">
-        <div className="card-elevated animate-fade-in-up p-8 md:p-10">
+        <div className="hero-warm animate-fade-in-up mb-4 rounded-xl border border-app-border py-5 text-center shadow-card">
+          <span className="font-serif text-xl font-bold text-app-fg">
+            UrbanExplore <span className="text-gold-soft">Partners</span>
+          </span>
+        </div>
+        <div className="card-elevated p-8 md:p-10">
           <Link href="/auth/role" className="inline-flex items-center gap-1.5 text-xs text-app-muted hover:text-app-fg mb-6">
           <svg viewBox="0 0 20 20" fill="currentColor" className="w-3.5 h-3.5">
             <path fillRule="evenodd" d="M17 10a.75.75 0 0 1-.75.75H5.612l4.158 3.96a.75.75 0 1 1-1.04 1.08l-5.5-5.25a.75.75 0 0 1 0-1.08l5.5-5.25a.75.75 0 1 1 1.04 1.08L5.612 9.25H16.25A.75.75 0 0 1 17 10Z" clipRule="evenodd" />
@@ -205,7 +203,7 @@ export default function OrganizerSignupPage() {
           Back to role selection
         </Link>
 
-        <StepIndicator current={step} />
+        <SignupStepper steps={['Account', 'Organisation', 'Contact & Payout', 'Plan']} current={step} />
 
         {error && (
           <div className="mb-5 rounded-lg bg-danger/10 border border-danger/30 text-danger text-sm px-4 py-3">{error}</div>
@@ -221,47 +219,63 @@ export default function OrganizerSignupPage() {
               <Field label="Password"><input type="password" value={form.password} onChange={(e) => set('password', e.target.value)} placeholder="Min. 8 characters" className={inputCls} /></Field>
               <Field label="Confirm password"><input type="password" value={form.confirmPassword} onChange={(e) => set('confirmPassword', e.target.value)} placeholder="Repeat password" className={inputCls} /></Field>
             </div>
-            <button onClick={next} className="btn-primary w-full !py-2.5">Continue</button>
+            <StickyActionBar className="mt-6" primary={{ label: 'Continue', onClick: next, tone: 'navy' }} />
           </div>
         )}
 
         {step === 2 && (
           <div>
             <h1 className="font-serif text-2xl font-bold text-app-fg mb-1">About your organisation</h1>
-            <p className="text-sm text-app-muted mb-6">Tell attendees what you are promoting on UrbanExplore</p>
-            <div className="space-y-4">
-              <Field label="Organisation name"><input type="text" value={form.orgName} onChange={(e) => set('orgName', e.target.value)} placeholder="City Arts Collective" className={inputCls} /></Field>
+            <p className="text-sm text-app-muted mb-6">This information will be displayed publicly to attendees</p>
+            <div className="space-y-5">
+              <Field label="Organisation name"><input type="text" value={form.orgName} onChange={(e) => set('orgName', e.target.value)} placeholder="e.g. Addis Nights Collective" className={inputCls} /></Field>
               <Field label="Category">
                 <CategoryPicker options={CATEGORIES} value={form.category} onChange={(v) => set('category', v)} />
               </Field>
+              <div className="max-w-[10rem]">
+                <FileUploadTile label="Upload Logo Tile" variant="square" fileName={logoName} onSelect={(f) => setLogoName(f?.name ?? null)} />
+                <p className="mt-1.5 text-center text-[11px] text-app-muted">Recommended 512×512px · PNG or JPG under 2MB</p>
+              </div>
               <Field label="Short description" optional>
-                <textarea value={form.description} onChange={(e) => set('description', e.target.value)} placeholder="We bring world-class artists to local venues…" rows={3} className={`${inputCls} resize-none`} />
+                <textarea value={form.description} onChange={(e) => set('description', e.target.value)} placeholder="Tell attendees what makes your events special…" rows={3} className={`${inputCls} resize-none`} />
               </Field>
             </div>
-            <div className="flex gap-3 mt-6">
-              <button onClick={back} className="btn-secondary flex-1 !py-2.5">Back</button>
-              <button onClick={next} className="btn-primary flex-1 !py-2.5">Continue</button>
-            </div>
+            <StickyActionBar
+              className="mt-6"
+              secondary={{ label: 'Back', onClick: back }}
+              primary={{ label: 'Continue to Contact & Payout', onClick: next, tone: 'navy' }}
+            />
           </div>
         )}
 
         {step === 3 && (
           <div>
-            <h1 className="font-serif text-2xl font-bold text-app-fg mb-1">Location & contact</h1>
+            <h1 className="font-serif text-2xl font-bold text-app-fg mb-1">Contact &amp; payout</h1>
             <p className="text-sm text-app-muted mb-6">Help attendees find and contact you on UrbanExplore</p>
             <div className="space-y-4">
-              <Field label="Street address" optional><input type="text" value={form.address} onChange={(e) => set('address', e.target.value)} placeholder="123 Main St" className={inputCls} /></Field>
+              <Field label="Street address" optional><input type="text" value={form.address} onChange={(e) => set('address', e.target.value)} placeholder="Bole Road, Kirkos" className={inputCls} /></Field>
               <div className="grid grid-cols-2 gap-4">
-                <Field label="City"><input type="text" value={form.city} onChange={(e) => set('city', e.target.value)} placeholder="New York" className={inputCls} /></Field>
-                <Field label="Country"><input type="text" value={form.country} onChange={(e) => set('country', e.target.value)} placeholder="USA" className={inputCls} /></Field>
+                <Field label="City"><input type="text" value={form.city} onChange={(e) => set('city', e.target.value)} placeholder="Addis Ababa" className={inputCls} /></Field>
+                <Field label="Country"><input type="text" value={form.country} onChange={(e) => set('country', e.target.value)} placeholder="Ethiopia" className={inputCls} /></Field>
               </div>
-              <Field label="Phone" optional><input type="tel" value={form.phone} onChange={(e) => set('phone', e.target.value)} placeholder="+1 (555) 000-0000" className={inputCls} /></Field>
+              <Field label="Phone" optional><input type="tel" value={form.phone} onChange={(e) => set('phone', e.target.value)} placeholder="+251 91 234 5678" className={inputCls} /></Field>
               <Field label="Website" optional><input type="url" value={form.website} onChange={(e) => set('website', e.target.value)} placeholder="https://yourorganisation.com" className={inputCls} /></Field>
             </div>
-            <div className="flex gap-3 mt-6">
-              <button onClick={back} className="btn-secondary flex-1 !py-2.5">Back</button>
-              <button onClick={next} className="btn-primary flex-1 !py-2.5">Continue</button>
+
+            <div className="mt-6">
+              <PayoutDetailsFields
+                value={payout}
+                onChange={setPayout}
+                docsFileName={payoutDocsName}
+                onDocsSelect={(f) => setPayoutDocsName(f?.name ?? null)}
+              />
             </div>
+
+            <StickyActionBar
+              className="mt-8"
+              secondary={{ label: 'Back', onClick: back }}
+              primary={{ label: 'Continue', onClick: next, tone: 'navy' }}
+            />
           </div>
         )}
 
@@ -291,12 +305,17 @@ export default function OrganizerSignupPage() {
                 </label>
               ))}
             </div>
-            <div className="flex gap-3">
-              <button type="button" onClick={back} className="btn-secondary flex-1 !py-2.5">Back</button>
-              <button type="submit" disabled={loading} className="btn-primary flex-1 !py-2.5">
-                {loading ? 'Creating account…' : 'Create account'}
-              </button>
-            </div>
+            <ConsentCheckbox checked={consented} onChange={setConsented} />
+            <StickyActionBar
+              className="mt-4"
+              secondary={{ label: 'Back', onClick: back }}
+              primary={{
+                type: 'submit',
+                tone: 'navy',
+                disabled: loading || !consented,
+                label: loading ? 'Creating account…' : 'Create organizer account',
+              }}
+            />
           </form>
         )}
 
