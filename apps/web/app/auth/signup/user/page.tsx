@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { SignupStepper } from '@/components/auth/SignupStepper'
 import { StickyActionBar } from '@/components/patterns/StickyActionBar'
@@ -131,13 +132,14 @@ export default function UserSignupPage() {
     setStep((s) => s + 1)
   }
 
+  const router = useRouter()
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setError(null)
     setLoading(true)
 
     const supabase = createClient()
-    const { error } = await supabase.auth.signUp({
+    const { error, data } = await supabase.auth.signUp({
       email: form.email,
       password: form.password,
       options: {
@@ -165,9 +167,18 @@ export default function UserSignupPage() {
       return
     }
 
+
+    // Confirmation off / autoconfirmed: a live session exists — run role
+    // provisioning through the callback route, then continue.
+    if (data.session) {
+      router.push('/auth/callback?next=/')
+      return
+    }
+
     setDone(true)
     setLoading(false)
   }
+
 
   if (done) {
     return (

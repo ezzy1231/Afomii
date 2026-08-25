@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { CategoryPicker, type CategoryOption } from '@/components/auth/CategoryPicker'
 import { SignupStepper } from '@/components/auth/SignupStepper'
@@ -134,13 +135,14 @@ export default function BusinessSignupPage() {
     setStep((s) => s - 1)
   }
 
+  const router = useRouter()
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setError(null)
     setLoading(true)
 
     const supabase = createClient()
-    const { error } = await supabase.auth.signUp({
+    const { error, data } = await supabase.auth.signUp({
       email: form.email,
       password: form.password,
       options: {
@@ -167,9 +169,18 @@ export default function BusinessSignupPage() {
       return
     }
 
+
+    // Confirmation off / autoconfirmed: a live session exists — run role
+    // provisioning through the callback route, then continue.
+    if (data.session) {
+      router.push('/auth/callback?next=/dashboard/restaurant')
+      return
+    }
+
     setDone(true)
     setLoading(false)
   }
+
 
   if (done) {
     return (
