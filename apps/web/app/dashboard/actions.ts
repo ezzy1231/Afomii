@@ -6,11 +6,13 @@ import {
   branchInputSchema,
   bookingConfigInputSchema,
   eventListingInputSchema,
+  eventModerationActionSchema,
   firstIssue,
   logActionError,
   openingHoursSchema,
   restaurantListingInputSchema,
   reservationStatusSchema,
+  userRoleSchema,
   uuidSchema,
 } from '@/lib/validation'
 
@@ -457,4 +459,242 @@ export async function setBusinessVerification(
 
   revalidatePath('/dashboard/admin')
   return { ok: true, message: approve ? 'Business verified.' : 'Business rejected.' }
+}
+
+// ── Platform admin ───────────────────────────────────────────────────────
+
+async function requireSystemAdmin() {
+  const { supabase, user, role } = await getCurrentUserRole()
+  if (!user) return { supabase, error: 'Please sign in again to continue.' as const }
+  if (role !== 'system_admin') return { supabase, error: 'Only platform admins can do this.' as const }
+  return { supabase, user }
+}
+
+export async function adminSetUserRole(
+  userId: string,
+  newRole: string
+): Promise<DashboardActionState> {
+  const idCheck = uuidSchema.safeParse(userId)
+  const roleCheck = userRoleSchema.safeParse(newRole)
+  if (!idCheck.success || !roleCheck.success) {
+    return { ok: false, message: 'Invalid user or role.' }
+  }
+
+  const { supabase, user, error } = await requireSystemAdmin()
+  if (error || !user) return { ok: false, message: error ?? 'Not allowed.' }
+  if (user.id === userId) {
+    return { ok: false, message: 'You cannot change your own role.' }
+  }
+
+  // Audited SECURITY DEFINER function — profiles RLS stays own-row for updates.
+  const { error: rpcError } = await supabase.rpc('admin_set_user_role', {
+    p_user_id: userId,
+    p_new_role: roleCheck.data,
+  })
+  if (rpcError) {
+    logActionError('adminSetUserRole', rpcError)
+    return defaultErrorState
+  }
+
+  revalidatePath('/dashboard/admin/users')
+  revalidatePath('/dashboard/admin')
+  return { ok: true, message: `Role updated to ${roleCheck.data}.` }
+}
+
+export async function adminSetUserSuspended(
+  userId: string,
+  suspended: boolean
+): Promise<DashboardActionState> {
+  const idCheck = uuidSchema.safeParse(userId)
+  if (!idCheck.success) return { ok: false, message: 'Invalid user identifier.' }
+
+  const { supabase, user, error } = await requireSystemAdmin()
+  if (error || !user) return { ok: false, message: error ?? 'Not allowed.' }
+  if (user.id === userId) {
+    return { ok: false, message: 'You cannot suspend your own account.' }
+  }
+
+  // Refuse to touch other system_admins — a locked-out admin panel is worse than none.
+  const { data: target } = await supabase
+    .from('profiles')
+    .select('role, is_suspended')
+    .eq('id', userId)
+    .maybeSingle()
+  if (!target) return { ok: false, message: 'User not found.' }
+  if ((target.role as string) === 'system_admin') {
+    return { ok: false, message: 'System admins cannot be suspended from the panel.' }
+  }
+  if (Boolean(target.is_suspended) === suspended) {
+    return { ok: true, message: suspended ? 'Already suspended.' : 'Not suspended.' }
+  }
+
+  const { error: updateError } = await supabase
+    .from('profiles')
+    .update({ is_suspended: suspended })
+    .eq('id', userId)
+  if (updateError) {
+    logActionError('adminSetUserSuspended', updateError)
+    return defaultErrorState
+  }
+
+  const { error: auditError } = await supabase.from('audit_logs').insert({
+    actor_id: user.id,
+    action: suspended ? 'user_suspended' : 'user_reinstated',
+    entity_type: 'profile',
+    entity_id: userId,
+    metadata: {},
+  })
+  if (auditError) logActionError('adminSetUserSuspended.audit', auditError)
+
+  revalidatePath('/dashboard/admin/users')
+  return { ok: true, message: suspended ? 'Account suspended.' : 'Account reinstated.' }
+}
+
+export async function adminVerifyOrganizer(
+  organizerId: string,
+  approve: boolean
+): Promise<DashboardActionState> {
+  const idCheck = uuidSchema.safeParse(organizerId)
+  if (!idCheck.success) return { ok: false, message: 'Invalid organizer identifier.' }
+
+  const { supabase, user, error: guardError } = await requireSystemAdmin()
+  if (guardError || !user) return { ok: false, message: guardError ?? 'Not allowed.' }
+
+  const { error } = await supabase
+    .from('organizers')
+    .update({ status: approve ? 'active' : 'rejected', is_verified: approve })
+    .eq('id', idCheck.data)
+
+  if (error) {
+    logActionError('adminVerifyOrganizer', error)
+    return defaultErrorState
+  }
+
+  const { error: auditError } = await supabase.from('audit_logs').insert({
+    actor_id: user.id,
+    action: approve ? 'organizer_verification_approved' : 'organizer_verification_rejected',
+    entity_type: 'organizer',
+    entity_id: idCheck.data,
+    metadata: { status: approve ? 'active' : 'rejected' },
+  })
+  if (auditError) logActionError('adminVerifyOrganizer.audit', auditError)
+
+  revalidatePath('/dashboard/admin/organizers')
+  return { ok: true, message: approve ? 'Organizer verified.' : 'Organizer rejected.' }
+}
+
+export async function adminModerateEvent(
+  eventId: string,
+  action: string
+): Promise<DashboardActionState> {
+  const idCheck = uuidSchema.safeParse(eventId)
+  const actionCheck = eventModerationActionSchema.safeParse(action)
+  if (!idCheck.success || !actionCheck.success) {
+    return { ok: false, message: 'Invalid event or moderation action.' }
+  }
+
+  const { supabase, user, error: guardError } = await requireSystemAdmin()
+  if (guardError || !user) return { ok: false, message: guardError ?? 'Not allowed.' }
+
+  const patch =
+    actionCheck.data === 'publish'
+      ? { status: 'published' as const, is_active: true }
+      : actionCheck.data === 'unpublish'
+        ? { status: 'draft' as const, is_active: false }
+        : { status: 'cancelled' as const, is_active: false }
+
+  const { error } = await supabase.from('events').update(patch).eq('id', idCheck.data)
+  if (error) {
+    logActionError('adminModerateEvent', error)
+    return defaultErrorState
+  }
+
+  const { error: auditError } = await supabase.from('audit_logs').insert({
+    actor_id: user.id,
+    action: `event_moderation_${actionCheck.data}`,
+    entity_type: 'event',
+    entity_id: idCheck.data,
+    metadata: { status: patch.status },
+  })
+  if (auditError) logActionError('adminModerateEvent.audit', auditError)
+
+  revalidatePath('/dashboard/admin/events')
+  revalidatePath('/events')
+  return { ok: true, message: `Event ${actionCheck.data === 'publish' ? 'published' : actionCheck.data + 'ed'}.` }
+}
+
+export async function adminCancelReservation(
+  reservationId: string
+): Promise<DashboardActionState> {
+  const idCheck = uuidSchema.safeParse(reservationId)
+  if (!idCheck.success) return { ok: false, message: 'Invalid reservation identifier.' }
+
+  const { supabase, user, error: guardError } = await requireSystemAdmin()
+  if (guardError || !user) return { ok: false, message: guardError ?? 'Not allowed.' }
+
+  const { data: existing } = await supabase
+    .from('reservations')
+    .select('status')
+    .eq('id', idCheck.data)
+    .maybeSingle()
+  if (!existing) return { ok: false, message: 'Reservation not found.' }
+  if (existing.status !== 'pending' && existing.status !== 'confirmed') {
+    return { ok: false, message: `Cannot cancel a ${existing.status} reservation.` }
+  }
+
+  const { error } = await supabase
+    .from('reservations')
+    .update({ status: 'cancelled' })
+    .eq('id', idCheck.data)
+  if (error) {
+    logActionError('adminCancelReservation', error)
+    return defaultErrorState
+  }
+
+  const { error: auditError } = await supabase.from('audit_logs').insert({
+    actor_id: user.id,
+    action: 'reservation_cancelled_by_admin',
+    entity_type: 'reservation',
+    entity_id: idCheck.data,
+    metadata: { previous_status: existing.status },
+  })
+  if (auditError) logActionError('adminCancelReservation.audit', auditError)
+
+  revalidatePath('/dashboard/admin/reservations')
+  return { ok: true, message: 'Reservation cancelled.' }
+}
+
+export async function adminSetBusinessActive(
+  businessId: string,
+  active: boolean
+): Promise<DashboardActionState> {
+  const idCheck = uuidSchema.safeParse(businessId)
+  if (!idCheck.success) return { ok: false, message: 'Invalid business identifier.' }
+
+  const { supabase, user, error: guardError } = await requireSystemAdmin()
+  if (guardError || !user) return { ok: false, message: guardError ?? 'Not allowed.' }
+
+  // moderation_status has no 'suspended' value; suspension = 'inactive'.
+  const { error } = await supabase
+    .from('businesses')
+    .update({ status: active ? 'active' : 'inactive' })
+    .eq('id', idCheck.data)
+
+  if (error) {
+    logActionError('adminSetBusinessActive', error)
+    return defaultErrorState
+  }
+
+  const { error: auditError } = await supabase.from('audit_logs').insert({
+    actor_id: user.id,
+    action: active ? 'business_reactivated' : 'business_suspended',
+    entity_type: 'business',
+    entity_id: idCheck.data,
+    metadata: { status: active ? 'active' : 'inactive' },
+  })
+  if (auditError) logActionError('adminSetBusinessActive.audit', auditError)
+
+  revalidatePath('/dashboard/admin/businesses')
+  revalidatePath(`/dashboard/admin/businesses/${businessId}`)
+  return { ok: true, message: active ? 'Business reactivated.' : 'Business suspended.' }
 }

@@ -110,3 +110,14 @@ export function logActionError(action: string, err: unknown): void {
   const message = err instanceof Error ? err.message : String(err);
   console.error(`[action:${action}] ${message}`);
 }
+
+// -- Platform admin -------------------------------------------------------
+
+export const userRoleSchema = z.enum([
+  "customer",
+  "food_business",
+  "event_organizer",
+  "system_admin",
+]);
+
+export const eventModerationActionSchema = z.enum(["publish", "unpublish", "cancel"]);
