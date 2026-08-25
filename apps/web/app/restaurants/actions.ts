@@ -28,6 +28,23 @@ export async function createReservation(input: {
   if (!parsed.success) return { ok: false, message: firstIssue(parsed.error) }
   const { branchId, reservationDate, timeSlot, guestCount } = parsed.data
 
+  // Duplicate guard: one active booking per person, per slot.
+  const { data: dupe } = await supabase
+    .from('reservations')
+    .select('id')
+    .eq('branch_id', branchId)
+    .eq('reservation_date', reservationDate)
+    .eq('time_slot', timeSlot)
+    .in('status', ['pending', 'confirmed'])
+    .eq('user_id', user.id)
+    .maybeSingle()
+  if (dupe) {
+    return {
+      ok: false,
+      message: 'You already have a reservation for this date and time — see your bookings below.',
+    }
+  }
+
   const { data, error } = await supabase.rpc('reserve_table', {
     p_branch_id: branchId,
     p_reservation_date: reservationDate,
