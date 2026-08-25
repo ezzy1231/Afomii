@@ -23,10 +23,12 @@ export async function middleware(request: NextRequest) {
   }
 
   if (adminPortal && !pathname.startsWith("/dashboard/admin") && !pathname.startsWith("/auth/")) {
-    // Admin instance never serves consumer/partner routes.
-    const url = mainOrigin
-      ? new URL(`${mainOrigin}${pathname}${request.nextUrl.search}`)
-      : new URL("/", request.url);
+    // Inside the portal, funnels strays into the panel itself (e.g. the '/'
+    // that sign-in lands on), so admins never get dumped onto the main site.
+    if (!mainOrigin || pathname === "/") {
+      return NextResponse.redirect(new URL("/dashboard/admin", request.url));
+    }
+    const url = new URL(`${mainOrigin}${pathname}${request.nextUrl.search}`);
     return NextResponse.redirect(url);
   }
   // ────────────────────────────────────────────────────────────────────────
