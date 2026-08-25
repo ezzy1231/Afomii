@@ -130,13 +130,13 @@ export default function OrganizerSignupPage() {
     setStep((s) => s - 1)
   }
 
-  const router = useRouter()
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setError(null)
     setLoading(true)
 
     const supabase = createClient()
+    const router = useRouter()
     const { error, data } = await supabase.auth.signUp({
       email: form.email,
       password: form.password,
@@ -167,8 +167,7 @@ export default function OrganizerSignupPage() {
       return
     }
 
-
-    // Confirmation off / autoconfirmed: a live session exists — run role
+    // Confirmation off / autoconfirmed: a live session exists â€” run role
     // provisioning through the callback route, then continue.
     if (data.session) {
       router.push('/auth/callback?next=/dashboard/organizer')
@@ -178,7 +177,6 @@ export default function OrganizerSignupPage() {
     setDone(true)
     setLoading(false)
   }
-
 
   if (done) {
     return (
