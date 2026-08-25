@@ -11,7 +11,7 @@ const navItems = [
   { label: 'Reservations', href: '/dashboard/admin/reservations', icon: '📅' },
   { label: 'Audit Log', href: '/dashboard/admin/audit', icon: '📜' },
   { label: 'Metrics', href: '/dashboard/admin/metrics', icon: '📈' },
-  { label: 'Settings', href: '/settings', icon: '⚙️' },
+  { label: 'Settings', href: '/dashboard/admin/settings', icon: '⚙️' },
 ]
 
 export default async function AdminDashboardLayout({

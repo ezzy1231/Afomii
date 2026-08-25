@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import type { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
 import {
@@ -114,7 +115,7 @@ export default async function AdminEventsPage({
                   : row.organizers?.name ?? '—'
                 return (
                   <tr key={row.id} className="border-b border-[#4d5f7d]/10 last:border-0">
-                    <td className="max-w-[240px] truncate px-4 py-3.5 font-semibold">{row.title}</td>
+                    <td className="max-w-[240px] truncate px-4 py-3.5"><Link href={`/dashboard/admin/events/${row.id}`} className="font-semibold underline-offset-2 hover:underline">{row.title}</Link></td>
                     <td className="max-w-[160px] truncate px-4 py-3.5 text-[#B5C7EA]">{organizerName}</td>
                     <td className="px-4 py-3.5 tabular-nums text-[#B5C7EA]">{formatDate(row.starts_at)}</td>
                     <td className="px-4 py-3.5"><StatusPill status={row.status} tone={statusTone(row.status)} /></td>

@@ -127,11 +127,13 @@ export default async function AdminBusinessDetailPage({
           <h2 className="mb-1 text-[11px] font-semibold uppercase tracking-[0.15em] text-[#7587A7]">
             Contact
           </h2>
-          <p>{b.email ?? '—'}</p>
-          <p className="tabular-nums text-[#B5C7EA]">{b.phone ?? '—'}</p>
-          <p className="truncate text-[#B5C7EA]">
-            {[b.address, b.city, b.country].filter(Boolean).join(', ') || '—'}
-          </p>
+          <p>{b.email ?? 'No email on file'}</p>
+          {b.phone && <p className="tabular-nums text-[#B5C7EA]">{b.phone}</p>}
+          {(b.address || b.city || b.country) && (
+            <p className="truncate text-[#B5C7EA]">
+              {[b.address, b.city, b.country].filter(Boolean).join(', ')}
+            </p>
+          )}
           {b.website && (
             <a
               href={b.website}

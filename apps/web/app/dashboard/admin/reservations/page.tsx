@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import type { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
 import {
@@ -110,8 +111,10 @@ export default async function AdminReservationsPage({
                   : ''
                 return (
                   <tr key={row.id} className={cn('border-b border-[#4d5f7d]/10 last:border-0', (row.status === 'cancelled' || row.status === 'rejected') && 'opacity-60')}>
-                    <td className="max-w-[180px] truncate px-4 py-3.5 font-semibold">
-                      {contacts.get(row.user_id ?? '') ?? 'Guest'}
+                    <td className="max-w-[180px] truncate px-4 py-3.5">
+                      <Link href={`/dashboard/admin/reservations/${row.id}`} className="block font-semibold underline-offset-2 hover:underline">
+                        {contacts.get(row.user_id ?? '') ?? 'Guest'}
+                      </Link>
                     </td>
                     <td className="max-w-[200px] truncate px-4 py-3.5 text-[#B5C7EA]">
                       {[businessName, branch?.branch_name].filter(Boolean).join(' · ') || '—'}

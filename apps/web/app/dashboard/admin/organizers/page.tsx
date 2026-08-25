@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import type { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
 import {
@@ -103,7 +104,7 @@ export default async function AdminOrganizersPage({
             {rows.map((row) => (
               <div key={row.id} className={cn(CONSOLE_CARD, 'flex flex-wrap items-center justify-between gap-3 p-4')}>
                 <div className="min-w-0">
-                  <p className="truncate text-sm font-semibold">{row.name}</p>
+                  <Link href={`/dashboard/admin/organizers/${row.id}`} className="block truncate text-sm font-semibold underline-offset-2 hover:underline">{row.name}</Link>
                   <p className="text-[11px] uppercase tracking-[0.12em] text-[#7587A7]">
                     {row.email ?? 'No public email'} · joined{' '}
                     {new Date(row.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' })}
