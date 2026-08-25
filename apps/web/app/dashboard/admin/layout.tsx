@@ -3,10 +3,14 @@ import { createClient } from '@/lib/supabase/server'
 import { Sidebar } from '@/components/dashboard/sidebar'
 
 const navItems = [
-  { label: 'Dashboard', href: '/dashboard/admin', icon: '📊' },
+  { label: 'Overview', href: '/dashboard/admin', icon: '📊' },
   { label: 'Users', href: '/dashboard/admin/users', icon: '👥' },
   { label: 'Businesses', href: '/dashboard/admin/businesses', icon: '🏪' },
+  { label: 'Organizers', href: '/dashboard/admin/organizers', icon: '📣' },
   { label: 'Events', href: '/dashboard/admin/events', icon: '🎉' },
+  { label: 'Reservations', href: '/dashboard/admin/reservations', icon: '📅' },
+  { label: 'Audit Log', href: '/dashboard/admin/audit', icon: '📜' },
+  { label: 'Metrics', href: '/dashboard/admin/metrics', icon: '📈' },
   { label: 'Settings', href: '/settings', icon: '⚙️' },
 ]
 

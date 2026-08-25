@@ -56,9 +56,14 @@ export async function middleware(request: NextRequest) {
   if (pathname.startsWith("/dashboard")) {
     const { data: profile } = await supabase
       .from("profiles")
-      .select("role")
+      .select("role, is_suspended")
       .eq("id", user.id)
       .maybeSingle();
+
+    if ((profile?.is_suspended as boolean | undefined) === true) {
+      const suspendedUrl = new URL("/auth/suspended", request.url);
+      return NextResponse.redirect(suspendedUrl);
+    }
 
     const role = profile?.role as string | undefined;
 

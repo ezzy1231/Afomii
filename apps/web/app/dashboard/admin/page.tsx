@@ -244,6 +244,20 @@ export default async function AdminDashboardPage({
         </Link>
       </section>
 
+      {/* Reservations oversight */}
+      <section className="space-y-3">
+        <SectionTitle>Reservations</SectionTitle>
+        <div className={cn(CONSOLE_CARD, 'flex flex-wrap items-center justify-between gap-3 p-4')}>
+          <p className="text-sm text-[#B5C7EA]">Platform-wide booking oversight with audited cancellations.</p>
+          <Link
+            href="/dashboard/admin/reservations"
+            className="min-h-[36px] rounded-full border border-[#C2A878] bg-[#C2A878]/15 px-4 py-1.5 text-xs font-semibold uppercase tracking-wide text-[#DFC391] transition-colors hover:bg-[#C2A878]/30"
+          >
+            Open reservations
+          </Link>
+        </div>
+      </section>
+
       {/* System audit log */}
       <section className="space-y-3">
         <SectionTitle>System Audit Log</SectionTitle>
@@ -263,6 +277,9 @@ export default async function AdminDashboardPage({
             ))
           )}
         </div>
+        <Link href="/dashboard/admin/audit" className="block text-right text-xs font-semibold uppercase tracking-widest text-[#B5C7EA] transition-colors hover:text-[#DFC391]">
+          Full audit log →
+        </Link>
       </section>
     </ConsolePageShell>
   )

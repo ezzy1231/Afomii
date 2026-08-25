@@ -6,8 +6,11 @@ import {
   BarChart3,
   CalendarDays,
   CalendarRange,
+  History,
   LayoutDashboard,
+  LineChart,
   MapPin,
+  Megaphone,
   Settings,
   Store,
   Ticket,
@@ -39,6 +42,9 @@ const navIcons: Record<string, LucideIcon> = {
   Tickets: Ticket,
   Users,
   Businesses: Store,
+  Organizers: Megaphone,
+  "Audit Log": History,
+  Metrics: LineChart,
   Settings,
 };
 
