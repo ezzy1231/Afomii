@@ -8,9 +8,9 @@ import {
   SectionTitle,
   ToggleSwitch,
   FilterChip,
-  CONSOLE_CARD,
   ConsoleSkeletonRow,
 } from '@/components/dashboard/console'
+import { CONSOLE_CARD } from '@/components/dashboard/console-shared'
 import { cn } from '@/lib/utils'
 
 type MenuItem = {

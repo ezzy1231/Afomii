@@ -7,9 +7,8 @@ import {
   ConsoleKpiCard,
   SectionTitle,
   StatusPill,
-  statusTone,
-  CONSOLE_CARD,
 } from '@/components/dashboard/console'
+import { CONSOLE_CARD, statusTone } from '@/components/dashboard/console-shared'
 import { BusinessVerificationActions } from '@/components/dashboard/business-verification-actions'
 import { cn } from '@/lib/utils'
 

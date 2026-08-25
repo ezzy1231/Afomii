@@ -5,9 +5,9 @@ import {
   ConsoleHeader,
   ConsoleKpiCard,
   SectionTitle,
-  CONSOLE_CARD,
   Sparkline,
 } from '@/components/dashboard/console'
+import { CONSOLE_CARD } from '@/components/dashboard/console-shared'
 import { cn } from '@/lib/utils'
 
 export const metadata: Metadata = { title: 'Metrics · Admin' }

@@ -4,10 +4,9 @@ import { createClient } from '@/lib/supabase/server'
 import {
   ConsolePageShell,
   ConsoleHeader,
-  CONSOLE_CARD,
   StatusPill,
-  statusTone,
 } from '@/components/dashboard/console'
+import { CONSOLE_CARD, statusTone } from '@/components/dashboard/console-shared'
 import { BusinessLifecycleActions, BusinessSuspendAction } from '@/components/dashboard/admin-actions'
 import { cn } from '@/lib/utils'
 

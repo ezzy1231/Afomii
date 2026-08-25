@@ -1,16 +1,18 @@
 'use client'
 
 import Link from 'next/link'
+import { CONSOLE_CARD } from './console-shared'
 import { cn } from '@/lib/utils'
 
 /**
- * Shared dark-console primitives for partner/admin surfaces.
- * Palette follows the shipped console screens (#07192B shell, #0B1D31 cards,
- * #7587A7 muted, #DFC391 gold accent) so every dashboard screen matches.
+ * Shared dark-console UI primitives (client components) for partner/admin
+ * surfaces. Palette follows the shipped console screens (#07192B shell,
+ * #0B1D31 cards, #7587A7 muted, #DFC391 gold accent).
+ *
+ * NOTE: server components can render these components but cannot CALL plain
+ * functions exported from this "use client" file — shared constants/helpers
+ * live in `./console-shared` instead.
  */
-
-export const CONSOLE_CARD =
-  'rounded-lg border border-[#4d5f7d]/20 bg-[#0B1D31] shadow-[0_4px_20px_rgba(0,0,0,0.2)]'
 
 export function ConsolePageShell({
   children,
@@ -74,24 +76,6 @@ export function StatusPill({ status, tone }: { status: string; tone?: 'ok' | 'ba
       {status}
     </span>
   )
-}
-
-export function statusTone(status: string): 'ok' | 'bad' | 'gold' | 'info' {
-  switch (status) {
-    case 'confirmed':
-    case 'active':
-    case 'paid':
-      return 'ok'
-    case 'rejected':
-    case 'cancelled':
-    case 'suspended':
-    case 'failed':
-      return 'bad'
-    case 'completed':
-      return 'gold'
-    default:
-      return 'info'
-  }
 }
 
 export function ConsoleKpiCard({

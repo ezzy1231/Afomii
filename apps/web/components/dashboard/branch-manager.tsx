@@ -6,9 +6,9 @@ import { addBranch, updateBranchBookingConfig, updateRestaurantHours } from '@/a
 import {
   ConsoleHeader,
   ConsoleSkeletonRow,
-  CONSOLE_CARD,
   SectionTitle,
 } from './console'
+import { CONSOLE_CARD } from '@/components/dashboard/console-shared'
 import { cn } from '@/lib/utils'
 
 const DAYS = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun']
