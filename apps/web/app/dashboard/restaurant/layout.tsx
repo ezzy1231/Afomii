@@ -2,11 +2,11 @@ import { Sidebar } from '@/components/dashboard/sidebar'
 
 const navItems = [
   { label: 'Overview', href: '/dashboard/restaurant', icon: '📊' },
+  { label: 'Listings', href: '/dashboard/restaurant/listings', icon: '📋' },
   { label: 'Reservations', href: '/dashboard/restaurant/reservations', icon: '📅' },
   { label: 'Branches', href: '/dashboard/restaurant/branches', icon: '🏬' },
   { label: 'Menu', href: '/dashboard/restaurant/menu', icon: '🍽️' },
   { label: 'Analytics', href: '/dashboard/restaurant/analytics', icon: '📈' },
-  { label: 'Settings', href: '/settings', icon: '⚙️' },
 ]
 
 export default function RestaurantDashboardLayout({

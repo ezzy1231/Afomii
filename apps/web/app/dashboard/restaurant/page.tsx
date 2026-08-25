@@ -134,6 +134,21 @@ export default async function RestaurantDashboardPage() {
           </section>
         )}
 
+        {business && (listingsRes.count ?? 0) === 0 && (
+          <section className={cn(CONSOLE_CARD, 'animate-pop-in border-dashed p-8 text-center')}>
+            <p className="font-semibold">No published listings yet</p>
+            <p className="mt-1 text-sm text-[#7587A7]">
+              Create your first listing so diners can find and book you.
+            </p>
+            <Link
+              href="/dashboard/restaurant/listings/new"
+              className="mt-4 inline-block min-h-[44px] rounded-full bg-[#C2A878] px-6 py-2.5 text-sm font-semibold text-navy shadow-lg shadow-black/25 transition-all hover:brightness-110"
+            >
+              Create your first listing
+            </Link>
+          </section>
+        )}
+
         {/* KPI grid */}
         <section className="grid grid-cols-2 gap-3 lg:grid-cols-4">
           {kpis.map((kpi) => (

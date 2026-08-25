@@ -15,6 +15,7 @@ import {
   Store,
   Ticket,
   Users,
+  UtensilsCrossed,
   type LucideIcon,
 } from "lucide-react";
 import { cn } from "../../lib/utils";
@@ -36,6 +37,7 @@ const navIcons: Record<string, LucideIcon> = {
   Reservations: CalendarRange,
   Branches: MapPin,
   Menu: Store,
+  Listings: UtensilsCrossed,
   Analytics: BarChart3,
   Events: CalendarDays,
   Calendar: CalendarDays,

@@ -1,4 +1,4 @@
-'use server'
+﻿'use server'
 
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
@@ -99,6 +99,7 @@ export async function createRestaurantListing(
   }
 
   revalidatePath('/dashboard/restaurant')
+  revalidatePath('/dashboard/restaurant/listings')
   revalidatePath('/restaurants')
 
   return { ok: true, message: `Restaurant listing created for ${name}.` }
@@ -461,7 +462,7 @@ export async function setBusinessVerification(
   return { ok: true, message: approve ? 'Business verified.' : 'Business rejected.' }
 }
 
-// ── Platform admin ───────────────────────────────────────────────────────
+// â”€â”€ Platform admin â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 async function requireSystemAdmin() {
   const { supabase, user, role } = await getCurrentUserRole()
@@ -486,7 +487,7 @@ export async function adminSetUserRole(
     return { ok: false, message: 'You cannot change your own role.' }
   }
 
-  // Audited SECURITY DEFINER function — profiles RLS stays own-row for updates.
+  // Audited SECURITY DEFINER function â€” profiles RLS stays own-row for updates.
   const { error: rpcError } = await supabase.rpc('admin_set_user_role', {
     p_user_id: userId,
     p_new_role: roleCheck.data,
@@ -514,7 +515,7 @@ export async function adminSetUserSuspended(
     return { ok: false, message: 'You cannot suspend your own account.' }
   }
 
-  // Refuse to touch other system_admins — a locked-out admin panel is worse than none.
+  // Refuse to touch other system_admins â€” a locked-out admin panel is worse than none.
   const { data: target } = await supabase
     .from('profiles')
     .select('role, is_suspended')
