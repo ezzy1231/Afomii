@@ -142,7 +142,7 @@ export default function UserSignupPage() {
       password: form.password,
       options: {
         data: {
-          role: 'user',
+          role: 'customer',
           full_name: form.fullName,
           language: form.language,
           birth_date: form.birthDate,
