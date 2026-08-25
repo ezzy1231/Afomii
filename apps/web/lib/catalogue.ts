@@ -69,7 +69,7 @@ export async function getRestaurantCatalogue(): Promise<{ items: CatalogueItem[]
     const supabase = await createClient()
     const { data, error } = await supabase
       .from('restaurants')
-      .select('id, name, cuisine, city, area_label, rating, cover_url, closing_label, branches(address, area_label, city)')
+      .select('id, name, cuisine, city, area_label, rating, cover_url, closing_label')
       .eq('is_active', true)
       .order('created_at', { ascending: false })
       .limit(60)
@@ -86,7 +86,7 @@ export async function getRestaurantCatalogue(): Promise<{ items: CatalogueItem[]
       id: r.id,
       name: r.name,
       category: r.cuisine ?? 'Restaurant',
-      location: r.branches?.[0]?.address ?? r.area_label ?? r.city ?? 'City center',
+      location: r.area_label ?? r.city ?? 'City center',
       // Rating renders next to the card title already — use this line for
       // hours info ("Open until …") instead of duplicating the star rating.
       detail: r.closing_label ?? 'Open today',
