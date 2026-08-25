@@ -28,6 +28,21 @@ export default function SignInPage() {
     setError('Confirmation email re-sent. Check your inbox.')
   }
 
+  function destinationFor(role: string | null, next: string): string {
+    // Explicit `next` always wins; otherwise route each role to its surface.
+    if (next && next !== '/') return next
+    switch (role) {
+      case 'system_admin':
+        return '/dashboard/admin' // middleware completes the bounce to :3001
+      case 'food_business':
+        return '/dashboard/restaurant'
+      case 'event_organizer':
+        return '/dashboard/organizer'
+      default:
+        return '/'
+    }
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setError(null)
@@ -47,7 +62,25 @@ export default function SignInPage() {
       return
     }
 
-    router.push('/')
+    // Route by role so partners/admins land in their consoles.
+    let role: string | null = null
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+    if (user) {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', user.id)
+        .maybeSingle()
+      role = (profile?.role as string | undefined) ?? null
+    }
+
+    const params = new URLSearchParams(window.location.search)
+    const rawNext = params.get('next') ?? '/'
+    const next = rawNext.startsWith('/') && !rawNext.startsWith('//') ? rawNext : '/'
+
+    router.push(destinationFor(role, next))
     router.refresh()
   }
 
