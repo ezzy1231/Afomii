@@ -87,6 +87,7 @@ export default function OrganizerSignupPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [done, setDone] = useState(false)
+  const router = useRouter()
 
   const [form, setForm] = useState<FormData>({
     contactName: '', email: '', password: '', confirmPassword: '',
@@ -136,7 +137,6 @@ export default function OrganizerSignupPage() {
     setLoading(true)
 
     const supabase = createClient()
-    const router = useRouter()
     const { error, data } = await supabase.auth.signUp({
       email: form.email,
       password: form.password,
