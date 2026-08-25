@@ -355,7 +355,13 @@ export default function RestaurantDetail({ restaurant }: { restaurant: Restauran
         <div>
           <div className="lg:sticky lg:top-20">
             <div id="reserve" className="scroll-mt-24">
-              <ReservationForm restaurant={restaurant} branch={branch} key={branch.id} />
+              {branch ? (
+                <ReservationForm restaurant={restaurant} branch={branch} key={branch.id} />
+              ) : (
+                <div className="rounded-xl border border-app-border bg-app-card p-5 text-sm text-app-muted shadow-[var(--shadow-sm)]">
+                  This venue hasn&apos;t added booking locations yet — check back soon.
+                </div>
+              )}
             </div>
 
             {/* Ride card */}
