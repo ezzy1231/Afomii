@@ -7,6 +7,30 @@ const protectedRoutes = ["/dashboard", "/settings"];
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
+  // ── Two-instance split ──────────────────────────────────────────────────
+  // main  (:3000) -> consumer + partner surfaces
+  // admin (:3001, ADMIN_PORTAL=1) -> /dashboard/admin surfaces only.
+  // Sessions are cookie-based and cookies ignore ports, so one sign-in works
+  // across both instances.
+  const adminPortal = readEnv("ADMIN_PORTAL") === "1";
+  const adminOrigin = readEnv("NEXT_PUBLIC_ADMIN_ORIGIN");
+  const mainOrigin = readEnv("NEXT_PUBLIC_MAIN_ORIGIN");
+
+  if (!adminPortal && adminOrigin && pathname.startsWith("/dashboard/admin")) {
+    // Main instance never serves admin routes — send visitors to the portal.
+    const url = new URL(`${adminOrigin}${pathname}${request.nextUrl.search}`);
+    return NextResponse.redirect(url);
+  }
+
+  if (adminPortal && !pathname.startsWith("/dashboard/admin") && !pathname.startsWith("/auth/")) {
+    // Admin instance never serves consumer/partner routes.
+    const url = mainOrigin
+      ? new URL(`${mainOrigin}${pathname}${request.nextUrl.search}`)
+      : new URL("/", request.url);
+    return NextResponse.redirect(url);
+  }
+  // ────────────────────────────────────────────────────────────────────────
+
   const isProtected = protectedRoutes.some(
     (route) => pathname === route || pathname.startsWith(`${route}/`)
   );

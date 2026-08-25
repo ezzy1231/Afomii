@@ -1,8 +1,16 @@
-/** @type {import('next').NextConfig} */
+﻿/** @type {import('next').NextConfig} */
+//
+// The app can run as two instances:
+//   main  (default)      -> consumer + partner surfaces on :3000
+//   admin  ADMIN_PORTAL=1 -> /dashboard/admin surfaces on :3001
+// Each instance gets its own .next build dir so they can run concurrently.
+const isAdminPortal = process.env.ADMIN_PORTAL === "1";
+
 const nextConfig = {
   transpilePackages: ["@urbanexplore/shared", "@urbanexplore/database"],
   output: "standalone",
   poweredByHeader: false,
+  distDir: isAdminPortal ? ".next-admin" : ".next",
   images: {
     remotePatterns: [
       // Supabase Storage / project assets
