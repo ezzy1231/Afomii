@@ -12,11 +12,22 @@ export default async function OrganizerDashboardPage() {
     data: { user },
   } = await supabase.auth.getUser()
 
-  const { data: organizer } = await supabase
+  const { data: organizerRaw } = await supabase
     .from('organizers')
-    .select('id, org_name')
+    .select('id, name')
     .eq('owner_id', user?.id ?? '')
     .maybeSingle()
+
+  // Self-heal: accounts from before provisioning ran through the callback get
+  // their organizers row created on first dashboard view.
+  let organizer = organizerRaw
+  if (!organizer && user) {
+    const metaRole = (user.user_metadata as Record<string, unknown> | undefined)?.role
+    if (metaRole === 'event_organizer') {
+      const { ensureOrganizer } = await import('@/lib/provision')
+      organizer = await ensureOrganizer(supabase, user)
+    }
+  }
 
   const { data: events } = organizer
     ? await supabase

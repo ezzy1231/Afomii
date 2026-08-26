@@ -12,3 +12,10 @@ coverage/
 .turbo/
 
 .claude/
+
+# machine setup logs
+logs/
+
+
+# admin portal instance build
+.next-admin/

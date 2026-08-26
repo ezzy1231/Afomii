@@ -42,11 +42,21 @@ export default async function RestaurantDashboardPage() {
 
   const today = new Date().toISOString().slice(0, 10)
 
-  const { data: business } = await supabase
+  const { data: businessRaw } = await supabase
     .from('businesses')
     .select('id, name')
     .eq('owner_id', user?.id ?? '')
     .maybeSingle()
+
+  // Self-heal pre-provisioning accounts on first view.
+  let business = businessRaw
+  if (!business && user) {
+    const metaRole = (user.user_metadata as Record<string, unknown> | undefined)?.role
+    if (metaRole === 'food_business') {
+      const { ensureBusiness } = await import('@/lib/provision')
+      business = await ensureBusiness(supabase, user)
+    }
+  }
 
   const { data: branches } = business
     ? await supabase.from('branches').select('id').eq('business_id', business.id)
