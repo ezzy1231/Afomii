@@ -2,7 +2,8 @@
   "name": "urbanexplore",
   "private": true,
   "scripts": {
-    "dev": "turbo dev",
+    "dev": "turbo dev --filter=!@urbanexplore/mobile",
+    "dev:web": "npm run dev -w @urbanexplore/web",
     "build": "turbo build",
     "lint": "turbo lint",
     "test": "turbo test",
