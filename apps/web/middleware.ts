@@ -102,6 +102,14 @@ export async function middleware(request: NextRequest) {
     }
 
     if (pathname.startsWith("/dashboard/admin") && role !== "system_admin") {
+      // On the admin portal, a plain "/" redirect would loop (the portal
+      // funnels "/" back into the panel) — send signed-in non-admins to the
+      // explicit no-access page, or home on the main instance.
+      if (adminPortal) {
+        const base = readEnv("NEXT_PUBLIC_MAIN_ORIGIN");
+        if (base) return NextResponse.redirect(new URL("/", base));
+        return NextResponse.redirect(new URL("/auth/no-access", request.url));
+      }
       return NextResponse.redirect(new URL("/", request.url));
     }
   }

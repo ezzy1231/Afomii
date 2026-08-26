@@ -30,7 +30,7 @@ export default async function AdminDashboardLayout({
     .eq('id', user.id)
     .maybeSingle()
 
-  if ((profile?.role as string | undefined) !== 'system_admin') redirect('/')
+  if ((profile?.role as string | undefined) !== 'system_admin') redirect('/auth/no-access')
 
   return (
     <div className="flex min-h-screen bg-app-bg">
