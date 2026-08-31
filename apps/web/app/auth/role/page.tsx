@@ -1,11 +1,16 @@
 import type { Metadata } from 'next'
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
 
 export const metadata: Metadata = { title: 'Get Started' }
 
-const params = new URLSearchParams(window.location.search)
-const rawNext = params.get('next') ?? '/'
-const next = rawNext.startsWith('/') && !rawNext.startsWith('//') ? rawNext : '/'
+const [next, setNext] = useState('/')
+
+useEffect(() => {
+  const params = new URLSearchParams(window.location.search)
+  const rawNext = params.get('next') ?? '/'
+  setNext(rawNext.startsWith('/') && !rawNext.startsWith('//') ? rawNext : '/')
+}, [])
 
 const roles = [
   {
