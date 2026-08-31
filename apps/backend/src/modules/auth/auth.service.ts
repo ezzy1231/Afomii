@@ -55,7 +55,18 @@ export class AuthService {
       },
     });
 
-    return this.generateTokens(user.id, user.role);
+    // Unified envelope: identical shape to login() so clients parse one format (BE-0.5).
+    return {
+      ...(await this.generateTokens(user.id, user.role)),
+      user: {
+        id: user.id,
+        email: user.email,
+        phone: user.phone,
+        role: user.role,
+        language: user.language,
+        country: user.country,
+      },
+    };
   }
 
   async login(dto: { email?: string; phone?: string; password: string }) {

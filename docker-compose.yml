@@ -9,7 +9,7 @@ services:
       POSTGRES_PASSWORD: foodride_dev
       POSTGRES_DB: foodride
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
       - ./packages/database/prisma/init-postgis.sql:/docker-entrypoint-initdb.d/init-postgis.sql

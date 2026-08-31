@@ -27,13 +27,25 @@ export class PartnersController {
     @Query("lng") lng?: string,
     @Query("category") category?: string,
     @Query("search") search?: string,
+    @Query("openNow") openNow?: string,
+    @Query("page") page?: string,
+    @Query("limit") limit?: string,
   ) {
     return this.partnersService.getPublicRestaurants({
       lat: lat ? parseFloat(lat) : undefined,
       lng: lng ? parseFloat(lng) : undefined,
       category,
       search,
+      openNow,
+      page: page ? parseInt(page, 10) : undefined,
+      limit: limit ? parseInt(limit, 10) : undefined,
     });
+  }
+
+  @Public()
+  @Get("restaurants/:businessId")
+  getRestaurantDetail(@Param("businessId") businessId: string) {
+    return this.partnersService.getRestaurantById(businessId);
   }
 
   @Post("business/register")
