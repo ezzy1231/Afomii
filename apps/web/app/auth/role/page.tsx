@@ -3,6 +3,10 @@ import Link from 'next/link'
 
 export const metadata: Metadata = { title: 'Get Started' }
 
+const params = new URLSearchParams(window.location.search)
+const rawNext = params.get('next') ?? '/'
+const next = rawNext.startsWith('/') && !rawNext.startsWith('//') ? rawNext : '/'
+
 const roles = [
   {
     key: 'user',
@@ -22,7 +26,7 @@ const roles = [
       'Use a single account across dining and entertainment',
     ],
     cta: 'Continue as User',
-    href: '/auth/signup/user',
+    href: `/auth/signup/user?next=${encodeURIComponent(next)}`,
   },
   {
     key: 'business',
@@ -42,7 +46,7 @@ const roles = [
       'Unlock analytics and premium plans',
     ],
     cta: 'List My Venue',
-    href: '/auth/signup/business',
+    href: `/auth/signup/business?next=${encodeURIComponent(next)}`,
   },
   {
     key: 'organizer',
@@ -62,7 +66,7 @@ const roles = [
       'Reach a local audience that is ready to buy',
     ],
     cta: 'List My Events',
-    href: '/auth/signup/organizer',
+    href: `/auth/signup/organizer?next=${encodeURIComponent(next)}`,
   },
 ]
 

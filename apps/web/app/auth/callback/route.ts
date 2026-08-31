@@ -29,7 +29,15 @@ export async function GET(request: Request) {
   }
 
   if (user) {
-    const role = user.user_metadata?.role as string | undefined
+    let role = user.user_metadata?.role as string | undefined
+
+    // If no role in metadata, prompt user to select one
+    if (!role) {
+      const params = new URLSearchParams(window.location.search)
+      const rawNext = params.get('next') ?? '/'
+      const next = rawNext.startsWith('/') && !rawNext.startsWith('//') ? rawNext : '/'
+      return NextResponse.redirect(new URL(`/auth/role?next=${encodeURIComponent(next)}`, origin))
+    }
 
     if (role === 'food_business') {
       const { data: existing } = await supabase
