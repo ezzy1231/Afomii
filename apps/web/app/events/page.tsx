@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import Navbar from '@/components/Navbar'
-import Footer from '@/components/Footer'
+import PageFooter from '@/components/PageFooter'
 import ExploreCatalogue from '@/components/ExploreCatalogue'
 import { getEventCatalogue } from '@/lib/catalogue'
 
@@ -24,7 +24,7 @@ export default async function EventsPage({
           initialQuery={searchParams?.q ?? ''}
         />
       </main>
-      <Footer />
+      <PageFooter />
     </>
   )
 }

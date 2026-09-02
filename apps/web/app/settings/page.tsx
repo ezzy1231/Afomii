@@ -4,7 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 import { getConsumerReservations, getConsumerTickets } from '@/lib/supabase/queries'
 import { formatDate } from '@/lib/utils'
 import Navbar from '@/components/Navbar'
-import Footer from '@/components/Footer'
+import PageFooter from '@/components/PageFooter'
 import { StatusBadge } from '@/components/ui/badge'
 import SignOutButton from './SignOutButton'
 import type { Metadata } from 'next'
@@ -178,7 +178,7 @@ export default async function SettingsPage() {
           <SignOutButton />
         </section>
       </main>
-      <Footer />
+      <PageFooter />
     </>
   )
 }

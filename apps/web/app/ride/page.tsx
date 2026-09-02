@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import Navbar from '@/components/Navbar'
-import Footer from '@/components/Footer'
+import PageFooter from '@/components/PageFooter'
 import RidePlanner from '@/components/RidePlanner'
 
 export const metadata: Metadata = {
@@ -10,5 +10,5 @@ export const metadata: Metadata = {
 }
 
 export default function RidePage() {
-  return <><Navbar /><RidePlanner /><Footer /></>
+  return <><Navbar /><RidePlanner /><PageFooter /></>
 }

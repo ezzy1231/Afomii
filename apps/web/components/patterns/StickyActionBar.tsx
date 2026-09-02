@@ -73,7 +73,7 @@ export function StickyActionBar({
   return (
     <div
       className={cn(
-        "sticky bottom-0 z-30 -mx-4 mt-8 border-t border-app-border bg-app-bg/80 px-4 py-3 backdrop-blur-xl sm:static sm:mx-0 sm:border-0 sm:bg-transparent sm:px-0 sm:backdrop-blur-none safe-bottom",
+        "sticky bottom-[calc(5rem+env(safe-area-inset-bottom))] z-30 -mx-4 mt-8 border-t border-app-border bg-app-bg/80 px-4 py-3 backdrop-blur-xl sm:static sm:mx-0 sm:border-0 sm:bg-transparent sm:px-0 sm:backdrop-blur-none safe-bottom",
         className
       )}
     >

@@ -207,24 +207,49 @@ export type ConsumerReservation = {
 export async function getConsumerReservations(userId: string): Promise<ConsumerReservation[]> {
   const supabase = await createClient()
 
-  const { data } = await supabase
+  // Step 1: fetch reservations with branch info (branches FK is valid)
+  const { data: reservations, error } = await supabase
     .from('reservations')
     .select(
-      'id, reservation_date, time_slot, guest_count, status, branch:branches(branch_name, address, restaurant:restaurants(name))'
+      'id, reservation_date, time_slot, guest_count, status, branch:branches(branch_name, address, business_id)'
     )
     .eq('user_id', userId)
     .order('reservation_date', { ascending: false })
     .limit(50)
 
-  if (!data) return []
+  if (error || !reservations) {
+    console.error('[queries] getConsumerReservations error:', error?.message)
+    return []
+  }
 
-  return (data as any[]).map((r) => {
+  // Step 2: collect unique business_ids from branches
+  const businessIds = [
+    ...new Set(
+      (reservations as any[]).map((r) => {
+        const branch = Array.isArray(r.branch) ? r.branch[0] : r.branch
+        return branch?.business_id
+      }).filter(Boolean),
+    ),
+  ]
+
+  // Step 3: fetch restaurant names by business_id
+  // (restaurants_select_anon allows is_active=true reads for authenticated)
+  const restaurantMap = new Map<string, string>()
+  if (businessIds.length > 0) {
+    const { data: restaurants } = await supabase
+      .from('restaurants')
+      .select('business_id, name')
+      .in('business_id', businessIds)
+    for (const r of restaurants ?? []) {
+      if (!restaurantMap.has(r.business_id)) {
+        restaurantMap.set(r.business_id, r.name)
+      }
+    }
+  }
+
+  // Step 4: map to ConsumerReservation
+  return (reservations as any[]).map((r) => {
     const branch = Array.isArray(r.branch) ? r.branch[0] : r.branch
-    const restaurant = branch?.restaurant
-      ? Array.isArray(branch.restaurant)
-        ? branch.restaurant[0]
-        : branch.restaurant
-      : null
     return {
       id: r.id,
       reservationDate: r.reservation_date,
@@ -233,7 +258,7 @@ export async function getConsumerReservations(userId: string): Promise<ConsumerR
       status: r.status,
       branchName: branch?.branch_name ?? '',
       address: branch?.address ?? '',
-      restaurantName: restaurant?.name ?? '',
+      restaurantName: branch?.business_id ? (restaurantMap.get(branch.business_id) ?? '') : '',
     }
   })
 }
@@ -255,7 +280,7 @@ export type ConsumerTicket = {
 export async function getConsumerTickets(userId: string): Promise<ConsumerTicket[]> {
   const supabase = await createClient()
 
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from('ticket_purchases')
     .select(
       'id, ticket_type_id, event_id, quantity, amount, payment_status, qr_code, attended, created_at, ticket_types(name), events(title)'
@@ -264,7 +289,10 @@ export async function getConsumerTickets(userId: string): Promise<ConsumerTicket
     .order('created_at', { ascending: false })
     .limit(50)
 
-  if (!data) return []
+  if (error || !data) {
+    console.error('[queries] getConsumerTickets error:', error?.message)
+    return []
+  }
 
   return (data as any[]).map((r) => {
     const tt = Array.isArray(r.ticket_types) ? r.ticket_types[0] : r.ticket_types

@@ -3,7 +3,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { ArrowRight, CalendarDays, CarFront, Palette, Utensils, Users } from 'lucide-react'
 import Navbar from '@/components/Navbar'
-import Footer from '@/components/Footer'
+import PageFooter from '@/components/PageFooter'
 import { SectionHeader } from '@/components/patterns'
 
 export const metadata: Metadata = { title: 'Product vision' }
@@ -140,7 +140,7 @@ export default function VisionPage() {
         </section>
       </main>
 
-      <Footer />
+      <PageFooter />
     </>
   )
 }

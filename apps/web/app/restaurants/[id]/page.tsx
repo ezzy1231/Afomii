@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import Navbar from '@/components/Navbar'
-import Footer from '@/components/Footer'
+import PageFooter from '@/components/PageFooter'
 import RestaurantDetail from '@/components/RestaurantDetail'
 import { getRestaurantDetail } from '@/lib/supabase/queries'
 
@@ -17,7 +17,7 @@ export default async function RestaurantDetailPage({ params }: { params: { id: s
       <main className="flex-1">
         <RestaurantDetail restaurant={restaurant} />
       </main>
-      <Footer />
+      <PageFooter />
     </>
   )
 }

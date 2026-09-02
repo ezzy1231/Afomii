@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Navbar from "./Navbar";
-import Footer from "./Footer";
+import PageFooter from "./PageFooter";
 
 type InfoPageProps = {
   eyebrow: string;
@@ -40,7 +40,7 @@ export default function InfoPage({
           Back to home
         </Link>
       </main>
-      <Footer />
+      <PageFooter />
     </>
   );
 }

@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import Navbar from '@/components/Navbar'
-import Footer from '@/components/Footer'
+import PageFooter from '@/components/PageFooter'
 import PlansView from '@/components/PlansView'
 import type { Metadata } from 'next'
 
@@ -31,7 +31,7 @@ export default async function PlansPage() {
         </div>
         <PlansView userId={user.id} />
       </main>
-      <Footer />
+      <PageFooter />
     </>
   )
 }

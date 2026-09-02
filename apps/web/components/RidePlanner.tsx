@@ -593,7 +593,7 @@ export default function RidePlanner() {
       </div>
 
       {/* Sticky bottom action bar */}
-      <div className="nav-blur fixed inset-x-0 bottom-0 z-40 border-t border-app-border safe-bottom">
+      <div className="nav-blur fixed inset-x-0 bottom-[calc(5rem+env(safe-area-inset-bottom))] z-40 border-t border-app-border safe-bottom md:bottom-0">
         <div className="mx-auto flex max-w-4xl flex-wrap items-center justify-center gap-x-6 gap-y-3 px-4 py-3 sm:justify-between">
           <div className="hidden items-center gap-6 sm:flex">
             {[

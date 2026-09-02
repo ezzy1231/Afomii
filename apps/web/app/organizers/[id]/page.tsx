@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import Navbar from '@/components/Navbar'
-import Footer from '@/components/Footer'
+import PageFooter from '@/components/PageFooter'
 import OrganizerProfile from '@/components/OrganizerProfile'
 import { getOrganizerDetail } from '@/lib/supabase/queries'
 
@@ -17,7 +17,7 @@ export default async function OrganizerPage({ params }: { params: { id: string }
       <main className="flex-1">
         <OrganizerProfile organizer={organizer} />
       </main>
-      <Footer />
+      <PageFooter />
     </>
   )
 }

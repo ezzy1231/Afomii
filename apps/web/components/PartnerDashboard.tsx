@@ -6,7 +6,7 @@ import {
   Store,
 } from "lucide-react";
 import Navbar from "./Navbar";
-import Footer from "./Footer";
+import PageFooter from "./PageFooter";
 
 export default function PartnerDashboard({
   type,
@@ -62,7 +62,7 @@ export default function PartnerDashboard({
           </button>
         </section>
       </main>
-      <Footer />
+      <PageFooter />
     </>
   );
 }
