@@ -2,6 +2,8 @@ import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import type { User } from '@supabase/supabase-js'
 
+export const dynamic = 'force-dynamic'
+
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url)
   const code = searchParams.get('code')
@@ -22,7 +24,11 @@ export async function GET(request: Request) {
   let user: User | null = null
   if (code) {
     const { data, error } = await supabase.auth.exchangeCodeForSession(code)
-    if (!error) user = data.user
+    if (error) {
+      console.error('[auth/callback] exchangeCodeForSession failed:', error.message, error.code)
+    } else {
+      user = data.user
+    }
   } else {
     const { data } = await supabase.auth.getUser()
     user = data.user

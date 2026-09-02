@@ -1,7 +1,6 @@
 'use client'
 
 import { useEffect } from 'react'
-import { useRouter } from 'next/navigation'
 
 /**
  * Catches a dangling OAuth `?code=...` that lands on any page.
@@ -11,10 +10,13 @@ import { useRouter } from 'next/navigation'
  * `/?code=...`. Nothing on the home page would ever exchange that code, so
  * the session is silently never created. This component forwards the code to
  * the real callback route, which exchanges it and routes by role.
+ *
+ * Must be a HARD navigation (window.location.assign), not router.replace:
+ * the callback route handler answers with a 307 redirect AND sets the
+ * session cookies on its response — client-side router navigation can drop
+ * those Set-Cookie headers, which would log the user straight back out.
  */
 export default function OAuthCodeCatcher() {
-  const router = useRouter()
-
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
     const code = params.get('code')
@@ -29,8 +31,8 @@ export default function OAuthCodeCatcher() {
 
     const callbackUrl = new URL('/auth/callback', window.location.origin)
     callbackUrl.searchParams.set('code', code)
-    router.replace(callbackUrl.pathname + callbackUrl.search)
-  }, [router])
+    window.location.assign(callbackUrl.toString())
+  }, [])
 
   return null
 }

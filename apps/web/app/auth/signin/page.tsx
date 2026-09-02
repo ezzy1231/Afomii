@@ -87,16 +87,21 @@ export default function SignInPage() {
   async function handleGoogle() {
     setError(null)
     const supabase = createClient()
-    // Carry the `next` destination through the OAuth round-trip: the callback
-    // route re-reads it from the URL and routes by role (admins -> /dashboard/admin).
-    const params = new URLSearchParams(window.location.search)
-    const rawNext = params.get('next') ?? '/'
-    const next = rawNext.startsWith('/') && !rawNext.startsWith('//') ? rawNext : '/'
-    const redirectTo = new URL('/auth/callback', window.location.origin)
-    if (next && next !== '/') redirectTo.searchParams.set('next', next)
+    // Explicit `next` is NOT passed through the OAuth redirectTo — adding
+    // query parameters can cause Supabase to reject the URL if the Redirect
+    // URL allowlist is configured as an exact match (no wildcard).  The
+    // callback route already routes by role (system_admin → /dashboard/admin),
+    // so the `next` param is redundant for Google OAuth anyway.
+    // The `next` param is preserved in the URL by the middleware redirect
+    // and will be picked up by the callback route if it's present.
+    // Actually, the callback route reads `next` from the URL search params,
+    // so if the redirectTo URL is clean (no next param), the callback will
+    // use the default `next = '/'` and then route by role.
     await supabase.auth.signInWithOAuth({
       provider: 'google',
-      options: { redirectTo: redirectTo.toString() },
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback`,
+      },
     })
   }
 
