@@ -561,3 +561,147 @@ function buildSampleEventDetail(item: CatalogueItem): EventDetail {
     organizer: { id: 'sample-organizer', email: 'events@urbanexplore.example' },
   }
 }
+// ── Consumer "My Plans" ────────────────────────────────────────────────────
+// Unified view of confirmed reservations + paid ticket purchases for a user.
+
+export type ConsumerPlan = {
+  id: string
+  planType: 'reservation' | 'event'
+  title: string
+  coverImageUrl: string | null
+  planDate: string | null
+  location: string
+  latitude: number | null
+  longitude: number | null
+  status: string
+}
+
+export async function getConsumerPlans(userId: string): Promise<ConsumerPlan[]> {
+  const supabase = await createClient()
+
+  // ── Reservations (pending/confirmed) ──────────────────────────────────────
+  const { data: reservations, error: resErr } = await supabase
+    .from('reservations')
+    .select('id, reservation_date, time_slot, status, branch:branches!inner(business_id, address, latitude, longitude)')
+    .eq('user_id', userId)
+    .in('status', ['pending', 'confirmed'])
+
+  if (resErr) {
+    console.error('[queries] getConsumerPlans (reservations):', resErr.message)
+  }
+
+  // ── Restaurant names/cover for each reservation branch ────────────────────
+  const businessIds = [...new Set((reservations ?? []).map((r: any) => r.branch?.business_id).filter(Boolean))]
+  let restaurantMap: Record<string, { name: string; cover_url: string | null }> = {}
+  if (businessIds.length > 0) {
+    const { data: restaurants } = await supabase
+      .from('restaurants')
+      .select('business_id, name, cover_url')
+      .in('business_id', businessIds)
+    if (restaurants) {
+      for (const r of restaurants) {
+        restaurantMap[r.business_id] = { name: r.name, cover_url: r.cover_url }
+      }
+    }
+  }
+
+  // ── Event ticket purchases (paid) ─────────────────────────────────────────
+  const { data: purchases, error: purchErr } = await supabase
+    .from('ticket_purchases')
+    .select('id, payment_status, event:events!inner(title, cover_image_url, starts_at, venue_name, latitude, longitude)')
+    .eq('user_id', userId)
+    .eq('payment_status', 'paid')
+
+  if (purchErr) {
+    console.error('[queries] getConsumerPlans (ticket_purchases):', purchErr.message)
+  }
+
+  // ── Build plans ───────────────────────────────────────────────────────────
+  const plans: ConsumerPlan[] = []
+
+  for (const r of (reservations ?? []) as any[]) {
+    const branch = r.branch ?? {}
+    const biz = branch.business_id as string | undefined
+    const rest = biz ? restaurantMap[biz] : undefined
+    const planDate = r.reservation_date
+      ? `${r.reservation_date}T${r.time_slot || '12:00'}`
+      : null
+    plans.push({
+      id: r.id,
+      planType: 'reservation',
+      title: rest?.name ?? '',
+      coverImageUrl: rest?.cover_url ?? null,
+      planDate,
+      location: (branch.address as string) ?? '',
+      latitude: branch.latitude != null ? Number(branch.latitude) : null,
+      longitude: branch.longitude != null ? Number(branch.longitude) : null,
+      status: r.status ?? '',
+    })
+  }
+
+  for (const p of (purchases ?? []) as any[]) {
+    const ev = p.event as Record<string, any> | undefined
+    plans.push({
+      id: p.id,
+      planType: 'event',
+      title: ev?.title ?? '',
+      coverImageUrl: ev?.cover_image_url ?? null,
+      planDate: ev?.starts_at ?? null,
+      location: ev?.venue_name ?? '',
+      latitude: ev?.latitude != null ? Number(ev.latitude) : null,
+      longitude: ev?.longitude != null ? Number(ev.longitude) : null,
+      status: p.payment_status ?? '',
+    })
+  }
+
+  plans.sort((a, b) => {
+    if (!a.planDate && !b.planDate) return 0
+    if (!a.planDate) return 1
+    if (!b.planDate) return -1
+    return a.planDate.localeCompare(b.planDate)
+  })
+
+  return plans
+}
+
+export type ConsumerNotification = {
+  id: string
+  type: string
+  title: string
+  body: string
+  readAt: string | null
+  createdAt: string
+}
+
+/** Unread notification count for a user (used by the navbar + dashboard bells). */
+export async function getUnreadNotificationCount(userId: string): Promise<number> {
+  const supabase = await createClient()
+  const { count } = await supabase
+    .from('notifications')
+    .select('id', { count: 'exact', head: true })
+    .eq('user_id', userId)
+    .is('read_at', null)
+  return count ?? 0
+}
+
+export async function getConsumerNotifications(userId: string): Promise<ConsumerNotification[]> {
+  const supabase = await createClient()
+
+  const { data } = await supabase
+    .from('notifications')
+    .select('id, type, title, body, read_at, created_at')
+    .eq('user_id', userId)
+    .order('created_at', { ascending: false })
+    .limit(20)
+
+  if (!data) return []
+
+  return (data as any[]).map((n) => ({
+    id: n.id,
+    type: n.type,
+    title: n.title,
+    body: n.body,
+    readAt: n.read_at ?? null,
+    createdAt: n.created_at,
+  }))
+}

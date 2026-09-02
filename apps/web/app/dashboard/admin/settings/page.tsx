@@ -29,19 +29,19 @@ export default async function AdminSettingsPage() {
 
       <section className={cn(CONSOLE_CARD, 'space-y-4 p-5 text-sm')}>
         <div className="flex items-center justify-between gap-3">
-          <span className="text-[#7587A7]">Signed in as</span>
+          <span className="text-app-muted">Signed in as</span>
           <span className="font-semibold">{email ?? '—'}</span>
         </div>
         <div className="flex items-center justify-between gap-3">
-          <span className="text-[#7587A7]">Role</span>
+          <span className="text-app-muted">Role</span>
           {role ? <StatusPill status={role} tone={role === 'system_admin' ? 'gold' : 'info'} /> : <span>—</span>}
         </div>
-        <div className="border-t border-[#4d5f7d]/20 pt-4">
+        <div className="border-t border-app-border pt-4">
           <SignOutButton />
         </div>
       </section>
 
-      <p className="px-1 text-xs text-[#7587A7]">
+      <p className="px-1 text-xs text-app-muted">
         Platform configuration (roles, moderation policy, feature flags) lives in the Supabase
         dashboard and migrations for now — this panel focuses on operational control.
       </p>

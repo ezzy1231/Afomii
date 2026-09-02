@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
+import { getUnreadNotificationCount } from '@/lib/supabase/queries'
 import { Sidebar } from '@/components/dashboard/sidebar'
 
 const navItems = [
@@ -32,12 +33,12 @@ export default async function AdminDashboardLayout({
 
   if ((profile?.role as string | undefined) !== 'system_admin') redirect('/auth/no-access')
 
+  const notificationCount = await getUnreadNotificationCount(user.id)
+
   return (
-    <div className="flex min-h-screen bg-app-bg">
-      <Sidebar title="Admin Panel" navItems={navItems} />
-      <main className="min-w-0 flex-1 overflow-auto bg-app-bg">
-        {children}
-      </main>
+    <div className="flex min-h-screen">
+      <Sidebar title="Admin Panel" navItems={navItems} notificationCount={notificationCount} />
+      <main className="min-w-0 flex-1 overflow-auto">{children}</main>
     </div>
   )
 }

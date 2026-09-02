@@ -1,7 +1,7 @@
 import { cn } from "../../lib/utils";
 
 /**
- * Eventbrite-style month/day block used on event cards and rows.
+ * Ember month/day block used on event cards and rows.
  * Accepts either a Date-parsable string or explicit parts.
  */
 export function DateBadge({
@@ -21,7 +21,7 @@ export function DateBadge({
       className={cn(
         "date-badge",
         size === "sm" && "px-2 py-1",
-        size === "lg" && "px-3.5 py-2 shadow-lg",
+        size === "lg" && "px-3.5 py-2",
         className
       )}
     >

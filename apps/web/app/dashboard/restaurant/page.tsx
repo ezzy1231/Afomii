@@ -6,20 +6,19 @@ import { cn } from '@/lib/utils'
 
 export const metadata: Metadata = { title: 'Restaurant Dashboard' }
 
-const CONSOLE_CARD =
-  'rounded-lg border border-[#4d5f7d]/20 bg-[#0B1D31] shadow-[0_4px_20px_rgba(0,0,0,0.2)]'
+const CONSOLE_CARD = 'glass rounded-2xl'
 
 function statusPill(status: string) {
   switch (status) {
     case 'confirmed':
-      return 'bg-[#34A853]/20 text-[#7bd88f]'
+      return 'bg-success/20 text-success'
     case 'rejected':
     case 'cancelled':
-      return 'bg-[#BA1A1A]/25 text-[#ff8a80]'
+      return 'bg-danger/15 text-danger'
     case 'completed':
-      return 'bg-[#C2A878]/20 text-[#DFC391]'
+      return 'bg-ember/20 text-ember'
     default:
-      return 'bg-[#4d5f7d]/30 text-[#B5C7EA]'
+      return 'bg-app-elevated/80 text-app-muted'
   }
 }
 
@@ -126,20 +125,20 @@ export default async function RestaurantDashboardPage() {
   ]
 
   return (
-    <div className="min-h-full bg-[#07192B] px-4 pb-16 pt-8 text-[#F5EFE8] sm:px-6 lg:px-8">
+    <div className="min-h-full px-4 pb-16 pt-8 text-app-fg sm:px-6 lg:px-8">
       <div className="mx-auto w-full max-w-5xl space-y-8">
         {/* Greeting */}
         <header>
-          <p className="text-[11px] font-semibold uppercase tracking-[0.15em] text-[#7587A7]">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.15em] text-app-muted">
             Partner console
           </p>
-          <h1 className="mt-2 font-serif text-3xl font-bold sm:text-4xl">
+          <h1 className="mt-2  text-3xl font-bold sm:text-4xl">
             Good day, {business?.name ?? 'Partner'} 👋
           </h1>
         </header>
 
         {!business && (
-          <section className="animate-pop-in rounded-xl border border-[#FBBC05]/40 bg-[#FBBC05]/10 p-4 text-sm text-[#F5EFE8]">
+          <section className="animate-pop-in rounded-xl border border-[#FBBC05]/40 bg-[#FBBC05]/10 p-4 text-sm text-app-fg">
             No linked business profile was found for your account. Complete business signup first.
           </section>
         )}
@@ -147,12 +146,12 @@ export default async function RestaurantDashboardPage() {
         {business && (listingsRes.count ?? 0) === 0 && (
           <section className={cn(CONSOLE_CARD, 'animate-pop-in border-dashed p-8 text-center')}>
             <p className="font-semibold">No published listings yet</p>
-            <p className="mt-1 text-sm text-[#7587A7]">
+            <p className="mt-1 text-sm text-app-muted">
               Create your first listing so diners can find and book you.
             </p>
             <Link
               href="/dashboard/restaurant/listings/new"
-              className="mt-4 inline-block min-h-[44px] rounded-full bg-[#C2A878] px-6 py-2.5 text-sm font-semibold text-navy shadow-lg shadow-black/25 transition-all hover:brightness-110"
+              className="mt-4 inline-block min-h-[44px] rounded-full bg-ember px-6 py-2.5 text-sm font-semibold text-white shadow-glass transition-all hover:brightness-110"
             >
               Create your first listing
             </Link>
@@ -163,13 +162,13 @@ export default async function RestaurantDashboardPage() {
         <section className="grid grid-cols-2 gap-3 lg:grid-cols-4">
           {kpis.map((kpi) => (
             <div key={kpi.label} className={cn(CONSOLE_CARD, 'flex h-32 flex-col justify-between p-4')}>
-              <span className="text-[11px] font-semibold uppercase tracking-[0.15em] text-[#7587A7]">
+              <span className="text-[11px] font-semibold uppercase tracking-[0.15em] text-app-muted">
                 {kpi.label}
               </span>
               <span
                 className={cn(
                   'text-4xl font-bold tabular-nums',
-                  kpi.accent ? 'text-[#DFC391]' : 'text-[#F5EFE8]',
+                  kpi.accent ? 'text-ember' : 'text-app-fg',
                 )}
               >
                 {kpi.value}
@@ -180,7 +179,7 @@ export default async function RestaurantDashboardPage() {
 
         {/* Today's reservations timeline */}
         <section className="space-y-3">
-          <h2 className="border-b border-[#4d5f7d]/25 pb-3 font-serif text-xl font-bold">
+          <h2 className="border-b border-app-border pb-3  text-xl font-bold">
             Today&apos;s reservations
           </h2>
 
@@ -194,15 +193,15 @@ export default async function RestaurantDashboardPage() {
                     className={cn(CONSOLE_CARD, 'flex items-center justify-between p-4', terminal && 'opacity-70')}
                   >
                     <div className="flex min-w-0 items-center gap-4">
-                      <span className="w-12 shrink-0 text-center text-[11px] font-semibold uppercase tracking-[0.12em] text-[#7587A7] tabular-nums">
+                      <span className="w-12 shrink-0 text-center text-[11px] font-semibold uppercase tracking-[0.12em] text-app-muted tabular-nums">
                         {row.time_slot ?? '—'}
                       </span>
-                      <span className="h-10 w-px shrink-0 bg-[#4d5f7d]/30" aria-hidden />
+                      <span className="h-10 w-px shrink-0 bg-app-elevated/80" aria-hidden />
                       <div className="min-w-0">
                         <p className={cn('truncate text-sm font-semibold', terminal && 'line-through')}>
                           {displayName(contacts.get(row.user_id ?? '') ?? null, 'Guest')}
                         </p>
-                        <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[#7587A7]">
+                        <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-app-muted">
                           Party of {row.guest_count}
                         </p>
                       </div>
@@ -225,7 +224,7 @@ export default async function RestaurantDashboardPage() {
           ) : (
             <div className={cn(CONSOLE_CARD, 'border-dashed p-8 text-center')}>
               <p className="font-semibold">No reservations for today</p>
-              <p className="mt-1 text-sm text-[#7587A7]">
+              <p className="mt-1 text-sm text-app-muted">
                 Publish your listing and share your page to start filling tables.
               </p>
             </div>
@@ -233,7 +232,7 @@ export default async function RestaurantDashboardPage() {
 
           <Link
             href="/dashboard/restaurant/reservations"
-            className="mt-2 block w-full rounded-full border border-[#4d5f7d]/35 bg-[#4d5f7d]/20 py-3 text-center text-sm font-semibold transition-colors hover:bg-[#4d5f7d]/35"
+            className="mt-2 block w-full rounded-full border border-app-border bg-app-input/70 py-3 text-center text-sm font-semibold transition-colors hover:bg-app-elevated"
           >
             View all reservations
           </Link>

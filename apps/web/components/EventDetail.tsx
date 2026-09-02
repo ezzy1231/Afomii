@@ -80,7 +80,6 @@ export default function EventDetail({ event }: { event: Event }) {
   const [submitting, setSubmitting] = useState(false)
   const [result, setResult] = useState<TicketActionState | null>(null)
   const [signedIn, setSignedIn] = useState<boolean | null>(null)
-  const [following, setFollowing] = useState(false)
 
   const badge = dateBadge(event.startDateTime)
 
@@ -126,49 +125,49 @@ export default function EventDetail({ event }: { event: Event }) {
       <div className="mx-auto max-w-6xl px-4 pb-28 pt-8 sm:px-6 lg:px-8">
         <Link
           href="/events"
-          className="mb-6 inline-flex items-center gap-2 text-sm text-app-muted transition-colors hover:text-app-fg"
+          className="mb-6 inline-flex items-center gap-2 glass-subtle rounded-xl px-3.5 py-2 text-xs font-semibold uppercase tracking-wider text-app-fg transition-all duration-200 hover:-translate-y-0.5 hover:shadow-glass active:translate-y-0 active:scale-[0.98]"
         >
-          <ArrowLeft className="size-4" />
+          <ArrowLeft className="size-4 text-ember" strokeWidth={2.5} />
           Back to events
         </Link>
 
         <div className="mx-auto max-w-sm">
-          <div className="relative overflow-hidden rounded-2xl bg-navy p-8 text-center shadow-[var(--shadow-lg)] animate-pop-in">
-            <div className="absolute inset-x-0 top-0 h-1.5 bg-gold" aria-hidden />
-            <div className="mx-auto mb-4 flex size-14 items-center justify-center rounded-full bg-gold/20 text-gold">
-              <Check className="size-7" />
+          <div className="relative overflow-hidden rounded-2xl border border-app-border bg-ink p-8 text-center shadow-elevate animate-pop-in">
+            <div className="absolute inset-x-0 top-0 h-2 bg-ember" aria-hidden />
+            <div className="mx-auto mb-4 flex size-14 items-center justify-center rounded-full border border-app-border bg-ember text-white">
+              <Check className="size-7" strokeWidth={2.5} />
             </div>
-            <h1 className="font-serif text-3xl font-bold text-white">You&apos;re going!</h1>
-            <p className="mt-2 text-sm text-ivory/70">{result.message}</p>
+            <h1 className="text-3xl font-bold text-white">You&apos;re going!</h1>
+            <p className="mt-2 text-sm font-medium text-white/70">{result.message}</p>
 
             {/* Perforated tear line */}
             <div className="relative my-6">
-              <div className="border-t border-dashed border-ivory/25" aria-hidden />
-              <span className="absolute -left-3 top-1/2 size-6 -translate-y-1/2 rounded-full border border-app-border bg-app-bg" aria-hidden />
-              <span className="absolute -right-3 top-1/2 size-6 -translate-y-1/2 rounded-full border border-app-border bg-app-bg" aria-hidden />
+              <div className="border-t-2 border-dashed border-white/30" aria-hidden />
+              <span className="absolute -left-4 top-1/2 size-6 -translate-y-1/2 rounded-full border border-app-border bg-app-bg" aria-hidden />
+              <span className="absolute -right-4 top-1/2 size-6 -translate-y-1/2 rounded-full border border-app-border bg-app-bg" aria-hidden />
             </div>
 
-            <div className="text-xs font-semibold uppercase tracking-[0.22em] text-gold">
+            <div className="text-xs font-semibold uppercase tracking-[0.22em] text-ember">
               Ticket code — show at the door
             </div>
-            <div className="mt-2 rounded-lg border border-ivory/20 bg-ivory/10 p-4 font-mono text-xl font-bold tracking-wider text-white">
+            <div className="mt-2 rounded-xl border border-white/25 bg-white/10 p-4 font-mono text-xl font-bold tracking-wider text-white">
               {result.code}
             </div>
 
-            <p className="mt-3 text-[11px] leading-relaxed text-ivory/50">
+            <p className="mt-3 text-[11px] leading-relaxed text-white/50">
               Screenshot this screen or find it anytime under your tickets.
             </p>
 
             <div className="mt-6 flex flex-col gap-3">
               <Link
                 href="/settings"
-                className="rounded-lg bg-gold px-5 py-3 text-sm font-bold text-navy transition-transform active:scale-[0.98]"
+                className="rounded-xl bg-gradient-to-br from-ember to-ember-deep px-5 py-3 text-sm font-semibold text-white shadow-[0_2px_8px_rgb(var(--ember-rgb)/0.3)] transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98]"
               >
                 View my tickets
               </Link>
               <Link
                 href="/events"
-                className="rounded-lg border border-ivory/30 px-5 py-3 text-sm font-semibold text-ivory transition-transform active:scale-[0.98]"
+                className="rounded-xl border border-white/30 bg-white/10 px-5 py-3 text-sm font-semibold text-white backdrop-blur-md transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98]"
               >
                 Browse more events
               </Link>
@@ -194,16 +193,16 @@ export default function EventDetail({ event }: { event: Event }) {
     <div className="mx-auto max-w-7xl px-4 pb-28 pt-6 sm:px-6 lg:px-8">
       <Link
         href="/events"
-        className="mb-5 inline-flex items-center gap-2 text-sm text-app-muted transition-colors hover:text-app-fg"
+        className="mb-5 inline-flex items-center gap-2 glass-subtle rounded-xl px-3.5 py-2 text-xs font-semibold uppercase tracking-wider text-app-fg transition-all duration-200 hover:-translate-y-0.5 hover:shadow-glass active:translate-y-0 active:scale-[0.98]"
       >
-        <ArrowLeft className="size-4" />
+        <ArrowLeft className="size-4 text-ember" strokeWidth={2.5} />
         Back to events
       </Link>
 
       <div className="grid gap-6 lg:grid-cols-[1.55fr_1fr]">
         {/* Left column */}
         <div>
-          <div className="relative h-72 overflow-hidden rounded-xl sm:h-[420px]">
+          <div className="relative h-72 overflow-hidden rounded-3xl shadow-glass-strong sm:h-[420px]">
             {event.coverImageUrl ? (
               <Image
                 src={event.coverImageUrl}
@@ -214,44 +213,44 @@ export default function EventDetail({ event }: { event: Event }) {
                 priority
               />
             ) : (
-              <div className="absolute inset-0 flex items-center justify-center bg-[linear-gradient(140deg,rgba(194,168,120,0.4),rgba(11,31,58,0.95))]">
-                <span className="font-serif text-6xl font-bold text-gold-soft/90">
+              <div className="absolute inset-0 flex items-center justify-center bg-[linear-gradient(140deg,rgb(var(--amber-rgb)/0.5),rgb(var(--ember-deep-rgb)/0.95))]">
+                <span className="text-6xl font-bold text-white">
                   {event.title.charAt(0).toUpperCase()}
                 </span>
               </div>
             )}
-            <div className="absolute inset-0 bg-[linear-gradient(180deg,transparent_40%,rgba(11,31,58,0.9))]" aria-hidden />
+            <div className="absolute inset-0 bg-[linear-gradient(180deg,transparent_40%,rgba(15,13,11,0.92))]" aria-hidden />
             <span className="absolute bottom-5 left-5">
               <DateBadge month={badge.month} day={badge.day} size="lg" />
-              <h1 className="mt-2 font-serif text-3xl font-bold text-white sm:text-4xl">
+              <h1 className="mt-2 text-3xl font-bold tracking-tight text-white sm:text-5xl">
                 {event.title}
               </h1>
-              <p className="mt-1 flex items-center gap-1.5 text-sm text-white/80">
+              <p className="mt-1 flex items-center gap-1.5 text-sm font-medium text-white/80">
                 Hosted by {organizerName}
-                <BadgeCheck className="size-4 text-gold" />
+                <BadgeCheck className="size-4 text-ember" strokeWidth={2.5} />
               </p>
             </span>
           </div>
 
           {/* Info card */}
-          <div className="mt-5 flex flex-wrap items-center justify-between gap-4 rounded-xl border border-app-border bg-app-card p-4 shadow-[var(--shadow-sm)]">
+          <div className="mt-5 flex flex-wrap items-center justify-between gap-4 glass rounded-2xl p-4">
             <span className="flex items-center gap-3 text-sm">
-              <Clock3 className="size-5 shrink-0 text-gold-soft" />
+              <Clock3 className="size-5 shrink-0 text-ember" strokeWidth={2.5} />
               <span>
-                <span className="block font-medium text-app-fg">{timeRange(event)}</span>
-                <span className="block text-xs text-app-muted">{formatDate(event.startDateTime)}</span>
+                <span className="block font-bold text-app-fg">{timeRange(event)}</span>
+                <span className="block text-xs font-medium text-app-muted">{formatDate(event.startDateTime)}</span>
               </span>
             </span>
             <span className="flex min-w-0 items-center gap-3 text-sm">
-              <MapPin className="size-5 shrink-0 text-gold-soft" />
+              <MapPin className="size-5 shrink-0 text-ember" strokeWidth={2.5} />
               <span className="min-w-0">
-                <span className="block truncate font-medium text-app-fg">{event.venueName}</span>
-                <span className="block text-xs text-app-muted">Addis Ababa</span>
+                <span className="block truncate font-bold text-app-fg">{event.venueName}</span>
+                <span className="block text-xs font-medium text-app-muted">Addis Ababa</span>
               </span>
             </span>
             <Link
-              href={`/ride?to=${encodeURIComponent(event.venueName)}`}
-              className="shrink-0 text-sm font-semibold text-app-fg underline-offset-4 hover:underline"
+              href={`/ride?to=${encodeURIComponent(event.venueName)}${event.latitude && event.longitude ? `&lat=${event.latitude}&lng=${event.longitude}` : ''}`}
+              className="glass-subtle shrink-0 rounded-xl px-3.5 py-2 text-xs font-semibold uppercase tracking-wider text-app-fg transition-all duration-200 hover:-translate-y-0.5 hover:shadow-glass active:translate-y-0 active:scale-[0.98]"
             >
               View Map
             </Link>
@@ -260,45 +259,38 @@ export default function EventDetail({ event }: { event: Event }) {
           {/* About */}
           {event.description && (
             <div className="mt-8">
-              <h2 className="font-serif text-2xl font-bold">About the Event</h2>
+              <h2 className="text-2xl font-bold text-app-fg">About the Event</h2>
               <p className="mt-3 leading-7 text-app-muted">{event.description}</p>
             </div>
           )}
 
           {/* Organizer */}
-          <div className="mt-8 flex items-center justify-between gap-4 rounded-xl border border-app-border bg-app-card p-4 shadow-[var(--shadow-sm)]">
+          <div className="mt-8 flex items-center justify-between gap-4 glass rounded-2xl p-4">
             <div className="flex min-w-0 items-center gap-3.5">
-              <span className="flex size-12 shrink-0 items-center justify-center rounded-lg bg-gold/15 font-serif text-lg font-bold text-gold-soft">
+              <span className="flex size-12 shrink-0 items-center justify-center rounded-xl border border-app-border bg-ember text-lg font-bold text-white">
                 {organizerName.charAt(0).toUpperCase()}
               </span>
               <span className="min-w-0">
                 <span className="flex items-center gap-1.5 font-semibold text-app-fg">
                   <span className="truncate">{organizerName}</span>
-                  <BadgeCheck className="size-4 shrink-0 text-gold-soft" />
+                  <BadgeCheck className="size-4 shrink-0 text-ember" strokeWidth={2.5} />
                 </span>
-                <span className="block truncate text-xs text-app-muted">
+                <span className="block truncate text-xs font-medium text-app-muted">
                   Creating unforgettable experiences in Addis Ababa.
                 </span>
               </span>
             </div>
-            <button
-              type="button"
-              onClick={() => setFollowing((v) => !v)}
-              className={cnFollow(following)}
-            >
-              {following ? 'Following' : 'Follow'}
-            </button>
           </div>
 
           {/* Location */}
           <div className="mt-8">
-            <h2 className="font-serif text-2xl font-bold">Location</h2>
+            <h2 className="text-2xl font-bold text-app-fg">Location</h2>
             <Link
-              href={`/ride?to=${encodeURIComponent(event.venueName)}`}
-              className="mt-3 flex h-44 items-center justify-center rounded-xl border border-app-border bg-app-input text-app-muted transition-colors hover:border-gold/40"
+              href={`/ride?to=${encodeURIComponent(event.venueName)}${event.latitude && event.longitude ? `&lat=${event.latitude}&lng=${event.longitude}` : ''}`}
+              className="dot-grid glass mt-3 flex h-44 items-center justify-center rounded-2xl text-app-muted transition-all duration-200 hover:-translate-y-0.5 hover:shadow-glass"
             >
-              <span className="flex flex-col items-center gap-2 text-sm">
-                <MapPin className="size-6 text-gold-soft" />
+              <span className="glass flex flex-col items-center gap-2 rounded-xl px-5 py-4 text-sm font-semibold text-app-fg">
+                <MapPin className="size-6 text-ember" strokeWidth={2.5} />
                 {event.venueName} — plan your ride
               </span>
             </Link>
@@ -308,9 +300,9 @@ export default function EventDetail({ event }: { event: Event }) {
         {/* Right column — Select Tickets */}
         <div>
           <div id="select-tickets" className="scroll-mt-24 lg:sticky lg:top-20">
-            <div className="overflow-hidden rounded-xl border border-app-border bg-app-card shadow-[var(--shadow-md)]">
-              <div className="bg-navy px-5 py-4">
-                <h2 className="font-serif text-xl font-bold text-white">Select Tickets</h2>
+            <div className="overflow-hidden glass rounded-2xl">
+              <div className="border-b border-app-border bg-ink px-5 py-4">
+                <h2 className="text-xl font-bold text-white">Select Tickets</h2>
               </div>
               <div className="px-5 py-2">
                 {tiers.map((tier) => (
@@ -325,14 +317,14 @@ export default function EventDetail({ event }: { event: Event }) {
               <div className="border-t border-app-border px-5 py-4">
                 <div className="flex items-center justify-between">
                   <span className="font-semibold text-app-fg">Total</span>
-                  <span className="font-serif text-2xl font-bold tabular-nums text-app-fg">
+                  <span className="text-2xl font-bold tabular-nums text-app-fg">
                     ETB {total.toLocaleString()}
                   </span>
                 </div>
 
                 {signedIn === false && (
-                  <p className="mt-3 rounded-lg border border-gold/30 bg-gold/10 p-2.5 text-xs text-gold-soft">
-                    <Link href="/auth/signin?next=/events" className="font-semibold underline">
+                  <p className="mt-3 rounded-lg border border-ember/25 bg-ember/10 p-2.5 text-xs font-semibold text-app-fg">
+                    <Link href="/auth/signin?next=/events" className="underline">
                       Sign in
                     </Link>{' '}
                     to buy tickets.
@@ -340,14 +332,14 @@ export default function EventDetail({ event }: { event: Event }) {
                 )}
 
                 {result && !result.ok && (
-                  <p className="mt-3 text-xs text-danger">{result.message}</p>
+                  <p className="mt-3 text-xs font-semibold text-danger">{result.message}</p>
                 )}
 
                 <button
                   type="button"
                   onClick={handleBook}
                   disabled={totalQty === 0 || submitting || signedIn === false}
-                  className="mt-4 w-full rounded-md bg-gold py-3 text-sm font-bold text-navy transition-all hover:brightness-105 active:scale-[0.98] disabled:opacity-40"
+                  className="mt-4 w-full rounded-xl bg-gradient-to-br from-ember to-ember-deep py-3 text-sm font-semibold text-white shadow-[0_4px_16px_rgb(var(--ember-rgb)/0.35)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_6px_20px_rgb(var(--ember-rgb)/0.45)] active:translate-y-0 active:scale-[0.98] disabled:pointer-events-none disabled:opacity-40"
                 >
                   {submitting
                     ? 'Processing…'
@@ -361,20 +353,20 @@ export default function EventDetail({ event }: { event: Event }) {
             {/* Ride actions */}
             <div className="mt-4 grid grid-cols-2 gap-3">
               <Link
-                href={`/ride?to=${encodeURIComponent(event.venueName)}`}
-                className="flex flex-col items-center gap-1 rounded-xl bg-gold/25 px-4 py-4 text-center transition-transform active:scale-[0.98]"
+                href={`/ride?to=${encodeURIComponent(event.venueName)}${event.latitude && event.longitude ? `&lat=${event.latitude}&lng=${event.longitude}` : ''}`}
+                className="glass glass-hover flex flex-col items-center gap-1 rounded-2xl px-4 py-4 text-center"
               >
-                <Navigation className="size-5 text-navy" />
-                <span className="text-xs font-bold uppercase tracking-widest text-navy">Go</span>
-                <span className="text-[10px] uppercase tracking-wider text-navy/60">Navigate</span>
+                <Navigation className="size-5 text-ember" strokeWidth={2.5} />
+                <span className="text-xs font-semibold uppercase tracking-widest text-app-fg">Go</span>
+                <span className="text-[10px] font-medium uppercase tracking-wider text-app-muted">Navigate</span>
               </Link>
               <Link
-                href={`/ride?to=${encodeURIComponent(event.venueName)}`}
-                className="flex flex-col items-center gap-1 rounded-xl bg-gold/25 px-4 py-4 text-center transition-transform active:scale-[0.98]"
+                href={`/ride?to=${encodeURIComponent(event.venueName)}${event.latitude && event.longitude ? `&lat=${event.latitude}&lng=${event.longitude}` : ''}`}
+                className="glass glass-hover flex flex-col items-center gap-1 rounded-2xl px-4 py-4 text-center"
               >
-                <CarFront className="size-5 text-navy" />
-                <span className="text-xs font-bold uppercase tracking-widest text-navy">Book Ride</span>
-                <span className="text-[10px] uppercase tracking-wider text-navy/60">Get a ride</span>
+                <CarFront className="size-5 text-ember" strokeWidth={2.5} />
+                <span className="text-xs font-semibold uppercase tracking-widest text-app-fg">Book Ride</span>
+                <span className="text-[10px] font-medium uppercase tracking-wider text-app-muted">Get a ride</span>
               </Link>
             </div>
           </div>
@@ -390,16 +382,8 @@ export default function EventDetail({ event }: { event: Event }) {
           onClick: () =>
             document.getElementById('select-tickets')?.scrollIntoView({ behavior: 'smooth' }),
         }}
-        secondary={{ label: 'Get a Ride', href: `/ride?to=${encodeURIComponent(event.venueName)}` }}
+        secondary={{ label: 'Get a Ride', href: `/ride?to=${encodeURIComponent(event.venueName)}${event.latitude && event.longitude ? `&lat=${event.latitude}&lng=${event.longitude}` : ''}` }}
       />
     </div>
   )
-}
-
-function cnFollow(following: boolean) {
-  return `shrink-0 rounded-md px-5 py-2.5 text-sm font-semibold transition-all active:scale-[0.98] ${
-    following
-      ? 'border border-app-border text-app-muted'
-      : 'bg-navy text-ivory hover:brightness-110'
-  }`
 }

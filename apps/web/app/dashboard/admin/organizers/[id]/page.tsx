@@ -74,7 +74,7 @@ export default async function AdminOrganizerDetailPage({
     <ConsolePageShell>
       <Link
         href="/dashboard/admin/organizers"
-        className="text-xs font-semibold uppercase tracking-widest text-[#7587A7] transition-colors hover:text-[#DFC391]"
+        className="text-xs font-semibold uppercase tracking-widest text-app-muted transition-colors hover:text-ember"
       >
         ← Back to organizers
       </Link>
@@ -93,17 +93,17 @@ export default async function AdminOrganizerDetailPage({
       {/* About */}
       <section className="grid gap-3 sm:grid-cols-2">
         <div className={cn(CONSOLE_CARD, 'space-y-2 p-5 text-sm')}>
-          <h2 className="mb-1 text-[11px] font-semibold uppercase tracking-[0.15em] text-[#7587A7]">Contact</h2>
+          <h2 className="mb-1 text-[11px] font-semibold uppercase tracking-[0.15em] text-app-muted">Contact</h2>
           <p>{o.email ?? 'No public email'}</p>
-          <p className="text-xs tabular-nums text-[#7587A7]">
+          <p className="text-xs tabular-nums text-app-muted">
             ID: {o.id.slice(0, 8).toUpperCase()}
             {o.created_at &&
               ` · joined ${new Date(o.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}`}
           </p>
         </div>
         <div className={cn(CONSOLE_CARD, 'space-y-2 p-5 text-sm')}>
-          <h2 className="mb-1 text-[11px] font-semibold uppercase tracking-[0.15em] text-[#7587A7]">About</h2>
-          <p className="leading-relaxed text-[#B5C7EA]">{o.description ?? 'No bio provided yet.'}</p>
+          <h2 className="mb-1 text-[11px] font-semibold uppercase tracking-[0.15em] text-app-muted">About</h2>
+          <p className="leading-relaxed text-app-muted">{o.description ?? 'No bio provided yet.'}</p>
         </div>
       </section>
 
@@ -118,7 +118,7 @@ export default async function AdminOrganizerDetailPage({
         <SectionTitle>Events</SectionTitle>
         {events.length === 0 ? (
           <div className={cn(CONSOLE_CARD, 'border-dashed p-8 text-center')}>
-            <p className="text-sm text-[#7587A7]">This organizer has not created any events yet.</p>
+            <p className="text-sm text-app-muted">This organizer has not created any events yet.</p>
           </div>
         ) : (
           <div className="space-y-2">
@@ -131,7 +131,7 @@ export default async function AdminOrganizerDetailPage({
                   >
                     {e.title}
                   </Link>
-                  <p className="text-xs capitalize text-[#7587A7]">
+                  <p className="text-xs capitalize text-app-muted">
                     {[e.venue_name, e.starts_at ? new Date(e.starts_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : null]
                       .filter(Boolean)
                       .join(' · ') || 'Date TBD'}

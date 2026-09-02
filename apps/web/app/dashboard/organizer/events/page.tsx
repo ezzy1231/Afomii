@@ -52,8 +52,8 @@ export default function OrganizerEventsPage() {
 
   return (
     <div className="mx-auto w-full max-w-6xl px-4 pb-24 pt-8 sm:px-6 lg:px-8">
-      <p className="text-xs font-bold uppercase tracking-[0.15em] text-gold">Organizer</p>
-      <h1 className="mt-2 font-serif text-3xl font-bold text-app-fg">Events</h1>
+      <p className="text-xs font-bold uppercase tracking-[0.15em] text-ember">Organizer</p>
+      <h1 className="mt-2  text-3xl font-bold text-app-fg">Events</h1>
       <p className="mt-2 text-sm text-app-muted">Manage your published and draft events.</p>
 
       {loading ? (

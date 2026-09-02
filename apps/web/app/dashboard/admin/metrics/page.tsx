@@ -148,20 +148,20 @@ export default async function AdminMetricsPage() {
           <div className={cn(CONSOLE_CARD, 'p-5')}>
             {chart.points.some((v) => v > 0) ? (
               <>
-                <p className="mb-4 text-xs uppercase tracking-widest text-[#7587A7]">Past {WINDOW_DAYS} days</p>
+                <p className="mb-4 text-xs uppercase tracking-widest text-app-muted">Past {WINDOW_DAYS} days</p>
                 <Sparkline points={chart.points} label={chart.label} />
               </>
             ) : (
               <div className="border-dashed py-8 text-center">
                 <p className="font-semibold">Not enough data yet</p>
-                <p className="mt-1 text-sm text-[#7587A7]">{chart.title} will chart here once activity lands.</p>
+                <p className="mt-1 text-sm text-app-muted">{chart.title} will chart here once activity lands.</p>
               </div>
             )}
           </div>
         </section>
       ))}
 
-      <p className="px-1 text-xs text-[#7587A7]">
+      <p className="px-1 text-xs text-app-muted">
         Aggregates are computed from up to 5,000 recent rows per series — swap to an aggregate RPC when volumes outgrow this.
       </p>
     </ConsolePageShell>

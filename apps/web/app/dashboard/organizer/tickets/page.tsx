@@ -66,8 +66,8 @@ export default async function TicketsPage() {
 
   return (
     <div className="mx-auto w-full max-w-6xl px-4 pb-24 pt-8 sm:px-6 lg:px-8">
-      <p className="text-xs font-bold uppercase tracking-[0.15em] text-gold">Organizer</p>
-      <h1 className="mt-2 font-serif text-3xl font-bold text-app-fg">Ticket Management</h1>
+      <p className="text-xs font-bold uppercase tracking-[0.15em] text-ember">Organizer</p>
+      <h1 className="mt-2  text-3xl font-bold text-app-fg">Ticket Management</h1>
       <p className="mt-2 text-sm text-app-muted">
         Configure ticket tiers and pricing for your events. Changes go live immediately.
       </p>

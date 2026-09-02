@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import {
@@ -25,7 +25,9 @@ import {
 import type { CatalogueItem } from '@/lib/catalogue'
 import { CategoryChips, EmptyState, FilterSheet } from '@/components/patterns'
 import { DateBadge, dateBadgeParts } from '@/components/patterns/DateBadge'
+import { StaggerGroup, StaggerItem } from '@/components/motion'
 import { cn } from '@/lib/utils'
+import { loadSavedIds, persistSavedIds } from '@/lib/saved'
 
 const quickChips = {
   restaurants: ['All', 'Ethiopian', 'Italian', 'Japanese', 'International', 'European', 'Café'],
@@ -149,13 +151,18 @@ export default function ExploreCatalogue({
 }) {
   const [query, setQuery] = useState(initialQuery)
   const [searchOpen, setSearchOpen] = useState(Boolean(initialQuery))
-  const [saved, setSaved] = useState<string[]>([])
+  const [saved, setSaved] = useState<string[]>(loadSavedIds)
   const [activeFilter, setActiveFilter] = useState('All')
   const [filtersOpen, setFiltersOpen] = useState(false)
   const [selected, setSelected] = useState<Record<string, string[]>>({})
   const [dateRange, setDateRange] = useState<(typeof dateChips)[number]>('All Dates')
   const [sortDesc, setSortDesc] = useState(false)
   const [visible, setVisible] = useState(PAGE_SIZE)
+
+  // Persist bookmarks so saved places survive navigation/refresh.
+  useEffect(() => {
+    persistSavedIds(saved)
+  }, [saved])
 
   const visibleItems = useMemo(() => {
     const filtered = items.filter((item) => {
@@ -202,27 +209,27 @@ export default function ExploreCatalogue({
     <section className="pb-24">
       {type === 'restaurants' ? (
         <div className="mx-auto max-w-7xl px-4 pt-14 sm:px-6 lg:px-8">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-gold-soft">Dining guide</p>
-          <div className="mt-2 flex flex-wrap items-center justify-between gap-4">
-            <h1 className="font-serif text-4xl font-bold leading-tight text-app-fg sm:text-5xl">
+          <p className="eyebrow">Dining guide</p>
+          <div className="mt-3 flex flex-wrap items-center justify-between gap-4">
+            <h1 className="text-4xl font-bold leading-[1.05] tracking-tight text-app-fg sm:text-6xl">
               Find a table worth remembering.
             </h1>
             <button
               type="button"
               onClick={() => setSearchOpen((open) => !open)}
-              className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-app-border bg-app-card px-4 text-sm font-semibold text-app-fg shadow-soft transition hover:border-gold/50"
+              className="glass-subtle inline-flex min-h-11 items-center gap-2 rounded-xl px-4 text-sm font-semibold text-app-fg transition-all duration-200 hover:-translate-y-0.5 hover:shadow-glass active:translate-y-0 active:scale-[0.98]"
               aria-expanded={searchOpen}
             >
-              <Search className="size-4 text-gold-soft" />
+              <Search className="size-4 text-ember" strokeWidth={2.5} />
               Search restaurants
             </button>
           </div>
-          <p className="mt-3 max-w-xl text-base text-app-muted">
+          <p className="mt-3 max-w-xl text-base leading-7 text-app-muted">
             Discover trusted places for every kind of gathering, from quick lunches to special evenings.
           </p>
           {searchOpen && (
-            <div className="mt-5 flex max-w-xl items-center gap-3 rounded-xl border border-app-border bg-app-card px-3 shadow-soft">
-              <Search className="size-[18px] shrink-0 text-gold-soft" />
+            <div className="glass animate-pop-in mt-5 flex max-w-xl items-center gap-3 rounded-2xl px-3">
+              <Search className="size-[18px] shrink-0 text-app-muted" strokeWidth={2.5} />
               <input
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
@@ -247,28 +254,30 @@ export default function ExploreCatalogue({
         </div>
       ) : (
         <div className="mx-auto max-w-7xl px-4 pt-14 sm:px-6 lg:px-8">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-gold-soft">What’s on</p>
-          <div className="mt-2 flex flex-wrap items-center justify-between gap-4">
-            <h1 className="font-serif text-4xl font-bold leading-tight sm:text-5xl">Your next great night out.</h1>
+          <p className="eyebrow">What’s on</p>
+          <div className="mt-3 flex flex-wrap items-center justify-between gap-4">
+            <h1 className="text-4xl font-bold leading-[1.05] tracking-tight text-app-fg sm:text-6xl">
+              Your next great night out.
+            </h1>
             <button
               type="button"
               onClick={() => setSearchOpen((open) => !open)}
-              className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-app-border bg-app-card px-4 text-sm font-semibold text-app-fg shadow-soft transition hover:border-gold/50"
+              className="glass-subtle inline-flex min-h-11 items-center gap-2 rounded-xl px-4 text-sm font-semibold text-app-fg transition-all duration-200 hover:-translate-y-0.5 hover:shadow-glass active:translate-y-0 active:scale-[0.98]"
               aria-expanded={searchOpen}
             >
-              <Search className="size-4 text-gold-soft" />
+              <Search className="size-4 text-ember" strokeWidth={2.5} />
               Search
             </button>
           </div>
-          <p className="mt-3 max-w-xl text-base text-app-muted">
+          <p className="mt-3 max-w-xl text-base leading-7 text-app-muted">
             Discover and book premium experiences, from intimate jazz nights to grand
             galas. Arrive in style with UrbanExplore.
           </p>
 
           <div className="mt-7 flex flex-wrap items-center gap-2">
             {searchOpen && (
-              <div className="flex min-h-11 min-w-[min(100%,22rem)] flex-1 items-center gap-2.5 rounded-xl border border-app-border bg-app-card px-3 shadow-soft">
-              <Search className="size-[18px] shrink-0 text-gold-soft" />
+              <div className="glass animate-pop-in flex min-h-11 min-w-[min(100%,22rem)] flex-1 items-center gap-2.5 rounded-2xl px-3">
+              <Search className="size-[18px] shrink-0 text-app-muted" strokeWidth={2.5} />
               <input
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
@@ -296,10 +305,10 @@ export default function ExploreCatalogue({
                   type="button"
                   onClick={() => setDateRange(chip)}
                   className={cn(
-                    'min-h-10 rounded-xl px-3.5 py-2 text-xs font-semibold transition-colors',
+                    'min-h-10 rounded-xl border px-3.5 py-2 text-xs font-semibold transition-all duration-200 active:scale-[0.97]',
                     dateRange === chip
-                      ? 'bg-navy text-ivory'
-                      : 'border border-app-border text-app-muted hover:text-app-fg'
+                      ? 'border-transparent bg-gradient-to-br from-ember to-ember-deep text-white shadow-[0_2px_8px_rgb(var(--ember-rgb)/0.3)]'
+                      : 'border-app-border bg-app-card/70 text-app-muted hover:border-ember/25 hover:text-app-fg'
                   )}
                 >
                   {chip}
@@ -331,7 +340,7 @@ export default function ExploreCatalogue({
             <button
               type="button"
               onClick={() => setSortDesc((v) => !v)}
-              className="inline-flex shrink-0 items-center gap-1.5 rounded-md border border-app-border px-3.5 py-2 text-xs font-semibold text-app-muted transition-colors hover:text-app-fg"
+              className="glass-subtle inline-flex shrink-0 items-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-semibold text-app-muted transition-all duration-200 hover:-translate-y-0.5 hover:text-app-fg active:translate-y-0 active:scale-[0.98]"
             >
               {sortDesc ? 'Rating ↓' : 'Rating ↑'}
             </button>
@@ -340,17 +349,17 @@ export default function ExploreCatalogue({
             type="button"
             onClick={() => setFiltersOpen((v) => !v)}
             className={cn(
-              'relative inline-flex shrink-0 items-center gap-1.5 rounded-md border px-3.5 py-2 text-xs font-semibold transition-colors',
+              'relative inline-flex shrink-0 items-center gap-1.5 rounded-xl border px-3.5 py-2 text-xs font-semibold transition-all duration-200 active:scale-[0.98]',
               filtersOpen || activeCount
-                ? 'border-gold/60 bg-gold/10 text-gold-soft'
-                : 'border-app-border text-app-muted hover:text-app-fg'
+                ? 'border-transparent bg-gradient-to-br from-ember to-ember-deep text-white shadow-[0_2px_8px_rgb(var(--ember-rgb)/0.3)]'
+                : 'glass-subtle border-app-border text-app-muted hover:-translate-y-0.5 hover:text-app-fg'
             )}
             aria-label="Filters"
           >
             <SlidersHorizontal className="size-3.5" />
             Filters
             {activeCount > 0 && (
-              <span className="flex size-4 items-center justify-center rounded-full bg-gold text-[9px] font-bold text-navy">
+              <span className="flex size-4 items-center justify-center rounded-full bg-white text-[9px] font-bold text-ember">
                 {activeCount}
               </span>
             )}
@@ -368,7 +377,7 @@ export default function ExploreCatalogue({
         />
 
         {source === 'sample' && (
-          <p className="mt-5 text-sm text-app-muted">
+          <p className="sticker sticker-cream mt-5 !rotate-0">
             Showing sample listings while live data is being set up.
           </p>
         )}
@@ -379,7 +388,7 @@ export default function ExploreCatalogue({
             {type === 'restaurants' ? (
               <Link
                 href={`/restaurants/${featured.id}`}
-                className="group relative block min-h-[300px] overflow-hidden rounded-xl"
+                className="group relative block min-h-[300px] overflow-hidden rounded-3xl shadow-glass transition-shadow duration-300 hover:shadow-glass-strong"
               >
                 {featured.imageUrl ? (
                   <Image
@@ -387,27 +396,27 @@ export default function ExploreCatalogue({
                     alt={featured.name}
                     fill
                     sizes="(max-width: 1024px) 100vw, 900px"
-                    className="object-cover transition-transform duration-300 group-hover:scale-[1.02]"
+                    className="object-cover transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.03]"
                   />
                 ) : (
-                  <div className="absolute inset-0 bg-[linear-gradient(140deg,rgba(194,168,120,0.4),rgba(11,31,58,0.95))]" />
+                  <div className="absolute inset-0 bg-gradient-to-br from-ember/50 to-ember-deep/95" />
                 )}
-                <div className="absolute inset-0 bg-[linear-gradient(180deg,transparent_25%,rgba(11,31,58,0.92))]" />
-                <span className="absolute left-5 top-5 rounded bg-gold px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest text-navy">
+                <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(10,10,12,0.05)_25%,rgba(10,10,12,0.85))]" />
+                <span className="sticker sticker-amber absolute left-5 top-5 !rotate-0">
                   Featured
                 </span>
-                <span className="absolute right-5 top-5 flex items-center gap-1 rounded-full bg-navy/80 px-2.5 py-1 text-xs font-semibold text-gold backdrop-blur-sm">
-                  <Star className="size-3 fill-current" />
+                <span className="absolute right-5 top-5 flex items-center gap-1 rounded-full bg-white/75 px-2.5 py-1 text-xs font-semibold text-app-fg shadow-soft backdrop-blur-md dark:bg-white/15 dark:text-white">
+                  <Star className="size-3 fill-ember text-ember" />
                   {featured.rating}
                 </span>
                 <div className="absolute inset-x-0 bottom-0 flex flex-wrap items-end justify-between gap-4 p-6">
                   <div>
-                    <h2 className="font-serif text-3xl font-bold text-white">{featured.name}</h2>
-                    <p className="mt-1 text-sm text-white/75">
+                    <h2 className="text-3xl font-bold text-white sm:text-4xl">{featured.name}</h2>
+                    <p className="mt-1 text-sm font-medium text-white/75">
                       {featured.category} · {featured.detail} · {featured.location}
                     </p>
                   </div>
-                  <span className="rounded-md bg-gold px-5 py-2.5 text-sm font-semibold text-navy transition-transform group-hover:scale-[1.03]">
+                  <span className="rounded-xl bg-ember px-5 py-2.5 text-sm font-semibold text-white shadow-[0_2px_12px_rgb(var(--ember-rgb)/0.45)] transition-transform duration-200 hover:-translate-y-0.5 group-hover:scale-[1.03]">
                     Reserve Table
                   </span>
                 </div>
@@ -415,7 +424,7 @@ export default function ExploreCatalogue({
             ) : (
               <Link
                 href={`/events/${featured.id}`}
-                className="group relative block min-h-[300px] overflow-hidden rounded-xl"
+                className="group relative block min-h-[300px] overflow-hidden rounded-3xl shadow-glass transition-shadow duration-300 hover:shadow-glass-strong"
               >
                 {featured.imageUrl ? (
                   <Image
@@ -423,29 +432,29 @@ export default function ExploreCatalogue({
                     alt={featured.name}
                     fill
                     sizes="(max-width: 1024px) 100vw, 1200px"
-                    className="object-cover transition-transform duration-300 group-hover:scale-[1.02]"
+                    className="object-cover transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.03]"
                   />
                 ) : (
-                  <div className="absolute inset-0 bg-[linear-gradient(140deg,rgba(194,168,120,0.4),rgba(11,31,58,0.95))]" />
+                  <div className="absolute inset-0 bg-gradient-to-br from-ember/50 to-ember-deep/95" />
                 )}
-                <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(11,31,58,0.35),rgba(11,31,58,0.9))]" />
+                <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(10,10,12,0.3),rgba(10,10,12,0.9))]" />
                 <span className="absolute left-5 top-5 flex items-center gap-2">
                   {(() => {
                     const bp = dateBadgeParts(featured.startsAt ?? featured.detail)
                     return bp ? <DateBadge month={bp.month} day={bp.day} size="lg" /> : null
                   })()}
-                  <span className="rounded bg-gold px-2 py-1 text-[10px] font-bold uppercase tracking-widest text-navy">
+                  <span className="sticker sticker-amber !rotate-0">
                     Featured
                   </span>
                 </span>
                 <div className="absolute inset-x-0 bottom-0 p-6">
-                  <h2 className="font-serif text-3xl font-bold text-white sm:text-4xl">
+                  <h2 className="text-3xl font-bold text-white sm:text-4xl">
                     {featured.name}
                   </h2>
                   {featured.description && (
-                    <p className="mt-2 max-w-2xl text-sm text-white/80">{featured.description}</p>
+                    <p className="mt-2 max-w-2xl text-sm leading-6 text-white/80">{featured.description}</p>
                   )}
-                  <div className="mt-4 flex flex-wrap items-center gap-4 text-xs text-white/75">
+                  <div className="mt-4 flex flex-wrap items-center gap-4 text-xs font-medium text-white/75">
                     <span className="flex items-center gap-1.5">
                       <CalendarDays className="size-3.5" />
                       {featured.detail}
@@ -454,13 +463,13 @@ export default function ExploreCatalogue({
                       <MapPin className="size-3.5" />
                       {featured.location}
                     </span>
-                    <span className="price-pill !bg-white/15 !text-white backdrop-blur-sm">
+                    <span className="price-pill">
                       {featured.rating}
                     </span>
                   </div>
-                  <span className="mt-4 inline-flex items-center gap-2 rounded-md bg-gold px-5 py-2.5 text-sm font-semibold text-navy transition-transform group-hover:scale-[1.03]">
+                  <span className="mt-4 inline-flex items-center gap-2 rounded-xl bg-ember px-5 py-2.5 text-sm font-semibold text-white shadow-[0_2px_12px_rgb(var(--ember-rgb)/0.45)] transition-transform duration-200 group-hover:scale-[1.03]">
                     Book Experience
-                    <ArrowRight className="size-4" />
+                    <ArrowRight className="size-4" strokeWidth={2.5} />
                   </span>
                 </div>
               </Link>
@@ -470,10 +479,10 @@ export default function ExploreCatalogue({
 
         {/* Grid */}
         {type === 'events' && rest.length > 0 && (
-          <h2 className="mb-5 mt-10 font-serif text-2xl font-bold">Upcoming Experiences</h2>
+          <h2 className="mb-5 mt-10 text-2xl font-bold text-app-fg">Upcoming Experiences</h2>
         )}
 
-        <div
+        <StaggerGroup
           className={cn(
             'mt-6 grid gap-5',
             type === 'restaurants' && 'sm:grid-cols-2 lg:grid-cols-3'
@@ -487,132 +496,131 @@ export default function ExploreCatalogue({
 
             if (type === 'events') {
               return (
-                <article
-                  key={item.id}
-                  className="overflow-hidden rounded-2xl border border-app-border bg-app-card shadow-soft transition-all hover:-translate-y-0.5 hover:border-gold/40 hover:shadow-card"
-                >
-                  <Link href={detailHref} className="relative block h-40">
-                    {item.imageUrl ? (
-                      <Image
-                        src={item.imageUrl}
-                        alt={item.name}
-                        fill
-                        sizes="(max-width: 640px) 100vw, 400px"
-                        className="object-cover"
+                <StaggerItem key={item.id} className="h-full">
+                  <article className="glass glass-hover group flex h-full flex-col overflow-hidden rounded-3xl">
+                    <Link href={detailHref} className="relative block h-40">
+                      {item.imageUrl ? (
+                        <Image
+                          src={item.imageUrl}
+                          alt={item.name}
+                          fill
+                          sizes="(max-width: 640px) 100vw, 400px"
+                          className="object-cover transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.05]"
+                        />
+                      ) : (
+                        <div className="flex h-full items-center justify-center bg-gradient-to-br from-ember/50 to-ember-deep/90">
+                          <span className="text-4xl font-bold text-white">
+                            {item.name.charAt(0).toUpperCase()}
+                          </span>
+                        </div>
+                      )}
+                      <DateBadge
+                        month={parts.month}
+                        day={parts.day}
+                        size="sm"
+                        className="absolute right-3 top-3"
                       />
-                    ) : (
-                      <div className="flex h-full items-center justify-center bg-[linear-gradient(140deg,rgba(194,168,120,0.35),rgba(11,31,58,0.9))]">
-                        <span className="font-serif text-4xl font-bold text-gold-soft">
-                          {item.name.charAt(0).toUpperCase()}
-                        </span>
-                      </div>
-                    )}
-                    <DateBadge
-                      month={parts.month}
-                      day={parts.day}
-                      size="sm"
-                      className="absolute right-3 top-3 shadow-md"
-                    />
-                  </Link>
-                  <div className="p-4">
-                    <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-gold-soft">
-                      {item.category}
-                    </p>
-                    <Link href={detailHref}>
-                      <h3 className="mt-1 font-serif text-xl font-bold text-app-fg transition-colors hover:text-gold-soft">
-                        {item.name}
-                      </h3>
                     </Link>
-                    {item.description && (
-                      <p className="mt-1.5 line-clamp-2 text-sm text-app-muted">
-                        {item.description}
+                    <div className="flex flex-1 flex-col p-4">
+                      <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-ember">
+                        {item.category}
                       </p>
-                    )}
-                    <div className="mt-4 flex items-center justify-between border-t border-app-border pt-3">
-                      <span className="price-pill">{item.rating}</span>
-                      <Link
-                        href={detailHref}
-                        className="rounded-md bg-navy px-4 py-2 text-xs font-semibold text-ivory transition-transform active:scale-[0.98]"
-                      >
-                        Book Tickets
+                      <Link href={detailHref}>
+                        <h3 className="mt-1 text-xl font-semibold text-app-fg transition-colors hover:text-ember">
+                          {item.name}
+                        </h3>
                       </Link>
+                      {item.description && (
+                        <p className="mt-1.5 line-clamp-2 text-sm leading-6 text-app-muted">
+                          {item.description}
+                        </p>
+                      )}
+                      <div className="mt-4 flex items-center justify-between border-t border-app-border pt-3">
+                        <span className="price-pill">{item.rating}</span>
+                        <Link
+                          href={detailHref}
+                          className="rounded-xl bg-ember px-4 py-2 text-xs font-semibold text-white shadow-[0_2px_8px_rgb(var(--ember-rgb)/0.3)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_4px_12px_rgb(var(--ember-rgb)/0.4)] active:translate-y-0"
+                        >
+                          Book Tickets
+                        </Link>
+                      </div>
                     </div>
-                  </div>
-                </article>
+                  </article>
+                </StaggerItem>
               )
             }
 
             return (
-              <article
-                key={item.id}
-                className="overflow-hidden rounded-2xl border border-app-border bg-app-card shadow-soft transition-all hover:-translate-y-0.5 hover:border-gold/40 hover:shadow-card"
-              >
-                <div className="relative h-40">
-                  <Link href={detailHref} className="block h-full">
-                    {item.imageUrl ? (
-                      <Image
-                        src={item.imageUrl}
-                        alt={item.name}
-                        fill
-                        sizes="(max-width: 640px) 100vw, 400px"
-                        className="object-cover"
-                      />
-                    ) : (
-                      <div className="flex h-full items-center justify-center bg-[linear-gradient(140deg,rgba(194,168,120,0.35),rgba(11,31,58,0.9))]">
-                        <span className="font-serif text-4xl font-bold text-gold-soft">
-                          {item.name.charAt(0).toUpperCase()}
-                        </span>
-                      </div>
-                    )}
-                  </Link>
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setSaved((current) =>
-                        isSaved ? current.filter((id) => id !== item.id) : [...current, item.id]
-                      )
-                    }
-                    className="absolute right-3 top-3 flex size-8 items-center justify-center rounded-full bg-app-card/90 text-app-fg shadow-sm transition-transform active:scale-90"
-                    aria-label={isSaved ? `Unsave ${item.name}` : `Save ${item.name}`}
-                  >
-                    <Heart className={cn('size-4', isSaved && 'fill-danger text-danger')} />
-                  </button>
-                </div>
-                <div className="p-4">
-                  <div className="flex items-center justify-between gap-2">
-                    <Link href={detailHref}>
-                      <h3 className="truncate font-serif text-xl font-bold text-app-fg transition-colors hover:text-gold-soft">
-                        {item.name}
-                      </h3>
+              <StaggerItem key={item.id} className="h-full">
+                <article className="glass glass-hover group flex h-full flex-col overflow-hidden rounded-3xl">
+                  <div className="relative h-40">
+                    <Link href={detailHref} className="block h-full">
+                      {item.imageUrl ? (
+                        <Image
+                          src={item.imageUrl}
+                          alt={item.name}
+                          fill
+                          sizes="(max-width: 640px) 100vw, 400px"
+                          className="object-cover transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.05]"
+                        />
+                      ) : (
+                        <div className="flex h-full items-center justify-center bg-gradient-to-br from-ember/50 to-ember-deep/90">
+                          <span className="text-4xl font-bold text-white">
+                            {item.name.charAt(0).toUpperCase()}
+                          </span>
+                        </div>
+                      )}
                     </Link>
-                    <span className="shrink-0 text-xs font-semibold text-app-muted">
-                      ★ {item.rating}
-                    </span>
-                  </div>
-                  <p className="mt-0.5 truncate text-sm text-app-muted">{item.category}</p>
-                  <div className="mt-3 flex items-center justify-between border-t border-app-border pt-3 text-xs text-app-muted">
-                    <span className="truncate">
-                      {item.detail} · {item.location}
-                    </span>
-                    <Link
-                      href={detailHref}
-                      className="shrink-0 font-semibold text-app-fg transition-colors hover:text-gold-soft"
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setSaved((current) =>
+                          isSaved ? current.filter((id) => id !== item.id) : [...current, item.id]
+                        )
+                      }
+                      className="absolute right-3 top-3 flex size-8 items-center justify-center rounded-full bg-white/70 text-app-fg shadow-soft backdrop-blur-md transition-transform hover:scale-105 active:scale-90 dark:bg-white/15"
+                      aria-label={isSaved ? `Unsave ${item.name}` : `Save ${item.name}`}
                     >
-                      Details
-                    </Link>
+                      <Heart className={cn('size-4', isSaved && 'fill-danger text-danger')} />
+                    </button>
                   </div>
-                </div>
-              </article>
+                  <div className="flex flex-1 flex-col p-4">
+                    <div className="flex items-center justify-between gap-2">
+                      <Link href={detailHref}>
+                        <h3 className="truncate text-xl font-semibold text-app-fg transition-colors hover:text-ember">
+                          {item.name}
+                        </h3>
+                      </Link>
+                      <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-ember/10 px-2 py-0.5 text-xs font-semibold text-ember">
+                        <Star className="size-3 fill-current" />
+                        {item.rating}
+                      </span>
+                    </div>
+                    <p className="mt-0.5 truncate text-sm font-medium text-app-muted">{item.category}</p>
+                    <div className="mt-auto flex items-center justify-between border-t border-app-border pt-3 text-xs text-app-muted">
+                      <span className="truncate">
+                        {item.detail} · {item.location}
+                      </span>
+                      <Link
+                        href={detailHref}
+                        className="shrink-0 font-semibold text-ember transition-colors hover:text-ember-deep"
+                      >
+                        Details
+                      </Link>
+                    </div>
+                  </div>
+                </article>
+              </StaggerItem>
             )
           })}
-        </div>
+        </StaggerGroup>
 
         {hasMore && (
           <div className="mt-10 text-center">
             <button
               type="button"
               onClick={() => setVisible((v) => v + PAGE_SIZE)}
-              className="rounded-md border border-navy px-8 py-3 text-xs font-bold uppercase tracking-[0.14em] text-navy transition-colors hover:bg-navy hover:text-ivory dark:border-gold dark:text-gold dark:hover:bg-gold dark:hover:text-navy"
+              className="glass glass-hover rounded-2xl px-8 py-3 text-xs font-semibold uppercase tracking-[0.14em] text-app-fg"
             >
               Load More {type === 'restaurants' ? 'Experiences' : 'Events'}
             </button>
@@ -634,7 +642,7 @@ export default function ExploreCatalogue({
                     setSelected({})
                     setDateRange('All Dates')
                   }}
-                  className="rounded-md bg-navy px-5 py-2.5 text-sm font-semibold text-ivory"
+                  className="btn-primary !px-5 !py-2.5"
                 >
                   Reset everything
                 </button>

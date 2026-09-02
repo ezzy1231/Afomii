@@ -4,19 +4,19 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
 
-const links = [
-  { href: '/', label: 'Home' },
-  { href: '/restaurants', label: 'Restaurants' },
-  { href: '/events', label: 'Events' },
-  { href: '/ride', label: 'Ride' },
-  { href: '/settings', label: 'Profile' },
-]
-
-export default function NavLinks() {
+export default function NavLinks({ isAuthenticated }: { isAuthenticated: boolean }) {
   const pathname = usePathname()
 
+  const links = [
+    { href: '/', label: 'Home' },
+    { href: '/restaurants', label: 'Restaurants' },
+    { href: '/events', label: 'Events' },
+    { href: '/ride', label: 'Ride' },
+    ...(isAuthenticated ? [{ href: '/plans', label: 'My Plans' }] : []),
+  ]
+
   return (
-    <nav className="hidden items-center gap-6 md:flex" aria-label="Primary">
+    <nav className="hidden items-center gap-1 md:flex" aria-label="Primary">
       {links.map(({ href, label }) => {
         const active =
           href === '/' ? pathname === '/' : pathname.startsWith(href)
@@ -26,10 +26,10 @@ export default function NavLinks() {
             href={href}
             aria-current={active ? 'page' : undefined}
             className={cn(
-              'relative py-1 text-sm font-medium transition-colors',
+              'relative rounded-full px-3.5 py-1.5 text-sm font-medium transition-colors duration-200 active:translate-y-px',
               active
-                ? 'text-ivory after:absolute after:-bottom-1.5 after:left-0 after:h-0.5 after:w-full after:rounded-full after:bg-gold'
-                : 'text-ivory/60 hover:text-ivory'
+                ? 'bg-ember/12 text-ember'
+                : 'text-app-muted hover:bg-app-elevated/60 hover:text-app-fg'
             )}
           >
             {label}

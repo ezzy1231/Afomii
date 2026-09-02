@@ -19,7 +19,10 @@ type Props = {
   onUpdateStatus: (id: string, status: string) => void;
 };
 
-export function ReservationCalendarGrid({ reservations, onUpdateStatus }: Props) {
+export function ReservationCalendarGrid({
+  reservations,
+  onUpdateStatus,
+}: Props) {
   const [selected, setSelected] = useState<string | null>(null);
 
   const groupedByDate = reservations.reduce<Record<string, Reservation[]>>(
@@ -29,7 +32,7 @@ export function ReservationCalendarGrid({ reservations, onUpdateStatus }: Props)
       acc[key].push(r);
       return acc;
     },
-    {}
+    {},
   );
 
   return (
@@ -37,9 +40,15 @@ export function ReservationCalendarGrid({ reservations, onUpdateStatus }: Props)
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-semibold text-app-fg">Reservations</h3>
         <div className="flex gap-2">
-          <Button variant="outline" size="sm">Day</Button>
-          <Button variant="primary" size="sm">Week</Button>
-          <Button variant="outline" size="sm">Month</Button>
+          <Button variant="outline" size="sm">
+            Day
+          </Button>
+          <Button variant="primary" size="sm">
+            Week
+          </Button>
+          <Button variant="outline" size="sm">
+            Month
+          </Button>
         </div>
       </div>
 
@@ -56,8 +65,8 @@ export function ReservationCalendarGrid({ reservations, onUpdateStatus }: Props)
                   className={cn(
                     "flex items-center justify-between p-3 rounded-lg border cursor-pointer transition-all",
                     selected === booking.id
-                      ? "border-gold bg-gold/5"
-                      : "border-app-border hover:border-gold/40"
+                      ? "border-ember/40 bg-ember/5"
+                      : "border-app-border hover:border-ember/40",
                   )}
                   onClick={() =>
                     setSelected(selected === booking.id ? null : booking.id)
@@ -68,7 +77,7 @@ export function ReservationCalendarGrid({ reservations, onUpdateStatus }: Props)
                       <p className="text-sm font-bold text-app-fg">
                         {booking.timeSlot ?? "—"}
                       </p>
-                       <p className="text-xs text-app-muted">
+                      <p className="text-xs text-app-muted">
                         {booking.guestCount} guests
                       </p>
                     </div>
@@ -118,7 +127,8 @@ export function ReservationCalendarGrid({ reservations, onUpdateStatus }: Props)
                           Complete
                         </Button>
                       )}
-                      {(booking.status === "pending" || booking.status === "confirmed") && (
+                      {(booking.status === "pending" ||
+                        booking.status === "confirmed") && (
                         <Button
                           variant="outline"
                           size="sm"
@@ -139,9 +149,7 @@ export function ReservationCalendarGrid({ reservations, onUpdateStatus }: Props)
         ))}
 
         {reservations.length === 0 && (
-          <p className="text-center text-app-muted py-8">
-            No reservations yet
-          </p>
+          <p className="text-center text-app-muted py-8">No reservations yet</p>
         )}
       </div>
     </div>

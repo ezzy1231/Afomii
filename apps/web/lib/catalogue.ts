@@ -34,17 +34,19 @@ function chooseColor(name: string, palette: string[]) {
 }
 
 export const fallbackRestaurants: CatalogueItem[] = [
-  { id: '1', name: 'Juniper Table', category: 'Modern African', location: 'West End', detail: 'Open until 11:00 PM', rating: '4.9', color: 'bg-orange-100 text-orange-800', imageUrl: '/places/food-1.jpg' },
-  { id: '2', name: 'Sora Noodle House', category: 'Japanese', location: 'Central Market', detail: 'Open until 10:30 PM', rating: '4.8', color: 'bg-rose-100 text-rose-800', imageUrl: '/places/food-2.jpg' },
-  { id: '3', name: 'Olive & Grain', category: 'Mediterranean', location: 'Riverside', detail: 'Open until 10:00 PM', rating: '4.7', color: 'bg-emerald-100 text-emerald-800', imageUrl: '/places/food-3.jpg' },
-  { id: '4', name: 'Koru Coffee', category: 'Cafe', location: 'Old Town', detail: 'Open until 8:00 PM', rating: '4.8', color: 'bg-amber-100 text-amber-800', imageUrl: '/places/food-2.jpg' },
+  { id: '1', name: 'Yod Abyssinia Kitchen', category: 'Traditional Ethiopian', location: 'Bole', detail: 'Open until 11:00 PM', rating: '4.9', color: 'bg-orange-100 text-orange-800', imageUrl: '/places/food-1.jpg' },
+  { id: '2', name: 'Sishu Noodle House', category: 'Japanese', location: 'Kazanchis', detail: 'Open until 10:30 PM', rating: '4.8', color: 'bg-rose-100 text-rose-800', imageUrl: '/places/food-2.jpg' },
+  { id: '3', name: 'Olive & Grain', category: 'Mediterranean', location: 'Sarbet', detail: 'Open until 10:00 PM', rating: '4.7', color: 'bg-emerald-100 text-emerald-800', imageUrl: '/places/food-3.jpg' },
+  { id: '4', name: 'Kudu Coffee & Roastery', category: 'Cafe', location: 'Piassa', detail: 'Open until 8:00 PM', rating: '4.8', color: 'bg-amber-100 text-amber-800', imageUrl: '/places/cafe-1.jpg' },
+  { id: '5', name: 'Mama Diner', category: 'Modern African', location: 'Gerji', detail: 'Open until 9:30 PM', rating: '4.6', color: 'bg-orange-100 text-orange-800', imageUrl: '/places/food-5.jpg' },
+  { id: '6', name: 'Garden Brunch House', category: 'Brunch', location: 'CMC', detail: 'Open until 4:00 PM', rating: '4.7', color: 'bg-emerald-100 text-emerald-800', imageUrl: '/places/food-6.jpg' },
 ]
 
 export const fallbackEvents: CatalogueItem[] = [
-  { id: '1', name: 'Night Market Sessions', category: 'Food and music', location: 'Harbour Hall', detail: 'Tonight, 7:00 PM', rating: 'From $12', color: 'bg-fuchsia-100 text-fuchsia-800' },
-  { id: '2', name: 'Design After Dark', category: 'Exhibition', location: 'Mori Gallery', detail: 'Friday, 6:30 PM', rating: 'Free', color: 'bg-stone-100 text-stone-800' },
-  { id: '3', name: 'City Lights Run', category: 'Wellness', location: 'Riverfront Park', detail: 'Saturday, 5:30 AM', rating: 'From $8', color: 'bg-lime-100 text-lime-800' },
-  { id: '4', name: 'The Open Table', category: 'Community', location: 'Noma Commons', detail: 'Sunday, 1:00 PM', rating: 'From $18', color: 'bg-violet-100 text-violet-800' },
+  { id: '1', name: 'Night Market Sessions', category: 'Food and music', location: 'Meskel Square', detail: 'Tonight, 7:00 PM', rating: 'From ETB 900', color: 'bg-fuchsia-100 text-fuchsia-800', imageUrl: '/places/event-1.jpg' },
+  { id: '2', name: 'Design After Dark', category: 'Exhibition', location: 'Addis Fine Arts', detail: 'Friday, 6:30 PM', rating: 'Free', color: 'bg-stone-100 text-stone-800', imageUrl: '/places/event-3.jpg' },
+  { id: '3', name: 'City Lights Run', category: 'Wellness', location: 'Entoto Park', detail: 'Saturday, 5:30 AM', rating: 'From ETB 500', color: 'bg-lime-100 text-lime-800', imageUrl: '/places/event-5.jpg' },
+  { id: '4', name: 'The Open Table', category: 'Community', location: 'Friendship Park', detail: 'Sunday, 1:00 PM', rating: 'From ETB 1,200', color: 'bg-violet-100 text-violet-800', imageUrl: '/places/event-6.jpg' },
 ]
 
 function formatEventTime(value: string | null) {

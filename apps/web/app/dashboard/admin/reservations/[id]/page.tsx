@@ -61,7 +61,7 @@ export default async function AdminReservationDetailPage({
     <ConsolePageShell maxWidth="max-w-3xl">
       <Link
         href="/dashboard/admin/reservations"
-        className="text-xs font-semibold uppercase tracking-widest text-[#7587A7] transition-colors hover:text-[#DFC391]"
+        className="text-xs font-semibold uppercase tracking-widest text-app-muted transition-colors hover:text-ember"
       >
         ← Back to reservations
       </Link>
@@ -75,13 +75,13 @@ export default async function AdminReservationDetailPage({
 
       <section className={cn(CONSOLE_CARD, 'space-y-3 p-5 text-sm')}>
         <div className="flex items-center justify-between gap-3">
-          <span className="text-[#7587A7]">Venue</span>
+          <span className="text-app-muted">Venue</span>
           <span className="truncate text-right font-semibold">
             {[businessName, branch?.branch_name].filter(Boolean).join(' · ') || '—'}
           </span>
         </div>
         <div className="flex items-center justify-between gap-3">
-          <span className="text-[#7587A7]">Date</span>
+          <span className="text-app-muted">Date</span>
           <span className="tabular-nums">
             {new Date(`${r.reservation_date}T00:00:00`).toLocaleDateString('en-GB', {
               weekday: 'short', day: '2-digit', month: 'short', year: 'numeric',
@@ -90,26 +90,26 @@ export default async function AdminReservationDetailPage({
         </div>
         {r.time_slot && (
           <div className="flex items-center justify-between gap-3">
-            <span className="text-[#7587A7]">Slot</span>
+            <span className="text-app-muted">Slot</span>
             <span className="tabular-nums">{r.time_slot}</span>
           </div>
         )}
         {r.created_at && (
           <div className="flex items-center justify-between gap-3">
-            <span className="text-[#7587A7]">Booked</span>
-            <span className="tabular-nums text-[#B5C7EA]">
+            <span className="text-app-muted">Booked</span>
+            <span className="tabular-nums text-app-muted">
               {new Date(r.created_at).toLocaleString('en-GB', {
                 day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit',
               })}
             </span>
           </div>
         )}
-        <div className="border-t border-[#4d5f7d]/20 pt-4">
+        <div className="border-t border-app-border pt-4">
           <ReservationCancelAction reservationId={r.id} status={r.status} />
         </div>
       </section>
 
-      <p className="px-1 text-xs tabular-nums text-[#7587A7]">Ref {r.id}</p>
+      <p className="px-1 text-xs tabular-nums text-app-muted">Ref {r.id}</p>
     </ConsolePageShell>
   )
 }

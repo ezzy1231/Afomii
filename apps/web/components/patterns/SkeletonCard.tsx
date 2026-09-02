@@ -8,7 +8,7 @@ export function SkeletonCard({ className }: SkeletonCardProps) {
   return (
     <div
       className={cn(
-        "overflow-hidden rounded-2xl border border-app-border bg-app-panel",
+        "glass-subtle overflow-hidden rounded-3xl",
         className
       )}
       aria-hidden

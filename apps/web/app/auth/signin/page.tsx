@@ -96,15 +96,15 @@ export default function SignInPage() {
   return (
     <div className="w-full max-w-md">
       <div className="card-elevated animate-fade-in-up p-8 sm:p-10">
-        <h1 className="font-serif text-3xl font-bold text-app-fg mb-1">Welcome back</h1>
-        <p className="text-sm text-app-muted mb-8">
+        <h1 className="text-4xl font-bold tracking-tight text-app-fg mb-1.5">Welcome back</h1>
+        <p className="text-sm font-medium text-app-muted mb-8">
           Sign in to your UrbanExplore account
         </p>
 
         {confirmPending ? (
-          <div className="mb-5 rounded-lg border border-gold/30 bg-gold/10 px-4 py-4">
+          <div className="mb-5 rounded-xl border border-app-border bg-ember/10 px-4 py-4">
             <div className="flex items-start gap-3">
-              <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-gold/20 text-gold-soft">
+              <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-ember text-white">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="h-4 w-4">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" />
                 </svg>
@@ -117,7 +117,7 @@ export default function SignInPage() {
                 <button
                   type="button"
                   onClick={handleResend}
-                  className="mt-2 text-xs font-semibold text-gold hover:underline"
+                  className="mt-2 text-xs font-extrabold text-ember hover:underline"
                 >
                   Resend confirmation email
                 </button>
@@ -127,7 +127,7 @@ export default function SignInPage() {
         ) : error ? (
           <div
             role="alert"
-            className="mb-5 flex items-center gap-2.5 rounded-lg bg-danger/10 border border-danger/30 text-danger text-sm px-4 py-3"
+            className="mb-5 flex items-center gap-2.5 rounded-xl border border-app-border bg-danger/10 text-danger text-sm font-semibold px-4 py-3"
           >
             <svg viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4 shrink-0">
               <path fillRule="evenodd" d="M18 10A8 8 0 1 1 2 10a8 8 0 0 1 16 0Zm-8-4a.75.75 0 0 1 .75.75v3.5a.75.75 0 0 1-1.5 0v-3.5A.75.75 0 0 1 10 6Zm0 8a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z" clipRule="evenodd" />
@@ -138,14 +138,14 @@ export default function SignInPage() {
 
         <form onSubmit={handleSubmit} className="space-y-5" noValidate>
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-app-fg mb-1.5">Email address</label>
+            <label htmlFor="email" className="block text-sm font-bold text-app-fg mb-1.5">Email address</label>
             <input id="email" type="email" autoComplete="email" required value={email} onChange={(e) => setEmail(e.target.value)} className="input-premium" placeholder="you@example.com" />
           </div>
 
           <div>
             <div className="flex items-center justify-between mb-1.5">
-              <label htmlFor="password" className="block text-sm font-medium text-app-fg">Password</label>
-              <Link href="/auth/forgot-password" className="text-xs text-gold hover:underline">Forgot password?</Link>
+              <label htmlFor="password" className="block text-sm font-bold text-app-fg">Password</label>
+              <Link href="/auth/forgot-password" className="text-xs font-bold text-ember hover:underline">Forgot password?</Link>
             </div>
             <div className="relative">
               <input id="password" type={showPw ? 'text' : 'password'} autoComplete="current-password" required value={password} onChange={(e) => setPassword(e.target.value)} className="input-premium pr-11" placeholder="••••••••" />
@@ -171,9 +171,9 @@ export default function SignInPage() {
         </form>
 
         <div className="flex items-center gap-4 my-7">
-          <div className="flex-1 h-px bg-[var(--border)]" />
-          <span className="text-xs text-app-muted">or continue with</span>
-          <div className="flex-1 h-px bg-[var(--border)]" />
+          <div className="flex-1 h-[1.5px] bg-app-border" />
+          <span className="text-xs font-bold uppercase tracking-widest text-app-muted">or continue with</span>
+          <div className="flex-1 h-[1.5px] bg-app-border" />
         </div>
 
         <button onClick={handleGoogle} className="btn-secondary w-full flex items-center justify-center gap-3 !py-3 text-sm">
@@ -186,9 +186,9 @@ export default function SignInPage() {
           Continue with Google
         </button>
 
-        <p className="text-center text-sm text-app-muted mt-8">
+        <p className="text-center text-sm font-medium text-app-muted mt-8">
           Don&apos;t have an account?{' '}
-          <Link href="/auth/role" className="text-app-fg font-semibold hover:underline">Get started</Link>
+          <Link href="/auth/role" className="font-extrabold text-ember hover:underline">Get started</Link>
         </p>
       </div>
     </div>

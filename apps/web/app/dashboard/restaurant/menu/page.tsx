@@ -47,7 +47,7 @@ function initialsTile(name: string) {
     .map((w) => w.charAt(0).toUpperCase())
     .join('')
   return (
-    <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-md border border-[#4d5f7d]/30 bg-[#07192B] font-serif text-base font-bold text-[#DFC391]">
+    <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-md border border-app-border   text-base font-bold text-ember">
       {initials || '?'}
     </span>
   )
@@ -213,7 +213,7 @@ export default function MenuPage() {
           <button
             type="button"
             onClick={openCreate}
-            className="min-h-[44px] rounded-full border border-dashed border-[#4d5f7d]/50 px-5 text-sm font-semibold text-[#DFC391] transition-colors hover:border-[#C2A878] hover:bg-[#C2A878]/10"
+            className="min-h-[44px] rounded-full border border-dashed border-app-border px-5 text-sm font-semibold text-ember transition-colors hover:border-ember/40 hover:bg-ember/10"
           >
             ＋ Add Item
           </button>
@@ -233,7 +233,7 @@ export default function MenuPage() {
 
       {/* Search */}
       <div className={cn(CONSOLE_CARD, 'flex items-center gap-3 px-4 py-3')}>
-        <svg viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4 shrink-0 text-[#7587A7]">
+        <svg viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4 shrink-0 text-app-muted">
           <path fillRule="evenodd" d="M9 3.5a5.5 5.5 0 1 0 0 11 5.5 5.5 0 0 0 0-11ZM2 9a7 7 0 1 1 12.452 4.391l3.328 3.329a.75.75 0 1 1-1.06 1.06l-3.329-3.328A7 7 0 0 1 2 9Z" clipRule="evenodd" />
         </svg>
         <input
@@ -241,13 +241,13 @@ export default function MenuPage() {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search menu items..."
-          className="w-full bg-transparent text-sm text-[#F5EFE8] outline-none placeholder:text-[#7587A7]"
+          className="w-full bg-transparent text-sm text-app-fg outline-none placeholder:text-app-muted"
         />
       </div>
 
       {/* Category tabs */}
       {!loading && categories.length > 1 && (
-        <nav aria-label="Menu categories" className="flex gap-6 overflow-x-auto border-b border-[#4d5f7d]/25 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <nav aria-label="Menu categories" className="flex gap-6 overflow-x-auto border-b border-app-border [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {categories.map((cat) => (
             <button
               key={cat}
@@ -258,8 +258,8 @@ export default function MenuPage() {
               className={cn(
                 '-mb-px whitespace-nowrap border-b-2 px-1 pb-3 pt-1 text-sm font-semibold transition-colors',
                 activeCategory === cat
-                  ? 'border-[#C2A878] text-[#DFC391]'
-                  : 'border-transparent text-[#7587A7] hover:text-[#F5EFE8]'
+                  ? 'border-ember/40 text-ember'
+                  : 'border-transparent text-app-muted hover:text-app-fg'
               )}
             >
               {cat}
@@ -274,18 +274,18 @@ export default function MenuPage() {
       ) : !branchId ? (
         <div className={cn(CONSOLE_CARD, 'border-dashed p-10 text-center')}>
           <p className="font-semibold">No branches yet</p>
-          <p className="mt-1 text-sm text-[#7587A7]">Create a branch first — menu items live per location.</p>
+          <p className="mt-1 text-sm text-app-muted">Create a branch first — menu items live per location.</p>
         </div>
       ) : visible.length === 0 ? (
         <div className={cn(CONSOLE_CARD, 'border-dashed p-10 text-center')}>
           <p className="font-semibold">No dishes here yet</p>
-          <p className="mt-1 text-sm text-[#7587A7]">Add your first item to build your menu.</p>
+          <p className="mt-1 text-sm text-app-muted">Add your first item to build your menu.</p>
         </div>
       ) : (
         <section className="space-y-3">
           <SectionTitle>
             {activeCategory === 'All' ? 'Full menu' : activeCategory}
-            <span className="ml-2 align-middle text-xs font-medium uppercase tracking-widest text-[#7587A7] tabular-nums">
+            <span className="ml-2 align-middle text-xs font-medium uppercase tracking-widest text-app-muted tabular-nums">
               {visible.length} items
             </span>
           </SectionTitle>
@@ -300,9 +300,9 @@ export default function MenuPage() {
                   <div className="min-w-0">
                     <p className="truncate text-sm font-semibold">{item.name}</p>
                     {item.description && (
-                      <p className="mt-0.5 truncate text-xs text-[#B5C7EA]">{item.description}</p>
+                      <p className="mt-0.5 truncate text-xs text-app-muted">{item.description}</p>
                     )}
-                    <p className="mt-1 font-serif text-sm font-bold tabular-nums text-[#DFC391]">
+                    <p className="mt-1  text-sm font-bold tabular-nums text-ember">
                       {formatETB(item.price)}
                     </p>
                   </div>
@@ -317,7 +317,7 @@ export default function MenuPage() {
                     type="button"
                     onClick={() => openEdit(item)}
                     aria-label={`Edit ${item.name}`}
-                    className="flex size-11 items-center justify-center rounded-full text-lg leading-none text-[#7587A7] transition-colors hover:bg-white/5 hover:text-[#F5EFE8]"
+                    className="flex size-11 items-center justify-center rounded-full text-lg leading-none text-app-muted transition-colors hover:bg-white/5 hover:text-app-fg"
                   >
                     ⋮
                   </button>
@@ -332,14 +332,14 @@ export default function MenuPage() {
       {creating && (
         <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center" role="dialog" aria-modal="true">
           <button type="button" aria-label="Close" onClick={closeModal} className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
-          <div className="animate-pop-in relative w-full sm:max-w-lg rounded-t-xl border border-[#4d5f7d]/30 bg-[#0B1D31] p-6 shadow-[0_10px_35px_rgba(0,0,0,0.35)] sm:rounded-xl safe-bottom max-h-[90vh] overflow-y-auto">
+          <div className="animate-pop-in relative w-full sm:max-w-lg glass rounded-t-xl p-6 sm:rounded-3xl safe-bottom max-h-[90vh] overflow-y-auto">
             <div className="mb-5 flex items-center justify-between">
-              <h3 className="font-serif text-xl font-bold">{editing ? 'Edit Item' : 'Add Item'}</h3>
+              <h3 className=" text-xl font-bold">{editing ? 'Edit Item' : 'Add Item'}</h3>
               <button
                 type="button"
                 onClick={closeModal}
                 aria-label="Close"
-                className="flex h-9 w-9 items-center justify-center rounded-full text-[#7587A7] transition-colors hover:bg-white/5 hover:text-[#F5EFE8]"
+                className="flex h-9 w-9 items-center justify-center rounded-full text-app-muted transition-colors hover:bg-white/5 hover:text-app-fg"
               >
                 ✕
               </button>
@@ -347,21 +347,21 @@ export default function MenuPage() {
 
             <form onSubmit={saveItem} className="space-y-4">
               <div>
-                <label htmlFor="mi-name" className="mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.15em] text-[#7587A7]">Item Name</label>
+                <label htmlFor="mi-name" className="mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.15em] text-app-muted">Item Name</label>
                 <input
                   id="mi-name"
                   required
                   value={draft.name}
                   onChange={(e) => setDraft((d) => ({ ...d, name: e.target.value }))}
                   placeholder="e.g. Doro Wat Premium"
-                  className="w-full rounded-lg border border-[#4d5f7d]/30 bg-[#07192B] px-3.5 py-2.5 text-sm text-[#F5EFE8] outline-none transition-colors placeholder:text-[#7587A7]/70 focus:border-[#C2A878]"
+                  className="w-full rounded-lg border border-app-border  px-3.5 py-2.5 text-sm text-app-fg outline-none transition-colors placeholder:text-app-muted/70 focus:border-ember/40"
                 />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label htmlFor="mi-price" className="mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.15em] text-[#7587A7]">Price</label>
+                  <label htmlFor="mi-price" className="mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.15em] text-app-muted">Price</label>
                   <div className="relative">
-                    <span className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 font-serif text-xs font-bold text-[#DFC391]">ETB</span>
+                    <span className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2  text-xs font-bold text-ember">ETB</span>
                     <input
                       id="mi-price"
                       required
@@ -372,17 +372,17 @@ export default function MenuPage() {
                       value={draft.price}
                       onChange={(e) => setDraft((d) => ({ ...d, price: e.target.value }))}
                       placeholder="450"
-                      className="w-full rounded-lg border border-[#4d5f7d]/30 bg-[#07192B] py-2.5 pl-12 pr-3.5 text-sm tabular-nums text-[#F5EFE8] outline-none transition-colors placeholder:text-[#7587A7]/70 focus:border-[#C2A878]"
+                      className="w-full rounded-lg border border-app-border  py-2.5 pl-12 pr-3.5 text-sm tabular-nums text-app-fg outline-none transition-colors placeholder:text-app-muted/70 focus:border-ember/40"
                     />
                   </div>
                 </div>
                 <div>
-                  <label htmlFor="mi-category" className="mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.15em] text-[#7587A7]">Category</label>
+                  <label htmlFor="mi-category" className="mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.15em] text-app-muted">Category</label>
                   <select
                     id="mi-category"
                     value={draft.category}
                     onChange={(e) => setDraft((d) => ({ ...d, category: e.target.value }))}
-                    className="w-full rounded-lg border border-[#4d5f7d]/30 bg-[#07192B] px-3.5 py-2.5 text-sm text-[#F5EFE8] outline-none transition-colors focus:border-[#C2A878]"
+                    className="w-full rounded-lg border border-app-border  px-3.5 py-2.5 text-sm text-app-fg outline-none transition-colors focus:border-ember/40"
                   >
                     {CATEGORIES.map((c) => (
                       <option key={c} value={c}>{c}</option>
@@ -391,18 +391,18 @@ export default function MenuPage() {
                 </div>
               </div>
               <div>
-                <label htmlFor="mi-desc" className="mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.15em] text-[#7587A7]">Description</label>
+                <label htmlFor="mi-desc" className="mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.15em] text-app-muted">Description</label>
                 <textarea
                   id="mi-desc"
                   rows={3}
                   value={draft.description}
                   onChange={(e) => setDraft((d) => ({ ...d, description: e.target.value }))}
                   placeholder="Traditional spicy chicken stew with hard-boiled egg and injera"
-                  className="w-full resize-none rounded-lg border border-[#4d5f7d]/30 bg-[#07192B] px-3.5 py-2.5 text-sm text-[#F5EFE8] outline-none transition-colors placeholder:text-[#7587A7]/70 focus:border-[#C2A878]"
+                  className="w-full resize-none rounded-lg border border-app-border  px-3.5 py-2.5 text-sm text-app-fg outline-none transition-colors placeholder:text-app-muted/70 focus:border-ember/40"
                 />
               </div>
               {editing && (
-                <div className="flex items-center justify-between rounded-lg border border-[#4d5f7d]/25 bg-[#07192B] px-4 py-3">
+                <div className="flex items-center justify-between rounded-lg border border-app-border  px-4 py-3">
                   <span className="text-sm font-semibold">Available for Order</span>
                   <ToggleSwitch
                     checked={editing.isAvailable}
@@ -419,14 +419,14 @@ export default function MenuPage() {
                 <button
                   type="button"
                   onClick={closeModal}
-                  className="min-h-[44px] flex-1 rounded-full border border-[#4d5f7d]/40 text-sm font-semibold text-[#B5C7EA] transition-colors hover:border-[#7587A7]"
+                  className="min-h-[44px] flex-1 rounded-full border border-app-border text-sm font-semibold text-app-muted transition-colors hover:border-ember/30"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={saving || !draft.name.trim() || !draft.price}
-                  className="min-h-[44px] flex-1 rounded-full bg-navy text-sm font-semibold text-ivory shadow-lg shadow-black/30 ring-1 ring-inset ring-white/15 transition-all hover:brightness-125 active:scale-[0.98] disabled:opacity-50"
+                  className="min-h-[44px] flex-1 rounded-full bg-ink text-sm font-semibold text-white shadow-glass transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] disabled:opacity-50"
                 >
                   {saving ? 'Saving…' : editing ? 'Save Changes' : 'Add Item'}
                 </button>

@@ -43,7 +43,7 @@ export function ReservationQuickActions({
         disabled={pending}
         onClick={() => act('confirmed')}
         aria-label="Confirm reservation"
-        className="flex size-8 items-center justify-center rounded-full bg-[#4d5f7d]/25 text-[#F5EFE8] transition-colors hover:bg-[#4d5f7d]/45 disabled:opacity-50"
+        className="flex size-8 items-center justify-center rounded-full bg-app-elevated text-app-fg transition-colors hover:bg-app-elevated disabled:opacity-50"
       >
         <Check className="size-4" />
       </button>
@@ -52,7 +52,7 @@ export function ReservationQuickActions({
         disabled={pending}
         onClick={() => act('rejected')}
         aria-label="Reject reservation"
-        className="flex size-8 items-center justify-center rounded-full bg-[#BA1A1A]/20 text-[#ff8a80] transition-colors hover:bg-[#BA1A1A]/40 disabled:opacity-50"
+        className="flex size-8 items-center justify-center rounded-full bg-danger/15 text-danger transition-colors hover:bg-danger/25 disabled:opacity-50"
       >
         <X className="size-4" />
       </button>

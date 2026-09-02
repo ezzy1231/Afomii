@@ -182,8 +182,8 @@ export default function OrganizerSignupPage() {
     return (
       <div className="w-full max-w-md text-center">
         <div className="card-elevated animate-fade-in-up p-10">
-          <div className="w-14 h-14 bg-gold/10 rounded-full flex items-center justify-center mx-auto mb-5">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="w-7 h-7 text-gold">
+          <div className="w-14 h-14 bg-ember/10 rounded-full flex items-center justify-center mx-auto mb-5">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="w-7 h-7 text-ember">
               <path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" />
             </svg>
           </div>
@@ -201,7 +201,7 @@ export default function OrganizerSignupPage() {
       <div className="w-full max-w-lg">
         <div className="hero-warm animate-fade-in-up mb-4 rounded-xl border border-app-border py-5 text-center shadow-card">
           <span className="font-serif text-xl font-bold text-app-fg">
-            UrbanExplore <span className="text-gold-soft">Partners</span>
+            UrbanExplore <span className="text-ember">Partners</span>
           </span>
         </div>
         <div className="card-elevated p-8 md:p-10">
@@ -294,18 +294,18 @@ export default function OrganizerSignupPage() {
             <p className="text-sm text-app-muted mb-6">You can upgrade at any time</p>
             <div className="space-y-3 mb-6">
               {PLANS.map((plan) => (
-                <label key={plan.key} className={`flex items-start gap-4 p-4 rounded-xl border cursor-pointer transition-colors ${form.plan === plan.key ? 'border-navy bg-navy/5' : 'border-[var(--border)] hover:border-navy/40'}`}>
+                <label key={plan.key} className={`flex items-start gap-4 p-4 rounded-xl border cursor-pointer transition-colors ${form.plan === plan.key ? 'border-ink bg-ink/5' : 'border-[var(--border)] hover:border-ink/40'}`}>
                   <input type="radio" name="plan" value={plan.key} checked={form.plan === plan.key} onChange={() => setForm((p) => ({ ...p, plan: plan.key }))} className="mt-1 accent-navy" />
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-0.5">
                       <span className="text-sm font-semibold text-app-fg">{plan.name}</span>
-                      {plan.badge && <span className="text-[10px] bg-gold/20 text-gold font-bold px-1.5 py-0.5 rounded uppercase tracking-wide">{plan.badge}</span>}
+                      {plan.badge && <span className="text-[10px] bg-ember/12 text-ember font-bold px-1.5 py-0.5 rounded uppercase tracking-wide">{plan.badge}</span>}
                     </div>
                     <div className="text-lg font-bold text-app-fg">{plan.price} <span className="text-xs font-normal text-app-muted">{plan.period}</span></div>
                     <ul className="mt-2 space-y-0.5">
                       {plan.features.map((f) => (
                         <li key={f} className="text-xs text-app-muted flex items-center gap-1.5">
-                          <svg viewBox="0 0 20 20" fill="currentColor" className="w-3.5 h-3.5 text-gold flex-shrink-0"><path fillRule="evenodd" d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16Zm3.857-9.809a.75.75 0 0 0-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 1 0-1.06 1.061l2.5 2.5a.75.75 0 0 0 1.137-.089l4-5.5Z" clipRule="evenodd" /></svg>
+                          <svg viewBox="0 0 20 20" fill="currentColor" className="w-3.5 h-3.5 text-ember flex-shrink-0"><path fillRule="evenodd" d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16Zm3.857-9.809a.75.75 0 0 0-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 1 0-1.06 1.061l2.5 2.5a.75.75 0 0 0 1.137-.089l4-5.5Z" clipRule="evenodd" /></svg>
                           {f}
                         </li>
                       ))}

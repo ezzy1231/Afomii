@@ -23,6 +23,22 @@ export const restaurantListingInputSchema = z.object({
   closingLabel: trimmed(120).optional(),
 });
 
+// Public banner URL from Supabase Storage (banners bucket). The server action
+// verifies it points at our project so a listing can't embed arbitrary URLs.
+export const bannerUrlSchema = z
+  .string()
+  .trim()
+  .min(1, "A banner image is required.")
+  .max(500)
+  .refine(
+    (v) => v.startsWith("https://") && v.includes("/storage/v1/object/public/banners/"),
+    { message: "Banner must be a public upload from the banners storage bucket." }
+  );
+
+export const restaurantListingWithBannerSchema = restaurantListingInputSchema.extend({
+  coverUrl: bannerUrlSchema,
+});
+
 export const eventListingInputSchema = z.object({
   title: z.string().trim().min(2, "Event title must be at least 2 characters.").max(160),
   category: trimmed(80).optional(),
@@ -35,6 +51,10 @@ export const eventListingInputSchema = z.object({
     })
     .optional(),
   priceLabel: trimmed(60).optional(),
+});
+
+export const eventListingWithBannerSchema = eventListingInputSchema.extend({
+  coverImageUrl: bannerUrlSchema,
 });
 
 export const branchInputSchema = z.object({

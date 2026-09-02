@@ -157,7 +157,7 @@ export default async function OrganizerAnalyticsPage({
         <div className={cn(CONSOLE_CARD, 'p-5')}>
           {hasData ? (
             <>
-              <p className="mb-4 text-xs uppercase tracking-widest text-[#7587A7]">
+              <p className="mb-4 text-xs uppercase tracking-widest text-app-muted">
                 Past {days} days · tickets sold per day
               </p>
               <Sparkline points={seriesPoints} label={`Daily ticket sales over the past ${days} days`} />
@@ -165,7 +165,7 @@ export default async function OrganizerAnalyticsPage({
           ) : (
             <div className="border-dashed py-8 text-center">
               <p className="font-semibold">Not enough data yet</p>
-              <p className="mt-1 text-sm text-[#7587A7]">Ticket sales will chart here as they come in.</p>
+              <p className="mt-1 text-sm text-app-muted">Ticket sales will chart here as they come in.</p>
             </div>
           )}
         </div>
@@ -175,17 +175,17 @@ export default async function OrganizerAnalyticsPage({
       <section className="space-y-3">
         <SectionTitle>Top events · paid revenue</SectionTitle>
         {topEvents.length > 0 ? (
-          <ol className={cn(CONSOLE_CARD, 'divide-y divide-[#4d5f7d]/15')}>
+          <ol className={cn(CONSOLE_CARD, 'divide-y divide-app-border')}>
             {topEvents.map((event, i) => (
               <li key={event.title} className="flex items-center gap-4 px-5 py-3.5">
-                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-[#4d5f7d]/30 bg-[#07192B] font-serif text-xs font-bold tabular-nums text-[#DFC391]">
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-app-border   text-xs font-bold tabular-nums text-ember">
                   {i + 1}
                 </span>
                 <span className="min-w-0 flex-1 truncate font-semibold">{event.title}</span>
-                <span aria-hidden className="hidden h-2 w-32 overflow-hidden rounded-full bg-[#07192B] sm:block">
-                  <span className="block h-full rounded-full bg-[#C2A878]/70" style={{ width: `${Math.max(4, Math.round((event.amount / topMax) * 100))}%` }} />
+                <span aria-hidden className="hidden h-2 w-32 overflow-hidden rounded-full  sm:block">
+                  <span className="block h-full rounded-full bg-ember/70" style={{ width: `${Math.max(4, Math.round((event.amount / topMax) * 100))}%` }} />
                 </span>
-                <span className="shrink-0 font-serif text-sm font-bold tabular-nums text-[#DFC391]">
+                <span className="shrink-0  text-sm font-bold tabular-nums text-ember">
                   {formatETB(event.amount)}
                 </span>
               </li>
@@ -193,7 +193,7 @@ export default async function OrganizerAnalyticsPage({
           </ol>
         ) : (
           <div className={cn(CONSOLE_CARD, 'border-dashed p-8 text-center')}>
-            <p className="text-sm text-[#7587A7]">No paid ticket sales in this period yet.</p>
+            <p className="text-sm text-app-muted">No paid ticket sales in this period yet.</p>
           </div>
         )}
       </section>

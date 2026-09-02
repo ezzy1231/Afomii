@@ -31,12 +31,12 @@ export function BusinessVerificationActions({ businessId }: { businessId: string
 
   return (
     <div className="flex items-center gap-2">
-      {error && <span className="text-[10px] text-[#ff8a80]">{error}</span>}
+      {error && <span className="text-[10px] text-danger">{error}</span>}
       <button
         type="button"
         disabled={pending}
         onClick={() => act(true)}
-        className="min-h-[36px] rounded-full border border-[#34A853]/50 bg-[#34A853]/15 px-4 text-xs font-semibold uppercase tracking-wide text-[#7bd88f] transition-colors hover:bg-[#34A853]/30 disabled:opacity-50"
+        className="min-h-[36px] rounded-full border border-success/40 bg-success/15 px-4 text-xs font-semibold uppercase tracking-wide text-success transition-colors hover:bg-success/25 disabled:opacity-50"
       >
         Verify
       </button>
@@ -44,7 +44,7 @@ export function BusinessVerificationActions({ businessId }: { businessId: string
         type="button"
         disabled={pending}
         onClick={() => act(false)}
-        className="min-h-[36px] rounded-full border border-[#BA1A1A]/50 bg-[#BA1A1A]/20 px-4 text-xs font-semibold uppercase tracking-wide text-[#ff8a80] transition-colors hover:bg-[#BA1A1A]/40 disabled:opacity-50"
+        className="min-h-[36px] rounded-full border border-danger/40 bg-danger/15 px-4 text-xs font-semibold uppercase tracking-wide text-danger transition-colors hover:bg-danger/25 disabled:opacity-50"
       >
         Reject
       </button>

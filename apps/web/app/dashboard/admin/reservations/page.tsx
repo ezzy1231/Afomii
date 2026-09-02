@@ -73,8 +73,8 @@ export default async function AdminReservationsPage({
             className={cn(
               'min-h-[36px] whitespace-nowrap rounded-full border px-3.5 py-1.5 text-xs font-semibold transition-colors',
               statusFilter === s
-                ? 'border-[#C2A878] bg-[#C2A878]/15 text-[#DFC391]'
-                : 'border-[#4d5f7d]/40 text-[#7587A7] hover:border-[#7587A7] hover:text-[#F5EFE8]'
+                ? 'border-ember/40 bg-ember/15 text-ember'
+                : 'border-app-border text-app-muted hover:border-ember/30 hover:text-app-fg'
             )}
           >
             {s}
@@ -85,7 +85,7 @@ export default async function AdminReservationsPage({
       <div className={cn(CONSOLE_CARD, 'overflow-x-auto')}>
         <table className="w-full min-w-[760px] text-left text-sm">
           <thead>
-            <tr className="border-b border-[#4d5f7d]/25 text-[11px] uppercase tracking-[0.14em] text-[#7587A7]">
+            <tr className="border-b border-app-border text-[11px] uppercase tracking-[0.14em] text-app-muted">
               <th scope="col" className="px-4 py-3 font-semibold">Guest</th>
               <th scope="col" className="px-4 py-3 font-semibold">Venue</th>
               <th scope="col" className="px-4 py-3 font-semibold">When</th>
@@ -97,7 +97,7 @@ export default async function AdminReservationsPage({
           <tbody>
             {rows.length === 0 ? (
               <tr>
-                <td colSpan={6} className="px-4 py-10 text-center text-sm text-[#7587A7]">
+                <td colSpan={6} className="px-4 py-10 text-center text-sm text-app-muted">
                   No reservations match this filter yet.
                 </td>
               </tr>
@@ -110,16 +110,16 @@ export default async function AdminReservationsPage({
                     : branch.businesses.name
                   : ''
                 return (
-                  <tr key={row.id} className={cn('border-b border-[#4d5f7d]/10 last:border-0', (row.status === 'cancelled' || row.status === 'rejected') && 'opacity-60')}>
+                  <tr key={row.id} className={cn('border-b border-app-border last:border-0', (row.status === 'cancelled' || row.status === 'rejected') && 'opacity-60')}>
                     <td className="max-w-[180px] truncate px-4 py-3.5">
                       <Link href={`/dashboard/admin/reservations/${row.id}`} className="block font-semibold underline-offset-2 hover:underline">
                         {contacts.get(row.user_id ?? '') ?? 'Guest'}
                       </Link>
                     </td>
-                    <td className="max-w-[200px] truncate px-4 py-3.5 text-[#B5C7EA]">
+                    <td className="max-w-[200px] truncate px-4 py-3.5 text-app-muted">
                       {[businessName, branch?.branch_name].filter(Boolean).join(' · ') || '—'}
                     </td>
-                    <td className="px-4 py-3.5 tabular-nums text-[#B5C7EA]">
+                    <td className="px-4 py-3.5 tabular-nums text-app-muted">
                       {new Date(`${row.reservation_date}T00:00:00`).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' })}
                       {row.time_slot ? ` · ${row.time_slot}` : ''}
                     </td>
@@ -137,7 +137,7 @@ export default async function AdminReservationsPage({
           </tbody>
         </table>
       </div>
-      <p className="px-1 text-xs text-[#7587A7]">Showing the latest 50 reservations matching your filter.</p>
+      <p className="px-1 text-xs text-app-muted">Showing the latest 50 reservations matching your filter.</p>
     </ConsolePageShell>
   )
 }

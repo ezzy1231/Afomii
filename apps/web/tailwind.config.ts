@@ -3,6 +3,11 @@ import sharedConfig from "@urbanexplore/tailwind-config";
 
 const config: Config = {
   presets: [sharedConfig],
+  /* The app toggles dark mode via the `data-theme` attribute on <html>
+     (set by ThemeToggle + the theme-init inline script in layout.tsx).
+     Point the `dark:` variant at that attribute so every `dark:*` utility
+     follows the in-app toggle instead of the OS prefers-color-scheme. */
+  darkMode: ["selector", '[data-theme="dark"]'],
   content: [
     "./app/**/*.{ts,tsx}",
     "./components/**/*.{ts,tsx}",
@@ -10,37 +15,68 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      opacity: {
+        /* allow /8 and /12 alpha steps used across the UI (glass tints) */
+        8: "0.08",
+        12: "0.12",
+      },
       colors: {
+        /* Single accent — ember. Aliases resolve to it so legacy
+           class names keep working without competing colors. */
+        ember: {
+          DEFAULT: "rgb(var(--ember-rgb) / <alpha-value>)",
+          deep: "rgb(var(--ember-deep-rgb) / <alpha-value>)",
+          soft: "rgb(var(--ember-soft-rgb) / <alpha-value>)",
+        },
+        amber: {
+          DEFAULT: "rgb(var(--amber-rgb) / <alpha-value>)",
+          soft: "rgb(var(--amber-soft-rgb) / <alpha-value>)",
+        },
+        moss: "rgb(var(--moss-rgb) / <alpha-value>)",
+        /* Legacy brand aliases → neutral / accent */
         navy: {
-          DEFAULT: "#0B1F3A",
-          50: "#F0F3F8",
-          100: "#D6DDE8",
-          200: "#ADBBD1",
-          300: "#8499BA",
-          400: "#5B77A3",
-          500: "#3D5A82",
-          600: "#2A3F5E",
-          700: "#1B2F4C",
-          800: "#0B1F3A",
-          900: "#061221",
+          DEFAULT: "rgb(var(--text-primary-rgb) / <alpha-value>)",
+          50: "#F4F4F6",
+          100: "#E4E4E8",
+          200: "#C9C9D0",
+          300: "#AEAEB8",
+          400: "#8E8E9A",
+          500: "#6E6E7A",
+          600: "#52525C",
+          700: "#3A3A42",
+          800: "#26262C",
+          900: "#17171A",
         },
         gold: {
           DEFAULT: "rgb(var(--gold-rgb) / <alpha-value>)",
           soft: "rgb(var(--gold-soft-rgb) / <alpha-value>)",
-          50: "#F9F4EC",
-          100: "#F0E6D0",
-          200: "#E1CDA1",
-          300: "#D2B472",
-          400: "#C2A878",
-          500: "#A88E5E",
+          50: "#FDF3EC",
+          100: "#FAE3D3",
+          200: "#F5C6A4",
+          300: "#F0A775",
+          400: "#EB8F4B",
+          500: "#E0551E",
+        },
+        ink: {
+          DEFAULT: "#17171A",
+          50: "#F4F4F6",
+          100: "#E4E4E8",
+          200: "#C9C9D0",
+          300: "#AEAEB8",
+          400: "#8E8E9A",
+          500: "#6E6E7A",
+          600: "#52525C",
+          700: "#3A3A42",
+          800: "#26262C",
+          900: "#17171A",
         },
         ivory: {
-          DEFAULT: "#F8F5F0",
-          50: "#FFFDF8",
-          100: "#F8F5F0",
+          DEFAULT: "#F8F8FA",
+          50: "#FDFDFE",
+          100: "#F8F8FA",
         },
         charcoal: {
-          DEFAULT: "#111827",
+          DEFAULT: "#17171A",
         },
         "app-bg": "rgb(var(--bg-primary-rgb) / <alpha-value>)",
         "app-fg": "rgb(var(--text-primary-rgb) / <alpha-value>)",
@@ -56,23 +92,28 @@ const config: Config = {
         warning: "rgb(var(--warning-rgb) / <alpha-value>)",
       },
       fontFamily: {
-        serif: ["var(--font-playfair)", "Georgia", "serif"],
-        sans: ["var(--font-inter)", "system-ui", "sans-serif"],
-      },
-      borderRadius: {
-        sm: "12px",
-        md: "16px",
-        lg: "20px",
-        xl: "24px",
-        "2xl": "28px",
+        /* One clean sans family everywhere — display = sans, bold */
+        display: ["var(--font-space)", "system-ui", "sans-serif"],
+        serif: ["var(--font-space)", "system-ui", "sans-serif"],
+        sans: ["var(--font-space)", "system-ui", "sans-serif"],
       },
       boxShadow: {
-        soft: "0 1px 3px rgba(0,0,0,.04)",
-        card: "0 4px 20px rgba(0,0,0,.06)",
-        elevate: "0 8px 30px rgba(0,0,0,.08)",
-        "dark-sm": "0 1px 3px rgba(0,0,0,.2)",
-        "dark-card": "0 4px 20px rgba(0,0,0,.3)",
-        "dark-elevate": "0 10px 35px rgba(0,0,0,.35)",
+        soft: "0 1px 2px rgb(16 18 27 / 0.04), 0 2px 8px rgb(16 18 27 / 0.04)",
+        card: "0 2px 4px rgb(16 18 27 / 0.04), 0 8px 24px rgb(16 18 27 / 0.07)",
+        elevate: "0 4px 8px rgb(16 18 27 / 0.05), 0 16px 48px rgb(16 18 27 / 0.1)",
+        glass: "var(--glass-shadow)",
+        "glass-strong": "var(--glass-shadow-strong)",
+        "dark-sm": "0 1px 3px rgb(0 0 0 / 0.2)",
+        "dark-card": "0 2px 4px rgb(0 0 0 / 0.2), 0 8px 24px rgb(0 0 0 / 0.28)",
+        "dark-elevate": "0 4px 8px rgb(0 0 0 / 0.2), 0 16px 48px rgb(0 0 0 / 0.4)",
+        /* legacy names → soft equivalents */
+        hard: "0 1px 2px rgb(16 18 27 / 0.05), 0 2px 8px rgb(16 18 27 / 0.05)",
+        "hard-lg": "0 2px 4px rgb(16 18 27 / 0.05), 0 8px 24px rgb(16 18 27 / 0.08)",
+      },
+      transitionTimingFunction: {
+        // clean ease-out for micro-interactions (no bounce/overshoot)
+        out: "cubic-bezier(0.22, 1, 0.36, 1)",
+        glide: "cubic-bezier(0.16, 1, 0.3, 1)",
       },
     },
   },

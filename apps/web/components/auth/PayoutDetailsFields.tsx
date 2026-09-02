@@ -1,7 +1,7 @@
-'use client'
+"use client";
 
-import { cn } from '@/lib/utils'
-import { DocumentUploadRow } from './FileUploadTile'
+import { cn } from "@/lib/utils";
+import { DocumentUploadRow } from "./FileUploadTile";
 
 /**
  * Payout Details card ported from the Stitch organizer_signup artboard.
@@ -10,30 +10,36 @@ import { DocumentUploadRow } from './FileUploadTile'
  */
 
 export const ETHIOPIAN_BANKS = [
-  'Commercial Bank of Ethiopia (CBE)',
-  'Awash Bank',
-  'Dashen Bank',
-  'Bank of Abyssinia',
-] as const
+  "Commercial Bank of Ethiopia (CBE)",
+  "Awash Bank",
+  "Dashen Bank",
+  "Bank of Abyssinia",
+] as const;
 
 export type PayoutDetails = {
-  bank: string
-  accountHolder: string
-  accountNumber: string
-}
+  bank: string;
+  accountHolder: string;
+  accountNumber: string;
+};
 
-const EMPTY_PAYOUT: PayoutDetails = { bank: '', accountHolder: '', accountNumber: '' }
+const EMPTY_PAYOUT: PayoutDetails = {
+  bank: "",
+  accountHolder: "",
+  accountNumber: "",
+};
 
-export function payoutDetailsValue(value?: Partial<PayoutDetails>): PayoutDetails {
-  return { ...EMPTY_PAYOUT, ...value }
+export function payoutDetailsValue(
+  value?: Partial<PayoutDetails>,
+): PayoutDetails {
+  return { ...EMPTY_PAYOUT, ...value };
 }
 
 type PayoutDetailsFieldsProps = {
-  value: PayoutDetails
-  onChange: (next: PayoutDetails) => void
-  docsFileName?: string | null
-  onDocsSelect: (file: File | null) => void
-}
+  value: PayoutDetails;
+  onChange: (next: PayoutDetails) => void;
+  docsFileName?: string | null;
+  onDocsSelect: (file: File | null) => void;
+};
 
 export function PayoutDetailsFields({
   value,
@@ -41,14 +47,20 @@ export function PayoutDetailsFields({
   docsFileName,
   onDocsSelect,
 }: PayoutDetailsFieldsProps) {
-  const inputCls = 'input-premium'
+  const inputCls = "input-premium";
 
   return (
     <section className="rounded-xl border border-app-border bg-app-card p-5">
       <div className="mb-1 flex items-center justify-between gap-2">
-        <h3 className="font-serif text-lg font-semibold text-app-fg">Payout details</h3>
+        <h3 className="text-lg font-semibold text-app-fg">Payout details</h3>
         <span className="badge-gold inline-flex items-center gap-1 !text-[10px] uppercase tracking-widest">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="h-3 w-3">
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth={2}
+            className="h-3 w-3"
+          >
             <path
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -58,7 +70,9 @@ export function PayoutDetailsFields({
           Optional · Secure
         </span>
       </div>
-      <p className="mb-4 text-xs text-app-muted">Required before you can publish paid events.</p>
+      <p className="mb-4 text-xs text-app-muted">
+        Required before you can publish paid events.
+      </p>
 
       <div className="space-y-4">
         <div>
@@ -81,7 +95,9 @@ export function PayoutDetailsFields({
           <input
             type="text"
             value={value.accountHolder}
-            onChange={(e) => onChange({ ...value, accountHolder: e.target.value })}
+            onChange={(e) =>
+              onChange({ ...value, accountHolder: e.target.value })
+            }
             placeholder="As it appears on the account"
             autoComplete="off"
             className={cn(inputCls)}
@@ -93,10 +109,12 @@ export function PayoutDetailsFields({
             type="text"
             inputMode="numeric"
             value={value.accountNumber}
-            onChange={(e) => onChange({ ...value, accountNumber: e.target.value })}
+            onChange={(e) =>
+              onChange({ ...value, accountNumber: e.target.value })
+            }
             placeholder="0000 0000 0000"
             autoComplete="off"
-            className={cn(inputCls, 'tabular-nums')}
+            className={cn(inputCls, "tabular-nums")}
           />
         </div>
         <div className="border-t border-dashed border-[var(--border)] pt-4">
@@ -109,5 +127,5 @@ export function PayoutDetailsFields({
         </div>
       </div>
     </section>
-  )
+  );
 }

@@ -8,7 +8,7 @@ type StickyActionBarProps = {
     onClick?: () => void;
     disabled?: boolean;
     type?: "button" | "submit";
-    /** `navy` matches the Stitch wizard artboards' primary CTA. */
+    /** Kept for API compat — both tones now use the accent. */
     tone?: "gold" | "navy";
   };
   secondary?: {
@@ -30,9 +30,7 @@ export function StickyActionBar({
   className,
 }: StickyActionBarProps) {
   const primaryCls =
-    primary.tone === "navy"
-      ? "bg-navy text-ivory shadow-lg shadow-navy/25"
-      : "bg-gold text-navy shadow-lg shadow-gold/20";
+    "bg-gradient-to-br from-ember to-ember-deep text-white shadow-[0_4px_16px_rgb(var(--ember-rgb)/0.35)]";
 
   const primaryBtn = primary.href ? (
     <Link
@@ -56,7 +54,7 @@ export function StickyActionBar({
     secondary.href ? (
       <Link
         href={secondary.href}
-        className={cn(baseBtn, "border border-app-border bg-app-panel text-app-fg")}
+        className={cn(baseBtn, "glass-subtle border border-app-border text-app-fg")}
       >
         {secondary.label}
       </Link>
@@ -65,7 +63,7 @@ export function StickyActionBar({
         type={secondary.type ?? "button"}
         onClick={secondary.onClick}
         disabled={secondary.disabled}
-        className={cn(baseBtn, "border border-app-border bg-app-panel text-app-fg")}
+        className={cn(baseBtn, "glass-subtle border border-app-border text-app-fg")}
       >
         {secondary.label}
       </button>
@@ -75,7 +73,7 @@ export function StickyActionBar({
   return (
     <div
       className={cn(
-        "sticky bottom-0 z-30 -mx-4 mt-8 border-t border-app-border bg-app-bg/90 px-4 py-3 backdrop-blur-lg sm:static sm:mx-0 sm:border-0 sm:bg-transparent sm:px-0 sm:backdrop-blur-none safe-bottom",
+        "sticky bottom-0 z-30 -mx-4 mt-8 border-t border-app-border bg-app-bg/80 px-4 py-3 backdrop-blur-xl sm:static sm:mx-0 sm:border-0 sm:bg-transparent sm:px-0 sm:backdrop-blur-none safe-bottom",
         className
       )}
     >

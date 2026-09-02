@@ -5,9 +5,9 @@ import { CONSOLE_CARD } from './console-shared'
 import { cn } from '@/lib/utils'
 
 /**
- * Shared dark-console UI primitives (client components) for partner/admin
- * surfaces. Palette follows the shipped console screens (#07192B shell,
- * #0B1D31 cards, #7587A7 muted, #DFC391 gold accent).
+ * Shared console UI primitives (client components) for partner/admin
+ * surfaces. Glass design system: neutral base, single ember accent,
+ * soft layered depth — theme-aware (light + dark).
  *
  * NOTE: server components can render these components but cannot CALL plain
  * functions exported from this "use client" file — shared constants/helpers
@@ -22,7 +22,7 @@ export function ConsolePageShell({
   maxWidth?: string
 }) {
   return (
-    <div className="min-h-full bg-[#07192B] px-4 pb-16 pt-8 text-[#F5EFE8] sm:px-6 lg:px-8">
+    <div className="min-h-full px-4 pb-16 pt-8 text-app-fg sm:px-6 lg:px-8">
       <div className={cn('mx-auto w-full space-y-8', maxWidth)}>{children}</div>
     </div>
   )
@@ -42,9 +42,9 @@ export function ConsoleHeader({
   return (
     <header className="flex flex-wrap items-end justify-between gap-3">
       <div>
-        <p className="text-[11px] font-semibold uppercase tracking-[0.15em] text-[#7587A7]">{eyebrow}</p>
-        <h1 className="mt-2 font-serif text-3xl font-bold sm:text-4xl">{title}</h1>
-        {subtitle && <p className="mt-1.5 text-sm text-[#B5C7EA]">{subtitle}</p>}
+        <p className="text-[11px] font-semibold uppercase tracking-[0.15em] text-app-muted">{eyebrow}</p>
+        <h1 className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">{title}</h1>
+        {subtitle && <p className="mt-1.5 text-sm text-app-muted">{subtitle}</p>}
       </div>
       {action}
     </header>
@@ -53,19 +53,19 @@ export function ConsoleHeader({
 
 export function SectionTitle({ children }: { children: React.ReactNode }) {
   return (
-    <h2 className="border-b border-[#4d5f7d]/25 pb-3 font-serif text-xl font-bold">{children}</h2>
+    <h2 className="border-b border-app-border pb-3 text-xl font-bold">{children}</h2>
   )
 }
 
 export function StatusPill({ status, tone }: { status: string; tone?: 'ok' | 'bad' | 'gold' | 'info' }) {
   const toneCls =
     tone === 'ok'
-      ? 'bg-[#34A853]/20 text-[#7bd88f]'
+      ? 'bg-success/15 text-success'
       : tone === 'bad'
-        ? 'bg-[#BA1A1A]/25 text-[#ff8a80]'
+        ? 'bg-danger/15 text-danger'
         : tone === 'gold'
-          ? 'bg-[#C2A878]/20 text-[#DFC391]'
-          : 'bg-[#4d5f7d]/30 text-[#B5C7EA]'
+          ? 'bg-ember/12 text-ember'
+          : 'bg-app-elevated/80 text-app-muted'
   return (
     <span
       className={cn(
@@ -90,15 +90,15 @@ export function ConsoleKpiCard({
   accent?: boolean
 }) {
   return (
-    <div className={cn(CONSOLE_CARD, 'flex min-h-32 flex-col justify-between p-4')}>
-      <span className="text-[11px] font-semibold uppercase tracking-[0.15em] text-[#7587A7]">
+    <div className={cn(CONSOLE_CARD, 'glass-hover flex min-h-32 flex-col justify-between p-4')}>
+      <span className="text-[11px] font-semibold uppercase tracking-[0.15em] text-app-muted">
         {label}
       </span>
       <div>
         <span
           className={cn(
             'block text-4xl font-bold tabular-nums',
-            accent ? 'text-[#DFC391]' : 'text-[#F5EFE8]'
+            accent ? 'text-ember' : 'text-app-fg'
           )}
         >
           {value}
@@ -107,21 +107,21 @@ export function ConsoleKpiCard({
           <span
             className={cn(
               'mt-1 block text-xs font-semibold tabular-nums',
-              trend.direction === 'up' ? 'text-[#7bd88f]' : 'text-[#ff8a80]'
+              trend.direction === 'up' ? 'text-success' : 'text-danger'
             )}
           >
             {trend.direction === 'up' ? '▲' : '▼'} {trend.text}
           </span>
         )}
         {trend && trend.direction === 'flat' && (
-          <span className="mt-1 block text-xs font-medium text-[#7587A7]">{trend.text}</span>
+          <span className="mt-1 block text-xs font-medium text-app-muted">{trend.text}</span>
         )}
       </div>
     </div>
   )
 }
 
-/** Underline-style segmented control from the reservations screen. */
+/** Pill-style segmented control with smooth tab transitions. */
 export function SegmentedControl<T extends string>({
   options,
   value,
@@ -134,7 +134,7 @@ export function SegmentedControl<T extends string>({
   ariaLabel: string
 }) {
   return (
-    <div className="flex rounded-lg border border-[#4d5f7d]/30 bg-[#0B1D31] p-1" role="tablist" aria-label={ariaLabel}>
+    <div className="glass flex rounded-xl p-1" role="tablist" aria-label={ariaLabel}>
       {options.map((opt) => (
         <button
           key={opt.value}
@@ -143,10 +143,10 @@ export function SegmentedControl<T extends string>({
           aria-selected={value === opt.value}
           onClick={() => onChange(opt.value)}
           className={cn(
-            'min-h-9 flex-1 whitespace-nowrap rounded-md px-4 text-sm font-semibold transition-colors',
+            'min-h-9 flex-1 whitespace-nowrap rounded-lg px-4 text-sm font-semibold transition-all duration-200',
             value === opt.value
-              ? 'bg-[#C2A878] text-navy'
-              : 'text-[#7587A7] hover:text-[#F5EFE8]'
+              ? 'bg-gradient-to-br from-ember to-ember-deep text-white shadow-[0_2px_8px_rgb(var(--ember-rgb)/0.3)]'
+              : 'text-app-muted hover:text-app-fg'
           )}
         >
           {opt.label}
@@ -170,10 +170,10 @@ export function FilterChip({
       type="button"
       onClick={onClick}
       className={cn(
-        'whitespace-nowrap rounded-full border px-3.5 py-1.5 text-xs font-semibold transition-colors',
+        'whitespace-nowrap rounded-full border px-3.5 py-1.5 text-xs font-semibold transition-colors duration-200',
         active
-          ? 'border-[#C2A878] bg-[#C2A878]/15 text-[#DFC391]'
-          : 'border-[#4d5f7d]/40 text-[#7587A7] hover:border-[#7587A7] hover:text-[#F5EFE8]'
+          ? 'border-ember/40 bg-ember/12 text-ember'
+          : 'border-app-border text-app-muted hover:border-ember/30 hover:text-app-fg'
       )}
     >
       {children}
@@ -200,13 +200,13 @@ export function ToggleSwitch({
       className={cn(
         // Negative margin keeps the visual footprint while padding widens the
         // tap target to the 44px minimum.
-        'relative -m-2.5 inline-flex h-6 w-11 shrink-0 items-center rounded-full p-0 transition-colors',
-        checked ? 'bg-[#34A853]' : 'bg-[#4d5f7d]/40'
+        'relative -m-2.5 inline-flex h-6 w-11 shrink-0 items-center rounded-full p-0 transition-colors duration-200',
+        checked ? 'bg-success' : 'bg-app-elevated'
       )}
     >
       <span
         className={cn(
-          'inline-block h-4 w-4 transform rounded-full bg-[#F5EFE8] shadow transition-transform',
+          'inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform duration-200 ease-out',
           checked ? 'translate-x-6' : 'translate-x-1'
         )}
       />
@@ -218,7 +218,7 @@ export function ConsoleSkeletonRow({ count = 3, height = 'h-20' }: { count?: num
   return (
     <div className="space-y-3">
       {Array.from({ length: count }, (_, i) => (
-        <div key={i} className={cn(height, 'animate-pulse rounded-lg bg-[#0B1D31]')} />
+        <div key={i} className={cn(height, 'animate-pulse rounded-xl bg-app-input/80')} />
       ))}
     </div>
   )
@@ -232,7 +232,7 @@ export function ConsoleRangeLinks({
 }) {
   const options: Array<'7d' | '30d' | '90d'> = ['7d', '30d', '90d']
   return (
-    <div className="flex w-fit rounded-lg border border-[#4d5f7d]/30 bg-[#0B1D31] p-1" role="tablist" aria-label="Date range">
+    <div className="glass flex w-fit rounded-xl p-1" role="tablist" aria-label="Date range">
       {options.map((range) => (
         <Link
           key={range}
@@ -241,10 +241,10 @@ export function ConsoleRangeLinks({
           role="tab"
           aria-selected={current === range}
           className={cn(
-            'min-h-9 rounded-md px-4 py-2 text-sm font-semibold transition-colors',
+            'min-h-9 rounded-lg px-4 py-2 text-sm font-semibold transition-all duration-200',
             current === range
-              ? 'bg-[#C2A878] text-navy'
-              : 'text-[#7587A7] hover:text-[#F5EFE8]'
+              ? 'bg-gradient-to-br from-ember to-ember-deep text-white shadow-[0_2px_8px_rgb(var(--ember-rgb)/0.3)]'
+              : 'text-app-muted hover:text-app-fg'
           )}
         >
           {range}
@@ -255,8 +255,8 @@ export function ConsoleRangeLinks({
 }
 
 /**
- * Dependency-free SVG area-line (gold stroke + gradient fill) matching the
- * Stitch analytics artboard's chart treatment.
+ * Dependency-free SVG area-line (ember stroke + gradient fill) — the
+ * analytics chart treatment for the glass system.
  */
 export function Sparkline({
   points,
@@ -290,18 +290,18 @@ export function Sparkline({
     >
       <defs>
         <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#C2A878" stopOpacity="0.35" />
-          <stop offset="100%" stopColor="#C2A878" stopOpacity="0" />
+          <stop offset="0%" stopColor="rgb(var(--ember-rgb))" stopOpacity="0.3" />
+          <stop offset="100%" stopColor="rgb(var(--ember-rgb))" stopOpacity="0" />
         </linearGradient>
       </defs>
       <path d={areaPath} fill={`url(#${gradientId})`} />
-      <path d={linePath} fill="none" stroke="#DFC391" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
+      <path d={linePath} fill="none" stroke="rgb(var(--ember-rgb))" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
       {coords.length > 0 && (
         <circle
           cx={coords[coords.length - 1].split(',')[0]}
           cy={coords[coords.length - 1].split(',')[1]}
           r="4"
-          fill="#DFC391"
+          fill="rgb(var(--ember-rgb))"
         />
       )}
     </svg>

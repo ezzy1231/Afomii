@@ -56,7 +56,7 @@ export default async function AdminBusinessesPage({
 
       <div className="flex flex-col gap-3">
         <form method="get" className={cn(CONSOLE_CARD, 'flex items-center gap-3 px-4 py-3')}>
-          <svg viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4 shrink-0 text-[#7587A7]">
+          <svg viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4 shrink-0 text-app-muted">
             <path fillRule="evenodd" d="M9 3.5a5.5 5.5 0 1 0 0 11 5.5 5.5 0 0 0 0-11ZM2 9a7 7 0 1 1 12.452 4.391l3.328 3.329a.75.75 0 1 1-1.06 1.06l-3.329-3.328A7 7 0 0 1 2 9Z" clipRule="evenodd" />
           </svg>
           <input
@@ -64,7 +64,7 @@ export default async function AdminBusinessesPage({
             name="q"
             defaultValue={q}
             placeholder="Search businesses..."
-            className="w-full bg-transparent text-sm text-[#F5EFE8] outline-none placeholder:text-[#7587A7]"
+            className="w-full bg-transparent text-sm text-app-fg outline-none placeholder:text-app-muted"
           />
           {statusFilter !== 'all' && <input type="hidden" name="status" value={statusFilter} />}
         </form>
@@ -76,8 +76,8 @@ export default async function AdminBusinessesPage({
               className={cn(
                 'min-h-[36px] whitespace-nowrap rounded-full border px-3.5 py-1.5 text-xs font-semibold transition-colors',
                 statusFilter === s
-                  ? 'border-[#C2A878] bg-[#C2A878]/15 text-[#DFC391]'
-                  : 'border-[#4d5f7d]/40 text-[#7587A7] hover:border-[#7587A7] hover:text-[#F5EFE8]'
+                  ? 'border-ember/40 bg-ember/15 text-ember'
+                  : 'border-app-border text-app-muted hover:border-ember/30 hover:text-app-fg'
               )}
             >
               {s}
@@ -89,7 +89,7 @@ export default async function AdminBusinessesPage({
       <div className={cn(CONSOLE_CARD, 'overflow-x-auto')}>
         <table className="w-full min-w-[820px] text-left text-sm">
           <thead>
-            <tr className="border-b border-[#4d5f7d]/25 text-[11px] uppercase tracking-[0.14em] text-[#7587A7]">
+            <tr className="border-b border-app-border text-[11px] uppercase tracking-[0.14em] text-app-muted">
               <th scope="col" className="px-4 py-3 font-semibold">Business</th>
               <th scope="col" className="px-4 py-3 font-semibold">Plan</th>
               <th scope="col" className="px-4 py-3 font-semibold">Status</th>
@@ -101,23 +101,23 @@ export default async function AdminBusinessesPage({
           <tbody>
             {rows.length === 0 ? (
               <tr>
-                <td colSpan={6} className="px-4 py-10 text-center text-sm text-[#7587A7]">
+                <td colSpan={6} className="px-4 py-10 text-center text-sm text-app-muted">
                   No businesses match this filter.
                 </td>
               </tr>
             ) : (
               rows.map((row) => (
-                <tr key={row.id} className={cn('border-b border-[#4d5f7d]/10 last:border-0', row.status === 'inactive' && 'opacity-60')}>
+                <tr key={row.id} className={cn('border-b border-app-border last:border-0', row.status === 'inactive' && 'opacity-60')}>
                   <td className="max-w-[220px] px-4 py-3.5">
                     <Link href={`/dashboard/admin/businesses/${row.id}`} className="block truncate font-semibold underline-offset-2 hover:underline">
                       {row.name}
                     </Link>
-                    <span className="text-xs tabular-nums text-[#7587A7]">ID: {row.id.slice(0, 8).toUpperCase()}</span>
+                    <span className="text-xs tabular-nums text-app-muted">ID: {row.id.slice(0, 8).toUpperCase()}</span>
                   </td>
-                  <td className="px-4 py-3.5 capitalize text-[#B5C7EA]">{row.plan ?? 'free'}</td>
+                  <td className="px-4 py-3.5 capitalize text-app-muted">{row.plan ?? 'free'}</td>
                   <td className="px-4 py-3.5"><StatusPill status={row.status} tone={statusTone(row.status)} /></td>
                   <td className="px-4 py-3.5">{row.is_verified ? '✓' : '—'}</td>
-                  <td className="px-4 py-3.5 tabular-nums text-[#B5C7EA]">
+                  <td className="px-4 py-3.5 tabular-nums text-app-muted">
                     {new Date(row.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
                   </td>
                   <td className="px-4 py-3.5">

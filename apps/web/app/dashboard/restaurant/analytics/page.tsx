@@ -177,7 +177,7 @@ export default async function RestaurantAnalyticsPage({
         <div className={cn(CONSOLE_CARD, 'p-5')}>
           {hasData ? (
             <>
-              <p className="mb-4 text-xs uppercase tracking-widest text-[#7587A7]">
+              <p className="mb-4 text-xs uppercase tracking-widest text-app-muted">
                 Past {days} days · reservations per day
               </p>
               <Sparkline points={seriesPoints} label={`Daily reservations over the past ${days} days`} />
@@ -185,7 +185,7 @@ export default async function RestaurantAnalyticsPage({
           ) : (
             <div className="border-dashed py-8 text-center">
               <p className="font-semibold">Not enough data yet</p>
-              <p className="mt-1 text-sm text-[#7587A7]">Bookings will chart here as they come in.</p>
+              <p className="mt-1 text-sm text-app-muted">Bookings will chart here as they come in.</p>
             </div>
           )}
         </div>
@@ -199,18 +199,18 @@ export default async function RestaurantAnalyticsPage({
             {parts.map((part) => (
               <div key={part.label}>
                 <div className="mb-1.5 flex items-center justify-between text-sm">
-                  <span className="text-[#B5C7EA]">{part.label}</span>
-                  <span className="font-semibold tabular-nums text-[#DFC391]">{part.pct}%</span>
+                  <span className="text-app-muted">{part.label}</span>
+                  <span className="font-semibold tabular-nums text-ember">{part.pct}%</span>
                 </div>
-                <div aria-hidden className="h-2 overflow-hidden rounded-full bg-[#07192B]">
-                  <div className="h-full rounded-full bg-[#C2A878]" style={{ width: `${part.pct}%` }} />
+                <div aria-hidden className="h-2 overflow-hidden rounded-full ">
+                  <div className="h-full rounded-full bg-ember" style={{ width: `${part.pct}%` }} />
                 </div>
               </div>
             ))}
           </div>
         ) : (
           <div className={cn(CONSOLE_CARD, 'border-dashed p-8 text-center')}>
-            <p className="text-sm text-[#7587A7]">Daypart mix appears once reservations carry time slots.</p>
+            <p className="text-sm text-app-muted">Daypart mix appears once reservations carry time slots.</p>
           </div>
         )}
       </section>
@@ -219,26 +219,26 @@ export default async function RestaurantAnalyticsPage({
       <section className="space-y-3">
         <SectionTitle>Most requested slots</SectionTitle>
         {topSlots.length > 0 ? (
-          <ol className={cn(CONSOLE_CARD, 'divide-y divide-[#4d5f7d]/15')}>
+          <ol className={cn(CONSOLE_CARD, 'divide-y divide-app-border')}>
             {topSlots.map(([slot, count], i) => (
               <li key={slot} className="flex items-center gap-4 px-5 py-3.5">
-                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-[#4d5f7d]/30 bg-[#07192B] font-serif text-xs font-bold tabular-nums text-[#DFC391]">
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-app-border   text-xs font-bold tabular-nums text-ember">
                   {i + 1}
                 </span>
                 <span className="w-16 shrink-0 font-semibold tabular-nums">{slot}</span>
-                <span aria-hidden className="h-2 flex-1 overflow-hidden rounded-full bg-[#07192B]">
-                  <span className="block h-full rounded-full bg-[#C2A878]/70" style={{ width: `${Math.round((count / topSlotMax) * 100)}%` }} />
+                <span aria-hidden className="h-2 flex-1 overflow-hidden rounded-full ">
+                  <span className="block h-full rounded-full bg-ember/70" style={{ width: `${Math.round((count / topSlotMax) * 100)}%` }} />
                 </span>
-                <span className="shrink-0 text-xs tabular-nums text-[#7587A7]">{count} bookings</span>
+                <span className="shrink-0 text-xs tabular-nums text-app-muted">{count} bookings</span>
               </li>
             ))}
           </ol>
         ) : (
           <div className={cn(CONSOLE_CARD, 'border-dashed p-8 text-center')}>
-            <p className="text-sm text-[#7587A7]">No reservations in this period yet.</p>
+            <p className="text-sm text-app-muted">No reservations in this period yet.</p>
           </div>
         )}
-        <p className="px-1 text-xs text-[#7587A7]">
+        <p className="px-1 text-xs text-app-muted">
           Revenue and dish-level analytics unlock once order tracking ships — we don&apos;t show estimates.
         </p>
       </section>

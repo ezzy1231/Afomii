@@ -10,17 +10,17 @@ export default function NewListingPage() {
     <ConsolePageShell maxWidth="max-w-3xl">
       <Link
         href="/dashboard/restaurant/listings"
-        className="text-xs font-semibold uppercase tracking-widest text-[#7587A7] transition-colors hover:text-[#DFC391]"
+        className="text-xs font-semibold uppercase tracking-widest text-app-muted transition-colors hover:text-ember"
       >
         ← Back to listings
       </Link>
 
       <ConsoleHeader eyebrow="Partner console" title="New listing" />
 
-      <div className="rounded-lg border border-[#4d5f7d]/20 bg-[#0B1D31] p-6 text-[#F5EFE8] shadow-[0_4px_20px_rgba(0,0,0,0.2)] [&_h2]:text-[#F5EFE8] [&_p]:text-[#B5C7EA] [&_span]:text-[#B5C7EA] [&_input]:bg-[#07192B] [&_input]:border-[#4d5f7d]/30 [&_input]:text-[#F5EFE8] [&_input]:placeholder:text-[#7587A7]/60 [&_button[type='submit']]:bg-[#C2A878] [&_button[type='submit']]:text-navy [&_button[type='submit']]:min-h-[44px] [&_button[type='submit']]:rounded-full">
+      <div className="glass rounded-2xl p-6 text-app-fg [&_h2]:text-app-fg [&_p]:text-app-muted [&_span]:text-app-muted [&_input]: [&_input]:border-app-border [&_input]:text-app-fg [&_input]:placeholder:text-app-muted/60 [&_button[type='submit']]:bg-ember [&_button[type='submit']]:text-white [&_button[type='submit']]:min-h-[44px] [&_button[type='submit']]:rounded-full">
         <RestaurantListingForm />
       </div>
-      <p className="px-1 text-xs text-[#7587A7]">
+      <p className="px-1 text-xs text-app-muted">
         After creating the listing, add a branch and menu items — then set your opening hours.
       </p>
     </ConsolePageShell>

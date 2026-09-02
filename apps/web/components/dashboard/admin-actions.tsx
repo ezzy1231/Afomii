@@ -20,14 +20,14 @@ import {
 
 function ActionError({ message }: { message: string | null }) {
   if (!message) return null
-  return <span className="text-[10px] text-[#ff8a80]">{message}</span>
+  return <span className="text-[10px] text-danger">{message}</span>
 }
 
 const pill =
   'min-h-[36px] rounded-full border px-3.5 text-xs font-semibold uppercase tracking-wide transition-colors disabled:opacity-50'
-const pillOk = `${pill} border-[#34A853]/50 bg-[#34A853]/15 text-[#7bd88f] hover:bg-[#34A853]/30`
-const pillBad = `${pill} border-[#BA1A1A]/50 bg-[#BA1A1A]/20 text-[#ff8a80] hover:bg-[#BA1A1A]/40`
-const pillNeutral = `${pill} border-[#4d5f7d]/40 bg-transparent text-[#B5C7EA] hover:border-[#7587A7]`
+const pillOk = `${pill} border-success/40 bg-success/15 text-success hover:bg-success/25`
+const pillBad = `${pill} border-danger/40 bg-danger/15 text-danger hover:bg-danger/25`
+const pillNeutral = `${pill} border-app-border bg-transparent text-app-muted hover:border-ember/30`
 
 export function BusinessLifecycleActions({
   businessId,
@@ -134,7 +134,7 @@ export function UserRoleSelect({ userId, currentRole }: { userId: string; curren
         disabled={pending}
         onChange={(e) => change(e.target.value)}
         aria-label="User role"
-        className="rounded-md border border-[#4d5f7d]/40 bg-[#07192B] px-2 py-1.5 text-xs text-[#F5EFE8] outline-none transition-colors focus:border-[#C2A878] disabled:opacity-50"
+        className="rounded-md border border-app-border bg-app-bg px-2 py-1.5 text-xs text-app-fg outline-none transition-colors focus:border-ember/50 disabled:opacity-50"
       >
         <option value="customer">customer</option>
         <option value="food_business">food_business</option>

@@ -8,7 +8,7 @@
  */
 
 export const CONSOLE_CARD =
-  'rounded-lg border border-[#4d5f7d]/20 bg-[#0B1D31] shadow-[0_4px_20px_rgba(0,0,0,0.2)]'
+  'glass rounded-2xl'
 
 export type StatusTone = 'ok' | 'bad' | 'gold' | 'info'
 

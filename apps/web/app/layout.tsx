@@ -1,19 +1,21 @@
-import type { Metadata } from "next";
-import { Playfair_Display, Inter } from "next/font/google";
+import type { Metadata, Viewport } from "next";
+import localFont from "next/font/local";
 import Script from "next/script";
 import "./globals.css";
 import { Providers } from "./providers";
 
-const playfair = Playfair_Display({
-  subsets: ["latin"],
-  variable: "--font-playfair",
+/* Self-hosted variable font — no external requests, works offline */
+const spaceGrotesk = localFont({
+  src: [
+    {
+      path: "../public/fonts/space-grotesk-var.woff2",
+      weight: "300 700",
+      style: "normal",
+    },
+  ],
+  variable: "--font-space",
   display: "swap",
-});
-
-const inter = Inter({
-  subsets: ["latin"],
-  variable: "--font-inter",
-  display: "swap",
+  fallback: ["system-ui", "sans-serif"],
 });
 
 export const metadata: Metadata = {
@@ -30,6 +32,13 @@ export const metadata: Metadata = {
   },
 };
 
+export const viewport: Viewport = {
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#F8F8FA" },
+    { media: "(prefers-color-scheme: dark)", color: "#0F0F12" },
+  ],
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -38,7 +47,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${playfair.variable} ${inter.variable} h-full antialiased`}
+      className={`${spaceGrotesk.variable} h-full antialiased`}
       suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col font-sans bg-app-bg text-app-fg">

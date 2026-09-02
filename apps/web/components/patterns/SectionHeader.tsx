@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ChevronRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { cn } from "../../lib/utils";
 
 type SectionHeaderProps = {
@@ -21,21 +21,19 @@ export function SectionHeader({
     <div className={cn("mb-5 flex items-end justify-between gap-4", className)}>
       <div className="min-w-0">
         {eyebrow && (
-          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gold-soft">
-            {eyebrow}
-          </p>
+          <p className="eyebrow">{eyebrow}</p>
         )}
-        <h2 className="mt-0.5 font-serif text-xl font-bold text-app-fg sm:text-2xl">
+        <h2 className="mt-2 text-2xl font-bold tracking-tight text-app-fg sm:text-3xl">
           {title}
         </h2>
       </div>
       {href && (
         <Link
           href={href}
-          className="inline-flex min-h-10 shrink-0 items-center gap-0.5 rounded-full px-3 py-1 text-sm font-semibold text-gold-soft transition-colors hover:bg-gold/10 hover:text-gold"
+          className="glass-subtle inline-flex min-h-10 shrink-0 items-center gap-1.5 rounded-full px-4 py-1.5 text-sm font-semibold text-app-fg transition-all duration-200 hover:-translate-y-0.5 hover:shadow-glass active:translate-y-0"
         >
           {actionLabel}
-          <ChevronRight className="size-4" />
+          <ArrowRight className="size-4 text-ember" strokeWidth={2.5} />
         </Link>
       )}
     </div>

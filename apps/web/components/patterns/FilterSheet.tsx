@@ -29,7 +29,7 @@ export function FilterSheet({
     <div className="flex flex-col gap-6">
       {groups.map((group) => (
         <div key={group.key}>
-          <h3 className="mb-3 text-xs font-bold uppercase tracking-[0.18em] text-gold-soft">
+          <h3 className="mb-3 text-xs font-semibold uppercase tracking-[0.18em] text-app-muted">
             {group.title}
           </h3>
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
@@ -43,11 +43,11 @@ export function FilterSheet({
                   className={cn(
                     "flex items-center gap-2 rounded-xl border px-3 py-2.5 text-left text-sm font-medium transition-all duration-200 active:scale-[0.97]",
                     active
-                      ? "border-gold/50 bg-gold/15 text-app-fg"
-                      : "border-app-border bg-app-input text-app-muted hover:border-gold/30 hover:text-app-fg"
+                      ? "border-ember/40 bg-ember/10 text-ember"
+                      : "border-app-border bg-app-input/60 text-app-muted hover:border-ember/25 hover:text-app-fg"
                   )}
                 >
-                  {option.icon && <span className="shrink-0 text-gold">{option.icon}</span>}
+                  {option.icon && <span className="shrink-0 text-ember">{option.icon}</span>}
                   <span className="truncate">{option.label}</span>
                 </button>
               );
@@ -70,7 +70,7 @@ export function FilterSheet({
       <button
         type="button"
         onClick={onClose}
-        className="flex-1 rounded-xl bg-gold px-4 py-2.5 text-sm font-semibold text-navy transition-transform active:scale-[0.98]"
+        className="flex-1 rounded-xl bg-gradient-to-br from-ember to-ember-deep px-4 py-2.5 text-sm font-semibold text-white shadow-[0_2px_8px_rgb(var(--ember-rgb)/0.3)] transition-transform active:scale-[0.98]"
       >
         Show {resultCount} result{resultCount === 1 ? "" : "s"}
       </button>
@@ -85,18 +85,18 @@ export function FilterSheet({
           "fixed inset-0 z-[60] lg:hidden",
           open ? "pointer-events-auto" : "pointer-events-none"
         )}
-        aria-hidden={!open}
+        {...((!open ? { inert: "" } : {}) as React.HTMLAttributes<HTMLDivElement>)}
       >
         <div
           className={cn(
-            "absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity duration-200",
+            "glass-backdrop absolute inset-0 transition-opacity duration-200",
             open ? "opacity-100" : "opacity-0"
           )}
           onClick={onClose}
         />
         <div
           className={cn(
-            "absolute inset-x-0 bottom-0 max-h-[82vh] overflow-y-auto rounded-t-[28px] border-t border-app-border bg-app-panel p-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] transition-transform duration-300 ease-out",
+            "absolute inset-x-0 bottom-0 max-h-[82vh] overflow-y-auto rounded-t-[28px] border-t border-white/50 bg-white/80 p-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] shadow-glass-strong backdrop-blur-2xl backdrop-saturate-150 transition-transform duration-300 ease-out dark:border-white/10 dark:bg-[#1E1E24]/85",
             open ? "translate-y-0" : "translate-y-full"
           )}
           role="dialog"
@@ -104,12 +104,12 @@ export function FilterSheet({
           aria-label="Filters"
         >
           <div className="mb-5 flex items-center justify-between">
-            <h2 className="font-serif text-xl font-bold text-app-fg">Filters</h2>
+            <h2 className="text-xl font-bold text-app-fg">Filters</h2>
             <button
               type="button"
               onClick={onClose}
               aria-label="Close filters"
-              className="flex size-9 items-center justify-center rounded-full border border-app-border text-app-muted"
+              className="flex size-9 items-center justify-center rounded-full bg-app-elevated/70 text-app-muted transition-colors hover:text-app-fg"
             >
               <X className="size-4" />
             </button>
@@ -121,14 +121,14 @@ export function FilterSheet({
 
       {/* Desktop inline panel */}
       {open && (
-        <div className="mb-6 hidden rounded-[24px] border border-app-border bg-app-panel p-6 lg:block">
+        <div className="glass animate-pop-in mb-6 hidden rounded-3xl p-6 lg:block">
           <div className="mb-5 flex items-center justify-between">
-            <h2 className="font-serif text-xl font-bold text-app-fg">Filters</h2>
+            <h2 className="text-xl font-bold text-app-fg">Filters</h2>
             <button
               type="button"
               onClick={onClose}
               aria-label="Close filters"
-              className="flex size-9 items-center justify-center rounded-full border border-app-border text-app-muted transition-colors hover:text-app-fg"
+              className="flex size-9 items-center justify-center rounded-full bg-app-elevated/70 text-app-muted transition-colors hover:text-app-fg"
             >
               <X className="size-4" />
             </button>

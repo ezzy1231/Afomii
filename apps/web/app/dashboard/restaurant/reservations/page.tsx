@@ -17,20 +17,19 @@ type InboxReservation = {
 type Range = 'day' | 'week' | 'month'
 type StatusFilter = 'all' | 'pending' | 'confirmed' | 'completed'
 
-const CONSOLE_CARD =
-  'rounded-lg border border-[#4d5f7d]/20 bg-[#0B1D31] shadow-[0_4px_20px_rgba(0,0,0,0.2)]'
+const CONSOLE_CARD = 'glass rounded-2xl'
 
 function statusPill(status: string) {
   switch (status) {
     case 'confirmed':
-      return 'bg-[#34A853]/20 text-[#7bd88f]'
+      return 'bg-success/20 text-success'
     case 'rejected':
     case 'cancelled':
-      return 'bg-[#BA1A1A]/25 text-[#ff8a80]'
+      return 'bg-danger/15 text-danger'
     case 'completed':
-      return 'bg-[#C2A878]/20 text-[#DFC391]'
+      return 'bg-ember/20 text-ember'
     default:
-      return 'bg-[#4d5f7d]/30 text-[#B5C7EA]'
+      return 'bg-app-elevated/80 text-app-muted'
   }
 }
 
@@ -163,18 +162,18 @@ export default function ReservationsPage() {
   }, [rows, range, today, weekEnd])
 
   return (
-    <div className="min-h-full bg-[#07192B] px-4 pb-16 pt-8 text-[#F5EFE8] sm:px-6 lg:px-8">
+    <div className="min-h-full px-4 pb-16 pt-8 text-app-fg sm:px-6 lg:px-8">
       <div className="mx-auto w-full max-w-5xl space-y-6">
         <header className="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.15em] text-[#7587A7]">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.15em] text-app-muted">
               Partner console
             </p>
-            <h1 className="mt-1 font-serif text-3xl font-bold">Reservations</h1>
+            <h1 className="mt-1  text-3xl font-bold">Reservations</h1>
           </div>
 
           {/* Range segmented control */}
-          <div className="flex rounded-lg border border-[#4d5f7d]/30 bg-[#0B1D31] p-1">
+          <div className="glass flex rounded-xl p-1">
             {(['day', 'week', 'month'] as Range[]).map((option) => (
               <button
                 key={option}
@@ -182,7 +181,7 @@ export default function ReservationsPage() {
                 onClick={() => setRange(option)}
                 className={cn(
                   'min-h-9 rounded-md px-4 text-sm font-semibold capitalize transition-colors',
-                  range === option ? 'bg-[#C2A878] text-navy' : 'text-[#7587A7] hover:text-[#F5EFE8]',
+                  range === option ? 'bg-ember text-white' : 'text-app-muted hover:text-app-fg',
                 )}
               >
                 {option}
@@ -201,8 +200,8 @@ export default function ReservationsPage() {
               className={cn(
                 'min-h-9 rounded-full border px-4 text-sm font-semibold capitalize transition-colors',
                 statusFilter === option
-                  ? 'border-[#C2A878] bg-[#C2A878]/15 text-[#DFC391]'
-                  : 'border-[#4d5f7d]/35 bg-[#0B1D31] text-[#7587A7] hover:border-[#4d5f7d]/60',
+                  ? 'border-ember/40 bg-ember/15 text-ember'
+                  : 'border-app-border bg-app-card/70 text-app-muted hover:border-app-border',
               )}
             >
               {option} ({counts[option]})
@@ -214,16 +213,16 @@ export default function ReservationsPage() {
         {loading ? (
           <div className="space-y-2">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="h-20 animate-pulse rounded-lg bg-[#0B1D31]" />
+              <div key={i} className="h-20 animate-pulse rounded-lg bg-app-card/70" />
             ))}
           </div>
         ) : grouped.length > 0 ? (
           <div className="space-y-6">
             {grouped.map(([slotKey, slotRows]) => (
               <section key={slotKey} className="space-y-2">
-                <h2 className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.15em] text-[#7587A7]">
+                <h2 className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.15em] text-app-muted">
                   {slotKey}
-                  <span className="size-1 rounded-full bg-[#4d5f7d]" aria-hidden />
+                  <span className="size-1 rounded-full bg-app-muted/60" aria-hidden />
                   {slotRows.length} {slotRows.length === 1 ? 'table' : 'tables'}
                 </h2>
                 {slotRows.map((row) => {
@@ -236,7 +235,7 @@ export default function ReservationsPage() {
                     >
                       <div className="min-w-0">
                         <p className={cn('truncate font-semibold', terminal && 'line-through')}>{row.guestName}</p>
-                        <p className="mt-0.5 text-xs tabular-nums text-[#7587A7]">
+                        <p className="mt-0.5 text-xs tabular-nums text-app-muted">
                           {row.reservationDate}
                           {row.timeSlot ? ` · ${row.timeSlot}` : ''} · Party of {row.guestCount}
                         </p>
@@ -261,7 +260,7 @@ export default function ReservationsPage() {
         ) : (
           <div className={cn(CONSOLE_CARD, 'border-dashed p-10 text-center')}>
             <p className="font-semibold">Nothing here for this view</p>
-            <p className="mt-1 text-sm text-[#7587A7]">
+            <p className="mt-1 text-sm text-app-muted">
               Try a wider date range or a different status filter.
             </p>
           </div>

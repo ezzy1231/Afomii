@@ -19,7 +19,11 @@ export async function middleware(request: NextRequest) {
   if (!adminPortal && adminOrigin && pathname.startsWith("/dashboard/admin")) {
     // Main instance never serves admin routes — send visitors to the portal.
     const url = new URL(`${adminOrigin}${pathname}${request.nextUrl.search}`);
-    return NextResponse.redirect(url);
+    // Never redirect to the origin we're already serving on — that's a loop
+    // (e.g. dev where NEXT_PUBLIC_ADMIN_ORIGIN points at the same instance).
+    if (url.origin !== request.nextUrl.origin) {
+      return NextResponse.redirect(url);
+    }
   }
 
   if (adminPortal && !pathname.startsWith("/dashboard/admin") && !pathname.startsWith("/auth/")) {

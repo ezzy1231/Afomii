@@ -1,0 +1,60 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  mobile:
+    name: Mobile typecheck + unit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Typecheck
+        run: npx tsc --noEmit
+        working-directory: apps/mobile
+      - name: Unit tests
+        run: npm test --workspace=@urbanexplore/mobile --if-present
+
+  backend:
+    name: Backend lint + test
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgis/postgis:16-3.4
+        env:
+          POSTGRES_USER: foodride
+          POSTGRES_PASSWORD: foodride_dev
+          POSTGRES_DB: foodride
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U foodride"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+      redis:
+        image: redis:7-alpine
+        ports: ["6379:6379"]
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      DATABASE_URL: postgresql://foodride:foodride_dev@localhost:5432/foodride?schema=public
+      REDIS_URL: redis://localhost:6379
+      JWT_ACCESS_SECRET: ci-access-secret
+      JWT_REFRESH_SECRET: ci-refresh-secret
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Lint
+        run: npm run lint --workspace=@urbanexplore/backend
+      - name: Test
+        run: npm test --workspace=@urbanexplore/backend --if-present

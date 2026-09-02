@@ -63,7 +63,7 @@ export default function VisionPage() {
 
       <main className="flex-1 bg-app-bg text-app-fg">
         <section className="mx-auto max-w-7xl px-4 pt-8 sm:px-6 lg:px-8">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-gold-soft">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-ember">
             Where we&apos;re headed
           </p>
           <h1 className="mt-2 max-w-2xl font-serif text-4xl font-bold leading-tight sm:text-5xl">
@@ -77,7 +77,7 @@ export default function VisionPage() {
           </p>
           <Link
             href="/restaurants"
-            className="mt-6 inline-flex items-center gap-2 rounded-xl bg-gold px-5 py-2.5 text-sm font-semibold text-navy shadow-lg shadow-gold/20 transition-transform active:scale-[0.98]"
+            className="mt-6 inline-flex items-center gap-2 rounded-xl bg-gradient-to-br from-ember to-ember-deep px-5 py-2.5 text-sm font-semibold text-white shadow-[0_2px_8px_rgb(var(--ember-rgb)/0.3)] transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98]"
           >
             See what&apos;s live today
             <ArrowRight className="size-4" />
@@ -87,7 +87,7 @@ export default function VisionPage() {
         {gallery.map(({ group, icon: Icon, caption, items }) => (
           <section key={group} className="mx-auto mt-12 max-w-7xl px-4 sm:px-6 lg:px-8">
             <div className="mb-5 flex items-center gap-3">
-              <span className="flex size-10 items-center justify-center rounded-xl bg-gold/10 text-gold">
+              <span className="flex size-10 items-center justify-center rounded-xl bg-ember/10 text-ember">
                 <Icon className="size-5" />
               </span>
               <div>
@@ -131,7 +131,7 @@ export default function VisionPage() {
             </p>
             <Link
               href="/auth/role"
-              className="mt-5 inline-flex items-center gap-2 rounded-xl bg-gold px-6 py-3 text-sm font-semibold text-navy shadow-lg shadow-gold/20 transition-transform active:scale-[0.98]"
+              className="mt-5 inline-flex items-center gap-2 rounded-xl bg-gradient-to-br from-ember to-ember-deep px-6 py-3 text-sm font-semibold text-white shadow-[0_2px_8px_rgb(var(--ember-rgb)/0.3)] transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98]"
             >
               Get started
               <ArrowRight className="size-4" />

@@ -51,7 +51,7 @@ export default async function RestaurantListingsPage() {
         action={
           <Link
             href="/dashboard/restaurant/listings/new"
-            className="min-h-[44px] rounded-full border border-dashed border-[#4d5f7d]/50 px-5 py-2.5 text-sm font-semibold text-[#DFC391] transition-colors hover:border-[#C2A878] hover:bg-[#C2A878]/10"
+            className="min-h-[44px] rounded-full border border-dashed border-app-border px-5 py-2.5 text-sm font-semibold text-ember transition-colors hover:border-ember/40 hover:bg-ember/10"
           >
             ＋ New listing
           </Link>
@@ -61,12 +61,12 @@ export default async function RestaurantListingsPage() {
       {rows.length === 0 ? (
         <div className={cn(CONSOLE_CARD, 'border-dashed p-10 text-center')}>
           <p className="font-semibold">No listings yet</p>
-          <p className="mt-1 text-sm text-[#7587A7]">
+          <p className="mt-1 text-sm text-app-muted">
             Create your first listing so diners can find and book you.
           </p>
           <Link
             href="/dashboard/restaurant/listings/new"
-            className="mt-4 inline-block min-h-[44px] rounded-full bg-[#C2A878] px-6 py-2.5 text-sm font-semibold text-navy shadow-lg shadow-black/25 transition-all hover:brightness-110"
+            className="mt-4 inline-block min-h-[44px] rounded-full bg-ember px-6 py-2.5 text-sm font-semibold text-white shadow-glass transition-all hover:brightness-110"
           >
             Create your first listing
           </Link>
@@ -77,7 +77,7 @@ export default async function RestaurantListingsPage() {
             <div key={row.id} className={cn(CONSOLE_CARD, 'flex flex-wrap items-center justify-between gap-3 p-4')}>
               <div className="min-w-0">
                 <p className="truncate text-sm font-semibold">{row.name}</p>
-                <p className="text-xs capitalize text-[#7587A7]">
+                <p className="text-xs capitalize text-app-muted">
                   {[row.cuisine, row.area_label, row.city].filter(Boolean).join(' · ') || 'Restaurant'}
                   {row.closing_label ? ` · ${row.closing_label}` : ''}
                   {row.rating != null ? ` · ★ ${String(row.rating)}` : ''}
@@ -88,7 +88,7 @@ export default async function RestaurantListingsPage() {
                 <Link
                   href={`/restaurants/${row.id}`}
                   target="_blank"
-                  className="min-h-[36px] rounded-full border border-[#4d5f7d]/40 px-3.5 py-1.5 text-xs font-semibold text-[#B5C7EA] transition-colors hover:border-[#7587A7]"
+                  className="min-h-[36px] rounded-full border border-app-border px-3.5 py-1.5 text-xs font-semibold text-app-muted transition-colors hover:border-ember/30"
                 >
                   View public page ↗
                 </Link>

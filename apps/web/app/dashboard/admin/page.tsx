@@ -51,7 +51,7 @@ function initialsTile(name: string) {
     .map((w) => w.charAt(0).toUpperCase())
     .join('')
   return (
-    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-[#4d5f7d]/30 bg-[#07192B] font-serif text-sm font-bold text-[#DFC391]">
+    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-app-border   text-sm font-bold text-ember">
       {initials || '?'}
     </span>
   )
@@ -147,7 +147,7 @@ export default async function AdminDashboardPage({
       {/* Metric strip */}
       <section className="grid grid-cols-2 gap-3 lg:grid-cols-5">
         {kpis.map((kpi) => (
-          <div key={kpi.label} className={cn(kpi.accent && 'border-l-2 border-[#C2A878]')}>
+          <div key={kpi.label} className={cn(kpi.accent && 'border-l-2 border-ember/40')}>
             <ConsoleKpiCard label={kpi.label} value={kpi.value} accent={kpi.accent} />
           </div>
         ))}
@@ -155,8 +155,8 @@ export default async function AdminDashboardPage({
 
       {/* Pending verification */}
       <section className="space-y-3">
-        <div className="flex items-center justify-between border-b border-[#4d5f7d]/25 pb-3">
-          <h2 className="font-serif text-xl font-bold">Pending Verification</h2>
+        <div className="flex items-center justify-between border-b border-app-border pb-3">
+          <h2 className=" text-xl font-bold">Pending Verification</h2>
           {pendingRows.length > 0 && (
             <span className="rounded-full bg-[#FBBC05]/15 px-3 py-1 text-[11px] font-bold uppercase tracking-wide text-[#FBBC05]">
               {pendingRows.length} require action
@@ -172,7 +172,7 @@ export default async function AdminDashboardPage({
                   {initialsTile(row.name)}
                   <div className="min-w-0">
                     <p className="truncate text-sm font-semibold">{row.name}</p>
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[#7587A7]">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-app-muted">
                       Food business · Submitted {relativeTime(row.created_at)}
                     </p>
                   </div>
@@ -184,7 +184,7 @@ export default async function AdminDashboardPage({
         ) : (
           <div className={cn(CONSOLE_CARD, 'border-dashed p-8 text-center')}>
             <p className="font-semibold">Queue is clear</p>
-            <p className="mt-1 text-sm text-[#7587A7]">No businesses are waiting for verification right now.</p>
+            <p className="mt-1 text-sm text-app-muted">No businesses are waiting for verification right now.</p>
           </div>
         )}
       </section>
@@ -193,7 +193,7 @@ export default async function AdminDashboardPage({
       <section className="space-y-3">
         <SectionTitle>Directory</SectionTitle>
         <form method="get" className={cn(CONSOLE_CARD, 'flex items-center gap-3 px-4 py-3')}>
-          <svg viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4 shrink-0 text-[#7587A7]">
+          <svg viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4 shrink-0 text-app-muted">
             <path fillRule="evenodd" d="M9 3.5a5.5 5.5 0 1 0 0 11 5.5 5.5 0 0 0 0-11ZM2 9a7 7 0 1 1 12.452 4.391l3.328 3.329a.75.75 0 1 1-1.06 1.06l-3.329-3.328A7 7 0 0 1 2 9Z" clipRule="evenodd" />
           </svg>
           <input
@@ -201,14 +201,14 @@ export default async function AdminDashboardPage({
             name="q"
             defaultValue={q}
             placeholder="Search entities..."
-            className="w-full bg-transparent text-sm text-[#F5EFE8] outline-none placeholder:text-[#7587A7]"
+            className="w-full bg-transparent text-sm text-app-fg outline-none placeholder:text-app-muted"
           />
         </form>
 
         <div className={cn(CONSOLE_CARD, 'overflow-x-auto')}>
           <table className="w-full min-w-[480px] text-left text-sm">
             <thead>
-              <tr className="border-b border-[#4d5f7d]/25 text-[11px] uppercase tracking-[0.14em] text-[#7587A7]">
+              <tr className="border-b border-app-border text-[11px] uppercase tracking-[0.14em] text-app-muted">
                 <th scope="col" className="px-4 py-3 font-semibold">Entity</th>
                 <th scope="col" className="px-4 py-3 font-semibold">Role</th>
                 <th scope="col" className="px-4 py-3 font-semibold">Status</th>
@@ -217,18 +217,18 @@ export default async function AdminDashboardPage({
             <tbody>
               {directory.length === 0 ? (
                 <tr>
-                  <td colSpan={3} className="px-4 py-8 text-center text-sm text-[#7587A7]">
+                  <td colSpan={3} className="px-4 py-8 text-center text-sm text-app-muted">
                     No entities match “{q}”.
                   </td>
                 </tr>
               ) : (
                 directory.map((row) => (
-                  <tr key={`${row.role}-${row.id}`} className="border-b border-[#4d5f7d]/10 last:border-0">
+                  <tr key={`${row.role}-${row.id}`} className="border-b border-app-border last:border-0">
                     <td className="px-4 py-3.5">
                       <span className="block truncate font-semibold">{row.name}</span>
-                      <span className="text-[11px] tabular-nums text-[#7587A7]">ID: {row.id.slice(0, 8).toUpperCase()}</span>
+                      <span className="text-[11px] tabular-nums text-app-muted">ID: {row.id.slice(0, 8).toUpperCase()}</span>
                     </td>
-                    <td className="px-4 py-3.5 text-[#B5C7EA]">{row.role}</td>
+                    <td className="px-4 py-3.5 text-app-muted">{row.role}</td>
                     <td className="px-4 py-3.5">
                       <StatusPill status={row.status} tone={statusTone(row.status)} />
                     </td>
@@ -238,7 +238,7 @@ export default async function AdminDashboardPage({
             </tbody>
           </table>
         </div>
-        <Link href="/dashboard/admin/businesses" className="block text-right text-xs font-semibold uppercase tracking-widest text-[#B5C7EA] transition-colors hover:text-[#DFC391]">
+        <Link href="/dashboard/admin/businesses" className="block text-right text-xs font-semibold uppercase tracking-widest text-app-muted transition-colors hover:text-ember">
           View all businesses →
         </Link>
       </section>
@@ -247,10 +247,10 @@ export default async function AdminDashboardPage({
       <section className="space-y-3">
         <SectionTitle>Reservations</SectionTitle>
         <div className={cn(CONSOLE_CARD, 'flex flex-wrap items-center justify-between gap-3 p-4')}>
-          <p className="text-sm text-[#B5C7EA]">Platform-wide booking oversight with audited cancellations.</p>
+          <p className="text-sm text-app-muted">Platform-wide booking oversight with audited cancellations.</p>
           <Link
             href="/dashboard/admin/reservations"
-            className="min-h-[36px] rounded-full border border-[#C2A878] bg-[#C2A878]/15 px-4 py-1.5 text-xs font-semibold uppercase tracking-wide text-[#DFC391] transition-colors hover:bg-[#C2A878]/30"
+            className="min-h-[36px] rounded-full border border-ember/40 bg-ember/15 px-4 py-1.5 text-xs font-semibold uppercase tracking-wide text-ember transition-colors hover:bg-ember/30"
           >
             Open reservations
           </Link>
@@ -262,21 +262,21 @@ export default async function AdminDashboardPage({
         <SectionTitle>System Audit Log</SectionTitle>
         <div className={cn(CONSOLE_CARD, 'overflow-x-auto p-4 font-mono text-xs leading-relaxed')}>
           {((auditRes.data ?? []) as Array<{ id: string; action: string; entity_type: string | null; created_at: string }>).length === 0 ? (
-            <p className="font-sans text-sm text-[#7587A7]">No admin activity recorded yet.</p>
+            <p className="font-sans text-sm text-app-muted">No admin activity recorded yet.</p>
           ) : (
             (auditRes.data ?? []).map((row) => (
               <p key={row.id} className="whitespace-nowrap tabular-nums">
-                <span className={auditPrefix(row.action) === '[WARN]' ? 'text-[#ff8a80]' : auditPrefix(row.action) === '[OK]' ? 'text-[#7bd88f]' : 'text-[#B5C7EA]'}>
+                <span className={auditPrefix(row.action) === '[WARN]' ? 'text-danger' : auditPrefix(row.action) === '[OK]' ? 'text-success' : 'text-app-muted'}>
                   {auditPrefix(row.action)}
                 </span>{' '}
-                <span className="text-[#F5EFE8]">{row.action}</span>
-                {row.entity_type ? <span className="text-[#7587A7]"> · {row.entity_type}</span> : null}
-                <span className="text-[#7587A7]"> · {relativeTime(row.created_at)}</span>
+                <span className="text-app-fg">{row.action}</span>
+                {row.entity_type ? <span className="text-app-muted"> · {row.entity_type}</span> : null}
+                <span className="text-app-muted"> · {relativeTime(row.created_at)}</span>
               </p>
             ))
           )}
         </div>
-        <Link href="/dashboard/admin/audit" className="block text-right text-xs font-semibold uppercase tracking-widest text-[#B5C7EA] transition-colors hover:text-[#DFC391]">
+        <Link href="/dashboard/admin/audit" className="block text-right text-xs font-semibold uppercase tracking-widest text-app-muted transition-colors hover:text-ember">
           Full audit log →
         </Link>
       </section>

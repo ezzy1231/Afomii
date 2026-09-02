@@ -123,12 +123,12 @@ export function TiersManager({
         return (
           <section key={event.id} className="card-elevated p-5 sm:p-6">
             <div className="flex flex-wrap items-center justify-between gap-3">
-              <h2 className="font-serif text-lg font-bold text-app-fg">{event.title}</h2>
+              <h2 className=" text-lg font-bold text-app-fg">{event.title}</h2>
               <button
                 type="button"
                 onClick={() => addRow(event.id)}
                 disabled={hasNew}
-                className="inline-flex min-h-[44px] items-center gap-1.5 rounded-xl bg-gold px-4 text-sm font-semibold text-navy transition-transform active:scale-[0.98] disabled:opacity-40"
+                className="inline-flex min-h-[44px] items-center gap-1.5 rounded-xl bg-gradient-to-br from-ember to-ember-deep px-4 text-sm font-semibold text-white shadow-[0_2px_8px_rgb(var(--ember-rgb)/0.3)] transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] disabled:opacity-40"
               >
                 <Plus className="size-4" />
                 Add tier
@@ -219,7 +219,7 @@ export function TiersManager({
                           type="button"
                           onClick={() => persist(row)}
                           disabled={pending}
-                          className="min-h-[44px] flex-1 whitespace-nowrap rounded-xl bg-navy px-4 py-2.5 text-sm font-semibold text-ivory transition-transform active:scale-[0.98] disabled:opacity-50 dark:bg-gold dark:text-navy lg:w-full"
+                          className="min-h-[44px] flex-1 whitespace-nowrap rounded-xl bg-ink px-4 py-2.5 text-sm font-semibold text-white transition-transform active:scale-[0.98] disabled:opacity-50 dark:bg-ember/15 dark:text-ember lg:w-full"
                         >
                           Save
                         </button>
@@ -247,7 +247,7 @@ export function TiersManager({
           role="status"
           className={`animate-pop-in rounded-xl border px-4 py-3 text-sm ${
             state.ok
-              ? 'border-gold/20 bg-gold/10 text-app-fg'
+              ? 'border-ember/20 bg-ember/10 text-app-fg'
               : 'border-red-200 bg-red-50 text-red-700 dark:border-red-900 dark:bg-red-950/40 dark:text-red-300'
           }`}
         >

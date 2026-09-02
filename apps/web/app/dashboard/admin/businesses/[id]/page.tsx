@@ -87,7 +87,7 @@ export default async function AdminBusinessDetailPage({
     <ConsolePageShell>
       <Link
         href="/dashboard/admin/businesses"
-        className="text-xs font-semibold uppercase tracking-widest text-[#7587A7] transition-colors hover:text-[#DFC391]"
+        className="text-xs font-semibold uppercase tracking-widest text-app-muted transition-colors hover:text-ember"
       >
         ← Back to businesses
       </Link>
@@ -108,29 +108,29 @@ export default async function AdminBusinessDetailPage({
           'flex flex-wrap items-center gap-3 rounded-lg border p-4 text-sm',
           b.status === 'pending'
             ? 'border-[#FBBC05]/40 bg-[#FBBC05]/10'
-            : 'border-[#4d5f7d]/20 bg-[#0B1D31]'
+            : 'border-app-border bg-app-card/70'
         )}
       >
         <StatusPill status={b.status} tone={statusTone(b.status)} />
         {b.is_verified && (
-          <span className="rounded-full bg-[#34A853]/20 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-[#7bd88f]">
+          <span className="rounded-full bg-success/20 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-success">
             Verified
           </span>
         )}
-        <span className="capitalize text-[#B5C7EA]">Plan: {b.plan ?? 'free'}</span>
-        {b.category && <span className="capitalize text-[#B5C7EA]">{b.category}</span>}
+        <span className="capitalize text-app-muted">Plan: {b.plan ?? 'free'}</span>
+        {b.category && <span className="capitalize text-app-muted">{b.category}</span>}
       </section>
 
       {/* Contact + meta */}
       <section className="grid gap-3 sm:grid-cols-2">
         <div className={cn(CONSOLE_CARD, 'space-y-2 p-5 text-sm')}>
-          <h2 className="mb-1 text-[11px] font-semibold uppercase tracking-[0.15em] text-[#7587A7]">
+          <h2 className="mb-1 text-[11px] font-semibold uppercase tracking-[0.15em] text-app-muted">
             Contact
           </h2>
           <p>{b.email ?? 'No email on file'}</p>
-          {b.phone && <p className="tabular-nums text-[#B5C7EA]">{b.phone}</p>}
+          {b.phone && <p className="tabular-nums text-app-muted">{b.phone}</p>}
           {(b.address || b.city || b.country) && (
-            <p className="truncate text-[#B5C7EA]">
+            <p className="truncate text-app-muted">
               {[b.address, b.city, b.country].filter(Boolean).join(', ')}
             </p>
           )}
@@ -139,21 +139,21 @@ export default async function AdminBusinessDetailPage({
               href={b.website}
               target="_blank"
               rel="noreferrer"
-              className="block truncate text-[#B5C7EA] underline underline-offset-2 hover:text-[#DFC391]"
+              className="block truncate text-app-muted underline underline-offset-2 hover:text-ember"
             >
               {b.website}
             </a>
           )}
         </div>
         <div className={cn(CONSOLE_CARD, 'space-y-2 p-5 text-sm')}>
-          <h2 className="mb-1 text-[11px] font-semibold uppercase tracking-[0.15em] text-[#7587A7]">
+          <h2 className="mb-1 text-[11px] font-semibold uppercase tracking-[0.15em] text-app-muted">
             About
           </h2>
-          <p className="leading-relaxed text-[#B5C7EA]">
+          <p className="leading-relaxed text-app-muted">
             {b.description ?? 'No editorial description provided yet.'}
           </p>
           {b.created_at && (
-            <p className="pt-1 text-xs tabular-nums text-[#7587A7]">
+            <p className="pt-1 text-xs tabular-nums text-app-muted">
               Partner since{' '}
               {new Date(b.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' })}
             </p>
@@ -172,7 +172,7 @@ export default async function AdminBusinessDetailPage({
         <SectionTitle>Listings</SectionTitle>
         {restaurants.length === 0 ? (
           <div className={cn(CONSOLE_CARD, 'border-dashed p-8 text-center')}>
-            <p className="text-sm text-[#7587A7]">This partner has no published listings yet.</p>
+            <p className="text-sm text-app-muted">This partner has no published listings yet.</p>
           </div>
         ) : (
           <div className="space-y-2">
@@ -180,7 +180,7 @@ export default async function AdminBusinessDetailPage({
               <div key={r.id} className={cn(CONSOLE_CARD, 'flex items-center justify-between p-4')}>
                 <div className="min-w-0">
                   <p className="truncate text-sm font-semibold">{r.name}</p>
-                  <p className="text-xs capitalize text-[#7587A7]">
+                  <p className="text-xs capitalize text-app-muted">
                     {[r.cuisine, r.area_label].filter(Boolean).join(' · ') || 'Restaurant'}
                     {r.rating != null ? ` · ★ ${String(r.rating)}` : ''}
                   </p>
@@ -200,7 +200,7 @@ export default async function AdminBusinessDetailPage({
         <SectionTitle>Branches</SectionTitle>
         {branches.length === 0 ? (
           <div className={cn(CONSOLE_CARD, 'border-dashed p-8 text-center')}>
-            <p className="text-sm text-[#7587A7]">No branches created yet.</p>
+            <p className="text-sm text-app-muted">No branches created yet.</p>
           </div>
         ) : (
           <div className="space-y-2">
@@ -208,7 +208,7 @@ export default async function AdminBusinessDetailPage({
               <div key={br.id} className={cn(CONSOLE_CARD, 'flex items-center justify-between p-4')}>
                 <div className="min-w-0">
                   <p className="truncate text-sm font-semibold">{br.branch_name}</p>
-                  <p className="truncate text-xs text-[#7587A7]">{br.address ?? '—'}</p>
+                  <p className="truncate text-xs text-app-muted">{br.address ?? '—'}</p>
                 </div>
               </div>
             ))}

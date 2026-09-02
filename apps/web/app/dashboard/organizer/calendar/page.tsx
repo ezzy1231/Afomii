@@ -43,8 +43,8 @@ export default function CalendarPage() {
 
   return (
     <div className="mx-auto w-full max-w-6xl px-4 pb-24 pt-8 sm:px-6 lg:px-8">
-      <p className="text-xs font-bold uppercase tracking-[0.15em] text-gold">Organizer</p>
-      <h1 className="mt-2 font-serif text-3xl font-bold text-app-fg">Calendar</h1>
+      <p className="text-xs font-bold uppercase tracking-[0.15em] text-ember">Organizer</p>
+      <h1 className="mt-2  text-3xl font-bold text-app-fg">Calendar</h1>
       <p className="mt-2 text-sm text-app-muted">View your events by date.</p>
 
       {loading ? (
@@ -66,7 +66,7 @@ export default function CalendarPage() {
                     <span className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase ${
                       e.status === 'PUBLISHED' ? 'bg-success/15 text-success' :
                       e.status === 'DRAFT' ? 'bg-app-input text-app-muted' :
-                      'bg-gold/15 text-gold-soft'
+                      'bg-ember/12 text-ember'
                     }`}>
                       {e.status}
                     </span>

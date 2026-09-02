@@ -32,18 +32,18 @@ export default async function SettingsPage() {
     <>
       <Navbar />
       <main className="flex-1 max-w-2xl mx-auto w-full px-4 sm:px-6 py-12">
-        <h1 className="font-serif text-4xl font-bold text-app-fg mb-10">Account Settings</h1>
+        <h1 className="text-4xl font-bold text-app-fg mb-10">Account Settings</h1>
 
         <section className="card-elevated p-6 sm:p-8 mb-6">
-          <h2 className="text-xs font-semibold uppercase tracking-widest text-gold mb-6">Profile</h2>
+          <h2 className="text-xs font-semibold uppercase tracking-widest text-ember mb-6">Profile</h2>
           <div className="flex items-center gap-5 mb-6">
-            <div className="w-14 h-14 rounded-full bg-navy text-ivory flex items-center justify-center text-xl font-bold font-serif shadow-soft">
+            <div className="w-14 h-14 rounded-full bg-ink text-white flex items-center justify-center text-xl font-bold shadow-soft">
               {fullName?.[0]?.toUpperCase() ?? user.email?.[0]?.toUpperCase() ?? 'U'}
             </div>
             <div>
               <p className="font-semibold text-app-fg">{fullName || '—'}</p>
               <p className="text-sm text-app-muted">{user.email}</p>
-              <span className="inline-flex mt-1.5 text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-gold/20 text-gold-soft">
+              <span className="inline-flex mt-1.5 text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-ember/12 text-ember">
                 {role === 'food_business'
                   ? 'Food Business'
                   : role === 'event_organizer'
@@ -62,7 +62,7 @@ export default async function SettingsPage() {
         </section>
 
         <section className="card-elevated p-6 sm:p-8 mb-6">
-          <h2 className="text-xs font-semibold uppercase tracking-widest text-gold mb-6">Account</h2>
+          <h2 className="text-xs font-semibold uppercase tracking-widest text-ember mb-6">Account</h2>
           <div className="space-y-3 text-sm">
             <p className="text-app-muted">
               Member since{' '}
@@ -78,7 +78,7 @@ export default async function SettingsPage() {
         </section>
 
         <section className="card-elevated p-6 sm:p-8 mb-6">
-          <h2 className="text-xs font-semibold uppercase tracking-widest text-gold mb-6">Your Reservations</h2>
+          <h2 className="text-xs font-semibold uppercase tracking-widest text-ember mb-6">Your Reservations</h2>
           {reservations.length ? (
             <div className="space-y-3">
               {reservations.map((r) => (
@@ -98,7 +98,7 @@ export default async function SettingsPage() {
               ))}
             </div>
           ) : (
-            <div className="rounded-xl border border-dashed border-gold/40 bg-app-input p-6 text-center">
+            <div className="rounded-xl border border-dashed border-app-border bg-app-input p-6 text-center">
               <p className="font-semibold text-app-fg">No reservations yet</p>
               <p className="mt-1 text-sm text-app-muted">
                 Find a table and your bookings will live here.
@@ -111,19 +111,19 @@ export default async function SettingsPage() {
         </section>
 
         <section className="card-elevated p-6 sm:p-8 mb-6">
-          <h2 className="text-xs font-semibold uppercase tracking-widest text-gold mb-6">Your Tickets</h2>
+          <h2 className="text-xs font-semibold uppercase tracking-widest text-ember mb-6">Your Tickets</h2>
           {tickets.length ? (
             <div className="grid gap-4 sm:grid-cols-2">
               {tickets.map((t) => (
                 <article
                   key={t.id}
-                  className="relative overflow-hidden rounded-2xl bg-navy text-ivory shadow-[var(--shadow-md)]"
+                  className="relative overflow-hidden rounded-2xl bg-ink text-white shadow-glass"
                 >
-                  <div className="absolute inset-x-0 top-0 h-1.5 bg-gold" aria-hidden />
+                  <div className="absolute inset-x-0 top-0 h-1.5 bg-ember" aria-hidden />
                   <div className="flex items-start justify-between gap-3 p-5 pb-3">
                     <div className="min-w-0">
-                      <p className="truncate font-serif text-lg font-bold">{t.eventTitle || 'Event'}</p>
-                      <p className="mt-0.5 text-xs text-ivory/60">
+                      <p className="truncate text-lg font-bold">{t.eventTitle || 'Event'}</p>
+                      <p className="mt-0.5 text-xs text-white/60">
                         {t.ticketName} · {t.quantity} ticket{t.quantity > 1 ? 's' : ''} ·{' '}
                         {t.amount === 0 ? 'Free' : `ETB ${t.amount}`}
                       </p>
@@ -133,7 +133,7 @@ export default async function SettingsPage() {
 
                   {/* Perforated tear line */}
                   <div className="relative my-1">
-                    <div className="border-t border-dashed border-ivory/25" aria-hidden />
+                    <div className="border-t border-dashed border-white/25" aria-hidden />
                     <span
                       className="absolute -left-3 top-1/2 size-6 -translate-y-1/2 rounded-full border border-app-border bg-app-bg"
                       aria-hidden
@@ -146,7 +146,7 @@ export default async function SettingsPage() {
 
                   <div className="flex items-center justify-between gap-3 p-5 pt-3">
                     <div>
-                      <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-gold">
+                      <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-ember">
                         Ticket code
                       </p>
                       <p className="mt-1 font-mono text-sm font-bold tracking-wider">{t.qrCode}</p>
@@ -161,7 +161,7 @@ export default async function SettingsPage() {
               ))}
             </div>
           ) : (
-            <div className="rounded-xl border border-dashed border-gold/40 bg-app-input p-6 text-center">
+            <div className="rounded-xl border border-dashed border-app-border bg-app-input p-6 text-center">
               <p className="font-semibold text-app-fg">No tickets yet</p>
               <p className="mt-1 text-sm text-app-muted">
                 Browse events and your stubs will live here.
@@ -174,7 +174,7 @@ export default async function SettingsPage() {
         </section>
 
         <section className="card-elevated p-6 sm:p-8">
-          <h2 className="text-xs font-semibold uppercase tracking-widest text-gold mb-6">Session</h2>
+          <h2 className="text-xs font-semibold uppercase tracking-widest text-ember mb-6">Session</h2>
           <SignOutButton />
         </section>
       </main>

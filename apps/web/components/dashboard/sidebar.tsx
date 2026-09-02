@@ -19,6 +19,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { cn } from "../../lib/utils";
+import NotificationsBell from "../NotificationsBell";
 
 type NavItem = {
   label: string;
@@ -29,6 +30,7 @@ type NavItem = {
 type SidebarProps = {
   title: string;
   navItems: NavItem[];
+  notificationCount?: number;
 };
 
 const navIcons: Record<string, LucideIcon> = {
@@ -50,7 +52,7 @@ const navIcons: Record<string, LucideIcon> = {
   Settings,
 };
 
-export function Sidebar({ title, navItems }: SidebarProps) {
+export function Sidebar({ title, navItems, notificationCount }: SidebarProps) {
   const pathname = usePathname();
 
   function isActive(href: string) {
@@ -62,26 +64,32 @@ export function Sidebar({ title, navItems }: SidebarProps) {
 
   return (
     <>
-      {/* Desktop sidebar */}
-      <aside className="hidden h-screen w-72 shrink-0 sticky top-0 lg:flex flex-col border-r border-white/10 bg-navy text-ivory">
-        <div className="border-b border-white/10 p-7">
-          <Link href="/" className="flex items-baseline gap-2">
-            <span className="font-serif text-xl font-bold text-gold">
-              UrbanExplore
-            </span>
-            <span className="text-[10px] uppercase tracking-widest text-ivory/50">
-              Partner
-            </span>
-          </Link>
+      {/* Desktop sidebar — glass panel floating over the ambient glow */}
+      <aside className="sticky top-0 hidden h-screen w-72 shrink-0 flex-col border-r border-app-border bg-white/45 text-app-fg backdrop-blur-2xl backdrop-saturate-150 dark:bg-white/[0.04] lg:flex">
+        <div className="border-b border-app-border p-7">
+          <div className="flex items-center justify-between">
+            <Link href="/" className="flex items-center gap-2.5">
+              <span className="flex size-8 items-center justify-center rounded-xl bg-gradient-to-br from-ember to-ember-deep text-sm font-bold text-white shadow-[0_2px_8px_rgb(var(--ember-rgb)/0.35)]">
+                U
+              </span>
+              <span className="text-lg font-bold tracking-tight text-app-fg">
+                UrbanExplore
+              </span>
+              <span className="text-[10px] uppercase tracking-widest text-app-muted">
+                Partner
+              </span>
+            </Link>
+            <NotificationsBell initialCount={notificationCount ?? 0} />
+          </div>
         </div>
 
         <div className="px-6 pb-2 pt-7">
-          <h2 className="text-[10px] font-semibold uppercase tracking-[0.18em] text-ivory/50">
+          <h2 className="text-[10px] font-semibold uppercase tracking-[0.18em] text-app-muted">
             {title}
           </h2>
         </div>
 
-        <nav className="flex-1 px-3 space-y-1 overflow-y-auto">
+        <nav className="flex-1 space-y-1 overflow-y-auto px-3">
           {navItems.map((item) => {
             const active = isActive(item.href);
             const Icon = navIcons[item.label] ?? BarChart3;
@@ -92,8 +100,8 @@ export function Sidebar({ title, navItems }: SidebarProps) {
                 className={cn(
                   "flex min-h-11 items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-medium transition-all duration-200",
                   active
-                    ? "bg-gold/15 text-gold shadow-[inset_0_0_0_1px_rgba(215,183,120,0.22)]"
-                    : "text-ivory/60 hover:bg-white/5 hover:text-ivory"
+                    ? "bg-ember/12 text-ember shadow-[inset_0_0_0_1px_rgb(var(--ember-rgb)/0.15)]"
+                    : "text-app-muted hover:bg-app-elevated/60 hover:text-app-fg"
                 )}
               >
                 <Icon className="size-4" strokeWidth={active ? 2.3 : 1.8} />
@@ -103,16 +111,16 @@ export function Sidebar({ title, navItems }: SidebarProps) {
           })}
         </nav>
 
-        <div className="p-4 border-t border-white/10">
+        <div className="border-t border-app-border p-4">
           <Link
             href="/settings"
-            className="flex items-center gap-3 text-sm text-ivory/60 transition-colors hover:text-ivory"
+            className="flex items-center gap-3 text-sm text-app-muted transition-colors hover:text-app-fg"
           >
-            <span className="flex size-8 items-center justify-center rounded-full bg-gold/20 text-xs font-bold text-gold">
+            <span className="flex size-8 items-center justify-center rounded-full bg-ember/15 text-xs font-bold text-ember">
               P
             </span>
             <span>
-              <span className="block font-medium text-ivory">Partner account</span>
+              <span className="block font-medium text-app-fg">Partner account</span>
               <span className="block text-xs">Settings & sign out</span>
             </span>
           </Link>
@@ -121,10 +129,10 @@ export function Sidebar({ title, navItems }: SidebarProps) {
 
       {/* Mobile tab strip */}
       <nav
-        className="sticky top-0 z-30 overflow-x-auto border-b border-white/10 bg-navy/95 text-ivory nav-blur lg:hidden [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        className="nav-blur sticky top-0 z-30 overflow-x-auto border-b border-app-border text-app-fg [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden lg:hidden"
         aria-label="Dashboard"
       >
-        <div className="flex gap-1 px-3 py-2">
+        <div className="flex items-center gap-1 px-3 py-2">
           {navItems.map((item) => {
             const active = isActive(item.href);
             const Icon = navIcons[item.label] ?? BarChart3;
@@ -135,8 +143,8 @@ export function Sidebar({ title, navItems }: SidebarProps) {
                 className={cn(
                   "flex min-h-10 shrink-0 items-center gap-1.5 rounded-xl px-3.5 py-1.5 text-xs font-medium transition-colors",
                   active
-                    ? "bg-white/10 text-gold"
-                    : "text-ivory/60 hover:text-ivory"
+                    ? "bg-ember/12 text-ember"
+                    : "text-app-muted hover:text-app-fg"
                 )}
               >
                 <Icon className="size-3.5" />
@@ -144,6 +152,9 @@ export function Sidebar({ title, navItems }: SidebarProps) {
               </Link>
             );
           })}
+          <div className="ml-auto shrink-0">
+            <NotificationsBell initialCount={notificationCount ?? 0} />
+          </div>
         </div>
       </nav>
     </>

@@ -30,7 +30,7 @@ export default function ForgotPasswordPage() {
           Back to sign in
         </Link>
 
-        <span className="flex size-11 items-center justify-center rounded-xl bg-navy text-ivory">
+        <span className="flex size-11 items-center justify-center rounded-xl bg-ink text-white">
           <Mail className="size-5" />
         </span>
         <h1 className="mt-5 font-serif text-3xl font-bold text-app-fg">Reset your password</h1>
@@ -39,7 +39,7 @@ export default function ForgotPasswordPage() {
         </p>
 
         {message && (
-          <p className="animate-pop-in mt-5 rounded-xl bg-gold/10 border border-gold/20 px-4 py-3 text-sm text-app-fg">
+          <p className="animate-pop-in mt-5 rounded-xl bg-ember/10 border border-gold/20 px-4 py-3 text-sm text-app-fg">
             {message}
           </p>
         )}

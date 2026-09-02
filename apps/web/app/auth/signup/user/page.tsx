@@ -66,7 +66,7 @@ function ToggleChip({
       onClick={onClick}
       className={`min-h-[36px] rounded-full border px-4 py-2 text-sm font-semibold transition-colors ${
         active
-          ? 'border-gold bg-gold text-navy'
+          ? 'border-ember/40 bg-ember text-white'
           : 'border-app-border bg-app-card text-app-muted hover:border-gold/50 hover:text-app-fg'
       }`}
     >
@@ -182,8 +182,8 @@ export default function UserSignupPage() {
     return (
       <div className="w-full max-w-md text-center">
         <div className="card-elevated animate-fade-in-up p-10">
-          <div className="w-14 h-14 bg-gold/10 rounded-full flex items-center justify-center mx-auto mb-5">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="w-7 h-7 text-gold">
+          <div className="w-14 h-14 bg-ember/10 rounded-full flex items-center justify-center mx-auto mb-5">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="w-7 h-7 text-ember">
               <path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" />
             </svg>
           </div>
@@ -316,7 +316,7 @@ export default function UserSignupPage() {
                         onClick={() => set('birthCalendar', cal.key)}
                         className={`rounded px-2.5 py-1 text-[11px] font-semibold transition-colors ${
                           form.birthCalendar === cal.key
-                            ? 'bg-navy text-ivory'
+                            ? 'bg-ink text-white'
                             : 'text-app-muted hover:text-app-fg'
                         }`}
                       >
@@ -398,7 +398,7 @@ export default function UserSignupPage() {
                   type="button"
                   onClick={() => set('calendarSync', !form.calendarSync)}
                   className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                    form.calendarSync ? 'bg-navy' : 'bg-[var(--border)]'
+                    form.calendarSync ? 'bg-ink' : 'bg-[var(--border)]'
                   }`}
                 >
                   <span

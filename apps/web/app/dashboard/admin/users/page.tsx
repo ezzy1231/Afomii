@@ -56,7 +56,7 @@ export default async function AdminUsersPage({
       {/* Filters */}
       <div className="flex flex-col gap-3">
         <form method="get" className={cn(CONSOLE_CARD, 'flex items-center gap-3 px-4 py-3')}>
-          <svg viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4 shrink-0 text-[#7587A7]">
+          <svg viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4 shrink-0 text-app-muted">
             <path fillRule="evenodd" d="M9 3.5a5.5 5.5 0 1 0 0 11 5.5 5.5 0 0 0 0-11ZM2 9a7 7 0 1 1 12.452 4.391l3.328 3.329a.75.75 0 1 1-1.06 1.06l-3.329-3.328A7 7 0 0 1 2 9Z" clipRule="evenodd" />
           </svg>
           <input
@@ -64,7 +64,7 @@ export default async function AdminUsersPage({
             name="q"
             defaultValue={q}
             placeholder="Search by name or email..."
-            className="w-full bg-transparent text-sm text-[#F5EFE8] outline-none placeholder:text-[#7587A7]"
+            className="w-full bg-transparent text-sm text-app-fg outline-none placeholder:text-app-muted"
           />
           {roleFilter !== 'all' && <input type="hidden" name="role" value={roleFilter} />}
         </form>
@@ -76,8 +76,8 @@ export default async function AdminUsersPage({
               className={cn(
                 'min-h-[36px] whitespace-nowrap rounded-full border px-3.5 py-1.5 text-xs font-semibold transition-colors',
                 roleFilter === r
-                  ? 'border-[#C2A878] bg-[#C2A878]/15 text-[#DFC391]'
-                  : 'border-[#4d5f7d]/40 text-[#7587A7] hover:border-[#7587A7] hover:text-[#F5EFE8]'
+                  ? 'border-ember/40 bg-ember/15 text-ember'
+                  : 'border-app-border text-app-muted hover:border-ember/30 hover:text-app-fg'
               )}
             >
               {r}
@@ -89,7 +89,7 @@ export default async function AdminUsersPage({
       <div className={cn(CONSOLE_CARD, 'overflow-x-auto')}>
         <table className="w-full min-w-[720px] text-left text-sm">
           <thead>
-            <tr className="border-b border-[#4d5f7d]/25 text-[11px] uppercase tracking-[0.14em] text-[#7587A7]">
+            <tr className="border-b border-app-border text-[11px] uppercase tracking-[0.14em] text-app-muted">
               <th scope="col" className="px-4 py-3 font-semibold">User</th>
               <th scope="col" className="px-4 py-3 font-semibold">Role</th>
               <th scope="col" className="px-4 py-3 font-semibold">Status</th>
@@ -100,7 +100,7 @@ export default async function AdminUsersPage({
           <tbody>
             {rows.length === 0 ? (
               <tr>
-                <td colSpan={5} className="px-4 py-10 text-center text-sm text-[#7587A7]">
+                <td colSpan={5} className="px-4 py-10 text-center text-sm text-app-muted">
                   No users match this filter.
                 </td>
               </tr>
@@ -108,17 +108,17 @@ export default async function AdminUsersPage({
               rows.map((row) => {
                 const isSelf = row.id === me?.id
                 return (
-                  <tr key={row.id} className="border-b border-[#4d5f7d]/10 last:border-0">
+                  <tr key={row.id} className="border-b border-app-border last:border-0">
                     <td className="px-4 py-3.5">
                       <span className="block truncate font-semibold">
                         {row.full_name ?? '—'}
                         {isSelf && (
-                          <span className="ml-2 rounded bg-[#C2A878]/15 px-1.5 py-0.5 align-middle text-[10px] font-bold uppercase tracking-wide text-[#DFC391]">
+                          <span className="ml-2 rounded bg-ember/15 px-1.5 py-0.5 align-middle text-[10px] font-bold uppercase tracking-wide text-ember">
                             You
                           </span>
                         )}
                       </span>
-                      <span className="text-xs text-[#7587A7]">{row.email ?? '—'}</span>
+                      <span className="text-xs text-app-muted">{row.email ?? '—'}</span>
                     </td>
                     <td className="px-4 py-3.5">
                       {isSelf ? (
@@ -134,13 +134,13 @@ export default async function AdminUsersPage({
                         <StatusPill status="active" tone="ok" />
                       )}
                     </td>
-                    <td className="px-4 py-3.5 tabular-nums text-[#B5C7EA]">
+                    <td className="px-4 py-3.5 tabular-nums text-app-muted">
                       {new Date(row.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
                     </td>
                     <td className="px-4 py-3.5">
                       <div className="flex justify-end">
                         {isSelf ? (
-                          <span className="text-xs text-[#7587A7]">—</span>
+                          <span className="text-xs text-app-muted">—</span>
                         ) : (
                           <UserSuspensionActions userId={row.id} isSuspended={Boolean(row.is_suspended)} />
                         )}
@@ -153,7 +153,7 @@ export default async function AdminUsersPage({
           </tbody>
         </table>
       </div>
-      <p className="px-1 text-xs text-[#7587A7]">
+      <p className="px-1 text-xs text-app-muted">
         Showing the latest 50 accounts{q || roleFilter !== 'all' ? ' matching your filters' : ''}.
       </p>
     </ConsolePageShell>

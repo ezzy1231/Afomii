@@ -1,8 +1,9 @@
 import { createClient } from '@/lib/supabase/server'
+import { getUnreadNotificationCount } from '@/lib/supabase/queries'
 import Link from 'next/link'
-import { Bell } from 'lucide-react'
 import MobileNavigation from './MobileNavigation'
 import NavLinks from './NavLinks'
+import NotificationsBell from './NotificationsBell'
 import ThemeToggle from './ThemeToggle'
 
 async function getUser() {
@@ -19,6 +20,9 @@ async function getUser() {
 
 export default async function Navbar() {
   const user = await getUser()
+  const [unreadCount] = await Promise.all([
+    user ? getUnreadNotificationCount(user.id) : Promise.resolve(0),
+  ])
   const initial =
     (user?.user_metadata?.full_name as string)?.[0]?.toUpperCase() ??
     user?.email?.[0]?.toUpperCase() ??
@@ -26,34 +30,33 @@ export default async function Navbar() {
 
   return (
     <>
-      <header className="sticky top-0 z-50 border-b border-white/10 bg-navy/95 text-ivory shadow-[0_6px_24px_rgba(2,12,28,0.16)] nav-blur">
+      <header className="sticky top-0 z-50 border-b border-app-border nav-blur">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
           <Link
             href="/"
-            className="font-serif text-[22px] font-bold tracking-tight transition-opacity hover:opacity-85"
+            className="group flex items-center gap-2.5 transition-transform active:scale-[0.98]"
           >
-            UrbanExplore
+            <span className="flex size-8 items-center justify-center rounded-xl bg-gradient-to-br from-ember to-ember-deep text-sm font-bold text-white shadow-[0_2px_8px_rgb(var(--ember-rgb)/0.35)] transition-transform group-hover:scale-105">
+              U
+            </span>
+            <span className="text-lg font-bold tracking-tight text-app-fg">
+              UrbanExplore
+            </span>
           </Link>
 
           <div className="absolute left-1/2 hidden -translate-x-1/2 md:block">
-            <NavLinks />
+            <NavLinks isAuthenticated={Boolean(user)} />
           </div>
 
-          <div className="flex items-center gap-1.5">
-            <button
-              type="button"
-              aria-label="Notifications"
-              className="flex size-9 items-center justify-center rounded-full text-ivory/70 transition-colors hover:bg-white/10 hover:text-ivory"
-            >
-              <Bell className="size-4" />
-            </button>
-            <span className="text-ivory/30">
+          <div className="flex items-center gap-1">
+            {user ? <NotificationsBell initialCount={unreadCount} /> : null}
+            <span>
               <ThemeToggle />
             </span>
             {user ? (
               <Link
                 href="/settings"
-                className="ml-1 flex size-8 items-center justify-center rounded-full bg-gold text-xs font-bold text-navy transition-transform hover:scale-105"
+                className="ml-1 flex size-9 items-center justify-center rounded-xl bg-gradient-to-br from-ember to-ember-deep text-sm font-bold text-white shadow-[0_2px_8px_rgb(var(--ember-rgb)/0.3)] transition-transform hover:scale-105 active:scale-95"
                 aria-label="Your account"
               >
                 {initial ?? 'U'}
@@ -61,7 +64,7 @@ export default async function Navbar() {
             ) : (
               <Link
                 href="/auth/signin"
-                className="ml-1 rounded-md bg-gold px-4 py-1.5 text-sm font-semibold text-navy transition-transform active:scale-[0.98]"
+                className="btn-primary ml-1 !rounded-xl !px-4 !py-2 text-sm"
               >
                 Sign in
               </Link>

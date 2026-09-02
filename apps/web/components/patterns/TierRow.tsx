@@ -46,7 +46,7 @@ export function TierRow({
             {tier.name}
           </span>
           {tier.premium && !disabled && (
-            <span className="rounded bg-gold px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-navy">
+            <span className="rounded-md bg-ember/10 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-ember">
               Premium
             </span>
           )}

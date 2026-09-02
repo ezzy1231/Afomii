@@ -33,8 +33,7 @@ export async function GET(request: Request) {
 
     // If no role in metadata, prompt user to select one
     if (!role) {
-      const params = new URLSearchParams(window.location.search)
-      const rawNext = params.get('next') ?? '/'
+      const rawNext = searchParams.get('next') ?? '/'
       const next = rawNext.startsWith('/') && !rawNext.startsWith('//') ? rawNext : '/'
       return NextResponse.redirect(new URL(`/auth/role?next=${encodeURIComponent(next)}`, origin))
     }

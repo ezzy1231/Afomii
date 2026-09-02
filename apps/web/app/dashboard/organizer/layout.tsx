@@ -1,3 +1,5 @@
+import { createClient } from '@/lib/supabase/server'
+import { getUnreadNotificationCount } from '@/lib/supabase/queries'
 import { Sidebar } from '@/components/dashboard/sidebar'
 
 const navItems = [
@@ -9,17 +11,19 @@ const navItems = [
   { label: 'Settings', href: '/settings', icon: '⚙️' },
 ]
 
-export default function OrganizerDashboardLayout({
+export default async function OrganizerDashboardLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  const notificationCount = user ? await getUnreadNotificationCount(user.id) : 0
+
   return (
-    <div className="flex min-h-screen bg-app-bg">
-      <Sidebar title="Organizer" navItems={navItems} />
-      <main className="min-w-0 flex-1 overflow-auto bg-app-bg">
-        {children}
-      </main>
+    <div className="flex min-h-screen">
+      <Sidebar title="Organizer" navItems={navItems} notificationCount={notificationCount} />
+      <main className="min-w-0 flex-1 overflow-auto">{children}</main>
     </div>
   )
 }

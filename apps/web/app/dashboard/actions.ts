@@ -1,16 +1,19 @@
-﻿'use server'
+'use server'
 
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
 import {
+  bannerUrlSchema,
   branchInputSchema,
   bookingConfigInputSchema,
   eventListingInputSchema,
+  eventListingWithBannerSchema,
   eventModerationActionSchema,
   firstIssue,
   logActionError,
   openingHoursSchema,
   restaurantListingInputSchema,
+  restaurantListingWithBannerSchema,
   reservationStatusSchema,
   userRoleSchema,
   uuidSchema,
@@ -59,16 +62,17 @@ export async function createRestaurantListing(
     return { ok: false, message: 'Only food business accounts can create restaurant listings.' }
   }
 
-  const parsed = restaurantListingInputSchema.safeParse({
+  const parsed = restaurantListingWithBannerSchema.safeParse({
     name: readText(formData, 'name'),
     cuisine: readText(formData, 'cuisine'),
     areaLabel: readText(formData, 'areaLabel'),
     city: readText(formData, 'city'),
     closingLabel: readText(formData, 'closingLabel'),
+    coverUrl: readText(formData, 'coverUrl'),
   })
   if (!parsed.success) return { ok: false, message: firstIssue(parsed.error) }
 
-  const { name, cuisine, areaLabel, city, closingLabel } = parsed.data
+  const { name, cuisine, areaLabel, city, closingLabel, coverUrl } = parsed.data
 
   const { data: business } = await supabase
     .from('businesses')
@@ -90,6 +94,7 @@ export async function createRestaurantListing(
     area_label: areaLabel || null,
     city,
     closing_label: closingLabel || null,
+    cover_url: coverUrl,
     is_active: true,
   })
 
@@ -115,16 +120,17 @@ export async function createEventListing(
     return { ok: false, message: 'Only event organizer accounts can create event listings.' }
   }
 
-  const parsed = eventListingInputSchema.safeParse({
+  const parsed = eventListingWithBannerSchema.safeParse({
     title: readText(formData, 'title'),
     category: readText(formData, 'category'),
     venueName: readText(formData, 'venueName'),
     startsAt: readText(formData, 'startsAt'),
     priceLabel: readText(formData, 'priceLabel'),
+    coverImageUrl: readText(formData, 'coverImageUrl'),
   })
   if (!parsed.success) return { ok: false, message: firstIssue(parsed.error) }
 
-  const { title, category, venueName, startsAt, priceLabel } = parsed.data
+  const { title, category, venueName, startsAt, priceLabel, coverImageUrl } = parsed.data
   const startsAtDate = startsAt ? new Date(startsAt) : null
 
   const { data: organizer } = await supabase
@@ -147,6 +153,7 @@ export async function createEventListing(
     venue_name: venueName,
     starts_at: startsAtDate ? startsAtDate.toISOString() : null,
     price_label: priceLabel || null,
+    cover_image_url: coverImageUrl,
     is_active: true,
   })
 
@@ -487,7 +494,7 @@ export async function adminSetUserRole(
     return { ok: false, message: 'You cannot change your own role.' }
   }
 
-  // Audited SECURITY DEFINER function â€” profiles RLS stays own-row for updates.
+  // Audited SECURITY DEFINER function — profiles RLS stays own-row for updates.
   const { error: rpcError } = await supabase.rpc('admin_set_user_role', {
     p_user_id: userId,
     p_new_role: roleCheck.data,
@@ -515,7 +522,7 @@ export async function adminSetUserSuspended(
     return { ok: false, message: 'You cannot suspend your own account.' }
   }
 
-  // Refuse to touch other system_admins â€” a locked-out admin panel is worse than none.
+  // Refuse to touch other system_admins — a locked-out admin panel is worse than none.
   const { data: target } = await supabase
     .from('profiles')
     .select('role, is_suspended')

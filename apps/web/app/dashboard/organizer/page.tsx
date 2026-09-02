@@ -56,10 +56,10 @@ export default async function OrganizerDashboardPage() {
 
   return (
     <div className="mx-auto w-full max-w-6xl px-4 pb-24 pt-8 sm:px-6 lg:px-8">
-      <p className="text-xs font-bold uppercase tracking-[0.15em] text-gold">Partner portal</p>
+      <p className="text-xs font-bold uppercase tracking-[0.15em] text-ember">Partner portal</p>
       <div className="mt-2 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
         <div>
-          <h1 className="font-serif text-3xl font-bold text-app-fg">Organizer workspace</h1>
+          <h1 className=" text-3xl font-bold text-app-fg">Organizer workspace</h1>
           <p className="mt-2 text-app-muted">
             Create and manage events that appear in UrbanExplore discovery.
           </p>
@@ -88,7 +88,7 @@ export default async function OrganizerDashboardPage() {
       )}
 
       <section className="card-elevated mt-6 p-6">
-        <h2 className="font-serif text-xl font-bold text-app-fg">Your events</h2>
+        <h2 className=" text-xl font-bold text-app-fg">Your events</h2>
         <p className="mt-2 text-sm text-app-muted">Recently published events from your workspace.</p>
 
         {events?.length ? (
@@ -128,8 +128,8 @@ export default async function OrganizerDashboardPage() {
 function Metric({ icon: Icon, label, value }: { icon: typeof Store; label: string; value: string }) {
   return (
     <section className="card-elevated p-5">
-      <div className="w-9 h-9 rounded-xl bg-gold/10 flex items-center justify-center">
-        <Icon className="size-4 text-gold" />
+      <div className="w-9 h-9 rounded-xl bg-ember/10 flex items-center justify-center">
+        <Icon className="size-4 text-ember" />
       </div>
       <p className="mt-4 text-2xl font-bold text-app-fg">{value}</p>
       <p className="mt-1 text-sm text-app-muted">{label}</p>
