@@ -1,6 +1,8 @@
-import { createClient } from '@/lib/supabase/server'
+import { createServerClient } from '@supabase/ssr'
+import { cookies } from 'next/headers'
 import { NextResponse } from 'next/server'
 import type { User } from '@supabase/supabase-js'
+import { readEnv } from '@/lib/env'
 
 export const dynamic = 'force-dynamic'
 
@@ -15,7 +17,40 @@ export async function GET(request: Request) {
       ? rawNext
       : '/'
 
-  const supabase = await createClient()
+  const supabaseUrl = readEnv('NEXT_PUBLIC_SUPABASE_URL')
+  const supabaseAnonKey = readEnv('NEXT_PUBLIC_SUPABASE_ANON_KEY')
+  if (!supabaseUrl || !supabaseAnonKey) {
+    return NextResponse.redirect(new URL('/auth/signin?error=configuration', origin))
+  }
+
+  const cookieStore = await cookies()
+
+  // Buffer cookies that setAll() is called with (e.g. during
+  // exchangeCodeForSession).  On Netlify serverless functions, calling
+  // cookieStore.set() inside setAll does NOT reliably attach the session
+  // cookies to the outgoing response, so the browser never receives them and
+  // the next request (/dashboard/admin) finds no session.  Instead we collect
+  // the cookies here and apply them to the response object below.
+  const pendingCookies: Array<{
+    name: string
+    value: string
+    options: Record<string, unknown>
+  }> = []
+
+  const supabase = createServerClient(
+    supabaseUrl,
+    supabaseAnonKey,
+    {
+      cookies: {
+        getAll() {
+          return cookieStore.getAll()
+        },
+        setAll(cookiesToSet) {
+          pendingCookies.push(...cookiesToSet)
+        },
+      },
+    }
+  )
 
   // Two entry paths share the same provisioning:
   //  a) OAuth / email-link: exchange ?code for a session first.
@@ -34,6 +69,20 @@ export async function GET(request: Request) {
     user = data.user
   }
 
+  /**
+   * Build a redirect response and attach any buffered session cookies to it.
+   * The cookies are applied to the response object (response.cookies.set)
+   * rather than relying on cookieStore.set(), which is unreliable on Netlify
+   * serverless functions.
+   */
+  function redirectTo(path: string) {
+    const res = NextResponse.redirect(new URL(path, origin))
+    for (const { name, value, options } of pendingCookies) {
+      res.cookies.set(name, value, options)
+    }
+    return res
+  }
+
   if (user) {
     // Authoritative role lives in the profiles table (set at signup by the
     // role-selection flow). user_metadata.role is often missing for OAuth
@@ -49,13 +98,11 @@ export async function GET(request: Request) {
 
     // If no role anywhere, prompt user to select one
     if (!role) {
-      const rawNext = searchParams.get('next') ?? '/'
-      const next = rawNext.startsWith('/') && !rawNext.startsWith('//') ? rawNext : '/'
-      return NextResponse.redirect(new URL(`/auth/role?next=${encodeURIComponent(next)}`, origin))
+      return redirectTo(`/auth/role?next=${encodeURIComponent(next)}`)
     }
 
     if (role === 'system_admin') {
-      return NextResponse.redirect(new URL('/dashboard/admin', origin))
+      return redirectTo('/dashboard/admin')
     }
 
     if (role === 'food_business') {
@@ -93,7 +140,7 @@ export async function GET(request: Request) {
         }
       }
 
-      return NextResponse.redirect(new URL('/dashboard/restaurant', origin))
+      return redirectTo('/dashboard/restaurant')
     }
 
     if (role === 'event_organizer') {
@@ -132,10 +179,10 @@ export async function GET(request: Request) {
         }
       }
 
-      return NextResponse.redirect(new URL('/dashboard/organizer', origin))
+      return redirectTo('/dashboard/organizer')
     }
 
-    return NextResponse.redirect(new URL(next, origin))
+    return redirectTo(next)
   }
 
   return NextResponse.redirect(new URL('/auth/signin?error=auth_failed', origin))
