@@ -71,20 +71,26 @@ export async function GET(request: Request) {
     // Log whether the PKCE verifier cookie (set by the browser client during
     // signInWithOAuth) actually reached this serverless function — a missing
     // verifier is the #1 cause of exchange failures on preview/multi-domain.
-    const verifierCookie = cookieStore.getAll().find((c) => c.name.includes('code-verifier'))
+    const allCookies = cookieStore.getAll()
+    const verifierCookie = allCookies.find((c) => c.name.includes('code-verifier'))
     console.log(
       '[auth/callback] code present, verifier cookie present:',
       verifierCookie ? 'yes' : 'NO',
       '| cookies:',
-      cookieStore.getAll().map((c) => c.name).join(', ')
+      allCookies.map((c) => c.name).join(', ')
     )
     const { data, error } = await supabase.auth.exchangeCodeForSession(code)
     if (error) {
       console.error('[auth/callback] exchangeCodeForSession failed:', error.message, error.code)
-      // Surface the real error in the redirect URL so it's visible without
-      // digging through server logs.
+      // Surface the real error + the cookies the function actually received in
+      // the redirect URL so it's visible without digging through server logs.
+      const cookieNames = allCookies.map((c) => c.name).join(',')
+      const host = request.headers.get('x-forwarded-host') ?? request.headers.get('host')
       return NextResponse.redirect(
-        new URL(`/auth/signin?error=auth_failed&detail=${encodeURIComponent(error.message)}`, origin)
+        new URL(
+          `/auth/signin?error=auth_failed&detail=${encodeURIComponent(error.message)}&cookies=${encodeURIComponent(cookieNames)}&host=${encodeURIComponent(host ?? '')}`,
+          origin
+        )
       )
     } else {
       user = data.user
