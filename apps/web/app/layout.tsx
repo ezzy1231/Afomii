@@ -3,6 +3,7 @@ import localFont from "next/font/local";
 import Script from "next/script";
 import "./globals.css";
 import { Providers } from "./providers";
+import OAuthCodeCatcher from "@/components/OAuthCodeCatcher";
 
 /* Self-hosted variable font — no external requests, works offline */
 const spaceGrotesk = localFont({
@@ -54,7 +55,10 @@ export default function RootLayout({
         <Script id="theme-init" strategy="beforeInteractive">
           {`try{var t=localStorage.getItem('urbanexplore-theme');document.documentElement.dataset.theme=t==='dark'?'dark':'light';}catch(e){document.documentElement.dataset.theme='light';}`}
         </Script>
-        <Providers>{children}</Providers>
+        <Providers>
+          <OAuthCodeCatcher />
+          {children}
+        </Providers>
       </body>
     </html>
   );

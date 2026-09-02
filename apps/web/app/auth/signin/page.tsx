@@ -87,9 +87,16 @@ export default function SignInPage() {
   async function handleGoogle() {
     setError(null)
     const supabase = createClient()
+    // Carry the `next` destination through the OAuth round-trip: the callback
+    // route re-reads it from the URL and routes by role (admins -> /dashboard/admin).
+    const params = new URLSearchParams(window.location.search)
+    const rawNext = params.get('next') ?? '/'
+    const next = rawNext.startsWith('/') && !rawNext.startsWith('//') ? rawNext : '/'
+    const redirectTo = new URL('/auth/callback', window.location.origin)
+    if (next && next !== '/') redirectTo.searchParams.set('next', next)
     await supabase.auth.signInWithOAuth({
       provider: 'google',
-      options: { redirectTo: `${window.location.origin}/auth/callback` },
+      options: { redirectTo: redirectTo.toString() },
     })
   }
 

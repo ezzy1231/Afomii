@@ -29,13 +29,27 @@ export async function GET(request: Request) {
   }
 
   if (user) {
-    let role = user.user_metadata?.role as string | undefined
+    // Authoritative role lives in the profiles table (set at signup by the
+    // role-selection flow). user_metadata.role is often missing for OAuth
+    // users (Google identity has no metadata) — fall back to it only when the
+    // profile lookup yields nothing, so admins never get dumped on '/' or the
+    // role-selection page after a Google login.
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', user.id)
+      .maybeSingle()
+    let role = (profile?.role as string | undefined) ?? (user.user_metadata?.role as string | undefined)
 
-    // If no role in metadata, prompt user to select one
+    // If no role anywhere, prompt user to select one
     if (!role) {
       const rawNext = searchParams.get('next') ?? '/'
       const next = rawNext.startsWith('/') && !rawNext.startsWith('//') ? rawNext : '/'
       return NextResponse.redirect(new URL(`/auth/role?next=${encodeURIComponent(next)}`, origin))
+    }
+
+    if (role === 'system_admin') {
+      return NextResponse.redirect(new URL('/dashboard/admin', origin))
     }
 
     if (role === 'food_business') {
