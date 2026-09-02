@@ -5,12 +5,25 @@ import { readEnv } from '@/lib/env'
 
 export const metadata: Metadata = { title: 'No admin access' }
 
+// Dev .env.local ships localhost origins; never present those as a "main site"
+// link on a hosted instance.
+function realOrigin(value: string | undefined): string {
+  if (!value) return ''
+  try {
+    const { hostname } = new URL(value)
+    if (hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '::1') return ''
+    return value.replace(/\/+$/, '')
+  } catch {
+    return ''
+  }
+}
+
 export default async function NoAccessPage() {
   const supabase = await createClient()
   const {
     data: { user },
   } = await supabase.auth.getUser()
-  const mainOrigin = readEnv('NEXT_PUBLIC_MAIN_ORIGIN') ?? ''
+  const mainOrigin = realOrigin(readEnv('NEXT_PUBLIC_MAIN_ORIGIN'))
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-app-bg px-4">

@@ -4,6 +4,23 @@ import { readEnv } from "@/lib/env";
 
 const protectedRoutes = ["/dashboard", "/settings"];
 
+// Origins pointing at localhost/loopback are dev leftovers (the repo's
+// .env.local ships NEXT_PUBLIC_ADMIN_ORIGIN=http://localhost:3001). On a
+// hosted instance they must be treated as unset, otherwise the middleware
+// would redirect admin logins to "localhost" on the visitor's machine.
+function realOrigin(value: string | undefined): string | undefined {
+  if (!value) return undefined;
+  try {
+    const { hostname } = new URL(value);
+    if (hostname === "localhost" || hostname === "127.0.0.1" || hostname === "::1") {
+      return undefined;
+    }
+    return value.replace(/\/+$/, "");
+  } catch {
+    return undefined;
+  }
+}
+
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
@@ -12,9 +29,14 @@ export async function middleware(request: NextRequest) {
   // admin (:3001, ADMIN_PORTAL=1) -> /dashboard/admin surfaces only.
   // Sessions are cookie-based and cookies ignore ports, so one sign-in works
   // across both instances.
+  //
+  // On a single hosted deployment (no second instance) leave
+  // NEXT_PUBLIC_ADMIN_ORIGIN / NEXT_PUBLIC_MAIN_ORIGIN unset: admin routes
+  // are then served by the same app, and the admin layout still enforces the
+  // system_admin role.
   const adminPortal = readEnv("ADMIN_PORTAL") === "1";
-  const adminOrigin = readEnv("NEXT_PUBLIC_ADMIN_ORIGIN");
-  const mainOrigin = readEnv("NEXT_PUBLIC_MAIN_ORIGIN");
+  const adminOrigin = realOrigin(readEnv("NEXT_PUBLIC_ADMIN_ORIGIN"));
+  const mainOrigin = realOrigin(readEnv("NEXT_PUBLIC_MAIN_ORIGIN"));
 
   if (!adminPortal && adminOrigin && pathname.startsWith("/dashboard/admin")) {
     // Main instance never serves admin routes — send visitors to the portal.

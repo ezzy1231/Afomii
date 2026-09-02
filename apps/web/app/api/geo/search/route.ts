@@ -52,7 +52,7 @@ export async function GET(request: NextRequest) {
     const res = await fetch(`${NOMINATIM_BASE}/search?${params}`, {
       headers: {
         'User-Agent': 'UrbanExplore/1.0 (AddisAbaba ride planner; contact: hello@urbanexplore.et)',
-        Referer: process.env.NEXT_PUBLIC_MAIN_ORIGIN ?? 'http://localhost:3000',
+        Referer: process.env.NEXT_PUBLIC_MAIN_ORIGIN ?? request.headers.get('origin') ?? 'https://urbanexplore.et',
         'Accept-Language': 'en',
       },
       signal: controller.signal,
