@@ -7,7 +7,17 @@ import { readEnv } from '@/lib/env'
 export const dynamic = 'force-dynamic'
 
 export async function GET(request: Request) {
-  const { searchParams, origin } = new URL(request.url)
+  // Netlify rewrites request.url to the site's primary domain inside the
+  // serverless function, so new URL(request.url).origin is wrong on deploy
+  // previews (it would redirect to production and set cookies for the wrong
+  // domain). Derive the origin from the forwarded Host header instead.
+  const reqUrl = new URL(request.url)
+  const host = request.headers.get('x-forwarded-host') ?? request.headers.get('host') ?? reqUrl.host
+  const proto = request.headers.get('x-forwarded-proto') ?? reqUrl.protocol.replace(':', '')
+  const origin = `${proto}://${host}`
+  console.log('[auth/callback] request.url:', request.url, 'origin:', origin)
+
+  const { searchParams } = reqUrl
   const code = searchParams.get('code')
   const rawNext = searchParams.get('next') ?? '/'
 
@@ -58,9 +68,24 @@ export async function GET(request: Request) {
   //     session and is redirected here without a code.
   let user: User | null = null
   if (code) {
+    // Log whether the PKCE verifier cookie (set by the browser client during
+    // signInWithOAuth) actually reached this serverless function — a missing
+    // verifier is the #1 cause of exchange failures on preview/multi-domain.
+    const verifierCookie = cookieStore.getAll().find((c) => c.name.includes('code-verifier'))
+    console.log(
+      '[auth/callback] code present, verifier cookie present:',
+      verifierCookie ? 'yes' : 'NO',
+      '| cookies:',
+      cookieStore.getAll().map((c) => c.name).join(', ')
+    )
     const { data, error } = await supabase.auth.exchangeCodeForSession(code)
     if (error) {
       console.error('[auth/callback] exchangeCodeForSession failed:', error.message, error.code)
+      // Surface the real error in the redirect URL so it's visible without
+      // digging through server logs.
+      return NextResponse.redirect(
+        new URL(`/auth/signin?error=auth_failed&detail=${encodeURIComponent(error.message)}`, origin)
+      )
     } else {
       user = data.user
     }
