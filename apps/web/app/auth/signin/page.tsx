@@ -87,6 +87,15 @@ export default function SignInPage() {
   async function handleGoogle() {
     setError(null)
     const supabase = createClient()
+    // Flush any pending initialization/session-recovery FIRST. Recovery of a
+    // stale/expired session can trigger `_removeSession()`, which deletes the
+    // `-code-verifier` cookie — and `signInWithOAuth` does NOT wait for that
+    // sweep, so the verifier written below could be erased by a racing
+    // removal before the redirect to Google commits cookies.
+    await supabase.auth.getSession()
+    // Drop the stale local session (no network call for `local` scope) so no
+    // background recovery can fire after we write the PKCE verifier.
+    await supabase.auth.signOut({ scope: 'local' })
     // Explicit `next` is NOT passed through the OAuth redirectTo — adding
     // query parameters can cause Supabase to reject the URL if the Redirect
     // URL allowlist is configured as an exact match (no wildcard).  The
