@@ -23,3 +23,11 @@ export function persistSavedIds(ids: string[]) {
     // storage unavailable (private mode / quota) — toggle stays in-memory
   }
 }
+
+/** Toggle a place id in the saved list. Returns the new saved state. */
+export function toggleSavedId(id: string): boolean {
+  const ids = loadSavedIds()
+  const saved = ids.includes(id)
+  persistSavedIds(saved ? ids.filter((v) => v !== id) : [...ids, id])
+  return !saved
+}

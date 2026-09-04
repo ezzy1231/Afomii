@@ -53,13 +53,13 @@ export default function PartnerDashboard({
             Your public page is not live yet. Complete your profile details,
             photos and availability to begin.
           </p>
-          <button
-            type="button"
+          <Link
+            href={restaurant ? "/dashboard/restaurant/listings/new" : "/dashboard/organizer/events"}
             className="btn-secondary mt-5 inline-flex items-center gap-2 !py-2 !px-5 text-xs"
           >
             {action}
             <ChevronRight className="size-4" />
-          </button>
+          </Link>
         </section>
       </main>
       <PageFooter />
