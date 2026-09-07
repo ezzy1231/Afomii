@@ -1,11 +1,11 @@
 import { ArrowRight, Bell, CalendarDays, CarFront, Check, ShieldCheck, Sparkles, Star, Ticket, Users, Utensils } from 'lucide-react'
 
 const palette = [
-  { name: 'Ember (accent)', hex: '#EB5C1E', className: 'bg-[#EB5C1E]' },
+  { name: 'Navy (accent)', hex: '#173970', className: 'bg-[#173970]' },
+  { name: 'Gold (stripe accent)', hex: '#B08D4C', className: 'bg-[#B08D4C]' },
   { name: 'Near-white base', hex: '#F8F8FA', className: 'bg-[#F8F8FA]' },
   { name: 'Near-black ink', hex: '#0F0F12', className: 'bg-[#0F0F12]' },
   { name: 'Glass white', hex: 'white/62%', className: 'bg-white/60' },
-  { name: 'Glass dark', hex: '#1E1E24/55%', className: 'bg-[#1E1E24]/55' },
 ]
 
 const featureCards = [

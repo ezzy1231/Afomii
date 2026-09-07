@@ -30,7 +30,7 @@ export default function RoleClient() {
     },
     {
       key: 'business',
-      tint: 'bg-orange-100 text-orange-600 dark:bg-orange-500/15 dark:text-orange-300',
+      tint: 'bg-blue-100 text-blue-600 dark:bg-blue-500/15 dark:text-blue-300',
       label: 'Food & Dining Business',
       icon: (
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="w-8 h-8">

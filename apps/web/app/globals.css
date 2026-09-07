@@ -22,21 +22,20 @@
     --text-secondary-rgb: 64 64 70;
     --text-muted-rgb: 120 121 130;
 
-    /* ── Single accent — ember (kept warm, used sparingly) ───── */
-    --ember-rgb: 235 92 30;
-    --ember-deep-rgb: 200 68 18;
-    --ember-soft-rgb: 253 235 225;
-    /* Legacy accent aliases → resolve to the single accent so old
-       class names keep working but no longer compete. */
-    --amber-rgb: 235 92 30;
-    --amber-soft-rgb: 200 68 18;
-    --gold-rgb: 235 92 30;
-    --gold-soft-rgb: 200 68 18;
+    /* ── Single accent — navy blue (light mode) ──────────────── */
+    --ember-rgb: 23 57 112;
+    --ember-deep-rgb: 15 41 84;
+    --ember-soft-rgb: 232 238 248;
+    /* Gold — real gold now (was ember alias), used for stripes/accents */
+    --gold-rgb: 176 141 76;
+    --gold-soft-rgb: 244 234 213;
+    --amber-rgb: 176 141 76;
+    --amber-soft-rgb: 244 234 213;
     --moss-rgb: 34 128 74;
 
     --success-rgb: 26 128 82;
     --danger-rgb: 213 57 47;
-    --warning-rgb: 217 119 6;
+    --warning-rgb: 176 141 76;
 
     --bg-primary: rgb(var(--bg-primary-rgb));
     --bg-alt: rgb(var(--bg-alt-rgb));
@@ -76,8 +75,8 @@
     --radius-xl: 24px;
 
     /* ── Ambient background glow (subtle blurred shapes) ─────── */
-    --glow-a-rgb: 235 92 30;
-    --glow-b-rgb: 88 101 242;
+    --glow-a-rgb: 23 57 112;
+    --glow-b-rgb: 176 141 76;
     --glow-opacity: 0.16;
 
     color-scheme: light;
@@ -94,18 +93,18 @@
     --text-secondary-rgb: 196 197 205;
     --text-muted-rgb: 143 144 154;
 
-    --ember-rgb: 255 122 61;
-    --ember-deep-rgb: 255 122 61;
-    --ember-soft-rgb: 61 31 20;
-    --amber-rgb: 255 122 61;
-    --amber-soft-rgb: 255 122 61;
-    --gold-rgb: 255 122 61;
-    --gold-soft-rgb: 255 122 61;
+    --ember-rgb: 96 141 232;
+    --ember-deep-rgb: 72 113 196;
+    --ember-soft-rgb: 28 36 54;
+    --amber-rgb: 212 181 116;
+    --amber-soft-rgb: 61 50 29;
+    --gold-rgb: 212 181 116;
+    --gold-soft-rgb: 61 50 29;
     --moss-rgb: 74 165 112;
 
     --success-rgb: 74 200 128;
     --danger-rgb: 255 105 97;
-    --warning-rgb: 255 183 77;
+    --warning-rgb: 212 181 116;
 
     --bg-primary: rgb(var(--bg-primary-rgb));
     --bg-alt: rgb(var(--bg-alt-rgb));
@@ -135,9 +134,9 @@
     --shadow-lg: 0 4px 8px rgb(0 0 0 / 0.2), 0 16px 48px rgb(0 0 0 / 0.4);
     --hard-color: rgb(0 0 0);
 
-    --glow-a-rgb: 255 122 61;
-    --glow-b-rgb: 99 91 255;
-    --glow-opacity: 0.2;
+    --glow-a-rgb: 96 141 232;
+    --glow-b-rgb: 212 181 116;
+    --glow-opacity: 0.18;
 
     color-scheme: dark;
   }
@@ -287,6 +286,56 @@
     backdrop-filter: blur(var(--glass-blur-strong)) saturate(1.6);
   }
 
+  /* ── Golden stripes — thin gold gradient hairlines.
+     Apply to any surface that should carry the gold accent:
+     -stripe-b (bottom edge), -stripe-t (top edge),
+     -stripe-l (left vertical bar), -underline (text underline). */
+  .gold-stripe-b,
+  .gold-stripe-t {
+    position: relative;
+  }
+  .gold-stripe-b::after,
+  .gold-stripe-t::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgb(var(--gold-rgb) / 0.85) 18%,
+      rgb(var(--gold-rgb)) 50%,
+      rgb(var(--gold-rgb) / 0.85) 82%,
+      transparent 100%
+    );
+    pointer-events: none;
+  }
+  .gold-stripe-b::after { bottom: -1px; }
+  .gold-stripe-t::after { top: -1px; }
+
+  .gold-stripe-l {
+    border-left: 3px solid rgb(var(--gold-rgb) / 0.9);
+    background-image: linear-gradient(
+      180deg,
+      rgb(var(--gold-rgb) / 0.25),
+      transparent 60%
+    );
+  }
+
+  .gold-underline {
+    background: linear-gradient(
+      90deg,
+      rgb(var(--gold-rgb) / 0.9),
+      rgb(var(--gold-rgb) / 0.45)
+    );
+    background-repeat: no-repeat;
+    background-size: 100% 0.35em;
+    background-position: 0 88%;
+    -webkit-box-decoration-break: clone;
+    box-decoration-break: clone;
+  }
+
   /* ── Cards (legacy names → glass) ────────────────────────── */
   .card-elevated {
     background: var(--glass-bg);
@@ -331,7 +380,7 @@
     border-radius: var(--radius-md);
   }
 
-  /* ── Eyebrow: quiet uppercase label, accent-tinted ────────── */
+  /* ── Eyebrow: quiet uppercase label, navy-tinted w/ gold dash ─ */
   .eyebrow {
     display: inline-flex;
     align-items: center;
@@ -345,6 +394,14 @@
     text-transform: uppercase;
     padding: 0.3rem 0.75rem;
     line-height: 1;
+  }
+  .eyebrow::before {
+    content: '';
+    display: inline-block;
+    width: 1.25rem;
+    height: 2px;
+    border-radius: 999px;
+    background: linear-gradient(90deg, rgb(var(--gold-rgb)), rgb(var(--gold-rgb) / 0.4));
   }
 
   /* ── Buttons: solid accent / soft glass ghosts ────────────── */
@@ -649,23 +706,21 @@
     letter-spacing: 0.02em;
   }
 
-  /* ── Consumer hero — soft radial wash over the neutral base ─ */
+  /* ── Consumer hero — navy wash with faint gold bloom ──────── */
   .hero-warm {
     background:
-      radial-gradient(60% 90% at 15% -10%, rgb(var(--ember-rgb) / 0.07), transparent 60%),
-      radial-gradient(45% 70% at 95% 5%, rgb(var(--glow-b-rgb) / 0.05), transparent 55%),
+      radial-gradient(60% 90% at 15% -10%, rgb(var(--ember-rgb) / 0.08), transparent 60%),
+      radial-gradient(45% 70% at 95% 5%, rgb(var(--gold-rgb) / 0.07), transparent 55%),
       transparent;
   }
 
-  /* ── Footer — darker sibling of hero-warm: same warm language
-     but grounded in the ink base so it reads as a calm close.
-     Glows sit at opposite corners from the hero for variety,
-     staying faint enough to blend with the ink, not compete. ─ */
+  /* ── Footer — darker sibling of hero-warm: navy base with a
+     gold bloom; glows sit at opposite corners from the hero. ─ */
   .footer-warm {
     background:
-      radial-gradient(55% 80% at 90% 10%, rgb(var(--ember-rgb) / 0.14), transparent 60%),
-      radial-gradient(45% 70% at 6% 100%, rgb(var(--amber-rgb) / 0.1), transparent 58%),
-      rgb(23 23 26);
+      radial-gradient(55% 80% at 90% 10%, rgb(var(--gold-rgb) / 0.14), transparent 60%),
+      radial-gradient(45% 70% at 6% 100%, rgb(var(--ember-rgb) / 0.22), transparent 58%),
+      rgb(13 24 42);
   }
 
   /* ── Dotted texture → very faint dot grid (kept for legacy) ─ */

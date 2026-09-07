@@ -49,7 +49,7 @@ export default async function HomePage() {
                       <span className="relative z-10 text-ember">love.</span>
                       <span
                         aria-hidden
-                        className="absolute inset-x-0 bottom-1.5 z-0 h-3 -rotate-1 rounded-sm bg-ember/25 sm:h-4"
+                        className="absolute inset-x-0 bottom-1.5 z-0 h-3 -rotate-1 rounded-sm bg-gold/40 sm:h-4"
                       />
                     </span>
                   </h1>

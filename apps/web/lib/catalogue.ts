@@ -14,10 +14,10 @@ export type CatalogueItem = {
 }
 
 const restaurantColors = [
-  'bg-orange-100 text-orange-800',
+  'bg-blue-100 text-blue-800',
   'bg-rose-100 text-rose-800',
   'bg-emerald-100 text-emerald-800',
-  'bg-amber-100 text-amber-800',
+  'bg-sky-100 text-sky-800',
 ]
 
 const eventColors = [
@@ -34,11 +34,11 @@ function chooseColor(name: string, palette: string[]) {
 }
 
 export const fallbackRestaurants: CatalogueItem[] = [
-  { id: '1', name: 'Yod Abyssinia Kitchen', category: 'Traditional Ethiopian', location: 'Bole', detail: 'Open until 11:00 PM', rating: '4.9', color: 'bg-orange-100 text-orange-800', imageUrl: '/places/food-1.jpg' },
+  { id: '1', name: 'Yod Abyssinia Kitchen', category: 'Traditional Ethiopian', location: 'Bole', detail: 'Open until 11:00 PM', rating: '4.9', color: 'bg-blue-100 text-blue-800', imageUrl: '/places/food-1.jpg' },
   { id: '2', name: 'Sishu Noodle House', category: 'Japanese', location: 'Kazanchis', detail: 'Open until 10:30 PM', rating: '4.8', color: 'bg-rose-100 text-rose-800', imageUrl: '/places/food-2.jpg' },
   { id: '3', name: 'Olive & Grain', category: 'Mediterranean', location: 'Sarbet', detail: 'Open until 10:00 PM', rating: '4.7', color: 'bg-emerald-100 text-emerald-800', imageUrl: '/places/food-3.jpg' },
-  { id: '4', name: 'Kudu Coffee & Roastery', category: 'Cafe', location: 'Piassa', detail: 'Open until 8:00 PM', rating: '4.8', color: 'bg-amber-100 text-amber-800', imageUrl: '/places/cafe-1.jpg' },
-  { id: '5', name: 'Mama Diner', category: 'Modern African', location: 'Gerji', detail: 'Open until 9:30 PM', rating: '4.6', color: 'bg-orange-100 text-orange-800', imageUrl: '/places/food-5.jpg' },
+  { id: '4', name: 'Kudu Coffee & Roastery', category: 'Cafe', location: 'Piassa', detail: 'Open until 8:00 PM', rating: '4.8', color: 'bg-sky-100 text-sky-800', imageUrl: '/places/cafe-1.jpg' },
+  { id: '5', name: 'Mama Diner', category: 'Modern African', location: 'Gerji', detail: 'Open until 9:30 PM', rating: '4.6', color: 'bg-blue-100 text-blue-800', imageUrl: '/places/food-5.jpg' },
   { id: '6', name: 'Garden Brunch House', category: 'Brunch', location: 'CMC', detail: 'Open until 4:00 PM', rating: '4.7', color: 'bg-emerald-100 text-emerald-800', imageUrl: '/places/food-6.jpg' },
 ]
 

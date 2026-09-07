@@ -27,7 +27,7 @@ export default function Footer() {
   const hideOnMobile = pathname !== '/'
 
   return (
-    <footer className={`footer-warm border-t border-app-border text-white ${hideOnMobile ? 'hidden md:block' : 'block'}`}>
+    <footer className={`footer-warm gold-stripe-t relative border-t border-app-border text-white ${hideOnMobile ? 'hidden md:block' : 'block'}`}>
       <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 gap-10 md:grid-cols-[1.4fr_1fr_1fr_1fr]">
           <div>
