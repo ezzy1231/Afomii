@@ -116,7 +116,7 @@ export default function RestaurantDetail({ restaurant }: { restaurant: Restauran
             onClick={toggleSaved}
               className={cn(
                 'flex size-11 items-center justify-center rounded-full border border-app-border transition-transform hover:-translate-y-0.5 hover:scale-105 active:scale-90',
-                saved ? 'bg-ember text-[#080C17]' : 'bg-app-card text-app-fg'
+                saved ? 'bg-ember text-white' : 'bg-app-card text-app-fg'
               )}
           >
             <Bookmark className={cn('size-4', saved && 'fill-current')} strokeWidth={2.5} />
@@ -190,7 +190,7 @@ export default function RestaurantDetail({ restaurant }: { restaurant: Restauran
               onClick={toggleSaved}
               className={cn(
                 'glass glass-hover flex flex-col items-center gap-1.5 rounded-2xl py-4 text-xs font-semibold',
-                active ? 'bg-ember text-[#080C17]' : 'text-app-fg'
+                active ? 'bg-ember text-white' : 'text-app-fg'
               )}
             >
               <Icon className={cn('size-5', active ? 'fill-current text-white' : 'text-ember')} strokeWidth={2.5} />
@@ -210,7 +210,7 @@ export default function RestaurantDetail({ restaurant }: { restaurant: Restauran
               onClick={() => setSelectedBranch(b.id)}
               className={cn(
                 'glass glass-hover flex w-56 shrink-0 items-center justify-between gap-2 rounded-2xl p-3 text-left transition-all duration-200',
-                selectedBranch === b.id ? 'bg-ember text-[#080C17]' : 'text-app-fg'
+                selectedBranch === b.id ? 'bg-ember text-white' : 'text-app-fg'
               )}
             >
               <span className="min-w-0">
@@ -398,7 +398,7 @@ export default function RestaurantDetail({ restaurant }: { restaurant: Restauran
                 <div className="mt-3 grid grid-cols-2 gap-2">
                   <Link
                     href={`/ride?to=${encodeURIComponent(restaurant.name)}${branch?.latitude != null && branch?.longitude != null ? `&lat=${branch.latitude}&lng=${branch.longitude}` : ''}`}
-                    className="flex items-center justify-center gap-1.5 rounded-xl bg-gradient-to-br from-[#F0A848] to-[#D28A37] py-2.5 text-xs font-semibold uppercase tracking-wider text-[#080C17] shadow-[0_2px_8px_rgb(240 168 72 / 0.3)] transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98]"
+                    className="flex items-center justify-center gap-1.5 rounded-xl bg-gradient-to-br from-ember to-ember-deep py-2.5 text-xs font-semibold uppercase tracking-wider text-white shadow-[0_2px_8px_rgb(var(--ember-rgb)/0.3)] transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98]"
                   >
                     <Navigation className="size-3.5" strokeWidth={2.5} />
                     Go

@@ -134,7 +134,7 @@ export default function EventDetail({ event }: { event: Event }) {
         <div className="mx-auto max-w-sm">
           <div className="relative overflow-hidden rounded-2xl border border-app-border bg-ink p-8 text-center shadow-elevate animate-pop-in">
             <div className="absolute inset-x-0 top-0 h-2 bg-ember" aria-hidden />
-            <div className="mx-auto mb-4 flex size-14 items-center justify-center rounded-full border border-app-border bg-ember text-[#080C17]">
+            <div className="mx-auto mb-4 flex size-14 items-center justify-center rounded-full border border-app-border bg-ember text-white">
               <Check className="size-7" strokeWidth={2.5} />
             </div>
             <h1 className="text-3xl font-bold text-white">You&apos;re going!</h1>
@@ -161,7 +161,7 @@ export default function EventDetail({ event }: { event: Event }) {
             <div className="mt-6 flex flex-col gap-3">
               <Link
                 href="/settings"
-                className="rounded-xl bg-gradient-to-br from-[#F0A848] to-[#D28A37] px-5 py-3 text-sm font-semibold text-[#080C17] shadow-[0_2px_8px_rgb(240 168 72 / 0.3)] transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98]"
+                className="rounded-xl bg-gradient-to-br from-ember to-ember-deep px-5 py-3 text-sm font-semibold text-white shadow-[0_2px_8px_rgb(var(--ember-rgb)/0.3)] transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98]"
               >
                 View my tickets
               </Link>
@@ -267,7 +267,7 @@ export default function EventDetail({ event }: { event: Event }) {
           {/* Organizer */}
           <div className="mt-8 flex items-center justify-between gap-4 glass rounded-2xl p-4">
             <div className="flex min-w-0 items-center gap-3.5">
-              <span className="flex size-12 shrink-0 items-center justify-center rounded-xl border border-app-border bg-ember text-lg font-bold text-[#080C17]">
+              <span className="flex size-12 shrink-0 items-center justify-center rounded-xl border border-app-border bg-ember text-lg font-bold text-white">
                 {organizerName.charAt(0).toUpperCase()}
               </span>
               <span className="min-w-0">
@@ -339,7 +339,7 @@ export default function EventDetail({ event }: { event: Event }) {
                   type="button"
                   onClick={handleBook}
                   disabled={totalQty === 0 || submitting || signedIn === false}
-                  className="mt-4 w-full rounded-xl bg-gradient-to-br from-[#F0A848] to-[#D28A37] py-3 text-sm font-semibold text-[#080C17] shadow-[0_4px_16px_rgb(240 168 72 / 0.3)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_6px_20px_rgb(240 168 72 / 0.3)] active:translate-y-0 active:scale-[0.98] disabled:pointer-events-none disabled:opacity-40"
+                  className="mt-4 w-full rounded-xl bg-gradient-to-br from-ember to-ember-deep py-3 text-sm font-semibold text-white shadow-[0_4px_16px_rgb(var(--ember-rgb)/0.35)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_6px_20px_rgb(var(--ember-rgb)/0.45)] active:translate-y-0 active:scale-[0.98] disabled:pointer-events-none disabled:opacity-40"
                 >
                   {submitting
                     ? 'Processing…'

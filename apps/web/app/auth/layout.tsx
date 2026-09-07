@@ -5,7 +5,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
     <div className="min-h-screen bg-app-bg flex flex-col">
       <header className="border-b-[1.5px] border-app-border bg-[var(--nav-bg)] px-6 py-5 nav-blur">
         <Link href="/" className="group inline-flex items-center gap-2">
-          <span className="flex size-8 items-center justify-center rounded-[10px] border border-app-border bg-ember text-sm font-extrabold text-[#080C17] shadow-soft transition-transform group-hover:rotate-6">
+          <span className="flex size-8 items-center justify-center rounded-[10px] border border-app-border bg-ember text-sm font-extrabold text-white shadow-soft transition-transform group-hover:rotate-6">
             U
           </span>
           <span className="text-2xl font-bold tracking-tight text-app-fg">UrbanExplore</span>

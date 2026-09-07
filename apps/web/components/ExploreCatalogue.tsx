@@ -307,7 +307,7 @@ export default function ExploreCatalogue({
                   className={cn(
                     'min-h-10 rounded-xl border px-3.5 py-2 text-xs font-semibold transition-all duration-200 active:scale-[0.97]',
                     dateRange === chip
-                      ? 'border-transparent bg-gradient-to-br from-[#F0A848] to-[#D28A37] text-[#080C17] shadow-[0_2px_8px_rgb(240 168 72 / 0.3)]'
+                      ? 'border-transparent bg-gradient-to-br from-ember to-ember-deep text-white shadow-[0_2px_8px_rgb(var(--ember-rgb)/0.3)]'
                       : 'border-app-border bg-app-card/70 text-app-muted hover:border-ember/25 hover:text-app-fg'
                   )}
                 >
@@ -351,7 +351,7 @@ export default function ExploreCatalogue({
             className={cn(
               'relative inline-flex shrink-0 items-center gap-1.5 rounded-xl border px-3.5 py-2 text-xs font-semibold transition-all duration-200 active:scale-[0.98]',
               filtersOpen || activeCount
-                ? 'border-transparent bg-gradient-to-br from-[#F0A848] to-[#D28A37] text-[#080C17] shadow-[0_2px_8px_rgb(240 168 72 / 0.3)]'
+                ? 'border-transparent bg-gradient-to-br from-ember to-ember-deep text-white shadow-[0_2px_8px_rgb(var(--ember-rgb)/0.3)]'
                 : 'glass-subtle border-app-border text-app-muted hover:-translate-y-0.5 hover:text-app-fg'
             )}
             aria-label="Filters"
@@ -416,7 +416,7 @@ export default function ExploreCatalogue({
                       {featured.category} · {featured.detail} · {featured.location}
                     </p>
                   </div>
-                  <span className="rounded-xl bg-ember px-5 py-2.5 text-sm font-semibold text-[#080C17] shadow-[0_2px_12px_rgb(240 168 72 / 0.3)] transition-transform duration-200 hover:-translate-y-0.5 group-hover:scale-[1.03]">
+                  <span className="rounded-xl bg-ember px-5 py-2.5 text-sm font-semibold text-white shadow-[0_2px_12px_rgb(var(--ember-rgb)/0.45)] transition-transform duration-200 hover:-translate-y-0.5 group-hover:scale-[1.03]">
                     Reserve Table
                   </span>
                 </div>
@@ -467,7 +467,7 @@ export default function ExploreCatalogue({
                       {featured.rating}
                     </span>
                   </div>
-                  <span className="mt-4 inline-flex items-center gap-2 rounded-xl bg-ember px-5 py-2.5 text-sm font-semibold text-[#080C17] shadow-[0_2px_12px_rgb(240 168 72 / 0.3)] transition-transform duration-200 group-hover:scale-[1.03]">
+                  <span className="mt-4 inline-flex items-center gap-2 rounded-xl bg-ember px-5 py-2.5 text-sm font-semibold text-white shadow-[0_2px_12px_rgb(var(--ember-rgb)/0.45)] transition-transform duration-200 group-hover:scale-[1.03]">
                     Book Experience
                     <ArrowRight className="size-4" strokeWidth={2.5} />
                   </span>
@@ -539,7 +539,7 @@ export default function ExploreCatalogue({
                         <span className="price-pill">{item.rating}</span>
                         <Link
                           href={detailHref}
-                          className="rounded-xl bg-ember px-4 py-2 text-xs font-semibold text-[#080C17] shadow-[0_2px_8px_rgb(240 168 72 / 0.3)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_4px_12px_rgb(240 168 72 / 0.3)] active:translate-y-0"
+                          className="rounded-xl bg-ember px-4 py-2 text-xs font-semibold text-white shadow-[0_2px_8px_rgb(var(--ember-rgb)/0.3)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_4px_12px_rgb(var(--ember-rgb)/0.4)] active:translate-y-0"
                         >
                           Book Tickets
                         </Link>

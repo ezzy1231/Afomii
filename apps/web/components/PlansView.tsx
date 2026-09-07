@@ -175,7 +175,7 @@ export default function PlansView({ userId }: { userId: string }) {
             className={cn(
               "flex-1 rounded-xl px-4 py-2.5 text-sm font-semibold capitalize transition-all duration-200",
               tab === t
-                ? "bg-gradient-to-br from-[#F0A848] to-[#D28A37] text-[#080C17] shadow-[0_2px_8px_rgb(240 168 72 / 0.3)]"
+                ? "bg-gradient-to-br from-ember to-ember-deep text-white shadow-[0_2px_8px_rgb(var(--ember-rgb)/0.3)]"
                 : "text-app-muted hover:bg-app-elevated/60 hover:text-app-fg",
             )}
           >
@@ -203,7 +203,7 @@ export default function PlansView({ userId }: { userId: string }) {
             action={
               <Link
                 href="/restaurants"
-                className="inline-flex min-h-[44px] items-center gap-2 rounded-full bg-gradient-to-br from-[#F0A848] to-[#D28A37] px-6 text-sm font-semibold text-[#080C17] shadow-[0_2px_8px_rgb(240 168 72 / 0.3)] transition-all duration-200 hover:-translate-y-0.5"
+                className="inline-flex min-h-[44px] items-center gap-2 rounded-full bg-gradient-to-br from-ember to-ember-deep px-6 text-sm font-semibold text-white shadow-[0_2px_8px_rgb(var(--ember-rgb)/0.3)] transition-all duration-200 hover:-translate-y-0.5"
               >
                 Explore restaurants
               </Link>
@@ -424,7 +424,7 @@ export default function PlansView({ userId }: { userId: string }) {
                         className={cn(
                           "inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-xs font-semibold uppercase tracking-wider transition-all duration-200",
                           bookable
-                            ? "bg-gradient-to-br from-[#F0A848] to-[#D28A37] text-[#080C17] shadow-[0_2px_8px_rgb(240 168 72 / 0.3)] hover:-translate-y-0.5 hover:shadow-[0_4px_12px_rgb(240 168 72 / 0.3)] active:translate-y-0 active:scale-[0.98]"
+                            ? "bg-gradient-to-br from-ember to-ember-deep text-white shadow-[0_2px_8px_rgb(var(--ember-rgb)/0.3)] hover:-translate-y-0.5 hover:shadow-[0_4px_12px_rgb(var(--ember-rgb)/0.4)] active:translate-y-0 active:scale-[0.98]"
                             : "bg-app-input text-app-muted/50 cursor-not-allowed",
                         )}
                       >
