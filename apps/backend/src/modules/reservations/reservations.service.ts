@@ -7,7 +7,6 @@ import {
 } from "@nestjs/common";
 import { PrismaService } from "../../common/prisma/prisma.service";
 import { RedisService } from "../../common/redis/redis.service";
-import { BookingMode } from "@prisma/client";
 
 @Injectable()
 export class ReservationsService {
@@ -276,9 +275,8 @@ export class ReservationsService {
   }
 
   private parseTime(t: string): number {
-    let [h, m] = t.split(":").map((n) => parseInt(n, 10));
-    if (h === 0 && m === 0) h = 24; // "00:00" = midnight end-of-day
-    return h * 60 + (m || 0);
+    const [h, m] = t.split(":").map((n) => parseInt(n, 10));
+    return h * 60 + (m || 0) + (h === 0 && m === 0 ? 24 * 60 : 0); // "00:00" = midnight end-of-day
   }
 
   private formatTime(mins: number): string {

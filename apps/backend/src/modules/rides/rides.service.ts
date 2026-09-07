@@ -52,7 +52,7 @@ export class RidesService {
     const allOptions: RideOption[] = [];
     const providerBadges = this.assignBadges(results);
 
-    results.forEach((result, index) => {
+    results.forEach((result) => {
       if (result.status === "fulfilled") {
         const options = result.value.map((opt) => ({
           ...opt,
