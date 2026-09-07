@@ -85,7 +85,7 @@ export default function OrganizerProfile({
             priority
           />
         ) : (
-          <div className="absolute inset-0 flex items-center justify-center bg-[linear-gradient(140deg,rgb(var(--ember-rgb)/0.35),rgb(var(--ink-rgb)/0.95))]">
+          <div className="absolute inset-0 flex items-center justify-center bg-[linear-gradient(140deg,rgb(240 168 72 / 0.3),rgb(var(--ink-rgb)/0.95))]">
             <span className="text-7xl font-bold text-white">
               {initials}
             </span>
@@ -198,7 +198,7 @@ export default function OrganizerProfile({
                   {nextEvent.venueName}
                 </span>
               </p>
-              <span className="mt-4 inline-flex items-center gap-2 rounded-2xl bg-gradient-to-br from-ember to-ember-deep px-5 py-3 text-sm font-semibold text-white shadow-[0_2px_8px_rgb(var(--ember-rgb)/0.3)] transition-all duration-200 group-hover:scale-[1.02] group-active:scale-[0.98]">
+              <span className="mt-4 inline-flex items-center gap-2 rounded-2xl bg-gradient-to-br from-[#F0A848] to-[#D28A37] px-5 py-3 text-sm font-semibold text-[#080C17] shadow-[0_2px_8px_rgb(240 168 72 / 0.3)] transition-all duration-200 group-hover:scale-[1.02] group-active:scale-[0.98]">
                 {nextEvent.priceFrom != null
                   ? `Book from ETB ${nextEvent.priceFrom}`
                   : "Book now"}

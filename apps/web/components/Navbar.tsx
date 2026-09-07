@@ -36,7 +36,7 @@ export default async function Navbar() {
             href="/"
             className="group flex items-center gap-2.5 transition-transform active:scale-[0.98]"
           >
-            <span className="flex size-8 items-center justify-center rounded-xl bg-gradient-to-br from-ember to-ember-deep text-sm font-bold text-white shadow-[0_2px_8px_rgb(var(--ember-rgb)/0.35)] transition-transform group-hover:scale-105">
+            <span className="flex size-8 items-center justify-center rounded-xl bg-gradient-to-br from-[#F0A848] to-[#D28A37] text-sm font-bold text-[#080C17] shadow-[0_2px_8px_rgb(240_168_72/0.35)] transition-transform group-hover:scale-105">
               U
             </span>
             <span className="text-lg font-bold tracking-tight text-app-fg">
@@ -56,7 +56,7 @@ export default async function Navbar() {
             {user ? (
               <Link
                 href="/settings"
-                className="ml-1 flex size-9 items-center justify-center rounded-xl bg-gradient-to-br from-ember to-ember-deep text-sm font-bold text-white shadow-[0_2px_8px_rgb(var(--ember-rgb)/0.3)] transition-transform hover:scale-105 active:scale-95"
+                className="ml-1 flex size-9 items-center justify-center rounded-xl bg-gradient-to-br from-[#F0A848] to-[#D28A37] text-sm font-bold text-[#080C17] shadow-[0_2px_8px_rgb(240_168_72/0.3)] transition-transform hover:scale-105 active:scale-95"
                 aria-label="Your account"
               >
                 {initial ?? 'U'}

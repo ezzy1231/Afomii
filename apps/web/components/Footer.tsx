@@ -32,7 +32,7 @@ export default function Footer() {
         <div className="grid grid-cols-1 gap-10 md:grid-cols-[1.4fr_1fr_1fr_1fr]">
           <div>
             <div className="flex items-center gap-2.5">
-              <span className="flex size-8 items-center justify-center rounded-xl bg-gradient-to-br from-ember to-ember-deep text-sm font-bold text-white">
+              <span className="flex size-8 items-center justify-center rounded-xl bg-gradient-to-br from-[#F0A848] to-[#D28A37] text-sm font-bold text-[#080C17]">
                 U
               </span>
               <p className="text-2xl font-bold tracking-tight text-white">UrbanExplore</p>

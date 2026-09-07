@@ -92,7 +92,7 @@ export default function NotificationsBell({ initialCount }: { initialCount: numb
       >
         <Bell className="size-4" strokeWidth={2.5} />
         {unread > 0 && (
-          <span className="absolute -right-0.5 -top-0.5 flex size-4 items-center justify-center rounded-full bg-ember text-[9px] font-bold text-white">
+          <span className="absolute -right-0.5 -top-0.5 flex size-4 items-center justify-center rounded-full bg-ember text-[9px] font-bold text-[#080C17]">
             {unread > 9 ? '9+' : unread}
           </span>
         )}

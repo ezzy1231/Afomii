@@ -60,7 +60,7 @@ export default function RideMap({ pickup, destination, routePath, onMapClick }: 
   const emberIcon = (label: string) =>
     L.divIcon({
       className: '',
-      html: `<div class="flex h-8 min-w-8 items-center justify-center rounded-full bg-ember px-2 text-[11px] font-bold text-white shadow-[0_2px_8px_rgba(0,0,0,0.3)] ring-2 ring-white">${label}</div>`,
+      html: `<div class="flex h-8 min-w-8 items-center justify-center rounded-full bg-ember px-2 text-[11px] font-bold text-[#080C17] shadow-[0_2px_8px_rgba(0,0,0,0.3)] ring-2 ring-white">${label}</div>`,
       iconSize: [32, 32],
       iconAnchor: [16, 16],
     })

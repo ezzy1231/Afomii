@@ -36,7 +36,7 @@ export default function MobileNavigation({ isAuthenticated }: { isAuthenticated:
             className={cn(
               'flex min-h-11 min-w-11 flex-col items-center justify-center gap-0.5 rounded-2xl px-2 py-1 text-[10px] transition-all duration-200 active:scale-90',
               active
-                ? 'bg-ember text-white shadow-[0_2px_8px_rgb(var(--ember-rgb)/0.35)]'
+                ? 'bg-gradient-to-br from-[#F0A848] to-[#D28A37] text-[#080C17] shadow-[0_2px_8px_rgb(240_168_72/0.35)]'
                 : 'text-app-muted'
             )}
           >
@@ -56,7 +56,7 @@ export default function MobileNavigation({ isAuthenticated }: { isAuthenticated:
         className={cn(
           'flex min-h-11 min-w-11 flex-col items-center justify-center gap-0.5 rounded-2xl px-2 py-1 text-[10px] transition-all duration-200 active:scale-90',
           accountActive
-            ? 'bg-ember text-white shadow-[0_2px_8px_rgb(var(--ember-rgb)/0.35)]'
+            ? 'bg-gradient-to-br from-[#F0A848] to-[#D28A37] text-[#080C17] shadow-[0_2px_8px_rgb(240_168_72/0.35)]'
             : 'text-app-muted'
         )}
       >

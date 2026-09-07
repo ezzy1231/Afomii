@@ -10,33 +10,33 @@
 
 @layer base {
   :root {
-    /* ── Surfaces — LIGHT: near-white neutral ─────────────────── */
-    --bg-primary-rgb: 248 248 250;
-    --bg-alt-rgb: 241 242 244;
-    --bg-card-rgb: 255 255 255;
-    --bg-input-rgb: 244 245 247;
-    --bg-elevated-rgb: 237 238 241;
+    /* ── Surfaces — LIGHT: warm cream (ref palette) ──────────── */
+    --bg-primary-rgb: 248 242 235;
+    --bg-alt-rgb: 243 237 229;
+    --bg-card-rgb: 255 253 249;
+    --bg-input-rgb: 244 239 233;
+    --bg-elevated-rgb: 238 232 223;
 
-    /* Ink text */
-    --text-primary-rgb: 23 23 26;
-    --text-secondary-rgb: 64 64 70;
-    --text-muted-rgb: 120 121 130;
+    /* Navy ink text */
+    --text-primary-rgb: 18 22 34;
+    --text-secondary-rgb: 62 72 92;
+    --text-muted-rgb: 107 118 136;
 
-    /* ── Single accent — ember (kept warm, used sparingly) ───── */
-    --ember-rgb: 235 92 30;
-    --ember-deep-rgb: 200 68 18;
-    --ember-soft-rgb: 253 235 225;
+    /* ── Single accent — amber gold (ref highlight) ──────────── */
+    --ember-rgb: 232 154 60;
+    --ember-deep-rgb: 200 125 40;
+    --ember-soft-rgb: 252 238 214;
     /* Legacy accent aliases → resolve to the single accent so old
        class names keep working but no longer compete. */
-    --amber-rgb: 235 92 30;
-    --amber-soft-rgb: 200 68 18;
-    --gold-rgb: 235 92 30;
-    --gold-soft-rgb: 200 68 18;
-    --moss-rgb: 34 128 74;
+    --amber-rgb: 232 154 60;
+    --amber-soft-rgb: 200 125 40;
+    --gold-rgb: 232 154 60;
+    --gold-soft-rgb: 200 125 40;
+    --moss-rgb: 52 122 88;
 
-    --success-rgb: 26 128 82;
-    --danger-rgb: 213 57 47;
-    --warning-rgb: 217 119 6;
+    --success-rgb: 42 143 93;
+    --danger-rgb: 210 72 60;
+    --warning-rgb: 220 145 40;
 
     --bg-primary: rgb(var(--bg-primary-rgb));
     --bg-alt: rgb(var(--bg-alt-rgb));
@@ -47,65 +47,66 @@
     --text-secondary: rgb(var(--text-secondary-rgb));
     --text-muted: rgb(var(--text-muted-rgb));
 
-    /* ── Glass tokens ────────────────────────────────────────── */
-    --glass-bg: rgb(255 255 255 / 0.62);
-    --glass-bg-strong: rgb(255 255 255 / 0.78);
-    --glass-bg-subtle: rgb(255 255 255 / 0.42);
+    /* ── Glass tokens — warm white glass on cream ────────────── */
+    --glass-bg: rgb(255 253 249 / 0.62);
+    --glass-bg-strong: rgb(255 253 249 / 0.78);
+    --glass-bg-subtle: rgb(255 253 249 / 0.42);
     --glass-border: rgb(255 255 255 / 0.65);
     --glass-border-soft: rgb(255 255 255 / 0.4);
     --glass-highlight: rgb(255 255 255 / 0.85);
-    --glass-shadow: 0 8px 32px rgb(16 18 27 / 0.08);
-    --glass-shadow-strong: 0 12px 40px rgb(16 18 27 / 0.12);
+    --glass-shadow: 0 8px 32px rgb(13 17 30 / 0.08);
+    --glass-shadow-strong: 0 12px 40px rgb(13 17 30 / 0.12);
     --glass-blur: 20px;
     --glass-blur-strong: 28px;
 
-    /* Hairlines — soft, neutral, never hard ink */
-    --border: rgb(23 23 26 / 0.08);
-    --border-soft: rgb(23 23 26 / 0.06);
-    --nav-bg: rgb(255 255 255 / 0.62);
+    /* Hairlines — navy-tinted, never hard ink */
+    --border: rgb(18 22 34 / 0.08);
+    --border-soft: rgb(18 22 34 / 0.06);
+    --nav-bg: rgb(255 253 249 / 0.62);
 
-    /* ── Soft layered shadows ────────────────────────────────── */
-    --shadow-sm: 0 1px 2px rgb(16 18 27 / 0.04), 0 2px 8px rgb(16 18 27 / 0.04);
-    --shadow-md: 0 2px 4px rgb(16 18 27 / 0.04), 0 8px 24px rgb(16 18 27 / 0.07);
-    --shadow-lg: 0 4px 8px rgb(16 18 27 / 0.05), 0 16px 48px rgb(16 18 27 / 0.1);
-    --hard-color: rgb(16 18 27);
+    /* ── Soft layered shadows (navy-tinted) ──────────────────── */
+    --shadow-sm: 0 1px 2px rgb(13 17 30 / 0.04), 0 2px 8px rgb(13 17 30 / 0.04);
+    --shadow-md: 0 2px 4px rgb(13 17 30 / 0.04), 0 8px 24px rgb(13 17 30 / 0.07);
+    --shadow-lg: 0 4px 8px rgb(13 17 30 / 0.05), 0 16px 48px rgb(13 17 30 / 0.1);
+    --hard-color: rgb(13 17 30);
 
     --radius-sm: 10px;
     --radius-md: 14px;
     --radius-lg: 18px;
     --radius-xl: 24px;
 
-    /* ── Ambient background glow (subtle blurred shapes) ─────── */
-    --glow-a-rgb: 235 92 30;
-    --glow-b-rgb: 88 101 242;
+    /* ── Ambient background glow: amber over muted navy ───────── */
+    --glow-a-rgb: 232 154 60;
+    --glow-b-rgb: 59 74 107;
     --glow-opacity: 0.16;
 
     color-scheme: light;
   }
 
   [data-theme='dark'] {
-    --bg-primary-rgb: 15 15 18;
-    --bg-alt-rgb: 20 20 24;
-    --bg-card-rgb: 23 23 27;
-    --bg-input-rgb: 27 27 32;
-    --bg-elevated-rgb: 33 33 39;
+    /* ── Surfaces — DARK: reference midnight navy ───────────── */
+    --bg-primary-rgb: 8 12 23;
+    --bg-alt-rgb: 13 17 30;
+    --bg-card-rgb: 16 21 36;
+    --bg-input-rgb: 20 25 41;
+    --bg-elevated-rgb: 26 32 50;
 
-    --text-primary-rgb: 244 244 247;
-    --text-secondary-rgb: 196 197 205;
-    --text-muted-rgb: 143 144 154;
+    --text-primary-rgb: 240 236 228;
+    --text-secondary-rgb: 185 190 203;
+    --text-muted-rgb: 132 140 158;
 
-    --ember-rgb: 255 122 61;
-    --ember-deep-rgb: 255 122 61;
-    --ember-soft-rgb: 61 31 20;
-    --amber-rgb: 255 122 61;
-    --amber-soft-rgb: 255 122 61;
-    --gold-rgb: 255 122 61;
-    --gold-soft-rgb: 255 122 61;
-    --moss-rgb: 74 165 112;
+    --ember-rgb: 240 168 72;
+    --ember-deep-rgb: 210 138 55;
+    --ember-soft-rgb: 66 47 22;
+    --amber-rgb: 240 168 72;
+    --amber-soft-rgb: 210 138 55;
+    --gold-rgb: 240 168 72;
+    --gold-soft-rgb: 210 138 55;
+    --moss-rgb: 88 178 132;
 
-    --success-rgb: 74 200 128;
+    --success-rgb: 88 200 138;
     --danger-rgb: 255 105 97;
-    --warning-rgb: 255 183 77;
+    --warning-rgb: 240 168 72;
 
     --bg-primary: rgb(var(--bg-primary-rgb));
     --bg-alt: rgb(var(--bg-alt-rgb));
@@ -116,10 +117,10 @@
     --text-secondary: rgb(var(--text-secondary-rgb));
     --text-muted: rgb(var(--text-muted-rgb));
 
-    /* Glass on dark — smoky translucent panels over the deep base */
-    --glass-bg: rgb(30 30 36 / 0.55);
-    --glass-bg-strong: rgb(30 30 36 / 0.72);
-    --glass-bg-subtle: rgb(30 30 36 / 0.38);
+    /* Glass on dark — smoky navy glass over the deep base */
+    --glass-bg: rgb(22 28 46 / 0.55);
+    --glass-bg-strong: rgb(22 28 46 / 0.72);
+    --glass-bg-subtle: rgb(22 28 46 / 0.38);
     --glass-border: rgb(255 255 255 / 0.1);
     --glass-border-soft: rgb(255 255 255 / 0.07);
     --glass-highlight: rgb(255 255 255 / 0.14);
@@ -128,16 +129,16 @@
 
     --border: rgb(255 255 255 / 0.09);
     --border-soft: rgb(255 255 255 / 0.06);
-    --nav-bg: rgb(15 15 18 / 0.6);
+    --nav-bg: rgb(8 12 23 / 0.6);
 
     --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.2), 0 2px 8px rgb(0 0 0 / 0.2);
     --shadow-md: 0 2px 4px rgb(0 0 0 / 0.2), 0 8px 24px rgb(0 0 0 / 0.28);
     --shadow-lg: 0 4px 8px rgb(0 0 0 / 0.2), 0 16px 48px rgb(0 0 0 / 0.4);
     --hard-color: rgb(0 0 0);
 
-    --glow-a-rgb: 255 122 61;
-    --glow-b-rgb: 99 91 255;
-    --glow-opacity: 0.2;
+    --glow-a-rgb: 240 168 72;
+    --glow-b-rgb: 64 84 120;
+    --glow-opacity: 0.22;
 
     color-scheme: dark;
   }
@@ -359,10 +360,10 @@
       rgb(var(--ember-rgb)) 0%,
       rgb(var(--ember-deep-rgb)) 100%
     );
-    color: #FFFFFF;
+    color: #080C17;
     border: none;
     border-radius: 14px;
-    font-weight: 600;
+    font-weight: 700;
     padding: 0.75rem 1.75rem;
     box-shadow: 0 2px 8px rgb(var(--ember-rgb) / 0.3),
       0 8px 24px rgb(var(--ember-rgb) / 0.18);
@@ -649,23 +650,22 @@
     letter-spacing: 0.02em;
   }
 
-  /* ── Consumer hero — soft radial wash over the neutral base ─ */
+  /* ── Consumer hero — amber glow over the navy base (ref) ─── */
   .hero-warm {
     background:
-      radial-gradient(60% 90% at 15% -10%, rgb(var(--ember-rgb) / 0.07), transparent 60%),
-      radial-gradient(45% 70% at 95% 5%, rgb(var(--glow-b-rgb) / 0.05), transparent 55%),
+      radial-gradient(60% 90% at 15% -10%, rgb(var(--ember-rgb) / 0.1), transparent 60%),
+      radial-gradient(45% 70% at 95% 5%, rgb(var(--glow-b-rgb) / 0.08), transparent 55%),
       transparent;
   }
 
-  /* ── Footer — darker sibling of hero-warm: same warm language
-     but grounded in the ink base so it reads as a calm close.
-     Glows sit at opposite corners from the hero for variety,
-     staying faint enough to blend with the ink, not compete. ─ */
+  /* ── Footer — darker sibling of hero-warm: deep navy with the
+     amber glow at opposite corners, blending with the reference's
+     midnight base and warm highlights. ─ */
   .footer-warm {
     background:
-      radial-gradient(55% 80% at 90% 10%, rgb(var(--ember-rgb) / 0.14), transparent 60%),
-      radial-gradient(45% 70% at 6% 100%, rgb(var(--amber-rgb) / 0.1), transparent 58%),
-      rgb(23 23 26);
+      radial-gradient(55% 80% at 90% 10%, rgb(var(--ember-rgb) / 0.16), transparent 60%),
+      radial-gradient(45% 70% at 6% 100%, rgb(var(--glow-b-rgb) / 0.12), transparent 58%),
+      rgb(10 14 26);
   }
 
   /* ── Dotted texture → very faint dot grid (kept for legacy) ─ */

@@ -381,7 +381,7 @@ export function ReservationForm({
             <button
               type="submit"
               disabled={submitting || signedIn === false}
-              className="w-full rounded-xl bg-gradient-to-br from-ember to-ember-deep py-3 text-sm font-semibold text-white shadow-[0_2px_8px_rgb(var(--ember-rgb)/0.3)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_4px_12px_rgb(var(--ember-rgb)/0.4)] active:translate-y-0 active:scale-[0.98] disabled:opacity-40"
+              className="w-full rounded-xl bg-gradient-to-br from-[#F0A848] to-[#D28A37] py-3 text-sm font-semibold text-[#080C17] shadow-[0_2px_8px_rgb(240 168 72 / 0.3)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_4px_12px_rgb(240 168 72 / 0.3)] active:translate-y-0 active:scale-[0.98] disabled:opacity-40"
             >
               {submitting ? "Reserving…" : "Confirm Reservation"}
             </button>

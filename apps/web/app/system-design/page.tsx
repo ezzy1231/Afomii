@@ -1,11 +1,11 @@
 import { ArrowRight, Bell, CalendarDays, CarFront, Check, ShieldCheck, Sparkles, Star, Ticket, Users, Utensils } from 'lucide-react'
 
 const palette = [
-  { name: 'Ember (accent)', hex: '#EB5C1E', className: 'bg-[#EB5C1E]' },
-  { name: 'Near-white base', hex: '#F8F8FA', className: 'bg-[#F8F8FA]' },
-  { name: 'Near-black ink', hex: '#0F0F12', className: 'bg-[#0F0F12]' },
+  { name: 'Amber gold (accent)', hex: '#E89A3C', className: 'bg-[#E89A3C]' },
+  { name: 'Warm cream base', hex: '#F8F2EB', className: 'bg-[#F8F2EB]' },
+  { name: 'Midnight navy', hex: '#080C17', className: 'bg-[#080C17]' },
   { name: 'Glass white', hex: 'white/62%', className: 'bg-white/60' },
-  { name: 'Glass dark', hex: '#1E1E24/55%', className: 'bg-[#1E1E24]/55' },
+  { name: 'Glass dark', hex: '#161C2E/55%', className: 'bg-[#161C2E]/55' },
 ]
 
 const featureCards = [
@@ -30,7 +30,7 @@ export default function SystemDesignPage() {
         <header className="glass rounded-2xl">
           <div className="flex items-center justify-between gap-5 px-6 py-4">
             <div className="flex items-center gap-3">
-              <div className="flex size-11 items-center justify-center rounded-xl bg-gradient-to-br from-ember to-ember-deep text-white shadow-[0_2px_8px_rgb(var(--ember-rgb)/0.35)]">
+              <div className="flex size-11 items-center justify-center rounded-xl bg-gradient-to-br from-[#F0A848] to-[#D28A37] text-[#080C17] shadow-[0_2px_8px_rgb(240 168 72 / 0.3)]">
                 <CarFront className="h-5 w-5" />
               </div>
               <div>
@@ -51,7 +51,7 @@ export default function SystemDesignPage() {
               <div className="glass-subtle flex size-10 items-center justify-center rounded-full text-app-muted">
                 <Bell className="h-4 w-4" />
               </div>
-              <button className="rounded-full bg-gradient-to-br from-ember to-ember-deep px-4 py-2 text-sm font-semibold text-white shadow-[0_2px_8px_rgb(var(--ember-rgb)/0.3)] transition-all duration-200 hover:-translate-y-0.5">
+              <button className="rounded-full bg-gradient-to-br from-[#F0A848] to-[#D28A37] px-4 py-2 text-sm font-semibold text-[#080C17] shadow-[0_2px_8px_rgb(240 168 72 / 0.3)] transition-all duration-200 hover:-translate-y-0.5">
                 Get started
               </button>
             </div>
@@ -171,7 +171,7 @@ export default function SystemDesignPage() {
             </div>
 
             <div className="overflow-hidden rounded-2xl">
-              <div className="h-44 bg-[radial-gradient(circle_at_top,rgb(var(--ember-rgb)/0.5),transparent_35%),linear-gradient(135deg,rgb(var(--ember-deep-rgb)/0.8),rgb(var(--ink-rgb)))]" />
+              <div className="h-44 bg-[radial-gradient(circle_at_top,rgb(240 168 72 / 0.3),transparent_35%),linear-gradient(135deg,rgb(var(--ember-deep-rgb)/0.8),rgb(var(--ink-rgb)))]" />
             </div>
 
             <div className="mt-5 space-y-4">
@@ -300,7 +300,7 @@ export default function SystemDesignPage() {
 
               {item.title === 'UI elements' && (
                 <div className="space-y-4">
-                  <button className="w-full rounded-xl bg-gradient-to-br from-ember to-ember-deep px-4 py-3 text-sm font-semibold text-white shadow-[0_2px_8px_rgb(var(--ember-rgb)/0.3)] transition-all duration-200 hover:-translate-y-0.5">
+                  <button className="w-full rounded-xl bg-gradient-to-br from-[#F0A848] to-[#D28A37] px-4 py-3 text-sm font-semibold text-[#080C17] shadow-[0_2px_8px_rgb(240 168 72 / 0.3)] transition-all duration-200 hover:-translate-y-0.5">
                     Primary Button
                   </button>
                   <button className="glass-subtle w-full rounded-xl px-4 py-3 text-sm font-semibold">

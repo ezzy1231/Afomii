@@ -459,7 +459,7 @@ export default function RidePlanner() {
                 'Hands you straight to your ride app',
               ].map((item) => (
                 <li key={item} className="flex items-center gap-2.5 rounded-lg bg-white/40 px-2 py-1 text-sm font-medium text-app-muted dark:bg-white/5">
-                  <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-ember text-white">
+                  <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-ember text-[#080C17]">
                     <Check className="size-3" strokeWidth={3} />
                   </span>
                   {item}
@@ -545,7 +545,7 @@ export default function RidePlanner() {
                   >
                     <span className={cn(
                       'flex size-11 shrink-0 items-center justify-center rounded-xl text-xs font-bold uppercase',
-                      active ? 'bg-ember text-white' : 'bg-app-elevated text-app-muted',
+                      active ? 'bg-ember text-[#080C17]' : 'bg-app-elevated text-app-muted',
                     )}>
                       {ride.providerName.slice(0, 2)}
                     </span>
@@ -629,7 +629,7 @@ export default function RidePlanner() {
               type="button"
               onClick={handleDispatch}
               disabled={!selected || dispatching}
-              className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-gradient-to-br from-ember to-ember-deep px-6 py-3 text-sm font-semibold text-white shadow-[0_4px_16px_rgb(var(--ember-rgb)/0.35)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_6px_20px_rgb(var(--ember-rgb)/0.45)] active:translate-y-0 active:scale-[0.98] disabled:opacity-40 sm:flex-none"
+              className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-gradient-to-br from-[#F0A848] to-[#D28A37] px-6 py-3 text-sm font-semibold text-[#080C17] shadow-[0_4px_16px_rgb(240 168 72 / 0.3)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_6px_20px_rgb(240 168 72 / 0.3)] active:translate-y-0 active:scale-[0.98] disabled:opacity-40 sm:flex-none"
             >
               <CarFront className="size-4" strokeWidth={2.5} />
               <span className="flex flex-col items-start leading-none">
