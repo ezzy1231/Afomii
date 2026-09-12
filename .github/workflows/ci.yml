@@ -63,6 +63,29 @@ jobs:
         run: npm test
         working-directory: apps/web
 
+  web-e2e:
+    name: Web E2E smoke (Playwright)
+    runs-on: ubuntu-latest
+    env:
+      NEXT_PUBLIC_SUPABASE_URL: https://placeholder.supabase.co
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: placeholder-anon-key
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+        working-directory: apps/web
+      - name: Build production server
+        run: npm run build
+        working-directory: apps/web
+      - name: Run E2E (config auto-starts the server)
+        run: npx playwright test
+        working-directory: apps/web
+
   mobile:
     name: Mobile typecheck + unit
     runs-on: ubuntu-latest

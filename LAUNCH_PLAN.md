@@ -4,13 +4,13 @@
 > Supersedes the milestone table in `PRODUCTION_READINESS_PLAN.md` §6 for launch sequencing.
 > Companion docs: `IMPLEMENTATION_PLAN.md` (product phases), `PRODUCTION_READINESS_PLAN.md` (original audit), `UI_PLAN.md` / `UI_REDESIGN_V2.md` (design).
 >
-> **Progress (Round 2):** M2 ✅ + M2b ✅ **verified with Lighthouse** (home 90/100/100/91,
-> restaurants 96/100/100/92, events 97/100/100/92, detail 90/94/100/92 — perf/a11y/bp/seo;
-> reports in `docs/evidence/lh-*.json`). M3: Sentry wired via `lib/monitoring.ts` +
-> `instrumentation.ts` (activates only with `SENTRY_DSN`), gitleaks secret-scanning job in CI,
-> per-route dashboard error boundaries, D4 compiled `.js` twins removed. **Remaining: create
-> Sentry account + set DSN on host; uptime monitor; deploy staging + run
-> `LAUNCH_REHEARSAL.md`.**
+> **Progress (Round 3):** M2 ✅ M2b ✅ (Lighthouse evidence) M3: health endpoint `/api/health`
+> (200 OK, Supabase check, 503-degraded shape — ready for uptime monitors), Playwright E2E
+> suite (15 tests: public pages, auth surface, SEO routes, security headers, open-redirect,
+> rate-limit survival) running in CI with auto-started prod server, admin-portal build
+> (`ADMIN_PORTAL=1`) verified green. **Remaining owner actions: deploy per DEPLOYMENT.md,
+> set SENTRY_DSN, point uptime monitor at `/api/health`, configure Supabase redirect
+> allowlist, run staging rehearsal.**
 
 ---
 

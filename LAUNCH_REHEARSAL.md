@@ -3,6 +3,14 @@
 > Work through every item on the **deployed staging environment** before promoting to
 > production. Each item needs a named result (pass / fail / waived-with-reason).
 > Companion: `LAUNCH_PLAN.md` §M5, `PRODUCTION_READINESS_PLAN.md` §7.
+>
+> **Automated coverage:** the anonymous/public subset of §1, §4 and §5 runs in CI as
+> Playwright E2E (`apps/web/e2e/public-smoke.spec.ts` — 15 tests, incl. SEO routes,
+> security headers, open-redirect guard, health endpoint). The items marked **[E2E]** below
+> are proven by CI on every push; on staging, re-run them against the real domain
+> (`BASE_URL=https://staging.example.com npx playwright test`). Authenticated flows
+> (signup, reservations, purchases, partner/admin actions) require real accounts and stay
+> manual on staging.
 
 ---
 
