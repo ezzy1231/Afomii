@@ -11,6 +11,9 @@ dist/
 coverage/
 .turbo/
 
+# compiled twins of package sources (packages/*/src — keep only .ts)
+packages/*/src/*.js
+
 .claude/
 
 # machine setup logs

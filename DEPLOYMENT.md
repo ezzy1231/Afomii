@@ -28,6 +28,7 @@ origin (see `apps/web/.env.example` — `NEXT_PUBLIC_MAIN_ORIGIN` /
    NEXT_PUBLIC_SUPABASE_URL=https://<ref>.supabase.co
    NEXT_PUBLIC_SUPABASE_ANON_KEY=<anon-key>
    NEXT_PUBLIC_SITE_URL=https://<your-domain>          # canonical URLs, sitemap, OG
+   SENTRY_DSN=https://<key>@o<org>.ingest.sentry.io/<project>   # optional, error reporting
    # Optional split config:
    NEXT_PUBLIC_ADMIN_ORIGIN=https://admin.<your-domain>
    ```

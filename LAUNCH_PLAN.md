@@ -4,12 +4,13 @@
 > Supersedes the milestone table in `PRODUCTION_READINESS_PLAN.md` §6 for launch sequencing.
 > Companion docs: `IMPLEMENTATION_PLAN.md` (product phases), `PRODUCTION_READINESS_PLAN.md` (original audit), `UI_PLAN.md` / `UI_REDESIGN_V2.md` (design).
 >
-> **Progress (Round 1):** M2 ✅ complete (sitemap/robots/manifest/icons/metadata+OG on all
-> detail routes — verified serving live DB rows). M2b ✅ major items done (anon-client catalogue
-> reads + 60s `unstable_cache`; all images already `next/image`). M3: CI web job + 48 unit tests
-> + rate limiting + hosting config done (§`DEPLOYMENT.md`); **remaining: Sentry/uptime wiring
-> needs external accounts**. M4 ✅ backend freeze documented. M5 checklist written
-> (`LAUNCH_REHEARSAL.md`) — execution requires the deployed staging environment.
+> **Progress (Round 2):** M2 ✅ + M2b ✅ **verified with Lighthouse** (home 90/100/100/91,
+> restaurants 96/100/100/92, events 97/100/100/92, detail 90/94/100/92 — perf/a11y/bp/seo;
+> reports in `docs/evidence/lh-*.json`). M3: Sentry wired via `lib/monitoring.ts` +
+> `instrumentation.ts` (activates only with `SENTRY_DSN`), gitleaks secret-scanning job in CI,
+> per-route dashboard error boundaries, D4 compiled `.js` twins removed. **Remaining: create
+> Sentry account + set DSN on host; uptime monitor; deploy staging + run
+> `LAUNCH_REHEARSAL.md`.**
 
 ---
 

@@ -13,6 +13,8 @@
     "db:migrate": "turbo run db:migrate"
   },
   "devDependencies": {
+    "chrome-launcher": "^1.2.1",
+    "lighthouse": "^13.4.1",
     "prettier": "^3.2.5",
     "turbo": "^2.0.0"
   },

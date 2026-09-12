@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { reportError } from "@/lib/monitoring";
 
 /**
  * Server Action input validation (PRODUCTION_READINESS_PLAN M1/F1).
@@ -125,10 +126,14 @@ export function firstIssue(error: z.ZodError): string {
   return error.issues[0]?.message ?? "Invalid input.";
 }
 
-/** Server-side log line for action failures (wire Sentry here later). */
+/**
+ * Server-side log line for action failures — the single seam for action
+ * error reporting. Routes through reportError() so Sentry captures every
+ * action failure when SENTRY_DSN is configured (see lib/monitoring.ts);
+ * console.error remains the local/CI behavior.
+ */
 export function logActionError(action: string, err: unknown): void {
-  const message = err instanceof Error ? err.message : String(err);
-  console.error(`[action:${action}] ${message}`);
+  reportError(`action:${action}`, err);
 }
 
 // -- Platform admin -------------------------------------------------------
