@@ -1,6 +1,8 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { createServerClient } from "@supabase/ssr";
-import { readEnv } from "@/lib/env";
+// Relative import — some middleware bundlers don't resolve tsconfig path
+// aliases (e.g. the Vercel CLI packager), so keep this alias-free.
+import { readEnv } from "./lib/env";
 
 const protectedRoutes = ["/dashboard", "/settings"];
 
@@ -48,7 +50,14 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  if (adminPortal && !pathname.startsWith("/dashboard/admin") && !pathname.startsWith("/auth/")) {
+  if (
+    adminPortal &&
+    !pathname.startsWith("/dashboard/admin") &&
+    !pathname.startsWith("/auth/") &&
+    // The portal instance answers its own health checks so uptime
+    // monitors can watch both deployments independently.
+    pathname !== "/api/health"
+  ) {
     // Inside the portal, funnels strays into the panel itself (e.g. the '/'
     // that sign-in lands on), so admins never get dumped onto the main site.
     if (!mainOrigin || pathname === "/") {
