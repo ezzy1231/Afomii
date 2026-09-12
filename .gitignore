@@ -22,3 +22,7 @@ logs/
 
 # admin portal instance build
 .next-admin/
+
+# Playwright artifacts
+apps/web/test-results/
+apps/web/playwright-report/
