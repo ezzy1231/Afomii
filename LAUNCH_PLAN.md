@@ -4,13 +4,16 @@
 > Supersedes the milestone table in `PRODUCTION_READINESS_PLAN.md` §6 for launch sequencing.
 > Companion docs: `IMPLEMENTATION_PLAN.md` (product phases), `PRODUCTION_READINESS_PLAN.md` (original audit), `UI_PLAN.md` / `UI_REDESIGN_V2.md` (design).
 >
-> **Progress (Round 3):** M2 ✅ M2b ✅ (Lighthouse evidence) M3: health endpoint `/api/health`
-> (200 OK, Supabase check, 503-degraded shape — ready for uptime monitors), Playwright E2E
-> suite (15 tests: public pages, auth surface, SEO routes, security headers, open-redirect,
-> rate-limit survival) running in CI with auto-started prod server, admin-portal build
-> (`ADMIN_PORTAL=1`) verified green. **Remaining owner actions: deploy per DEPLOYMENT.md,
-> set SENTRY_DSN, point uptime monitor at `/api/health`, configure Supabase redirect
-> allowlist, run staging rehearsal.**
+> **Progress (Round 4):** M2 ✅ M2b ✅ (Lighthouse evidence) M3 ✅ **Deployed & verified** — frontend live at
+> `https://urbanexplore.netlify.app/` (auto-deploys from GitHub push), backends on Vercel
+> (`afomii-backend`, `afomii-backend-wepb` — rebuilt READY after push `e3de944`). **Full 15-test
+> Playwright suite passed against the live Netlify deployment** (public pages, auth redirects,
+> SEO robots/sitemap/manifest/OG, `/api/health` with Supabase check, security headers,
+> open-redirect guard, rate limiting). Round 4 additions: admin-portal middleware no longer
+> bounces `/api/health` (each instance independently monitorable), `@supabase/ssr` 0.12.7.
+> **Remaining owner actions: set SENTRY_DSN (optional), point uptime monitor at
+> `https://urbanexplore.netlify.app/api/health`, configure Supabase Auth redirect allowlist,
+> run authenticated-flow rehearsal (§ manual items in LAUNCH_REHEARSAL.md).**
 
 ---
 
