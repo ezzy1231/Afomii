@@ -4,7 +4,12 @@ import PageFooter from '@/components/PageFooter'
 import ExploreCatalogue from '@/components/ExploreCatalogue'
 import { getRestaurantCatalogue } from '@/lib/catalogue'
 
-export const metadata: Metadata = { title: 'Restaurants' }
+export const metadata: Metadata = {
+  title: 'Restaurants',
+  description:
+    'Browse verified restaurants across Addis Ababa — see menus, hours, and book a table in seconds.',
+  alternates: { canonical: '/restaurants' },
+}
 
 export default async function RestaurantsPage({
   searchParams,

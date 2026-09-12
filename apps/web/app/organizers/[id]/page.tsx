@@ -5,9 +5,41 @@ import PageFooter from '@/components/PageFooter'
 import OrganizerProfile from '@/components/OrganizerProfile'
 import { getOrganizerDetail } from '@/lib/supabase/queries'
 
-export const metadata: Metadata = { title: 'Organizer' }
+type Props = { params: { id: string } }
 
-export default async function OrganizerPage({ params }: { params: { id: string } }) {
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const organizer = await getOrganizerDetail(params.id)
+
+  if (!organizer) {
+    return { title: 'Organizer not found' }
+  }
+
+  const title = organizer.name
+  const description = organizer.bio
+    ? `${organizer.bio.slice(0, 155)}${organizer.bio.length > 155 ? '…' : ''}`
+    : `Events by ${organizer.name} — see upcoming events and get tickets on UrbanExplore.`
+
+  return {
+    title,
+    description,
+    alternates: { canonical: `/organizers/${organizer.id}` },
+    openGraph: {
+      title,
+      description,
+      type: 'profile',
+      url: `/organizers/${organizer.id}`,
+      images: [{ url: '/og-image.png', width: 1200, height: 630 }],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: ['/og-image.png'],
+    },
+  }
+}
+
+export default async function OrganizerPage({ params }: Props) {
   const organizer = await getOrganizerDetail(params.id)
   if (!organizer) notFound()
 

@@ -6,6 +6,51 @@ on:
     branches: [main]
 
 jobs:
+  web:
+    name: Web lint + typecheck + build
+    runs-on: ubuntu-latest
+    env:
+      NEXT_PUBLIC_SUPABASE_URL: https://placeholder.supabase.co
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: placeholder-anon-key
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Typecheck
+        run: npx tsc --noEmit -p tsconfig.json
+        working-directory: apps/web
+      - name: Lint
+        run: npm run lint
+        working-directory: apps/web
+      - name: Build (smoke)
+        # Full `next build` compiles every route, runs its own lint/type pass,
+        # and catches metadata/sitemap/manifest wiring mistakes at build time.
+        # Skip pages that strictly need a live Supabase project — not required
+        # for static prerender of the public catalogue.
+        run: npm run build
+        working-directory: apps/web
+        env:
+          # typecheck already ran; next build re-runs it — keep it on to
+          # surface route-level type errors only build sees.
+          NEXT_TELEMETRY_DISABLED: 1
+
+  web-tests:
+    name: Web unit tests (vitest)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Unit tests
+        run: npm test
+        working-directory: apps/web
+
   mobile:
     name: Mobile typecheck + unit
     runs-on: ubuntu-latest

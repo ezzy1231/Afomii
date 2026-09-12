@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- UrbanExplore brand mark: navy rounded square, gold "U", gold stripes -->
+  <rect width="64" height="64" rx="14" fill="#173970"/>
+  <path d="M20 16v18c0 8 6 14 12 14s12-6 12-14V16h-7v18c0 4.4-2.2 7-5 7s-5-2.6-5-7V16z" fill="#B08D4C"/>
+  <rect x="14" y="52" width="36" height="3" rx="1.5" fill="#B08D4C"/>
+  <rect x="20" y="57" width="24" height="3" rx="1.5" fill="#B08D4C" opacity="0.6"/>
+</svg>

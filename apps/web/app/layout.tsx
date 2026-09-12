@@ -4,6 +4,7 @@ import Script from "next/script";
 import "./globals.css";
 import { Providers } from "./providers";
 import OAuthCodeCatcher from "@/components/OAuthCodeCatcher";
+import { getSiteUrl } from "@/lib/site";
 
 /* Self-hosted variable font — no external requests, works offline */
 const spaceGrotesk = localFont({
@@ -20,6 +21,7 @@ const spaceGrotesk = localFont({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(getSiteUrl()),
   title: {
     default: "UrbanExplore — Restaurants, Events & Rides",
     template: "%s | UrbanExplore",
@@ -30,6 +32,14 @@ export const metadata: Metadata = {
     title: "UrbanExplore",
     description: "Discover restaurants, book events, get a ride.",
     type: "website",
+    siteName: "UrbanExplore",
+    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "UrbanExplore" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "UrbanExplore",
+    description: "Discover restaurants, book events, get a ride.",
+    images: [{ url: "/og-image.png", width: 1200, height: 630 }],
   },
 };
 

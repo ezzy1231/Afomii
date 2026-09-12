@@ -620,7 +620,7 @@ export async function getConsumerPlans(userId: string): Promise<ConsumerPlan[]> 
 
   // ── Restaurant names/cover for each reservation branch ────────────────────
   const businessIds = [...new Set((reservations ?? []).map((r: any) => r.branch?.business_id).filter(Boolean))]
-  let restaurantMap: Record<string, { name: string; cover_url: string | null }> = {}
+  const restaurantMap: Record<string, { name: string; cover_url: string | null }> = {}
   if (businessIds.length > 0) {
     const { data: restaurants } = await supabase
       .from('restaurants')

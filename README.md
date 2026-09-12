@@ -2,6 +2,10 @@
 
 UrbanExplore is a Turborepo monorepo with a Next.js web app, a NestJS backend, Prisma/PostGIS data access, and Supabase-based auth.
 
+> **Architecture note (see `LAUNCH_PLAN.md`):** the production data path is Supabase
+> (Auth + Database + RLS + RPCs) accessed directly from the Next.js web app. The NestJS
+> backend is **frozen as internal-only** (Track A) — see `apps/backend/README.md`.
+
 ## Local Development
 
 1. Install dependencies:

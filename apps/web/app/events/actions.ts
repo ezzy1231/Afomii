@@ -1,8 +1,20 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
+import { headers } from 'next/headers'
 import { createClient } from '@/lib/supabase/server'
 import { firstIssue, logActionError, purchaseTicketsInputSchema, uuidSchema } from '@/lib/validation'
+import { ACTION_LIMITS, RATE_LIMIT_MESSAGE, guardActionLimit } from '@/lib/rate-limit'
+
+/** Client IP for rate limiting (first hop; best-effort behind proxies). */
+async function clientIp(): Promise<string> {
+  const h = await headers()
+  return (
+    h.get('x-forwarded-for')?.split(',')[0]?.trim() ||
+    h.get('x-real-ip') ||
+    'unknown'
+  )
+}
 
 export type TicketActionState = {
   ok: boolean
@@ -20,10 +32,16 @@ export async function purchaseTickets(input: {
   ticketTypeId: string
   quantity: number
 }): Promise<TicketActionState> {
+  // Rate limit first — before any Supabase work. Keyed by user id when
+  // available, else client IP.
   const supabase = await createClient()
   const {
     data: { user },
   } = await supabase.auth.getUser()
+
+  const ip = await clientIp()
+  const limit = guardActionLimit('purchaseTickets', user?.id ?? `ip:${ip}`, ACTION_LIMITS.purchase)
+  if (!limit.ok) return { ok: false, message: RATE_LIMIT_MESSAGE }
 
   if (!user) return { ok: false, message: 'Please sign in to buy tickets.' }
 

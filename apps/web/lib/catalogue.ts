@@ -1,4 +1,5 @@
-import { createClient } from '@/lib/supabase/server'
+import { unstable_cache } from 'next/cache'
+import { createAnonClient } from '@/lib/supabase/anon'
 
 export type CatalogueItem = {
   id: string
@@ -66,85 +67,113 @@ function formatEventTime(value: string | null) {
 // M0): they exist only so local development has content before seeding Supabase.
 const SAMPLE_DATA_ENABLED = process.env.NODE_ENV !== 'production'
 
-export async function getRestaurantCatalogue(): Promise<{ items: CatalogueItem[]; source: 'live' | 'sample' }> {
-  try {
-    const supabase = await createClient()
-    const { data, error } = await supabase
-      .from('restaurants')
-      .select('id, name, cuisine, city, area_label, rating, cover_url, closing_label')
-      .eq('is_active', true)
-      .order('created_at', { ascending: false })
-      .limit(60)
+/**
+ * Cached public catalogue reads (60s TTL). The navbar's session check still
+ * makes pages dynamic, but the catalogue rows themselves are shared across
+ * every visitor for a minute — cutting per-request Supabase round-trips on
+ * the home, /restaurants and /events pages.
+ */
+const CATALOGUE_TTL_SECONDS = 60
 
-    if (error || !data?.length) {
-      if (!error) console.warn('[catalogue] no active restaurants found')
-      else console.error('[catalogue] restaurants query failed:', error.message)
+const fetchRestaurantCatalogue = unstable_cache(
+  async (): Promise<{ items: CatalogueItem[]; source: 'live' | 'sample' }> => {
+    // Anonymous client: public catalogue reads must not depend on request
+    // cookies, so the result is cacheable across users. RLS exposes only
+    // published rows to this role.
+    const supabase = createAnonClient()
+    try {
+      const { data, error } = await supabase
+        .from('restaurants')
+        .select('id, name, cuisine, city, area_label, rating, cover_url, closing_label')
+        .eq('is_active', true)
+        .order('created_at', { ascending: false })
+        .limit(60)
+
+      if (error || !data?.length) {
+        if (!error) console.warn('[catalogue] no active restaurants found')
+        else console.error('[catalogue] restaurants query failed:', error.message)
+        return SAMPLE_DATA_ENABLED
+          ? { items: fallbackRestaurants, source: 'sample' }
+          : { items: [], source: 'live' }
+      }
+
+      const items: CatalogueItem[] = data.map((r: any) => ({
+        id: r.id,
+        name: r.name,
+        category: r.cuisine ?? 'Restaurant',
+        location: r.area_label ?? r.city ?? 'City center',
+        // Rating renders next to the card title already — use this line for
+        // hours info ("Open until …") instead of duplicating the star rating.
+        detail: r.closing_label ?? 'Open today',
+        rating: r.rating != null ? String(r.rating) : 'New',
+        color: chooseColor(r.name, restaurantColors),
+        imageUrl: r.cover_url ?? null,
+      }))
+
+      return { items, source: 'live' }
+    } catch (err) {
+      console.error('[catalogue] restaurants catalogue crashed:', err)
       return SAMPLE_DATA_ENABLED
         ? { items: fallbackRestaurants, source: 'sample' }
         : { items: [], source: 'live' }
     }
+  },
+  ['restaurant-catalogue'],
+  { revalidate: CATALOGUE_TTL_SECONDS }
+)
 
-    const items: CatalogueItem[] = data.map((r: any) => ({
-      id: r.id,
-      name: r.name,
-      category: r.cuisine ?? 'Restaurant',
-      location: r.area_label ?? r.city ?? 'City center',
-      // Rating renders next to the card title already — use this line for
-      // hours info ("Open until …") instead of duplicating the star rating.
-      detail: r.closing_label ?? 'Open today',
-      rating: r.rating != null ? String(r.rating) : 'New',
-      color: chooseColor(r.name, restaurantColors),
-      imageUrl: r.cover_url ?? null,
-    }))
-
-    return { items, source: 'live' }
-  } catch (err) {
-    console.error('[catalogue] restaurants catalogue crashed:', err)
-    return SAMPLE_DATA_ENABLED
-      ? { items: fallbackRestaurants, source: 'sample' }
-      : { items: [], source: 'live' }
-  }
+export async function getRestaurantCatalogue() {
+  return fetchRestaurantCatalogue()
 }
 
-export async function getEventCatalogue(): Promise<{ items: CatalogueItem[]; source: 'live' | 'sample' }> {
-  try {
-    const supabase = await createClient()
-    const { data, error } = await supabase
-      .from('events')
-      .select('id, title, description, category, venue_name, starts_at, cover_image_url, ticket_types(price)')
-      .eq('status', 'published')
-      .eq('is_active', true)
-      .order('starts_at', { ascending: true })
-      .limit(60)
+const fetchEventCatalogue = unstable_cache(
+  async (): Promise<{ items: CatalogueItem[]; source: 'live' | 'sample' }> => {
+    // See fetchRestaurantCatalogue: anon client keeps public reads cacheable.
+    const supabase = createAnonClient()
+    try {
+      const { data, error } = await supabase
+        .from('events')
+        .select('id, title, description, category, venue_name, starts_at, cover_image_url, ticket_types(price)')
+        .eq('status', 'published')
+        .eq('is_active', true)
+        .order('starts_at', { ascending: true })
+        .limit(60)
 
-    if (error || !data?.length) {
-      if (!error) console.warn('[catalogue] no published events found')
-      else console.error('[catalogue] events query failed:', error.message)
+      if (error || !data?.length) {
+        if (!error) console.warn('[catalogue] no published events found')
+        else console.error('[catalogue] events query failed:', error.message)
+        return SAMPLE_DATA_ENABLED
+          ? { items: fallbackEvents, source: 'sample' }
+          : { items: [], source: 'live' }
+      }
+
+      const items: CatalogueItem[] = data.map((event: any) => ({
+        id: event.id,
+        name: event.title,
+        category: event.category ?? 'Event',
+        location: event.venue_name ?? 'City venue',
+        detail: formatEventTime(event.starts_at),
+        rating: event.ticket_types?.[0]
+          ? `From ETB ${event.ticket_types[0].price}`
+          : 'Free',
+        color: chooseColor(event.title, eventColors),
+        imageUrl: event.cover_image_url ?? null,
+        description: event.description ?? null,
+        startsAt: event.starts_at ?? null,
+      }))
+
+      return { items, source: 'live' }
+    } catch (err) {
+      console.error('[catalogue] events catalogue crashed:', err)
       return SAMPLE_DATA_ENABLED
         ? { items: fallbackEvents, source: 'sample' }
         : { items: [], source: 'live' }
     }
+  },
+  ['event-catalogue'],
+  { revalidate: CATALOGUE_TTL_SECONDS }
+)
 
-    const items: CatalogueItem[] = data.map((event: any) => ({
-      id: event.id,
-      name: event.title,
-      category: event.category ?? 'Event',
-      location: event.venue_name ?? 'City venue',
-      detail: formatEventTime(event.starts_at),
-      rating: event.ticket_types?.[0]
-        ? `From ETB ${event.ticket_types[0].price}`
-        : 'Free',
-      color: chooseColor(event.title, eventColors),
-      imageUrl: event.cover_image_url ?? null,
-      description: event.description ?? null,
-      startsAt: event.starts_at ?? null,
-    }))
-
-    return { items, source: 'live' }
-  } catch (err) {
-    console.error('[catalogue] events catalogue crashed:', err)
-    return SAMPLE_DATA_ENABLED
-      ? { items: fallbackEvents, source: 'sample' }
-      : { items: [], source: 'live' }
-  }
+export async function getEventCatalogue() {
+  return fetchEventCatalogue()
 }

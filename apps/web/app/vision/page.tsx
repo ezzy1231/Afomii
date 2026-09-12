@@ -6,7 +6,12 @@ import Navbar from '@/components/Navbar'
 import PageFooter from '@/components/PageFooter'
 import { SectionHeader } from '@/components/patterns'
 
-export const metadata: Metadata = { title: 'Product vision' }
+export const metadata: Metadata = {
+  title: 'Product vision',
+  description:
+    'Where UrbanExplore is headed — one calm, connected experience for restaurants, events, rides, and the partners who run them.',
+  alternates: { canonical: '/vision' },
+}
 
 const gallery = [
   {

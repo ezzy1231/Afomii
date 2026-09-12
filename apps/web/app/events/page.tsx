@@ -4,7 +4,12 @@ import PageFooter from '@/components/PageFooter'
 import ExploreCatalogue from '@/components/ExploreCatalogue'
 import { getEventCatalogue } from '@/lib/catalogue'
 
-export const metadata: Metadata = { title: 'Events' }
+export const metadata: Metadata = {
+  title: 'Events',
+  description:
+    'Discover what is happening in Addis Ababa — concerts, markets, exhibitions, and community nights with tickets on UrbanExplore.',
+  alternates: { canonical: '/events' },
+}
 
 export default async function EventsPage({
   searchParams,

@@ -18,6 +18,7 @@ import {
   userRoleSchema,
   uuidSchema,
 } from '@/lib/validation'
+import { ACTION_LIMITS, RATE_LIMIT_MESSAGE, guardActionLimit } from '@/lib/rate-limit'
 
 export type DashboardActionState = {
   ok: boolean
@@ -58,6 +59,11 @@ export async function createRestaurantListing(
 ): Promise<DashboardActionState> {
   const { supabase, user, role } = await getCurrentUserRole()
   if (!user) return { ok: false, message: 'Please sign in again to continue.' }
+
+  // Rate limit creation before validation (authed partners, key by user id).
+  const limit = guardActionLimit('createRestaurantListing', user.id, ACTION_LIMITS.createListing)
+  if (!limit.ok) return { ok: false, message: RATE_LIMIT_MESSAGE }
+
   if (role !== 'food_business') {
     return { ok: false, message: 'Only food business accounts can create restaurant listings.' }
   }
@@ -116,6 +122,11 @@ export async function createEventListing(
 ): Promise<DashboardActionState> {
   const { supabase, user, role } = await getCurrentUserRole()
   if (!user) return { ok: false, message: 'Please sign in again to continue.' }
+
+  // Rate limit creation before validation (authed organizers).
+  const limit = guardActionLimit('createEventListing', user.id, ACTION_LIMITS.createListing)
+  if (!limit.ok) return { ok: false, message: RATE_LIMIT_MESSAGE }
+
   if (role !== 'event_organizer') {
     return { ok: false, message: 'Only event organizer accounts can create event listings.' }
   }

@@ -125,7 +125,7 @@ export async function GET(request: Request) {
       .select('role')
       .eq('id', user.id)
       .maybeSingle()
-    let role = (profile?.role as string | undefined) ?? (user.user_metadata?.role as string | undefined)
+    const role = (profile?.role as string | undefined) ?? (user.user_metadata?.role as string | undefined)
 
     // If no role anywhere, prompt user to select one
     if (!role) {

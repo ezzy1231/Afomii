@@ -1,8 +1,20 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
+import { headers } from 'next/headers'
 import { createClient } from '@/lib/supabase/server'
 import { firstIssue, logActionError, reservationInputSchema, uuidSchema } from '@/lib/validation'
+import { ACTION_LIMITS, RATE_LIMIT_MESSAGE, guardActionLimit } from '@/lib/rate-limit'
+
+/** Client IP for rate limiting (first hop; best-effort behind proxies). */
+async function clientIp(): Promise<string> {
+  const h = await headers()
+  return (
+    h.get('x-forwarded-for')?.split(',')[0]?.trim() ||
+    h.get('x-real-ip') ||
+    'unknown'
+  )
+}
 
 export type ReservationActionState = {
   ok: boolean
@@ -21,6 +33,11 @@ export async function createReservation(input: {
   const {
     data: { user },
   } = await supabase.auth.getUser()
+
+  // Rate limit before any validation/DB work — keyed by user id, else IP.
+  const ip = await clientIp()
+  const limit = guardActionLimit('createReservation', user?.id ?? `ip:${ip}`, ACTION_LIMITS.reserve)
+  if (!limit.ok) return { ok: false, message: RATE_LIMIT_MESSAGE }
 
   if (!user) return { ok: false, message: 'Please sign in to make a reservation.' }
 

@@ -25,6 +25,8 @@ export async function createClient() {
               cookieStore.set(name, value, options)
             )
           } catch {
+            // Server Components cannot write cookies — safe to ignore
+            // when called from a non-mutation context.
           }
         },
       },
