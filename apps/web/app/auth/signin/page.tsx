@@ -1,9 +1,50 @@
 'use client'
 
-import { useState } from 'react'
+import { Suspense, useState } from 'react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
+
+/**
+ * Renders diagnostics that the server callback embeds in the redirect URL when
+ * the OAuth code exchange fails (`/auth/signin?error=auth_failed&detail=...`).
+ * Without this the page showed nothing, so a failed Google login looked like a
+ * silent rollback to the login form. Must live under a <Suspense> boundary
+ * because it calls useSearchParams.
+ */
+function SignInDiagnostics() {
+  const params = useSearchParams()
+  const error = params.get('error')
+  const detail = params.get('detail')
+  const host = params.get('host')
+  const cookies = params.get('cookies')
+
+  if (error !== 'auth_failed' && !detail) return null
+
+  return (
+    <div
+      role="alert"
+      className="mb-5 rounded-xl border border-danger/30 bg-danger/10 px-4 py-3 text-sm text-danger"
+    >
+      <p className="font-bold">
+        {error === 'auth_failed' ? 'Google sign-in did not complete' : 'Sign-in error'}
+      </p>
+      {detail && <p className="mt-1.5 break-words text-xs font-medium text-app-muted">{detail}</p>}
+      {host && <p className="mt-1 text-xs text-app-muted">Host: {host}</p>}
+      {cookies && (
+        <details className="mt-2">
+          <summary className="cursor-pointer text-xs font-semibold text-app-muted">
+            Diagnostics: cookies received by the callback
+          </summary>
+          <p className="mt-1 break-words text-xs text-app-muted">{cookies}</p>
+        </details>
+      )}
+      <p className="mt-2 text-xs font-medium text-app-muted">
+        Please try again — if this persists, clear your site cookies and retry.
+      </p>
+    </div>
+  )
+}
 
 export default function SignInPage() {
   const router = useRouter()
@@ -121,6 +162,10 @@ export default function SignInPage() {
         <p className="text-sm font-medium text-app-muted mb-8">
           Sign in to your UrbanExplore account
         </p>
+
+        <Suspense fallback={null}>
+          <SignInDiagnostics />
+        </Suspense>
 
         {confirmPending ? (
           <div className="mb-5 rounded-xl border border-app-border bg-ember/10 px-4 py-4">

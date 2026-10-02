@@ -1,10 +1,73 @@
 import { createServerClient } from '@supabase/ssr'
+import type { SupabaseClient } from '@supabase/supabase-js'
 import { cookies } from 'next/headers'
 import { NextResponse } from 'next/server'
 import type { User } from '@supabase/supabase-js'
 import { readEnv } from '@/lib/env'
 
 export const dynamic = 'force-dynamic'
+
+/**
+ * Flow ids are random 8..64-char [A-Za-z0-9_-] strings (mirrors
+ * auth-js `validatePKCEFlowId`, which also gates URL-provided ids).
+ */
+const PKCE_FLOW_ID_PATTERN = /^[a-zA-Z0-9_-]{8,64}$/
+
+/**
+ * Decode a @supabase/ssr cookie value. Verifier/flow-index cookies are stored
+ * as `base64-<base64url(JSON.stringify(value))>`; tolerate un-encoded JSON too.
+ * Returns the parsed JSON value, or null when it cannot be decoded.
+ */
+function decodeCookieJson(raw: string | null | undefined): unknown {
+  if (!raw) return null
+  try {
+    const json = raw.startsWith('base64-')
+      ? Buffer.from(raw.slice('base64-'.length), 'base64').toString('utf-8') // Node decodes base64url chars too
+      : raw
+    return JSON.parse(json)
+  } catch {
+    return null
+  }
+}
+
+/**
+ * Fallback for a failed flowId-less exchange.
+ *
+ * `exchangeCodeForSession(code)` without a `flowId` reads ONLY the legacy
+ * `sb-<ref>-auth-token-code-verifier` cookie. That key is written LAST by the
+ * browser's signInWithOAuth and is the first one to disappear before the
+ * callback runs — a stale `signOut` sweep, overlapping/double-started flows,
+ * or a callback hit more than once all delete it. The per-flow verifier slots
+ * (`-flow-<id>-code-verifier`) plus their index (`-flows-code-verifier`)
+ * survive those same failures, so retry the exchange against each indexed
+ * slot. Any slot retry is safe: each verifier pairs with its own challenge, so
+ * a mismatch is rejected server-side without consuming the code for the right
+ * flow.
+ */
+async function exchangeWithFlowSlots(
+  supabase: SupabaseClient,
+  code: string,
+  allCookies: { name: string; value: string }[]
+): Promise<Awaited<ReturnType<SupabaseClient['auth']['exchangeCodeForSession']>> | null> {
+  const indexCookie = allCookies.find((c) => /^sb-.+-auth-token-flows-code-verifier$/.test(c.name))
+  if (!indexCookie) return null
+
+  const parsed = decodeCookieJson(indexCookie.value)
+  if (!Array.isArray(parsed)) return null
+
+  for (const rawId of parsed) {
+    if (typeof rawId !== 'string' || !PKCE_FLOW_ID_PATTERN.test(rawId)) continue
+    try {
+      const result = await supabase.auth.exchangeCodeForSession(code, { flowId: rawId })
+      if (!result.error) return result
+    } catch {
+      // This slot did not match the code (or the flow was already consumed);
+      // keep trying the remaining indexed flows.
+    }
+  }
+  return null
+}
+
 
 export async function GET(request: Request) {
   // Netlify rewrites request.url to the site's primary domain inside the
@@ -82,16 +145,27 @@ export async function GET(request: Request) {
     const { data, error } = await supabase.auth.exchangeCodeForSession(code)
     if (error) {
       console.error('[auth/callback] exchangeCodeForSession failed:', error.message, error.code)
-      // Surface the real error + the cookies the function actually received in
-      // the redirect URL so it's visible without digging through server logs.
-      const cookieNames = allCookies.map((c) => c.name).join(',')
-      const host = request.headers.get('x-forwarded-host') ?? request.headers.get('host')
-      return NextResponse.redirect(
-        new URL(
-          `/auth/signin?error=auth_failed&detail=${encodeURIComponent(error.message)}&cookies=${encodeURIComponent(cookieNames)}&host=${encodeURIComponent(host ?? '')}`,
-          origin
+      // The flowId-less exchange above reads only the legacy `-code-verifier`
+      // cookie. If it has been swept (signOut, overlapping flows, doubled
+      // callback), retry against the surviving per-flow verifier slots.
+      const slotAttempt = error
+        ? await exchangeWithFlowSlots(supabase, code, allCookies)
+        : null
+      if (slotAttempt) {
+        console.log('[auth/callback] recovered via per-flow verifier slot')
+        user = slotAttempt.data.user
+      } else {
+        // Surface the real error + the cookies the function actually received in
+        // the redirect URL so it's visible without digging through server logs.
+        const cookieNames = allCookies.map((c) => c.name).join(',')
+        const host = request.headers.get('x-forwarded-host') ?? request.headers.get('host')
+        return NextResponse.redirect(
+          new URL(
+            `/auth/signin?error=auth_failed&detail=${encodeURIComponent(error.message)}&cookies=${encodeURIComponent(cookieNames)}&host=${encodeURIComponent(host ?? '')}`,
+            origin
+          )
         )
-      )
+      }
     } else {
       user = data.user
     }
@@ -117,15 +191,44 @@ export async function GET(request: Request) {
   if (user) {
     // Authoritative role lives in the profiles table (set at signup by the
     // role-selection flow). user_metadata.role is often missing for OAuth
-    // users (Google identity has no metadata) — fall back to it only when the
-    // profile lookup yields nothing, so admins never get dumped on '/' or the
-    // role-selection page after a Google login.
+    // users (Google identity carries no app metadata) — fall back to it only
+    // when the profile lookup yields nothing, so admins never get dumped on
+    // '/' or the role-selection page after a Google login.
     const { data: profile } = await supabase
       .from('profiles')
       .select('role')
       .eq('id', user.id)
       .maybeSingle()
+
+    // `isNewAccount` marks an OAuth user we have never provisioned. The
+    // `handle_new_user` trigger normally creates the row, but it can be missing
+    // (trigger added after the account existed, or a failed insert) — which
+    // used to leave the user with no role and a /auth/role page that only
+    // offered signup forms for an email that already existed, bouncing them
+    // back to sign-in.
+    const isNewAccount = !profile
     const role = (profile?.role as string | undefined) ?? (user.user_metadata?.role as string | undefined)
+
+    if (isNewAccount) {
+      // Seed a valid row so the account is never roleless for the middleware
+      // and dashboard queries. `role` stays undefined on purpose: a brand-new
+      // OAuth identity has no role of its own, so we invite the choice below
+      // rather than silently defaulting everyone to 'customer'. /auth/role now
+      // assigns the role to this live session instead of a signup form.
+      const { error: healError } = await supabase.from('profiles').upsert(
+        {
+          id: user.id,
+          role: 'customer',
+          email: user.email ?? null,
+          full_name:
+            (user.user_metadata?.full_name as string | undefined) ??
+            (user.user_metadata?.name as string | undefined) ??
+            null,
+        },
+        { onConflict: 'id' },
+      )
+      if (healError) console.error('[auth/callback] profile self-heal failed:', healError.message)
+    }
 
     // If no role anywhere, prompt user to select one
     if (!role) {
