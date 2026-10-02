@@ -1,13 +1,21 @@
--- ============================================================
--- UrbanExplore Supabase schema (single-file apply)
--- Run this entire file in the Supabase SQL Editor (dashboard -> SQL).
--- Order: extensions/enums -> tables -> RLS -> profiles trigger -> RPCs -> seed
+﻿-- ============================================================
+-- UrbanExplore Supabase schema (LEGACY single-file apply)
 --
--- !! CANONICAL SOURCE: packages/supabase/migrations/0001..0007 !!
--- This single-file snapshot is NOT auto-generated yet and may lag behind the
--- numbered migrations. 0007_security_hardening.sql is currently NOT included
--- here — apply the numbered migrations (supabase db push or SQL editor, in
--- filename order) instead of relying on this file. Regenerate before use.
+-- !! DO NOT USE FOR A NEW PROJECT - THIS FILE IS STALE. !!
+-- It covers only migrations 0001..0006 and is MISSING
+-- 0007_security_hardening.sql, which closes the P0 holes (anon could call
+-- reserve_table/hold_ticket and forge identity; clients could write
+-- ticket_purchases directly). Applying this alone leaves a project INSECURE.
+--
+-- !! USE INSTEAD: !!
+--   1) Scripted (recommended):
+--        node scripts/build-supabase-apply.mjs
+--        pwsh -File scripts/apply-supabase-migrations.ps1 -ConnectionString '...'
+--   2) SQL Editor: run scripts/build-supabase-apply.mjs first, then paste
+--      packages/supabase/apply-all-migrations.sql (all 14 migrations, generated
+--      from the canonical sources - it cannot drift).
+--
+-- Then verify with packages/supabase/verify-migrations.sql.
 -- ============================================================
 
 
@@ -807,8 +815,8 @@ on conflict (branch_id) do nothing;
 insert into public.menu_items (id, branch_id, name, description, price, category, is_available)
 values
   ('a1111111-1111-1111-1111-111111111111', '33333333-3333-3333-3333-333333333333', 'Doro Wat', 'Ethiopian chicken stew with injera', 350.00, 'Main', true),
-  ('a2222222-2222-2222-2222-222222222222', '33333333-3333-3333-3333-333333333333', 'Tibs', 'Sautéed beef with peppers and onions', 420.00, 'Main', true),
-  ('a3333333-3333-3333-3333-333333333333', '33333333-3333-3333-3333-333333333333', 'Shiro', 'Spiced chickpea purée', 280.00, 'Vegetarian', true),
+  ('a2222222-2222-2222-2222-222222222222', '33333333-3333-3333-3333-333333333333', 'Tibs', 'SautÃ©ed beef with peppers and onions', 420.00, 'Main', true),
+  ('a3333333-3333-3333-3333-333333333333', '33333333-3333-3333-3333-333333333333', 'Shiro', 'Spiced chickpea purÃ©e', 280.00, 'Vegetarian', true),
   ('a4444444-4444-4444-4444-444444444444', '33333333-3333-3333-3333-333333333333', 'Ethiopian Coffee', 'Traditional ceremonial coffee', 120.00, 'Drinks', true),
   ('a5555555-5555-5555-5555-555555555555', '33333333-3333-3333-3333-333333333333', 'Habesha Platter', 'Mixed grill sharing plate', 680.00, 'Main', false)
 on conflict (id) do nothing;

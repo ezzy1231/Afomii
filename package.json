@@ -10,7 +10,10 @@
     "format": "prettier --write \"**/*.{ts,tsx,js,json,css,md}\"",
     "db:generate": "turbo run db:generate",
     "db:push": "turbo run db:push",
-    "db:migrate": "turbo run db:migrate"
+    "db:migrate": "turbo run db:migrate",
+    "supabase:apply": "node scripts/build-supabase-apply.mjs && powershell -ExecutionPolicy Bypass -File scripts/apply-supabase-migrations.ps1",
+    "supabase:build": "node scripts/build-supabase-apply.mjs",
+    "supabase:check": "node scripts/build-supabase-apply.mjs --check"
   },
   "devDependencies": {
     "chrome-launcher": "^1.2.1",
