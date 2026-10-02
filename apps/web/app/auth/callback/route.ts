@@ -38,34 +38,52 @@ function decodeCookieJson(raw: string | null | undefined): unknown {
  * browser's signInWithOAuth and is the first one to disappear before the
  * callback runs — a stale `signOut` sweep, overlapping/double-started flows,
  * or a callback hit more than once all delete it. The per-flow verifier slots
- * (`-flow-<id>-code-verifier`) plus their index (`-flows-code-verifier`)
- * survive those same failures, so retry the exchange against each indexed
- * slot. Any slot retry is safe: each verifier pairs with its own challenge, so
- * a mismatch is rejected server-side without consuming the code for the right
- * flow.
+ * (`-flow-<id>-code-verifier`) survive those same failures, so retry the
+ * exchange against every verifier slot present in the request. Slots are
+ * addressed by flow id, which pairs each verifier with its own challenge, so a
+ * non-matching slot is rejected server-side without harming the right flow.
+ *
+ * Flow ids are gathered from two independent sources so a stale/evicted flow
+ * index cannot hide a usable slot:
+ *   1. every `-flow-<id>-code-verifier` cookie actually in the request, and
+ *   2. the `-flows-code-verifier` index (covers slots referenced there).
  */
 async function exchangeWithFlowSlots(
   supabase: SupabaseClient,
   code: string,
   allCookies: { name: string; value: string }[]
-): Promise<Awaited<ReturnType<SupabaseClient['auth']['exchangeCodeForSession']>> | null> {
+): Promise<{
+  exchange: Awaited<ReturnType<SupabaseClient['auth']['exchangeCodeForSession']>> | null
+  slotCookies: string[]
+  indexFlows: string[]
+  attempts: { flowId: string; error: string }[]
+} | null> {
+  const slotCookies: string[] = []
+  for (const c of allCookies) {
+    const match = /^sb-.+-auth-token-flow-([a-zA-Z0-9_-]{8,64})-code-verifier$/.exec(c.name)
+    if (match) slotCookies.push(match[1])
+  }
   const indexCookie = allCookies.find((c) => /^sb-.+-auth-token-flows-code-verifier$/.test(c.name))
-  if (!indexCookie) return null
+  const parsed = indexCookie ? decodeCookieJson(indexCookie.value) : null
+  const indexFlows = Array.isArray(parsed)
+    ? parsed.filter((id): id is string => typeof id === 'string')
+    : []
 
-  const parsed = decodeCookieJson(indexCookie.value)
-  if (!Array.isArray(parsed)) return null
+  const flowIds = Array.from(new Set([...slotCookies, ...indexFlows]))
+  if (flowIds.length === 0) return null
 
-  for (const rawId of parsed) {
-    if (typeof rawId !== 'string' || !PKCE_FLOW_ID_PATTERN.test(rawId)) continue
+  const attempts: { flowId: string; error: string }[] = []
+  for (const flowId of flowIds) {
+    if (!PKCE_FLOW_ID_PATTERN.test(flowId)) continue
     try {
-      const result = await supabase.auth.exchangeCodeForSession(code, { flowId: rawId })
-      if (!result.error) return result
-    } catch {
-      // This slot did not match the code (or the flow was already consumed);
-      // keep trying the remaining indexed flows.
+      const result = await supabase.auth.exchangeCodeForSession(code, { flowId })
+      if (!result.error) return { exchange: result, slotCookies, indexFlows, attempts }
+      attempts.push({ flowId, error: result.error.message })
+    } catch (err) {
+      attempts.push({ flowId, error: err instanceof Error ? err.message : String(err) })
     }
   }
-  return null
+  return { exchange: null, slotCookies, indexFlows, attempts }
 }
 
 
@@ -147,21 +165,32 @@ export async function GET(request: Request) {
       console.error('[auth/callback] exchangeCodeForSession failed:', error.message, error.code)
       // The flowId-less exchange above reads only the legacy `-code-verifier`
       // cookie. If it has been swept (signOut, overlapping flows, doubled
-      // callback), retry against the surviving per-flow verifier slots.
-      const slotAttempt = error
-        ? await exchangeWithFlowSlots(supabase, code, allCookies)
-        : null
-      if (slotAttempt) {
-        console.log('[auth/callback] recovered via per-flow verifier slot')
-        user = slotAttempt.data.user
+      // callback), retry against the per-flow verifier slots present in the
+      // request — the slot cookies survive those failures.
+      const recovery = await exchangeWithFlowSlots(supabase, code, allCookies)
+      if (recovery?.exchange) {
+        console.log(
+          '[auth/callback] recovered via per-flow verifier slot:',
+          recovery.attempts.map((a) => a.flowId).join(',') || '(first slot)'
+        )
+        user = recovery.exchange.data.user
       } else {
-        // Surface the real error + the cookies the function actually received in
-        // the redirect URL so it's visible without digging through server logs.
+        // Surface the real error + the cookies/flow slots the function actually
+        // received in the redirect URL so it's visible without server logs.
         const cookieNames = allCookies.map((c) => c.name).join(',')
         const host = request.headers.get('x-forwarded-host') ?? request.headers.get('host')
+        const slotsTried = recovery
+          ? `&slotsTried=${encodeURIComponent(
+              JSON.stringify({
+                slotCookies: recovery.slotCookies,
+                indexFlows: recovery.indexFlows,
+                attempts: recovery.attempts,
+              })
+            )}`
+          : ''
         return NextResponse.redirect(
           new URL(
-            `/auth/signin?error=auth_failed&detail=${encodeURIComponent(error.message)}&cookies=${encodeURIComponent(cookieNames)}&host=${encodeURIComponent(host ?? '')}`,
+            `/auth/signin?error=auth_failed&detail=${encodeURIComponent(error.message)}&cookies=${encodeURIComponent(cookieNames)}&host=${encodeURIComponent(host ?? '')}${slotsTried}`,
             origin
           )
         )

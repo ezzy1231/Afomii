@@ -18,8 +18,15 @@ function SignInDiagnostics() {
   const detail = params.get('detail')
   const host = params.get('host')
   const cookies = params.get('cookies')
+  const slotsTried = params.get('slotsTried')
 
   if (error !== 'auth_failed' && !detail) return null
+  let slots: string | null = null
+  try {
+    slots = slotsTried ? JSON.stringify(JSON.parse(slotsTried), null, 1) : null
+  } catch {
+    slots = null
+  }
 
   return (
     <div
@@ -31,12 +38,13 @@ function SignInDiagnostics() {
       </p>
       {detail && <p className="mt-1.5 break-words text-xs font-medium text-app-muted">{detail}</p>}
       {host && <p className="mt-1 text-xs text-app-muted">Host: {host}</p>}
-      {cookies && (
+      {(cookies || slots) && (
         <details className="mt-2">
           <summary className="cursor-pointer text-xs font-semibold text-app-muted">
             Diagnostics: cookies received by the callback
           </summary>
           <p className="mt-1 break-words text-xs text-app-muted">{cookies}</p>
+          {slots && <pre className="mt-1 break-words whitespace-pre-wrap text-xs text-app-muted">{slots}</pre>}
         </details>
       )}
       <p className="mt-2 text-xs font-medium text-app-muted">
