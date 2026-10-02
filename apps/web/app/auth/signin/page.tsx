@@ -60,6 +60,7 @@ export default function SignInPage() {
   const [password, setPassword] = useState('')
   const [showPw, setShowPw] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [googleLoading, setGoogleLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [confirmPending, setConfirmPending] = useState<string | null>(null)
 
@@ -135,26 +136,30 @@ export default function SignInPage() {
 
   async function handleGoogle() {
     setError(null)
+    // Guard against double-clicks: a second signInWithOAuth starts a NEW flow
+    // and rewrites the verifier slots, which invalidates the code that the first
+    // (in-flight) flow will return from Google. One start per click.
+    if (googleLoading) return
+    setGoogleLoading(true)
     const supabase = createClient()
-    // Flush any pending initialization/session-recovery FIRST. Recovery of a
-    // stale/expired session can trigger `_removeSession()`, which deletes the
-    // `-code-verifier` cookie — and `signInWithOAuth` does NOT wait for that
-    // sweep, so the verifier written below could be erased by a racing
-    // removal before the redirect to Google commits cookies.
+    // Flush pending initialization/session recovery BEFORE starting the flow.
+    // Recovery of a stale/expired session can trigger `_removeSession()`, which
+    // deletes the pending PKCE verifier cookies — and `signInWithOAuth` does not
+    // wait for that sweep, so the verifier it writes could be erased by the
+    // racing removal before the redirect to Google commits the cookies.
     await supabase.auth.getSession()
-    // Drop the stale local session (no network call for `local` scope) so no
-    // background recovery can fire after we write the PKCE verifier.
-    await supabase.auth.signOut({ scope: 'local' })
-    // Explicit `next` is NOT passed through the OAuth redirectTo — adding
-    // query parameters can cause Supabase to reject the URL if the Redirect
-    // URL allowlist is configured as an exact match (no wildcard).  The
-    // callback route already routes by role (system_admin → /dashboard/admin),
-    // so the `next` param is redundant for Google OAuth anyway.
-    // The `next` param is preserved in the URL by the middleware redirect
-    // and will be picked up by the callback route if it's present.
-    // Actually, the callback route reads `next` from the URL search params,
-    // so if the redirectTo URL is clean (no next param), the callback will
-    // use the default `next = '/'` and then route by role.
+    // Deliberately NOT calling signOut() here. In @supabase/auth-js 2.116 a
+    // local sign-out runs removeAllPKCEVerifiers(), which deletes EVERY pending
+    // verifier slot (not just the current tab's). That is what produced
+    // "invalid flow state" / "code verifier not found" for users who were
+    // already signed in or who had another tab open: the flow's own verifier is
+    // wiped between signInWithOAuth and the callback. Starting the OAuth flow on
+    // top of an existing session is safe — the callback exchanges the code and
+    // replaces the session cookie.
+    //
+    // Explicit `next` is NOT passed through the OAuth redirectTo — query params
+    // can stop an exact (non-wildcard) redirect allowlist entry from matching.
+    // The callback routes by role (system_admin → /dashboard/admin) regardless.
     await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
@@ -250,7 +255,11 @@ export default function SignInPage() {
           <div className="flex-1 h-[1.5px] bg-app-border" />
         </div>
 
-        <button onClick={handleGoogle} className="btn-secondary w-full flex items-center justify-center gap-3 !py-3 text-sm">
+        <button
+          onClick={handleGoogle}
+          disabled={googleLoading}
+          className="btn-secondary w-full flex items-center justify-center gap-3 !py-3 text-sm disabled:opacity-60 disabled:cursor-not-allowed"
+        >
           <svg viewBox="0 0 24 24" className="w-4 h-4">
             <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
             <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
@@ -259,7 +268,6 @@ export default function SignInPage() {
           </svg>
           Continue with Google
         </button>
-
         <p className="text-center text-sm font-medium text-app-muted mt-8">
           Don&apos;t have an account?{' '}
           <Link href="/auth/role" className="font-extrabold text-ember hover:underline">Get started</Link>
