@@ -205,8 +205,38 @@ export default async function AdminDashboardPage({
           />
         </form>
 
-        <div className={cn(CONSOLE_CARD, 'overflow-x-auto')}>
-          <table className="w-full min-w-[480px] text-left text-sm">
+        {/* Mobile — stacked cards */}
+        <div className="space-y-2 md:hidden">
+          {directory.length === 0 ? (
+            <div className={cn(CONSOLE_CARD, 'p-6 text-center text-sm text-app-muted')}>
+              No entities match “{q}”.
+            </div>
+          ) : (
+            directory.map((row) => (
+              <div key={`${row.role}-${row.id}`} className={cn(CONSOLE_CARD, 'space-y-2.5 p-4')}>
+                <p className="truncate font-semibold">{row.name}</p>
+                <p className="text-xs tabular-nums text-app-muted">ID: {row.id.slice(0, 8).toUpperCase()}</p>
+
+                <dl className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs">
+                  <div className="flex items-center gap-1.5">
+                    <dt className="text-app-muted">Role</dt>
+                    <dd className="text-app-muted">{row.role}</dd>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <dt className="text-app-muted">Status</dt>
+                    <dd>
+                      <StatusPill status={row.status} tone={statusTone(row.status)} />
+                    </dd>
+                  </div>
+                </dl>
+              </div>
+            ))
+          )}
+        </div>
+
+        {/* Desktop */}
+        <div className={cn(CONSOLE_CARD, 'hidden overflow-x-auto md:block')}>
+          <table className="w-full text-left text-sm">
             <thead>
               <tr className="border-b border-app-border text-[11px] uppercase tracking-[0.14em] text-app-muted">
                 <th scope="col" className="px-4 py-3 font-semibold">Entity</th>

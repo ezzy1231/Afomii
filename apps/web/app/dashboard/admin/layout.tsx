@@ -38,7 +38,7 @@ export default async function AdminDashboardLayout({
   return (
     <div className="flex min-h-screen">
       <Sidebar title="Admin Panel" navItems={navItems} notificationCount={notificationCount} />
-      <main className="min-w-0 flex-1 overflow-auto">{children}</main>
+      <main className="min-w-0 flex-1 overflow-x-hidden">{children}</main>
     </div>
   )
 }

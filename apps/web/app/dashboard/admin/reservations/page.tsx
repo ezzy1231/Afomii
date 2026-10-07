@@ -82,8 +82,70 @@ export default async function AdminReservationsPage({
         ))}
       </div>
 
-      <div className={cn(CONSOLE_CARD, 'overflow-x-auto')}>
-        <table className="w-full min-w-[760px] text-left text-sm">
+      {/* Mobile — stacked cards */}
+      <div className="space-y-2 md:hidden">
+        {rows.length === 0 ? (
+          <div className={cn(CONSOLE_CARD, 'p-6 text-center text-sm text-app-muted')}>
+            No reservations match this filter yet.
+          </div>
+        ) : (
+          rows.map((row) => {
+            const branch = row.branches?.[0] ?? null
+            const businessName = branch?.businesses
+              ? Array.isArray(branch.businesses)
+                ? branch.businesses[0]?.name ?? ''
+                : branch.businesses.name
+              : ''
+            return (
+              <div
+                key={row.id}
+                className={cn(
+                  CONSOLE_CARD,
+                  'space-y-2.5 p-4',
+                  (row.status === 'cancelled' || row.status === 'rejected') && 'opacity-60'
+                )}
+              >
+                <p className="truncate font-semibold">
+                  <Link href={`/dashboard/admin/reservations/${row.id}`} className="underline-offset-2 hover:underline">
+                    {contacts.get(row.user_id ?? '') ?? 'Guest'}
+                  </Link>
+                </p>
+                <p className="truncate text-xs text-app-muted">
+                  {[businessName, branch?.branch_name].filter(Boolean).join(' · ') || '—'}
+                </p>
+
+                <dl className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs">
+                  <div className="flex items-center gap-1.5">
+                    <dt className="text-app-muted">When</dt>
+                    <dd className="tabular-nums text-app-muted">
+                      {new Date(`${row.reservation_date}T00:00:00`).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' })}
+                      {row.time_slot ? ` · ${row.time_slot}` : ''}
+                    </dd>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <dt className="text-app-muted">Party</dt>
+                    <dd className="tabular-nums">{row.guest_count ?? '—'}</dd>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <dt className="text-app-muted">Status</dt>
+                    <dd>
+                      <StatusPill status={row.status} tone={statusTone(row.status)} />
+                    </dd>
+                  </div>
+                </dl>
+
+                <div className="flex flex-wrap gap-2 pt-1">
+                  <ReservationCancelAction reservationId={row.id} status={row.status} />
+                </div>
+              </div>
+            )
+          })
+        )}
+      </div>
+
+      {/* Desktop */}
+      <div className={cn(CONSOLE_CARD, 'hidden overflow-x-auto md:block')}>
+        <table className="w-full text-left text-sm">
           <thead>
             <tr className="border-b border-app-border text-[11px] uppercase tracking-[0.14em] text-app-muted">
               <th scope="col" className="px-4 py-3 font-semibold">Guest</th>

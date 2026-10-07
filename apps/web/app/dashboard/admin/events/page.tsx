@@ -90,8 +90,51 @@ export default async function AdminEventsPage({
         </div>
       </div>
 
-      <div className={cn(CONSOLE_CARD, 'overflow-x-auto')}>
-        <table className="w-full min-w-[720px] text-left text-sm">
+      {/* Mobile — stacked cards */}
+      <div className="space-y-2 md:hidden">
+        {rows.length === 0 ? (
+          <div className={cn(CONSOLE_CARD, 'p-6 text-center text-sm text-app-muted')}>
+            No events match this filter.
+          </div>
+        ) : (
+          rows.map((row) => {
+            const organizerName = Array.isArray(row.organizers)
+              ? row.organizers[0]?.name ?? '—'
+              : row.organizers?.name ?? '—'
+            return (
+              <div key={row.id} className={cn(CONSOLE_CARD, 'space-y-2.5 p-4')}>
+                <p className="truncate font-semibold">
+                  <Link href={`/dashboard/admin/events/${row.id}`} className="underline-offset-2 hover:underline">
+                    {row.title}
+                  </Link>
+                </p>
+                <p className="truncate text-xs text-app-muted">{organizerName}</p>
+
+                <dl className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs">
+                  <div className="flex items-center gap-1.5">
+                    <dt className="text-app-muted">Date</dt>
+                    <dd className="tabular-nums text-app-muted">{formatDate(row.starts_at)}</dd>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <dt className="text-app-muted">Status</dt>
+                    <dd>
+                      <StatusPill status={row.status} tone={statusTone(row.status)} />
+                    </dd>
+                  </div>
+                </dl>
+
+                <div className="flex flex-wrap gap-2 pt-1">
+                  <EventModerationActions eventId={row.id} status={row.status} />
+                </div>
+              </div>
+            )
+          })
+        )}
+      </div>
+
+      {/* Desktop */}
+      <div className={cn(CONSOLE_CARD, 'hidden overflow-x-auto md:block')}>
+        <table className="w-full text-left text-sm">
           <thead>
             <tr className="border-b border-app-border text-[11px] uppercase tracking-[0.14em] text-app-muted">
               <th scope="col" className="px-4 py-3 font-semibold">Event</th>

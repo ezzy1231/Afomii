@@ -94,8 +94,72 @@ export default async function AdminUsersPage({
         </div>
       </div>
 
-      <div className={cn(CONSOLE_CARD, 'overflow-x-auto')}>
-        <table className="w-full min-w-[720px] text-left text-sm">
+      {/* Mobile — stacked cards */}
+      <div className="space-y-2 md:hidden">
+        {rows.length === 0 ? (
+          <div className={cn(CONSOLE_CARD, 'p-6 text-center text-sm text-app-muted')}>
+            No users match this filter.
+          </div>
+        ) : (
+          rows.map((row) => {
+            const isSelf = row.id === meId
+            return (
+              <div key={row.id} className={cn(CONSOLE_CARD, 'space-y-2.5 p-4')}>
+                <p className="truncate font-semibold">
+                  {row.full_name ?? '—'}
+                  {isSelf && (
+                    <span className="ml-2 rounded bg-ember/15 px-1.5 py-0.5 align-middle text-[10px] font-bold uppercase tracking-wide text-ember">
+                      You
+                    </span>
+                  )}
+                </p>
+                <p className="text-xs text-app-muted">{row.email ?? '—'}</p>
+
+                <dl className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs">
+                  <div className="flex items-center gap-1.5">
+                    <dt className="text-app-muted">Role</dt>
+                    <dd>
+                      {isSelf ? (
+                        <StatusPill status={row.role} tone={row.role === 'system_admin' ? 'gold' : 'info'} />
+                      ) : (
+                        <UserRoleSelect userId={row.id} currentRole={row.role} />
+                      )}
+                    </dd>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <dt className="text-app-muted">Status</dt>
+                    <dd>
+                      {row.is_suspended ? (
+                        <StatusPill status="suspended" tone="bad" />
+                      ) : (
+                        <StatusPill status="active" tone="ok" />
+                      )}
+                    </dd>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <dt className="text-app-muted">Joined</dt>
+                    <dd className="tabular-nums text-app-muted">
+                      {new Date(row.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
+                    </dd>
+                  </div>
+                </dl>
+
+                <div className="flex flex-wrap gap-2 pt-1">
+                  {isSelf ? (
+                    <span className="text-xs text-app-muted">—</span>
+                  ) : (
+                    <UserSuspensionActions userId={row.id} isSuspended={Boolean(row.is_suspended)} />
+                  )}
+                </div>
+              </div>
+            )
+          })
+        )}
+      </div>
+
+      {/* Desktop */}
+      <div className={cn(CONSOLE_CARD, 'hidden overflow-x-auto md:block')}>
+        <table className="w-full text-left text-sm">
           <thead>
             <tr className="border-b border-app-border text-[11px] uppercase tracking-[0.14em] text-app-muted">
               <th scope="col" className="px-4 py-3 font-semibold">User</th>

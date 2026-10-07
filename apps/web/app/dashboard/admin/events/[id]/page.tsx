@@ -155,7 +155,7 @@ export default async function AdminEventDetailPage({
         </div>
       </section>
 
-      <section className="grid grid-cols-3 gap-3">
+      <section className="grid grid-cols-1 gap-3 sm:grid-cols-3">
         {kpis.map((kpi) => (
           <ConsoleKpiCard key={kpi.label} label={kpi.label} value={kpi.value} accent={kpi.accent} />
         ))}
@@ -202,8 +202,46 @@ export default async function AdminEventDetailPage({
       {/* Recent purchases */}
       <section className="space-y-3">
         <SectionTitle>Recent purchases</SectionTitle>
-        <div className={cn(CONSOLE_CARD, 'overflow-x-auto')}>
-          <table className="w-full min-w-[520px] text-left text-sm">
+        {/* Mobile — stacked cards */}
+        <div className="space-y-2 md:hidden">
+          {recentPurchases.length === 0 ? (
+            <div className={cn(CONSOLE_CARD, 'p-6 text-center text-sm text-app-muted')}>
+              No ticket sales yet.
+            </div>
+          ) : (
+            recentPurchases.map((p) => (
+              <div key={p.id} className={cn(CONSOLE_CARD, 'space-y-2.5 p-4')}>
+                <p className="font-bold tabular-nums text-ember">
+                  ETB {Number(p.amount ?? 0).toLocaleString('en-US')}
+                </p>
+                <p className="text-xs text-app-muted">
+                  {new Date(p.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' })}
+                </p>
+
+                <dl className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs">
+                  <div className="flex items-center gap-1.5">
+                    <dt className="text-app-muted">Qty</dt>
+                    <dd className="tabular-nums">{p.quantity ?? '—'}</dd>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <dt className="text-app-muted">Payment</dt>
+                    <dd>
+                      <StatusPill status={p.payment_status} tone={statusTone(p.payment_status)} />
+                    </dd>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <dt className="text-app-muted">Attended</dt>
+                    <dd className="text-app-muted">{p.attended ? '✓' : '—'}</dd>
+                  </div>
+                </dl>
+              </div>
+            ))
+          )}
+        </div>
+
+        {/* Desktop */}
+        <div className={cn(CONSOLE_CARD, 'hidden overflow-x-auto md:block')}>
+          <table className="w-full text-left text-sm">
             <thead>
               <tr className="border-b border-app-border text-[11px] uppercase tracking-[0.14em] text-app-muted">
                 <th scope="col" className="px-4 py-3 font-semibold">Date</th>

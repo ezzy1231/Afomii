@@ -86,8 +86,60 @@ export default async function AdminBusinessesPage({
         </div>
       </div>
 
-      <div className={cn(CONSOLE_CARD, 'overflow-x-auto')}>
-        <table className="w-full min-w-[820px] text-left text-sm">
+      {/* Mobile — stacked cards */}
+      <div className="space-y-2 md:hidden">
+        {rows.length === 0 ? (
+          <div className={cn(CONSOLE_CARD, 'p-6 text-center text-sm text-app-muted')}>
+            No businesses match this filter.
+          </div>
+        ) : (
+          rows.map((row) => (
+            <div
+              key={row.id}
+              className={cn(CONSOLE_CARD, 'space-y-2.5 p-4', row.status === 'inactive' && 'opacity-60')}
+            >
+              <p className="truncate font-semibold">
+                <Link href={`/dashboard/admin/businesses/${row.id}`} className="underline-offset-2 hover:underline">
+                  {row.name}
+                </Link>
+              </p>
+              <p className="text-xs tabular-nums text-app-muted">ID: {row.id.slice(0, 8).toUpperCase()}</p>
+
+              <dl className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs">
+                <div className="flex items-center gap-1.5">
+                  <dt className="text-app-muted">Plan</dt>
+                  <dd className="capitalize text-app-muted">{row.plan ?? 'free'}</dd>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <dt className="text-app-muted">Status</dt>
+                  <dd>
+                    <StatusPill status={row.status} tone={statusTone(row.status)} />
+                  </dd>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <dt className="text-app-muted">Verified</dt>
+                  <dd>{row.is_verified ? '✓' : '—'}</dd>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <dt className="text-app-muted">Joined</dt>
+                  <dd className="tabular-nums text-app-muted">
+                    {new Date(row.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
+                  </dd>
+                </div>
+              </dl>
+
+              <div className="flex flex-wrap items-center gap-2 pt-1">
+                <BusinessLifecycleActions businessId={row.id} status={row.status} />
+                <BusinessSuspendAction businessId={row.id} status={row.status} />
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+
+      {/* Desktop */}
+      <div className={cn(CONSOLE_CARD, 'hidden overflow-x-auto md:block')}>
+        <table className="w-full text-left text-sm">
           <thead>
             <tr className="border-b border-app-border text-[11px] uppercase tracking-[0.14em] text-app-muted">
               <th scope="col" className="px-4 py-3 font-semibold">Business</th>

@@ -107,7 +107,7 @@ export default async function AdminOrganizerDetailPage({
         </div>
       </section>
 
-      <section className="grid grid-cols-3 gap-3">
+      <section className="grid grid-cols-1 gap-3 sm:grid-cols-3">
         {kpis.map((kpi) => (
           <ConsoleKpiCard key={kpi.label} label={kpi.label} value={kpi.value} accent={kpi.accent} />
         ))}
