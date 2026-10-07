@@ -17,7 +17,7 @@ export default function NewListingPage() {
 
       <ConsoleHeader eyebrow="Partner console" title="New listing" />
 
-      <div className="glass rounded-2xl p-6 text-app-fg [&_h2]:text-app-fg [&_p]:text-app-muted [&_span]:text-app-muted [&_input]: [&_input]:border-app-border [&_input]:text-app-fg [&_input]:placeholder:text-app-muted/60 [&_button[type='submit']]:bg-ember [&_button[type='submit']]:text-white [&_button[type='submit']]:min-h-[44px] [&_button[type='submit']]:rounded-full">
+      <div className="glass rounded-2xl p-6 text-app-fg [&_h2]:text-app-fg [&_p]:text-app-muted [&_span]:text-app-muted [&_input]: [&_input]:border-app-border [&_input]:text-app-fg [&_input]:placeholder:text-app-muted/60 [&_button[type='submit']]:bg-ember [&_button[type='submit']]:text-on-accent [&_button[type='submit']]:min-h-[44px] [&_button[type='submit']]:rounded-full">
         <RestaurantListingForm />
       </div>
       <p className="px-1 text-xs text-app-muted">

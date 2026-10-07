@@ -208,7 +208,7 @@ export default function ReservationsPage() {
                 onClick={() => setRange(option)}
                 className={cn(
                   'min-h-9 rounded-md px-4 text-sm font-semibold capitalize transition-colors',
-                  range === option ? 'bg-ember text-white' : 'text-app-muted hover:text-app-fg',
+                  range === option ? 'bg-ember text-on-accent' : 'text-app-muted hover:text-app-fg',
                 )}
               >
                 {option}

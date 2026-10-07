@@ -140,7 +140,7 @@ export default async function HomePage() {
                   <span className="absolute -left-3 top-28 z-10 rounded-full border border-white/50 bg-white/60 px-3.5 py-1.5 text-xs font-semibold text-app-fg shadow-glass backdrop-blur-xl dark:border-white/10 dark:bg-white/10">
                     ★ 4.9 rated
                   </span>
-                  <span className="absolute -right-2 bottom-28 z-10 rounded-full border border-white/50 bg-ember/90 px-3.5 py-1.5 text-xs font-semibold text-white shadow-glass backdrop-blur-xl dark:border-white/10">
+                  <span className="absolute -right-2 bottom-28 z-10 rounded-full border border-white/50 bg-ember/90 px-3.5 py-1.5 text-xs font-semibold text-on-accent shadow-glass backdrop-blur-xl dark:border-white/10">
                     ETB fares
                   </span>
                 </div>

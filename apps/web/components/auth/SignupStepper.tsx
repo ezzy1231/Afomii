@@ -38,7 +38,7 @@ export function SignupStepper({
                   aria-current={active ? "step" : undefined}
                   className={cn(
                     "flex h-8 w-8 items-center justify-center rounded-full border text-xs font-bold transition-colors",
-                    done && "border-ember/40 bg-ember text-white",
+                    done && "border-ember/40 bg-ember text-on-accent",
                     active &&
                       "border-2 border-ember/40 bg-app-card text-app-fg",
                     !done &&

@@ -162,7 +162,7 @@ export default async function RestaurantDashboardPage() {
             </p>
             <Link
               href="/dashboard/restaurant/listings/new"
-              className="mt-4 inline-block min-h-[44px] rounded-full bg-ember px-6 py-2.5 text-sm font-semibold text-white shadow-glass transition-all hover:brightness-110"
+              className="mt-4 inline-block min-h-[44px] rounded-full bg-ember px-6 py-2.5 text-sm font-semibold text-on-accent shadow-glass transition-all hover:brightness-110"
             >
               Create your first listing
             </Link>

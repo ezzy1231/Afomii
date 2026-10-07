@@ -336,7 +336,7 @@ export function ReservationForm({
                       className={cn(
                         "rounded-md border px-2 py-2 text-xs font-medium transition-all active:scale-[0.97]",
                         selected
-                          ? "border-ink bg-ink font-semibold text-white dark:border-ember/40 dark:bg-ember/12 dark:text-ember"
+                          ? "border-ink bg-ink font-semibold text-on-accent dark:border-ember/40 dark:bg-ember/12 dark:text-ember"
                           : disabled
                             ? "cursor-not-allowed border-app-border bg-app-input text-app-muted/50 line-through"
                             : "border-app-border bg-app-bg text-app-fg hover:border-ember/40/60",
@@ -400,7 +400,7 @@ export function ReservationForm({
             <button
               type="submit"
               disabled={submitting || signedIn === false}
-              className="w-full rounded-xl bg-gradient-to-br from-ember to-ember-deep py-3 text-sm font-semibold text-white shadow-[0_2px_8px_rgb(var(--ember-rgb)/0.3)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_4px_12px_rgb(var(--ember-rgb)/0.4)] active:translate-y-0 active:scale-[0.98] disabled:opacity-40"
+              className="w-full rounded-xl bg-gradient-to-br from-ember to-ember-deep py-3 text-sm font-semibold text-on-accent shadow-[0_2px_8px_rgb(var(--ember-rgb)/0.3)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_4px_12px_rgb(var(--ember-rgb)/0.4)] active:translate-y-0 active:scale-[0.98] disabled:opacity-40"
             >
               {submitting ? "Reserving…" : "Confirm Reservation"}
             </button>

@@ -30,7 +30,7 @@ export default function SystemDesignPage() {
         <header className="glass rounded-2xl">
           <div className="flex items-center justify-between gap-5 px-6 py-4">
             <div className="flex items-center gap-3">
-              <div className="flex size-11 items-center justify-center rounded-xl bg-gradient-to-br from-ember to-ember-deep text-white shadow-[0_2px_8px_rgb(var(--ember-rgb)/0.35)]">
+              <div className="flex size-11 items-center justify-center rounded-xl bg-gradient-to-br from-ember to-ember-deep text-on-accent shadow-[0_2px_8px_rgb(var(--ember-rgb)/0.35)]">
                 <CarFront className="h-5 w-5" />
               </div>
               <div>
@@ -51,7 +51,7 @@ export default function SystemDesignPage() {
               <div className="glass-subtle flex size-10 items-center justify-center rounded-full text-app-muted">
                 <Bell className="h-4 w-4" />
               </div>
-              <button className="rounded-full bg-gradient-to-br from-ember to-ember-deep px-4 py-2 text-sm font-semibold text-white shadow-[0_2px_8px_rgb(var(--ember-rgb)/0.3)] transition-all duration-200 hover:-translate-y-0.5">
+              <button className="rounded-full bg-gradient-to-br from-ember to-ember-deep px-4 py-2 text-sm font-semibold text-on-accent shadow-[0_2px_8px_rgb(var(--ember-rgb)/0.3)] transition-all duration-200 hover:-translate-y-0.5">
                 Get started
               </button>
             </div>
@@ -300,7 +300,7 @@ export default function SystemDesignPage() {
 
               {item.title === 'UI elements' && (
                 <div className="space-y-4">
-                  <button className="w-full rounded-xl bg-gradient-to-br from-ember to-ember-deep px-4 py-3 text-sm font-semibold text-white shadow-[0_2px_8px_rgb(var(--ember-rgb)/0.3)] transition-all duration-200 hover:-translate-y-0.5">
+                  <button className="w-full rounded-xl bg-gradient-to-br from-ember to-ember-deep px-4 py-3 text-sm font-semibold text-on-accent shadow-[0_2px_8px_rgb(var(--ember-rgb)/0.3)] transition-all duration-200 hover:-translate-y-0.5">
                     Primary Button
                   </button>
                   <button className="glass-subtle w-full rounded-xl px-4 py-3 text-sm font-semibold">

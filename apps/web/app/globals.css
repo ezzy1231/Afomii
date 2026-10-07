@@ -10,32 +10,37 @@
 
 @layer base {
   :root {
-    /* ── Surfaces — LIGHT: near-white neutral ─────────────────── */
-    --bg-primary-rgb: 248 248 250;
-    --bg-alt-rgb: 241 242 244;
-    --bg-card-rgb: 255 255 255;
-    --bg-input-rgb: 244 245 247;
-    --bg-elevated-rgb: 237 238 241;
+    /* ── Surfaces — LIGHT: warm cream paper ──────────────────── */
+    --bg-primary-rgb: 251 245 240;
+    --bg-alt-rgb: 246 240 233;
+    --bg-card-rgb: 255 253 248;
+    --bg-input-rgb: 250 245 238;
+    --bg-elevated-rgb: 255 255 255;
 
     /* Ink text */
-    --text-primary-rgb: 23 23 26;
-    --text-secondary-rgb: 64 64 70;
-    --text-muted-rgb: 120 121 130;
+    --text-primary-rgb: 31 31 31;
+    --text-secondary-rgb: 90 90 90;
+    --text-muted-rgb: 107 107 107;
 
-    /* ── Single accent — navy blue (light mode) ──────────────── */
-    --ember-rgb: 23 57 112;
-    --ember-deep-rgb: 15 41 84;
-    --ember-soft-rgb: 232 238 248;
-    /* Gold — real gold now (was ember alias), used for stripes/accents */
-    --gold-rgb: 176 141 76;
-    --gold-soft-rgb: 244 234 213;
-    --amber-rgb: 176 141 76;
-    --amber-soft-rgb: 244 234 213;
-    --moss-rgb: 34 128 74;
+    /* ── Single accent — deep navy (light mode) ───────────────── */
+    --ember-rgb: 11 31 58;
+    --ember-deep-rgb: 7 22 43;
+    --ember-soft-rgb: 232 238 246;
+    /* Text/icon colour that sits ON the accent. Dark mode flips the accent
+       to gold, where white would measure 2.2:1 — this keeps it ~13:1. */
+    --on-accent-rgb: 251 245 240;
+    /* Gold — decorative only. --gold-text-rgb is the readable variant;
+       --gold-rgb on cream measures 2.8:1 and must not carry body text. */
+    --gold-rgb: 194 168 120;
+    --gold-text-rgb: 138 109 59;
+    --gold-soft-rgb: 243 235 218;
+    --amber-rgb: 183 121 31;
+    --amber-soft-rgb: 251 239 213;
+    --moss-rgb: 47 125 91;
 
-    --success-rgb: 26 128 82;
-    --danger-rgb: 213 57 47;
-    --warning-rgb: 176 141 76;
+    --success-rgb: 47 125 91;
+    --danger-rgb: 184 58 58;
+    --warning-rgb: 183 121 31;
 
     --bg-primary: rgb(var(--bg-primary-rgb));
     --bg-alt: rgb(var(--bg-alt-rgb));
@@ -75,36 +80,40 @@
     --radius-xl: 24px;
 
     /* ── Ambient background glow (subtle blurred shapes) ─────── */
-    --glow-a-rgb: 23 57 112;
-    --glow-b-rgb: 176 141 76;
+    --glow-a-rgb: 11 31 58;
+    --glow-b-rgb: 194 168 120;
     --glow-opacity: 0.16;
 
     color-scheme: light;
   }
 
   [data-theme='dark'] {
-    --bg-primary-rgb: 15 15 18;
-    --bg-alt-rgb: 20 20 24;
-    --bg-card-rgb: 23 23 27;
-    --bg-input-rgb: 27 27 32;
-    --bg-elevated-rgb: 33 33 39;
+    --bg-primary-rgb: 6 15 31;
+    --bg-alt-rgb: 9 20 40;
+    --bg-card-rgb: 12 29 56;
+    --bg-input-rgb: 16 36 68;
+    --bg-elevated-rgb: 19 42 74;
 
-    --text-primary-rgb: 244 244 247;
-    --text-secondary-rgb: 196 197 205;
-    --text-muted-rgb: 143 144 154;
+    --text-primary-rgb: 251 245 240;
+    --text-secondary-rgb: 200 208 220;
+    --text-muted-rgb: 169 179 194;
 
-    --ember-rgb: 96 141 232;
-    --ember-deep-rgb: 72 113 196;
-    --ember-soft-rgb: 28 36 54;
-    --amber-rgb: 212 181 116;
-    --amber-soft-rgb: 61 50 29;
-    --gold-rgb: 212 181 116;
-    --gold-soft-rgb: 61 50 29;
-    --moss-rgb: 74 165 112;
+    /* Accent flips to gold on the navy field — the bright blue that
+       carried the old near-black theme reads as a link, not as chrome. */
+    --ember-rgb: 194 168 120;
+    --ember-deep-rgb: 214 194 152;
+    --ember-soft-rgb: 30 44 66;
+    --on-accent-rgb: 11 31 58;
+    --amber-rgb: 224 178 92;
+    --amber-soft-rgb: 58 45 24;
+    --gold-rgb: 194 168 120;
+    --gold-text-rgb: 214 194 152;
+    --gold-soft-rgb: 46 39 24;
+    --moss-rgb: 95 191 148;
 
-    --success-rgb: 74 200 128;
-    --danger-rgb: 255 105 97;
-    --warning-rgb: 212 181 116;
+    --success-rgb: 95 191 148;
+    --danger-rgb: 224 122 122;
+    --warning-rgb: 224 178 92;
 
     --bg-primary: rgb(var(--bg-primary-rgb));
     --bg-alt: rgb(var(--bg-alt-rgb));
@@ -134,8 +143,8 @@
     --shadow-lg: 0 4px 8px rgb(0 0 0 / 0.2), 0 16px 48px rgb(0 0 0 / 0.4);
     --hard-color: rgb(0 0 0);
 
-    --glow-a-rgb: 96 141 232;
-    --glow-b-rgb: 212 181 116;
+    --glow-a-rgb: 194 168 120;
+    --glow-b-rgb: 214 194 152;
     --glow-opacity: 0.18;
 
     color-scheme: dark;
@@ -416,7 +425,7 @@
       rgb(var(--ember-rgb)) 0%,
       rgb(var(--ember-deep-rgb)) 100%
     );
-    color: #FFFFFF;
+    color: rgb(var(--on-accent-rgb));
     border: none;
     border-radius: 14px;
     font-weight: 600;

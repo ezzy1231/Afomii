@@ -70,7 +70,7 @@ export function Sidebar({ title, navItems, notificationCount }: SidebarProps) {
         <div className="border-b border-app-border p-7">
           <div className="flex items-center justify-between">
             <Link href="/" className="flex items-center gap-2.5">
-              <span className="flex size-8 items-center justify-center rounded-xl bg-gradient-to-br from-ember to-ember-deep text-sm font-bold text-white shadow-[0_2px_8px_rgb(var(--ember-rgb)/0.35)]">
+              <span className="flex size-8 items-center justify-center rounded-xl bg-gradient-to-br from-ember to-ember-deep text-sm font-bold text-on-accent shadow-[0_2px_8px_rgb(var(--ember-rgb)/0.35)]">
                 U
               </span>
               <span className="text-lg font-bold tracking-tight text-app-fg">

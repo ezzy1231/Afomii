@@ -30,7 +30,7 @@ export function StickyActionBar({
   className,
 }: StickyActionBarProps) {
   const primaryCls =
-    "bg-gradient-to-br from-ember to-ember-deep text-white shadow-[0_4px_16px_rgb(var(--ember-rgb)/0.35)]";
+    "bg-gradient-to-br from-ember to-ember-deep text-on-accent shadow-[0_4px_16px_rgb(var(--ember-rgb)/0.35)]";
 
   const primaryBtn = primary.href ? (
     <Link

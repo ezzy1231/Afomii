@@ -82,7 +82,7 @@ export default function VisionPage() {
           </p>
           <Link
             href="/restaurants"
-            className="mt-6 inline-flex items-center gap-2 rounded-xl bg-gradient-to-br from-ember to-ember-deep px-5 py-2.5 text-sm font-semibold text-white shadow-[0_2px_8px_rgb(var(--ember-rgb)/0.3)] transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98]"
+            className="mt-6 inline-flex items-center gap-2 rounded-xl bg-gradient-to-br from-ember to-ember-deep px-5 py-2.5 text-sm font-semibold text-on-accent shadow-[0_2px_8px_rgb(var(--ember-rgb)/0.3)] transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98]"
           >
             See what&apos;s live today
             <ArrowRight className="size-4" />
@@ -136,7 +136,7 @@ export default function VisionPage() {
             </p>
             <Link
               href="/auth/role"
-              className="mt-5 inline-flex items-center gap-2 rounded-xl bg-gradient-to-br from-ember to-ember-deep px-6 py-3 text-sm font-semibold text-white shadow-[0_2px_8px_rgb(var(--ember-rgb)/0.3)] transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98]"
+              className="mt-5 inline-flex items-center gap-2 rounded-xl bg-gradient-to-br from-ember to-ember-deep px-6 py-3 text-sm font-semibold text-on-accent shadow-[0_2px_8px_rgb(var(--ember-rgb)/0.3)] transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98]"
             >
               Get started
               <ArrowRight className="size-4" />

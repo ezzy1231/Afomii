@@ -128,7 +128,7 @@ export function TiersManager({
                 type="button"
                 onClick={() => addRow(event.id)}
                 disabled={hasNew}
-                className="inline-flex min-h-[44px] items-center gap-1.5 rounded-xl bg-gradient-to-br from-ember to-ember-deep px-4 text-sm font-semibold text-white shadow-[0_2px_8px_rgb(var(--ember-rgb)/0.3)] transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] disabled:opacity-40"
+                className="inline-flex min-h-[44px] items-center gap-1.5 rounded-xl bg-gradient-to-br from-ember to-ember-deep px-4 text-sm font-semibold text-on-accent shadow-[0_2px_8px_rgb(var(--ember-rgb)/0.3)] transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] disabled:opacity-40"
               >
                 <Plus className="size-4" />
                 Add tier
@@ -219,7 +219,7 @@ export function TiersManager({
                           type="button"
                           onClick={() => persist(row)}
                           disabled={pending}
-                          className="min-h-[44px] flex-1 whitespace-nowrap rounded-xl bg-ink px-4 py-2.5 text-sm font-semibold text-white transition-transform active:scale-[0.98] disabled:opacity-50 dark:bg-ember/15 dark:text-ember lg:w-full"
+                          className="min-h-[44px] flex-1 whitespace-nowrap rounded-xl bg-ink px-4 py-2.5 text-sm font-semibold text-on-accent transition-transform active:scale-[0.98] disabled:opacity-50 dark:bg-ember/15 dark:text-ember lg:w-full"
                         >
                           Save
                         </button>

@@ -33,7 +33,7 @@ export function CategoryChips({
               className={cn(
                 "inline-flex shrink-0 items-center gap-1.5 rounded-full px-3.5 py-2 text-sm font-medium transition-all duration-200 active:scale-[0.97] min-h-[36px] border",
                 isActive
-                  ? "border-transparent bg-ember text-white shadow-[0_2px_8px_rgb(var(--ember-rgb)/0.3)] font-semibold"
+                  ? "border-transparent bg-ember text-on-accent shadow-[0_2px_8px_rgb(var(--ember-rgb)/0.3)] font-semibold"
                   : "border-app-border bg-app-card/70 text-app-muted hover:border-ember/30 hover:text-app-fg"
               )}
             >

@@ -251,7 +251,7 @@ export function ListingCardLarge({
             </h3>
             <div className="mt-2.5 flex items-center justify-between gap-2">
               <span className="price-pill">{item.rating}</span>
-              <span className="rounded-xl bg-ember px-3.5 py-1.5 text-xs font-semibold text-white shadow-[0_2px_8px_rgb(var(--ember-rgb)/0.4)] transition-transform duration-200 group-hover:scale-[1.03] group-active:scale-95">
+              <span className="rounded-xl bg-ember px-3.5 py-1.5 text-xs font-semibold text-on-accent shadow-[0_2px_8px_rgb(var(--ember-rgb)/0.4)] transition-transform duration-200 group-hover:scale-[1.03] group-active:scale-95">
                 Book now
               </span>
             </div>

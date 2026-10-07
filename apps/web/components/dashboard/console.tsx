@@ -145,7 +145,7 @@ export function SegmentedControl<T extends string>({
           className={cn(
             'min-h-9 flex-1 whitespace-nowrap rounded-lg px-4 text-sm font-semibold transition-all duration-200',
             value === opt.value
-              ? 'bg-gradient-to-br from-ember to-ember-deep text-white shadow-[0_2px_8px_rgb(var(--ember-rgb)/0.3)]'
+              ? 'bg-gradient-to-br from-ember to-ember-deep text-on-accent shadow-[0_2px_8px_rgb(var(--ember-rgb)/0.3)]'
               : 'text-app-muted hover:text-app-fg'
           )}
         >
@@ -243,7 +243,7 @@ export function ConsoleRangeLinks({
           className={cn(
             'min-h-9 rounded-lg px-4 py-2 text-sm font-semibold transition-all duration-200',
             current === range
-              ? 'bg-gradient-to-br from-ember to-ember-deep text-white shadow-[0_2px_8px_rgb(var(--ember-rgb)/0.3)]'
+              ? 'bg-gradient-to-br from-ember to-ember-deep text-on-accent shadow-[0_2px_8px_rgb(var(--ember-rgb)/0.3)]'
               : 'text-app-muted hover:text-app-fg'
           )}
         >

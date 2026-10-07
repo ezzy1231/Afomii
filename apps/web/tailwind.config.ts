@@ -28,6 +28,7 @@ const config: Config = {
           deep: "rgb(var(--ember-deep-rgb) / <alpha-value>)",
           soft: "rgb(var(--ember-soft-rgb) / <alpha-value>)",
         },
+        "on-accent": "rgb(var(--on-accent-rgb) / <alpha-value>)",
         amber: {
           DEFAULT: "rgb(var(--amber-rgb) / <alpha-value>)",
           soft: "rgb(var(--amber-soft-rgb) / <alpha-value>)",
@@ -50,6 +51,8 @@ const config: Config = {
         gold: {
           DEFAULT: "rgb(var(--gold-rgb) / <alpha-value>)",
           soft: "rgb(var(--gold-soft-rgb) / <alpha-value>)",
+          // Readable on the cream field; use for any gold-coloured text.
+          text: "rgb(var(--gold-text-rgb) / <alpha-value>)",
           50: "#FBF7EE",
           100: "#F4EAD5",
           200: "#E9D5AC",

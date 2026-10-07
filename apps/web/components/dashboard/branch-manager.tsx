@@ -301,7 +301,7 @@ function AddBranchForm() {
       <div className="mt-4 flex flex-wrap items-center gap-3">
         <button
           type="submit"
-          className="min-h-[44px] rounded-full bg-ember px-6 text-sm font-semibold text-white shadow-glass transition-all hover:brightness-110 active:scale-[0.98]"
+          className="min-h-[44px] rounded-full bg-ember px-6 text-sm font-semibold text-on-accent shadow-glass transition-all hover:brightness-110 active:scale-[0.98]"
         >
           Add branch
         </button>
@@ -418,7 +418,7 @@ function BranchConfigCard({ branch }: { branch: Branch }) {
                   {active && (
                     <span
                       aria-hidden
-                      className="absolute right-2 top-2 flex h-5 w-5 items-center justify-center rounded-full bg-ember text-[11px] font-bold text-white"
+                      className="absolute right-2 top-2 flex h-5 w-5 items-center justify-center rounded-full bg-ember text-[11px] font-bold text-on-accent"
                     >
                       ✓
                     </span>
@@ -570,7 +570,7 @@ function BranchConfigCard({ branch }: { branch: Branch }) {
             type="button"
             onClick={save}
             disabled={!dirty || saving}
-            className="min-h-[44px] rounded-full bg-ember px-6 text-sm font-semibold text-white shadow-glass transition-all hover:brightness-110 active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50"
+            className="min-h-[44px] rounded-full bg-ember px-6 text-sm font-semibold text-on-accent shadow-glass transition-all hover:brightness-110 active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50"
           >
             {saving ? "Saving…" : "Save"}
           </button>
@@ -641,7 +641,7 @@ function RestaurantHoursCard({ restaurant }: { restaurant: Restaurant }) {
           type="button"
           onClick={save}
           disabled={saving}
-          className="min-h-[44px] rounded-full bg-ember px-6 text-sm font-semibold text-white shadow-glass transition-all hover:brightness-110 active:scale-[0.98] disabled:opacity-50"
+          className="min-h-[44px] rounded-full bg-ember px-6 text-sm font-semibold text-on-accent shadow-glass transition-all hover:brightness-110 active:scale-[0.98] disabled:opacity-50"
         >
           {saving ? "Saving…" : "Save hours"}
         </button>

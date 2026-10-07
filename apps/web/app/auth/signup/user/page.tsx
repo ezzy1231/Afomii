@@ -66,7 +66,7 @@ function ToggleChip({
       onClick={onClick}
       className={`min-h-[36px] rounded-full border px-4 py-2 text-sm font-semibold transition-colors ${
         active
-          ? 'border-ember/40 bg-ember text-white'
+          ? 'border-ember/40 bg-ember text-on-accent'
           : 'border-app-border bg-app-card text-app-muted hover:border-gold/50 hover:text-app-fg'
       }`}
     >

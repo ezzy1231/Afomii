@@ -198,7 +198,7 @@ export default function OrganizerProfile({
                   {nextEvent.venueName}
                 </span>
               </p>
-              <span className="mt-4 inline-flex items-center gap-2 rounded-2xl bg-gradient-to-br from-ember to-ember-deep px-5 py-3 text-sm font-semibold text-white shadow-[0_2px_8px_rgb(var(--ember-rgb)/0.3)] transition-all duration-200 group-hover:scale-[1.02] group-active:scale-[0.98]">
+              <span className="mt-4 inline-flex items-center gap-2 rounded-2xl bg-gradient-to-br from-ember to-ember-deep px-5 py-3 text-sm font-semibold text-on-accent shadow-[0_2px_8px_rgb(var(--ember-rgb)/0.3)] transition-all duration-200 group-hover:scale-[1.02] group-active:scale-[0.98]">
                 {nextEvent.priceFrom != null
                   ? `Book from ETB ${nextEvent.priceFrom}`
                   : "Book now"}
@@ -223,7 +223,7 @@ export default function OrganizerProfile({
                   href={`/events/${e.id}`}
                   className="group flex items-center gap-3 rounded-2xl border border-app-border bg-app-card p-3 transition-colors duration-200 hover:border-ember/40 hover:bg-app-input"
                 >
-                  <span className="flex h-14 w-14 shrink-0 flex-col items-center justify-center rounded-xl bg-ink text-white dark:bg-ember/15 dark:text-ember">
+                  <span className="flex h-14 w-14 shrink-0 flex-col items-center justify-center rounded-xl bg-ink text-on-accent dark:bg-ember/15 dark:text-ember">
                     <span className="text-[10px] font-bold tracking-widest">
                       {month}
                     </span>

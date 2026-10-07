@@ -70,7 +70,7 @@ export function FilterSheet({
       <button
         type="button"
         onClick={onClose}
-        className="flex-1 rounded-xl bg-gradient-to-br from-ember to-ember-deep px-4 py-2.5 text-sm font-semibold text-white shadow-[0_2px_8px_rgb(var(--ember-rgb)/0.3)] transition-transform active:scale-[0.98]"
+        className="flex-1 rounded-xl bg-gradient-to-br from-ember to-ember-deep px-4 py-2.5 text-sm font-semibold text-on-accent shadow-[0_2px_8px_rgb(var(--ember-rgb)/0.3)] transition-transform active:scale-[0.98]"
       >
         Show {resultCount} result{resultCount === 1 ? "" : "s"}
       </button>

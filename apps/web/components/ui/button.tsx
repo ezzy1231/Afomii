@@ -7,7 +7,7 @@ const buttonVariants = cva(
     variants: {
       variant: {
         primary:
-          "bg-gradient-to-br from-ember to-ember-deep text-white shadow-[0_2px_8px_rgb(var(--ember-rgb)/0.3)] hover:shadow-[0_4px_16px_rgb(var(--ember-rgb)/0.4)] hover:-translate-y-px",
+          "bg-gradient-to-br from-ember to-ember-deep text-on-accent shadow-[0_2px_8px_rgb(var(--ember-rgb)/0.3)] hover:shadow-[0_4px_16px_rgb(var(--ember-rgb)/0.4)] hover:-translate-y-px",
         accent:
           "bg-ember/10 text-ember border border-ember/25 hover:bg-ember/15 hover:border-ember/40",
         outline:
