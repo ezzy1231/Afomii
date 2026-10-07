@@ -138,46 +138,50 @@ export default function BusinessSignupPage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
+
     setError(null)
     setLoading(true)
 
-    const supabase = createClient()
-    const { error, data } = await supabase.auth.signUp({
-      email: form.email,
-      password: form.password,
-      options: {
-        data: {
-          role: 'food_business',
-          full_name: form.contactName,
-          business_name: form.businessName,
-          business_category: form.category.toLowerCase().replace(/[^a-z0-9]+/g, '_'),
-          business_description: form.description,
-          business_address: form.address,
-          business_city: form.city,
-          business_country: form.country,
-          business_phone: form.phone,
-          business_website: form.website,
-          business_plan: form.plan,
+    try {
+      const supabase = createClient()
+      const { data, error: signUpError } = await supabase.auth.signUp({
+        email: form.email,
+        password: form.password,
+        options: {
+          data: {
+            role: 'food_business',
+            full_name: form.contactName,
+            business_name: form.businessName,
+            business_category: form.category.toLowerCase().replace(/[^a-z0-9]+/g, '_'),
+            business_description: form.description,
+            business_address: form.address,
+            business_city: form.city,
+            business_country: form.country,
+            business_phone: form.phone,
+            business_website: form.website,
+            business_plan: form.plan,
+          },
         },
-        emailRedirectTo: `${window.location.origin}/auth/callback`,
-      },
-    })
+      })
 
-    if (error) {
-      setError(error.message)
+      if (signUpError) {
+        setError(signUpError.message || 'Sign-up failed')
+        return
+      }
+
+      if (data.user) {
+        if (data.user.email_confirmed_at || data.session) {
+          router.push('/dashboard/restaurant')
+          return
+        }
+        setDone(true)
+      }
+    } catch (err: any) {
+      const errorMessage = err?.message || 'Sign-up failed'
+      setError(errorMessage)
+    } finally {
       setLoading(false)
-      return
     }
-
-    // Confirmation off / autoconfirmed: a live session exists — run role
-    // provisioning through the callback route, then continue.
-    if (data.session) {
-      router.push('/auth/callback?next=/dashboard/restaurant')
-      return
-    }
-
-    setDone(true)
-    setLoading(false)
   }
 
   if (done) {

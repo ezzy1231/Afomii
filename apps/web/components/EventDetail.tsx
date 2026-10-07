@@ -80,13 +80,27 @@ export default function EventDetail({ event }: { event: Event }) {
   const [submitting, setSubmitting] = useState(false)
   const [result, setResult] = useState<TicketActionState | null>(null)
   const [signedIn, setSignedIn] = useState<boolean | null>(null)
+  const [user, setUser] = useState<any>(null)
+  const [profile, setProfile] = useState<any>(null)
+  const [isLoaded, setIsLoaded] = useState(false)
 
   const badge = dateBadge(event.startDateTime)
 
   useEffect(() => {
-    createClient()
-      .auth.getUser()
-      .then(({ data }) => setSignedIn(!!data.user))
+    const supabase = createClient()
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      setUser(user)
+      if (user) {
+        supabase.from('profiles').select('*').eq('id', user.id).single().then(({ data }) => {
+          setProfile(data)
+          setIsLoaded(true)
+          setSignedIn(true)
+        })
+      } else {
+        setIsLoaded(true)
+        setSignedIn(false)
+      }
+    })
   }, [])
 
   function handleQuantity(id: string, qty: number) {

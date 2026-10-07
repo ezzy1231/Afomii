@@ -38,19 +38,18 @@ function readText(formData: FormData, key: string) {
 
 async function getCurrentUserRole() {
   const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
+  const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { supabase, user: null, role: null as string | null }
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('role')
+    .select('id, role')
     .eq('id', user.id)
     .maybeSingle()
 
-  return { supabase, user, role: (profile?.role as string | undefined) ?? null }
+  if (!profile) return { supabase, user: null, role: null as string | null }
+
+  return { supabase, user, role: (profile.role as string | undefined) ?? null }
 }
 
 export async function createRestaurantListing(

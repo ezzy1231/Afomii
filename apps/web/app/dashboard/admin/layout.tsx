@@ -23,17 +23,17 @@ export default async function AdminDashboardLayout({
   // Admin console guard — RLS limits data, this gate limits the surface.
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user) redirect('/auth/signin')
+  if (!user) redirect('/sign-in?redirect_url=/dashboard/admin')
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('role')
+    .select('id, role')
     .eq('id', user.id)
     .maybeSingle()
 
   if ((profile?.role as string | undefined) !== 'system_admin') redirect('/auth/no-access')
 
-  const notificationCount = await getUnreadNotificationCount(user.id)
+  const notificationCount = profile?.id ? await getUnreadNotificationCount(profile.id) : 0
 
   return (
     <div className="flex min-h-screen">

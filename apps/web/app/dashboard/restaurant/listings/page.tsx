@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import {
   ConsolePageShell,
@@ -13,14 +14,19 @@ export const metadata: Metadata = { title: 'Listings · Restaurant' }
 
 export default async function RestaurantListingsPage() {
   const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) redirect('/sign-in')
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('id')
+    .eq('id', user!.id)
+    .maybeSingle()
+  const profileId = profile?.id ?? null
 
   const { data: business } = await supabase
     .from('businesses')
     .select('id')
-    .eq('owner_id', user?.id ?? '')
+    .eq('owner_id', profileId ?? '')
     .maybeSingle()
 
   const { data: restaurants } = business

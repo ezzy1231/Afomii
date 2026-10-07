@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import {
   ConsolePageShell,
@@ -25,7 +26,14 @@ export default async function AdminUsersPage({
       : 'all'
 
   const supabase = await createClient()
-  const { data: { user: me } } = await supabase.auth.getUser()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) redirect('/sign-in')
+  const { data: me } = await supabase
+    .from('profiles')
+    .select('id')
+    .eq('id', user!.id)
+    .maybeSingle()
+  const meId = me?.id ?? null
 
   let query = supabase
     .from('profiles')
@@ -106,7 +114,7 @@ export default async function AdminUsersPage({
               </tr>
             ) : (
               rows.map((row) => {
-                const isSelf = row.id === me?.id
+                const isSelf = row.id === meId
                 return (
                   <tr key={row.id} className="border-b border-app-border last:border-0">
                     <td className="px-4 py-3.5">

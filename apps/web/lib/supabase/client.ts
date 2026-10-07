@@ -11,11 +11,10 @@ export function createClient() {
 
   return createBrowserClient(supabaseUrl, supabaseAnonKey, {
     auth: {
-      // The server callback route (/auth/callback) is the ONLY place that
-      // exchanges the OAuth `code`. If the browser client also reacts to
-      // `?code=` (its default behavior), a client-side exchange can consume
-      // and delete the PKCE verifier cookie before the server callback reads
-      // it, producing "PKCE code verifier not found in storage".
+      // Exchange exactly ONCE. detectSessionInUrl would auto-exchange the same
+      // `?code=` that app/auth/callback/page.tsx exchanges explicitly, and a
+      // PKCE code is single-use — the second attempt fails with
+      // "invalid flow state, no valid flow state found".
       detectSessionInUrl: false,
     },
   })

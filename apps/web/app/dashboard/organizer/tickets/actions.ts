@@ -22,25 +22,25 @@ export type TicketTierInput = {
 
 async function getOrganizerContext() {
   const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-  if (!user) return { supabase, user: null, organizerId: null }
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { supabase, userId: null, profileId: null, organizerId: null }
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('role')
+    .select('id, role')
     .eq('id', user.id)
     .maybeSingle()
+
+  if (!profile) return { supabase, userId: user.id, profileId: null, organizerId: null }
 
   const { data: organizer } = await supabase
     .from('organizers')
     .select('id')
-    .eq('owner_id', user.id)
+    .eq('owner_id', profile.id)
     .maybeSingle()
 
-  const isOrganizer = profile?.role === 'event_organizer' || Boolean(organizer)
-  return { supabase, user, organizerId: isOrganizer ? (organizer?.id ?? null) : null }
+  const isOrganizer = profile.role === 'event_organizer' || Boolean(organizer)
+  return { supabase, userId: user.id, profileId: profile.id, organizerId: isOrganizer ? (organizer?.id ?? null) : null }
 }
 
 function toIso(value?: string | null): string | null {
@@ -54,8 +54,8 @@ export async function saveTicketTier(input: TicketTierInput): Promise<TierAction
   if (!parsed.success) return { ok: false, message: firstIssue(parsed.error) }
   const { eventId, name, tier, price, totalQuantity, salesStart, salesEnd, id } = parsed.data
 
-  const { supabase, user, organizerId } = await getOrganizerContext()
-  if (!user) return { ok: false, message: 'Please sign in again to continue.' }
+  const { supabase, userId, organizerId } = await getOrganizerContext()
+  if (!userId) return { ok: false, message: 'Please sign in again to continue.' }
   if (!organizerId) {
     return { ok: false, message: 'No linked organizer profile found. Complete organizer signup first.' }
   }
@@ -128,8 +128,8 @@ export async function deleteTicketTier(id: string): Promise<TierActionState> {
   const idCheck = uuidSchema.safeParse(id)
   if (!idCheck.success) return { ok: false, message: 'Invalid tier identifier.' }
 
-  const { supabase, user, organizerId } = await getOrganizerContext()
-  if (!user) return { ok: false, message: 'Please sign in again to continue.' }
+  const { supabase, userId, organizerId } = await getOrganizerContext()
+  if (!userId) return { ok: false, message: 'Please sign in again to continue.' }
   if (!organizerId) return { ok: false, message: 'No linked organizer profile found.' }
 
   const { data: tier } = await supabase

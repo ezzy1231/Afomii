@@ -60,6 +60,24 @@ export default function MenuPage() {
   const [items, setItems] = useState<MenuItem[]>([])
   const [search, setSearch] = useState('')
   const [activeCategory, setActiveCategory] = useState('All')
+  const [user, setUser] = useState<any>(null)
+  const [profile, setProfile] = useState<any>(null)
+  const [isLoaded, setIsLoaded] = useState(false)
+
+  useEffect(() => {
+    const supabase = createClient()
+    supabase.auth.getUser().then(({ data: { user: u } }) => {
+      setUser(u)
+      if (u) {
+        supabase.from('profiles').select('*').eq('id', u.id).single().then(({ data }) => {
+          setProfile(data)
+          setIsLoaded(true)
+        })
+      } else {
+        setIsLoaded(true)
+      }
+    })
+  }, [])
 
   // Add / edit modal state
   const [editing, setEditing] = useState<MenuItem | null>(null)
@@ -87,13 +105,17 @@ export default function MenuPage() {
   }, [])
 
   useEffect(() => {
+    if (!isLoaded) return
     async function load() {
       const supabase = createClient()
-      const { data: { user } } = await supabase.auth.getUser()
       if (!user) { setLoading(false); return }
 
+      const { data: profileRow } = await supabase
+        .from('profiles').select('id').eq('id', user.id).maybeSingle()
+      if (!profileRow) { setLoading(false); return }
+
       const { data: business } = await supabase
-        .from('businesses').select('id').eq('owner_id', user.id).maybeSingle()
+        .from('businesses').select('id').eq('owner_id', profileRow.id).maybeSingle()
       if (!business) { setLoading(false); return }
 
       const { data: branchRows } = await supabase
@@ -107,7 +129,7 @@ export default function MenuPage() {
       setLoading(false)
     }
     load()
-  }, [loadItems])
+  }, [loadItems, isLoaded, user])
 
   async function switchBranch(id: string) {
     setBranchId(id)

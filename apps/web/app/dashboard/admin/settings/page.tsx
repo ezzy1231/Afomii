@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { ConsolePageShell, ConsoleHeader, StatusPill } from '@/components/dashboard/console'
 import { CONSOLE_CARD } from '@/components/dashboard/console-shared'
@@ -10,18 +11,17 @@ export const metadata: Metadata = { title: 'Admin settings' }
 export default async function AdminSettingsPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
+  if (!user) redirect('/sign-in')
 
   let role: string | null = null
-  let email: string | null = user?.email ?? null
-  if (user) {
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('role, email')
-      .eq('id', user.id)
-      .maybeSingle()
-    role = (profile?.role as string | undefined) ?? null
-    email = (profile?.email as string | undefined) ?? email
-  }
+  let email: string | null = user!.email ?? null
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('role, email')
+    .eq('id', user!.id)
+    .maybeSingle()
+  role = (profile?.role as string | undefined) ?? null
+  email = (profile?.email as string | undefined) ?? email
 
   return (
     <ConsolePageShell maxWidth="max-w-2xl">

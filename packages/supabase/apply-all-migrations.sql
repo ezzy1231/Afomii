@@ -37,6 +37,7 @@
 --   0012_reminders_and_plans.sql      179 lines  sha256:306304213a91
 --   0013_fix_plans_rpc_union.sql       67 lines  sha256:450535c14810
 --   0014_real_notifications.sql       262 lines  sha256:d370fdf3d1e9
+--   0015_add_clerk_user_id.sql         13 lines  sha256:5505b88dd31f
 
 -- ================= 0001_extensions_enums.sql =================
 -- (47 lines, sha256:26c590812b27)
@@ -1970,3 +1971,21 @@ create trigger trg_ticket_payment_changed
   after update of payment_status on public.ticket_purchases
   for each row
   execute function public.on_ticket_payment_changed();
+
+
+-- ================= 0015_add_clerk_user_id.sql =================
+-- (13 lines, sha256:5505b88dd31f)
+
+-- 0015_add_clerk_user_id.sql
+-- Add Clerk user ID to profiles for Clerk authentication migration
+
+-- Add clerk_user_id column to profiles
+alter table public.profiles
+  add column if not exists clerk_user_id text unique;
+
+-- Create index for faster lookups by Clerk user ID
+create index if not exists idx_profiles_clerk_user_id
+  on public.profiles (clerk_user_id);
+
+-- Add comment
+comment on column public.profiles.clerk_user_id is 'Clerk authentication user ID';

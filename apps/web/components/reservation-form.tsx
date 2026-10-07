@@ -67,6 +67,10 @@ export function ReservationForm({
   const totalTables = config?.totalTables ?? 0;
   const maxGuests = config?.maxGuestPerTable ?? 8;
 
+  const [user, setUser] = useState<any>(null);
+  const [profile, setProfile] = useState<any>(null);
+  const [isLoaded, setIsLoaded] = useState(false);
+
   const [date, setDate] = useState(todayString());
   const [partySize, setPartySize] = useState(2);
   const [timeSlot, setTimeSlot] = useState<string | null>(null);
@@ -81,14 +85,29 @@ export function ReservationForm({
   const ranges = restaurant.openingHours?.[weekday];
   const slots = useMemo(() => buildSlots(ranges, slotMin), [ranges, slotMin]);
 
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth.getUser().then(({ data: { user: u } }) => {
+      setUser(u);
+      if (u) {
+        supabase.from("profiles").select("*").eq("id", u.id).single().then(({ data }) => {
+          setProfile(data);
+          setIsLoaded(true);
+          setSignedIn(true);
+        });
+      } else {
+        setIsLoaded(true);
+        setSignedIn(false);
+      }
+    });
+  }, []);
+
   // The user's active bookings at THIS branch — shown persistently so a
   // reservation "holds" until cancelled or another one is made.
   const loadMyBookings = useCallback(async () => {
+    if (!isLoaded) return;
     const supabase = createClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (!user) {
+    if (!profile) {
       setSignedIn(false);
       setMyBookings([]);
       return;
@@ -99,13 +118,13 @@ export function ReservationForm({
       .from("reservations")
       .select("id, status, reservation_date, time_slot, guest_count")
       .eq("branch_id", branch.id)
-      .eq("user_id", user.id)
+      .eq("user_id", profile.id)
       .gte("reservation_date", today)
       .in("status", ["pending", "confirmed"])
       .order("reservation_date")
       .order("time_slot");
     setMyBookings((data ?? []) as MyBooking[]);
-  }, [branch.id]);
+  }, [branch.id, isLoaded, profile]);
 
   useEffect(() => {
     void loadMyBookings();

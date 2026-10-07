@@ -13,15 +13,20 @@ export type PlanRideActionState = {
 /** Mark a notification (or all) as read. Returns the new unread count. */
 export async function markNotificationsRead(id?: string): Promise<number> {
   const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  const { data: { user } } = await supabase.auth.getUser()
   if (!user) return 0
+
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('id')
+    .eq('id', user.id)
+    .maybeSingle()
+  if (!profile) return 0
 
   const query = supabase
     .from('notifications')
     .update({ read_at: new Date().toISOString() })
-    .eq('user_id', user.id)
+    .eq('user_id', profile.id)
     .is('read_at', null)
   if (id) query.eq('id', id)
 
@@ -30,7 +35,7 @@ export async function markNotificationsRead(id?: string): Promise<number> {
   const { count } = await supabase
     .from('notifications')
     .select('id', { count: 'exact', head: true })
-    .eq('user_id', user.id)
+    .eq('user_id', profile.id)
     .is('read_at', null)
 
   return count ?? 0
@@ -45,10 +50,15 @@ export async function startPlanRide(
   planType: 'reservation' | 'event',
 ): Promise<PlanRideActionState> {
   const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { ok: false, message: 'Please sign in first.' }
+
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('id')
+    .eq('id', user.id)
+    .maybeSingle()
+  if (!profile) return { ok: false, message: 'Please sign in first.' }
 
   try {
     let to: string

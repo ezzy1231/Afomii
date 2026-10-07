@@ -13,20 +13,25 @@ export const metadata: Metadata = { title: 'Settings' }
 
 export default async function SettingsPage() {
   const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) redirect('/sign-in?redirect_url=/settings')
 
-  if (!user) redirect('/auth/signin?next=/settings')
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('id, role, full_name, phone, city, email, created_at')
+    .eq('id', user.id)
+    .maybeSingle()
 
-  const meta = user.user_metadata
-  const role = (meta?.role as string) ?? 'user'
-  const fullName = (meta?.full_name as string) ?? ''
-  const phone = (meta?.phone as string) ?? ''
-  const city = (meta?.city as string) ?? ''
+  if (!profile) redirect('/sign-in?redirect_url=/settings')
 
-  const reservations = await getConsumerReservations(user.id)
-  const tickets = await getConsumerTickets(user.id)
+  const role = (profile.role as string) ?? 'user'
+  const fullName = profile.full_name ?? ''
+  const phone = profile.phone ?? ''
+  const city = profile.city ?? ''
+  const email = profile.email ?? user.email ?? ''
+
+  const reservations = await getConsumerReservations(profile.id)
+  const tickets = await getConsumerTickets(profile.id)
 
   return (
     <>
@@ -38,11 +43,11 @@ export default async function SettingsPage() {
           <h2 className="text-xs font-semibold uppercase tracking-widest text-ember mb-6">Profile</h2>
           <div className="flex items-center gap-5 mb-6">
             <div className="w-14 h-14 rounded-full bg-ink text-white flex items-center justify-center text-xl font-bold shadow-soft">
-              {fullName?.[0]?.toUpperCase() ?? user.email?.[0]?.toUpperCase() ?? 'U'}
+              {fullName?.[0]?.toUpperCase() ?? email?.[0]?.toUpperCase() ?? 'U'}
             </div>
             <div>
               <p className="font-semibold text-app-fg">{fullName || '—'}</p>
-              <p className="text-sm text-app-muted">{user.email}</p>
+              <p className="text-sm text-app-muted">{email}</p>
               <span className="inline-flex mt-1.5 text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-ember/12 text-ember">
                 {role === 'food_business'
                   ? 'Food Business'
@@ -55,7 +60,7 @@ export default async function SettingsPage() {
 
           <dl className="space-y-4 text-sm">
             <Row label="Full name" value={fullName || '—'} />
-            <Row label="Email" value={user.email ?? '—'} />
+            <Row label="Email" value={email || '—'} />
             <Row label="Phone" value={phone || '—'} />
             <Row label="City" value={city || '—'} />
           </dl>
@@ -67,7 +72,7 @@ export default async function SettingsPage() {
             <p className="text-app-muted">
               Member since{' '}
               <span className="text-app-fg font-medium">
-                {new Date(user.created_at).toLocaleDateString('en-US', {
+                {new Date(profile.created_at).toLocaleDateString('en-US', {
                   year: 'numeric',
                   month: 'long',
                   day: 'numeric',

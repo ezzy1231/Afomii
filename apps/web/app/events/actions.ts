@@ -35,9 +35,17 @@ export async function purchaseTickets(input: {
   // Rate limit first — before any Supabase work. Keyed by user id when
   // available, else client IP.
   const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  const { data: { user: authUser } } = await supabase.auth.getUser()
+
+  let user: { id: string } | null = null
+  if (authUser) {
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('id')
+      .eq('id', authUser.id)
+      .maybeSingle()
+    if (profile) user = { id: profile.id as string }
+  }
 
   const ip = await clientIp()
   const limit = guardActionLimit('purchaseTickets', user?.id ?? `ip:${ip}`, ACTION_LIMITS.purchase)

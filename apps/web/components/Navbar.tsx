@@ -6,13 +6,29 @@ import NavLinks from './NavLinks'
 import NotificationsBell from './NotificationsBell'
 import ThemeToggle from './ThemeToggle'
 
-async function getUser() {
+type AuthedUser = {
+  userId: string
+  fullName: string | null
+  email: string | null
+  profileId: string | null
+}
+
+async function getUser(): Promise<AuthedUser | null> {
   try {
     const supabase = await createClient()
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
-    return user
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return null
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('id, full_name, email')
+      .eq('id', user.id)
+      .maybeSingle()
+    return {
+      userId: user.id,
+      fullName: profile?.full_name ?? null,
+      email: profile?.email ?? null,
+      profileId: profile?.id ?? null,
+    }
   } catch {
     return null
   }
@@ -21,10 +37,10 @@ async function getUser() {
 export default async function Navbar() {
   const user = await getUser()
   const [unreadCount] = await Promise.all([
-    user ? getUnreadNotificationCount(user.id) : Promise.resolve(0),
+    user?.profileId ? getUnreadNotificationCount(user.profileId) : Promise.resolve(0),
   ])
   const initial =
-    (user?.user_metadata?.full_name as string)?.[0]?.toUpperCase() ??
+    user?.fullName?.[0]?.toUpperCase() ??
     user?.email?.[0]?.toUpperCase() ??
     null
 

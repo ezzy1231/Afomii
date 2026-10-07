@@ -9,11 +9,9 @@ export const metadata: Metadata = { title: 'My Plans' }
 
 export default async function PlansPage() {
   const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
-  if (!user) redirect('/auth/signin?next=/plans')
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) redirect('/sign-in?redirect_url=/plans')
+  const userId = user.id
 
   return (
     <>
@@ -29,7 +27,7 @@ export default async function PlansPage() {
             of start time.
           </p>
         </div>
-        <PlansView userId={user.id} />
+        <PlansView userId={userId} />
       </main>
       <PageFooter />
     </>

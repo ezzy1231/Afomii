@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { TiersManager } from './tiers-manager'
 
@@ -19,14 +20,19 @@ export type TierRecord = {
 
 export default async function TicketsPage() {
   const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) redirect('/sign-in')
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('id')
+    .eq('id', user!.id)
+    .maybeSingle()
+  const profileId = profile?.id ?? null
 
   const { data: organizer } = await supabase
     .from('organizers')
     .select('id')
-    .eq('owner_id', user?.id ?? '')
+    .eq('owner_id', profileId ?? '')
     .maybeSingle()
 
   const { data: events } = organizer

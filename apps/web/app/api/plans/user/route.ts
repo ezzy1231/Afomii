@@ -8,13 +8,21 @@ export const dynamic = 'force-dynamic'
 /** Current user's plans (reservations + event tickets). */
 export async function GET() {
   const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  const { data: { user } } = await supabase.auth.getUser()
   if (!user) {
-    return NextResponse.json({ plans: [] }, { status: 401 })
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  const plans = await getConsumerPlans(user.id)
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('id')
+    .eq('id', user.id)
+    .maybeSingle()
+
+  if (!profile) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
+  const plans = await getConsumerPlans(profile.id)
   return NextResponse.json({ plans })
 }

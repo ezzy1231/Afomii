@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { ReservationQuickActions } from '@/components/dashboard/reservation-quick-actions'
 import { cn } from '@/lib/utils'
@@ -35,25 +36,35 @@ function displayName(email: string | null | undefined, fallback: string) {
 
 export default async function RestaurantDashboardPage() {
   const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) redirect('/sign-in')
+  const { data: profileData } = await supabase
+    .from('profiles')
+    .select('id, role, email')
+    .eq('id', user!.id)
+    .maybeSingle()
+  const profile = profileData ?? null
 
   const today = new Date().toISOString().slice(0, 10)
 
   const { data: businessRaw } = await supabase
     .from('businesses')
     .select('id, name')
-    .eq('owner_id', user?.id ?? '')
+    .eq('owner_id', profile?.id ?? '')
     .maybeSingle()
 
   // Self-heal pre-provisioning accounts on first view.
   let business = businessRaw
-  if (!business && user) {
-    const metaRole = (user.user_metadata as Record<string, unknown> | undefined)?.role
+  if (!business && profile) {
+    const metaRole =
+      (user!.user_metadata as Record<string, unknown> | undefined)?.role ?? profile.role
     if (metaRole === 'food_business') {
       const { ensureBusiness } = await import('@/lib/provision')
-      business = await ensureBusiness(supabase, user)
+      business = await ensureBusiness(supabase, {
+        id: profile.id,
+        email: profile.email ?? user!.email,
+        user_metadata: (user!.user_metadata as Record<string, unknown> | undefined) ?? undefined,
+      })
     }
   }
 

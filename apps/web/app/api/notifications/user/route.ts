@@ -7,24 +7,32 @@ export const dynamic = 'force-dynamic'
 /** Current user's recent notifications + unread count (used by the bell). */
 export async function GET() {
   const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  const { data: { user } } = await supabase.auth.getUser()
   if (!user) {
-    return NextResponse.json({ notifications: [], unread: 0 }, { status: 401 })
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('id')
+    .eq('id', user.id)
+    .maybeSingle()
+
+  if (!profile) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
   const [notifRes, countRes] = await Promise.all([
     supabase
       .from('notifications')
       .select('id, type, title, body, read_at, created_at')
-      .eq('user_id', user.id)
+      .eq('user_id', profile.id)
       .order('created_at', { ascending: false })
       .limit(20),
     supabase
       .from('notifications')
       .select('id', { count: 'exact', head: true })
-      .eq('user_id', user.id)
+      .eq('user_id', profile.id)
       .is('read_at', null),
   ])
 

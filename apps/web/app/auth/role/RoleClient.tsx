@@ -2,10 +2,19 @@
 
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
+import { assignRole } from './actions'
 
-export default function RoleClient() {
+/** Maps the card key to the `user_role` enum value stored in `profiles.role`. */
+const ROLE_BY_KEY: Record<string, 'customer' | 'food_business' | 'event_organizer'> = {
+  user: 'customer',
+  business: 'food_business',
+  organizer: 'event_organizer',
+}
+
+export default function RoleClient({ isAuthenticated }: { isAuthenticated: boolean }) {
   const searchParams = useSearchParams()
   const next = searchParams.get('next') || '/'
+  const error = searchParams.get('error')
 
   const roles = [
     {
@@ -82,6 +91,15 @@ export default function RoleClient() {
         </p>
       </div>
 
+      {error && (
+        <div
+          role="alert"
+          className="mx-auto mb-8 max-w-xl rounded-xl border border-danger/30 bg-danger/10 px-4 py-3 text-center text-sm font-medium text-danger"
+        >
+          {error}
+        </div>
+      )}
+
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {roles.map((role, i) => (
           <div
@@ -110,19 +128,34 @@ export default function RoleClient() {
               ))}
             </ul>
 
-            <Link href={role.href} className="btn-primary text-center !py-2.5 text-sm">
-              {role.cta}
-            </Link>
+            {isAuthenticated ? (
+              // Already signed in (e.g. Google OAuth): persist the role onto the
+              // live session instead of sending them to a signup form for an
+              // account that already exists.
+              <form action={assignRole} className="mt-auto">
+                <input type="hidden" name="role" value={ROLE_BY_KEY[role.key]} />
+                <input type="hidden" name="next" value={next} />
+                <button type="submit" className="btn-primary w-full text-center !py-2.5 text-sm">
+                  {role.cta}
+                </button>
+              </form>
+            ) : (
+              <Link href={role.href} className="btn-primary mt-auto text-center !py-2.5 text-sm">
+                {role.cta}
+              </Link>
+            )}
           </div>
         ))}
       </div>
 
-      <p className="text-center text-sm text-app-muted mt-10">
-        Already have an account?{' '}
-        <Link href="/auth/signin" className="text-app-fg font-semibold hover:underline">
-          Sign in
-        </Link>
-      </p>
+      {!isAuthenticated && (
+        <p className="text-center text-sm text-app-muted mt-10">
+          Already have an account?{' '}
+          <Link href="/auth/signin" className="text-app-fg font-semibold hover:underline">
+            Sign in
+          </Link>
+        </p>
+      )}
     </div>
   )
 }

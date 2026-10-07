@@ -1,3 +1,4 @@
+import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { getUnreadNotificationCount } from '@/lib/supabase/queries'
 import { Sidebar } from '@/components/dashboard/sidebar'
@@ -18,7 +19,17 @@ export default async function OrganizerDashboardLayout({
 }) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  const notificationCount = user ? await getUnreadNotificationCount(user.id) : 0
+  if (!user) redirect('/sign-in?redirect_url=/dashboard/organizer')
+
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('id, role')
+    .eq('id', user.id)
+    .maybeSingle()
+
+  if ((profile?.role as string | undefined) !== 'event_organizer') redirect('/auth/no-access')
+
+  const notificationCount = profile?.id ? await getUnreadNotificationCount(profile.id) : 0
 
   return (
     <div className="flex min-h-screen">

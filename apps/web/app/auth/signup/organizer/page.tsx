@@ -133,49 +133,53 @@ export default function OrganizerSignupPage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
+
     setError(null)
     setLoading(true)
 
-    const supabase = createClient()
-    const { error, data } = await supabase.auth.signUp({
-      email: form.email,
-      password: form.password,
-      options: {
-        data: {
-          role: 'event_organizer',
-          full_name: form.contactName,
-          org_name: form.orgName,
-          org_category: form.category.toLowerCase().replace(/[^a-z0-9]+/g, '_'),
-          org_description: form.description,
-          org_address: form.address,
-          org_city: form.city,
-          org_country: form.country,
-          org_phone: form.phone,
-          org_website: form.website,
-          org_plan: form.plan,
-          org_payout_bank: payout.bank,
-          org_payout_account_holder: payout.accountHolder,
-          org_payout_account_number: payout.accountNumber,
+    try {
+      const supabase = createClient()
+      const { data, error: signUpError } = await supabase.auth.signUp({
+        email: form.email,
+        password: form.password,
+        options: {
+          data: {
+            role: 'event_organizer',
+            full_name: form.contactName,
+            org_name: form.orgName,
+            org_category: form.category.toLowerCase().replace(/[^a-z0-9]+/g, '_'),
+            org_description: form.description,
+            org_address: form.address,
+            org_city: form.city,
+            org_country: form.country,
+            org_phone: form.phone,
+            org_website: form.website,
+            org_plan: form.plan,
+            org_payout_bank: payout.bank,
+            org_payout_account_holder: payout.accountHolder,
+            org_payout_account_number: payout.accountNumber,
+          },
         },
-        emailRedirectTo: `${window.location.origin}/auth/callback`,
-      },
-    })
+      })
 
-    if (error) {
-      setError(error.message)
+      if (signUpError) {
+        setError(signUpError.message || 'Sign-up failed')
+        return
+      }
+
+      if (data.user) {
+        if (data.user.email_confirmed_at || data.session) {
+          router.push('/dashboard/organizer')
+          return
+        }
+        setDone(true)
+      }
+    } catch (err: any) {
+      const errorMessage = err?.message || 'Sign-up failed'
+      setError(errorMessage)
+    } finally {
       setLoading(false)
-      return
     }
-
-    // Confirmation off / autoconfirmed: a live session exists — run role
-    // provisioning through the callback route, then continue.
-    if (data.session) {
-      router.push('/auth/callback?next=/dashboard/organizer')
-      return
-    }
-
-    setDone(true)
-    setLoading(false)
   }
 
   if (done) {

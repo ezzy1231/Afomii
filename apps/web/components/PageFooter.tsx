@@ -10,9 +10,7 @@ export default async function PageFooter() {
   let isAuthed = false
   try {
     const supabase = await createClient()
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
+    const { data: { user } } = await supabase.auth.getUser()
     isAuthed = Boolean(user)
   } catch {
     isAuthed = false

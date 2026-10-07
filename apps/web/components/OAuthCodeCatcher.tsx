@@ -18,6 +18,10 @@ import { useEffect } from 'react'
  */
 export default function OAuthCodeCatcher() {
   useEffect(() => {
+    // /auth/callback performs the exchange itself. Re-forwarding the same code
+    // from here would burn it twice ("invalid flow state").
+    if (window.location.pathname.startsWith('/auth/callback')) return
+
     const params = new URLSearchParams(window.location.search)
     const code = params.get('code')
     if (!code) return

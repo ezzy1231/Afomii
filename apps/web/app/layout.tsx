@@ -63,11 +63,11 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col font-sans bg-app-bg text-app-fg">
         <Script id="theme-init" strategy="beforeInteractive">
-          {`try{var t=localStorage.getItem('urbanexplore-theme');document.documentElement.dataset.theme=t==='dark'?'dark':'light';}catch(e){document.documentElement.dataset.theme='light';}`}
+        {`try{var t=localStorage.getItem('urbanexplore-theme');document.documentElement.dataset.theme=t==='dark'?'dark':'light';}catch(e){document.documentElement.dataset.theme='light';}`}
         </Script>
         <Providers>
-          <OAuthCodeCatcher />
-          {children}
+        <OAuthCodeCatcher />
+        {children}
         </Providers>
       </body>
     </html>

@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import { redirect } from 'next/navigation'
 import { CalendarDays, CircleDollarSign, Store } from 'lucide-react'
 import EventListingForm from '@/components/dashboard/EventListingForm'
 import { createClient } from '@/lib/supabase/server'
@@ -8,24 +9,34 @@ export const metadata: Metadata = { title: 'Organizer Dashboard' }
 
 export default async function OrganizerDashboardPage() {
   const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) redirect('/sign-in')
+  const { data: profileData } = await supabase
+    .from('profiles')
+    .select('id, role, email')
+    .eq('id', user!.id)
+    .maybeSingle()
+  const profile = profileData ?? null
 
   const { data: organizerRaw } = await supabase
     .from('organizers')
     .select('id, name')
-    .eq('owner_id', user?.id ?? '')
+    .eq('owner_id', profile?.id ?? '')
     .maybeSingle()
 
   // Self-heal: accounts from before provisioning ran through the callback get
   // their organizers row created on first dashboard view.
   let organizer = organizerRaw
-  if (!organizer && user) {
-    const metaRole = (user.user_metadata as Record<string, unknown> | undefined)?.role
+  if (!organizer && profile) {
+    const metaRole =
+      (user!.user_metadata as Record<string, unknown> | undefined)?.role ?? profile.role
     if (metaRole === 'event_organizer') {
       const { ensureOrganizer } = await import('@/lib/provision')
-      organizer = await ensureOrganizer(supabase, user)
+      organizer = await ensureOrganizer(supabase, {
+        id: profile.id,
+        email: profile.email ?? user!.email,
+        user_metadata: (user!.user_metadata as Record<string, unknown> | undefined) ?? undefined,
+      })
     }
   }
 

@@ -30,9 +30,17 @@ export async function createReservation(input: {
   guestCount: number
 }): Promise<ReservationActionState> {
   const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  const { data: { user: authUser } } = await supabase.auth.getUser()
+
+  let user: { id: string } | null = null
+  if (authUser) {
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('id')
+      .eq('id', authUser.id)
+      .maybeSingle()
+    if (profile) user = { id: profile.id as string }
+  }
 
   // Rate limit before any validation/DB work — keyed by user id, else IP.
   const ip = await clientIp()
@@ -108,11 +116,15 @@ export async function createReservation(input: {
 
 export async function cancelReservation(id: string): Promise<ReservationActionState> {
   const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
+  const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { ok: false, message: 'Please sign in.' }
+
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('id')
+    .eq('id', user.id)
+    .maybeSingle()
+  if (!profile) return { ok: false, message: 'Please sign in.' }
 
   const idCheck = uuidSchema.safeParse(id)
   if (!idCheck.success) return { ok: false, message: 'Invalid reservation identifier.' }
@@ -121,7 +133,7 @@ export async function cancelReservation(id: string): Promise<ReservationActionSt
     .from('reservations')
     .update({ status: 'cancelled' })
     .eq('id', idCheck.data)
-    .eq('user_id', user.id)
+    .eq('user_id', profile.id)
     .select('id')
     .maybeSingle()
 

@@ -135,47 +135,51 @@ export default function UserSignupPage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
+
     setError(null)
     setLoading(true)
 
-    const supabase = createClient()
-    const { error, data } = await supabase.auth.signUp({
-      email: form.email,
-      password: form.password,
-      options: {
-        data: {
-          role: 'customer',
-          full_name: form.fullName,
-          language: form.language,
-          birth_date: form.birthDate,
-          birth_calendar: form.birthCalendar,
-          gender: form.gender,
-          phone: form.phone,
-          city: form.city,
-          country: form.country,
-          calendar_sync: form.calendarSync,
-          dietary_prefs: form.dietaryPrefs,
-          allergies: form.allergies,
+    try {
+      const supabase = createClient()
+      const { data, error: signUpError } = await supabase.auth.signUp({
+        email: form.email,
+        password: form.password,
+        options: {
+          data: {
+            role: 'customer',
+            full_name: form.fullName,
+            language: form.language,
+            birth_date: form.birthDate,
+            birth_calendar: form.birthCalendar,
+            gender: form.gender,
+            phone: form.phone,
+            city: form.city,
+            country: form.country,
+            calendar_sync: form.calendarSync,
+            dietary_prefs: form.dietaryPrefs,
+            allergies: form.allergies,
+          },
         },
-        emailRedirectTo: `${window.location.origin}/auth/callback`,
-      },
-    })
+      })
 
-    if (error) {
-      setError(error.message)
+      if (signUpError) {
+        setError(signUpError.message || 'Sign-up failed')
+        return
+      }
+
+      if (data.user) {
+        if (data.user.email_confirmed_at || data.session) {
+          router.push('/')
+          return
+        }
+        setDone(true)
+      }
+    } catch (err: any) {
+      const errorMessage = err?.message || 'Sign-up failed'
+      setError(errorMessage)
+    } finally {
       setLoading(false)
-      return
     }
-
-    // Confirmation off / autoconfirmed: a live session exists — run role
-    // provisioning through the callback route, then continue.
-    if (data.session) {
-      router.push('/auth/callback?next=/')
-      return
-    }
-
-    setDone(true)
-    setLoading(false)
   }
 
   if (done) {

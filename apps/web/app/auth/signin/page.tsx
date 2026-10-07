@@ -73,9 +73,13 @@ export default function SignInPage() {
 
   async function handleResend() {
     if (!confirmPending) return
-    const supabase = createClient()
-    await supabase.auth.resend({ type: 'signup', email: confirmPending })
-    setError('Confirmation email re-sent. Check your inbox.')
+    try {
+      const supabase = createClient()
+      await supabase.auth.resend({ type: 'signup', email: confirmPending })
+      setError('Verification email re-sent. Check your inbox.')
+    } catch {
+      setError('Could not resend verification email. Please try again.')
+    }
   }
 
   function destinationFor(role: string | null, next: string): string {
@@ -95,77 +99,94 @@ export default function SignInPage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
+
     setError(null)
     setConfirmPending(null)
     setLoading(true)
 
-    const supabase = createClient()
-    const { error } = await supabase.auth.signInWithPassword({ email, password })
+    try {
+      const supabase = createClient()
+      const { data, error: signInError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      })
 
-    if (error) {
-      if (error.status === 400 && /confirm/i.test(error.message)) {
+      if (signInError) {
+        const errorMessage = signInError.message || 'Sign-in failed'
+        if (/verify|confirm|not confirmed/i.test(errorMessage)) {
+          setConfirmPending(email)
+        } else {
+          setError(humanizeError(errorMessage))
+        }
+        return
+      }
+
+      if (data.user) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', data.user.id)
+          .maybeSingle()
+
+        const role = (profile?.role as string | undefined) ?? null
+
+        const params = new URLSearchParams(window.location.search)
+        const rawNext = params.get('next') ?? '/'
+        const next = rawNext.startsWith('/') && !rawNext.startsWith('//') ? rawNext : '/'
+
+        router.push(destinationFor(role, next))
+        router.refresh()
+      }
+    } catch (err: any) {
+      const errorMessage = err?.message || 'Sign-in failed'
+      if (/verify|confirm|not confirmed/i.test(errorMessage)) {
         setConfirmPending(email)
       } else {
-        setError(humanizeError(error.message))
+        setError(humanizeError(errorMessage))
       }
+    } finally {
       setLoading(false)
-      return
     }
-
-    // Route by role so partners/admins land in their consoles.
-    let role: string | null = null
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
-    if (user) {
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('role')
-        .eq('id', user.id)
-        .maybeSingle()
-      role = (profile?.role as string | undefined) ?? null
-    }
-
-    const params = new URLSearchParams(window.location.search)
-    const rawNext = params.get('next') ?? '/'
-    const next = rawNext.startsWith('/') && !rawNext.startsWith('//') ? rawNext : '/'
-
-    router.push(destinationFor(role, next))
-    router.refresh()
   }
 
   async function handleGoogle() {
     setError(null)
-    // Guard against double-clicks: a second signInWithOAuth starts a NEW flow
-    // and rewrites the verifier slots, which invalidates the code that the first
-    // (in-flight) flow will return from Google. One start per click.
     if (googleLoading) return
     setGoogleLoading(true)
-    const supabase = createClient()
-    // Flush pending initialization/session recovery BEFORE starting the flow.
-    // Recovery of a stale/expired session can trigger `_removeSession()`, which
-    // deletes the pending PKCE verifier cookies — and `signInWithOAuth` does not
-    // wait for that sweep, so the verifier it writes could be erased by the
-    // racing removal before the redirect to Google commits the cookies.
-    await supabase.auth.getSession()
-    // Deliberately NOT calling signOut() here. In @supabase/auth-js 2.116 a
-    // local sign-out runs removeAllPKCEVerifiers(), which deletes EVERY pending
-    // verifier slot (not just the current tab's). That is what produced
-    // "invalid flow state" / "code verifier not found" for users who were
-    // already signed in or who had another tab open: the flow's own verifier is
-    // wiped between signInWithOAuth and the callback. Starting the OAuth flow on
-    // top of an existing session is safe — the callback exchanges the code and
-    // replaces the session cookie.
-    //
-    // Explicit `next` is NOT passed through the OAuth redirectTo — query params
-    // can stop an exact (non-wildcard) redirect allowlist entry from matching.
-    // The callback routes by role (system_admin → /dashboard/admin) regardless.
-    await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
-      },
-    })
+
+    try {
+      const supabase = createClient()
+      const params = new URLSearchParams(window.location.search)
+      const rawNext = params.get('next') ?? '/'
+      const next = rawNext.startsWith('/') && !rawNext.startsWith('//') ? rawNext : '/'
+
+      // Carry the destination in sessionStorage, NOT in the OAuth redirectTo.
+      // Supabase matches redirectTo against the allowlist as an exact string, so
+      // appending `?next=...` makes a wildcard-free entry stop matching and the
+      // provider bounces back to the Site URL instead of our callback.
+      try {
+        sessionStorage.setItem('auth:next', next)
+      } catch {
+        // Storage unavailable (private mode) — fall back to role-based routing.
+      }
+
+      const redirectTo = `${window.location.origin}/auth/callback`
+
+      const { error: oauthError } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: { redirectTo },
+      })
+
+      if (oauthError) {
+        console.error('Google sign-in error:', oauthError)
+        setError('Google sign-in failed. Please try again.')
+        setGoogleLoading(false)
+      }
+    } catch (err) {
+      console.error('Google sign-in error:', err)
+      setError('Google sign-in failed. Please try again.')
+      setGoogleLoading(false)
+    }
   }
 
   return (

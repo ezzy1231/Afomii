@@ -44,22 +44,49 @@ export default function ReservationsPage() {
   const [loading, setLoading] = useState(true)
   const [range, setRange] = useState<Range>('day')
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all')
+  const [user, setUser] = useState<any>(null)
+  const [profile, setProfile] = useState<any>(null)
+  const [isLoaded, setIsLoaded] = useState(false)
 
   useEffect(() => {
+    const supabase = createClient()
+    supabase.auth.getUser().then(({ data: { user: u } }) => {
+      setUser(u)
+      if (u) {
+        supabase.from('profiles').select('*').eq('id', u.id).single().then(({ data }) => {
+          setProfile(data)
+          setIsLoaded(true)
+        })
+      } else {
+        setIsLoaded(true)
+      }
+    })
+  }, [])
+
+  useEffect(() => {
+    if (!isLoaded) return
     async function load() {
       const supabase = createClient()
-      const {
-        data: { user },
-      } = await supabase.auth.getUser()
       if (!user) {
         setLoading(false)
         return
       }
 
+      const { data: profileRow } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('id', user.id)
+        .maybeSingle()
+      if (!profileRow) {
+        setLoading(false)
+        return
+      }
+      setProfile(profileRow)
+
       const { data: business } = await supabase
         .from('businesses')
         .select('id')
-        .eq('owner_id', user.id)
+        .eq('owner_id', profile.id)
         .maybeSingle()
       if (!business) {
         setLoading(false)
@@ -120,7 +147,7 @@ export default function ReservationsPage() {
       setLoading(false)
     }
     load()
-  }, [])
+  }, [isLoaded, user])
 
   const today = isoDay(0)
   const weekEnd = isoDay(7)

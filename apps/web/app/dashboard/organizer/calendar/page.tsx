@@ -14,15 +14,38 @@ type CalendarEvent = {
 export default function CalendarPage() {
   const [events, setEvents] = useState<CalendarEvent[]>([])
   const [loading, setLoading] = useState(true)
+  const [user, setUser] = useState<any>(null)
+  const [profile, setProfile] = useState<any>(null)
+  const [isLoaded, setIsLoaded] = useState(false)
 
   useEffect(() => {
+    const supabase = createClient()
+    supabase.auth.getUser().then(({ data: { user: u } }) => {
+      setUser(u)
+      if (u) {
+        supabase.from('profiles').select('*').eq('id', u.id).single().then(({ data }) => {
+          setProfile(data)
+          setIsLoaded(true)
+        })
+      } else {
+        setIsLoaded(true)
+      }
+    })
+  }, [])
+
+  useEffect(() => {
+    if (!isLoaded) return
     async function load() {
       const supabase = createClient()
-      const { data: { user } } = await supabase.auth.getUser()
       if (!user) { setLoading(false); return }
 
+      const { data: profileRow } = await supabase
+        .from('profiles').select('id').eq('id', user.id).maybeSingle()
+      if (!profileRow) { setLoading(false); return }
+      setProfile(profileRow)
+
       const { data: organizer } = await supabase
-        .from('organizers').select('id').eq('owner_id', user.id).maybeSingle()
+        .from('organizers').select('id').eq('owner_id', profileRow.id).maybeSingle()
       if (!organizer) { setLoading(false); return }
 
       const { data } = await supabase
@@ -32,7 +55,7 @@ export default function CalendarPage() {
       setLoading(false)
     }
     load()
-  }, [])
+  }, [isLoaded, user])
 
   const grouped = events.reduce<Record<string, CalendarEvent[]>>((acc, e) => {
     const date = new Date(e.starts_at).toDateString()

@@ -19,6 +19,24 @@ export default function OrganizerEventsPage() {
   const [events, setEvents] = useState<EventItem[]>([])
   const [loading, setLoading] = useState(true)
   const [busyId, setBusyId] = useState<string | null>(null)
+  const [user, setUser] = useState<any>(null)
+  const [profile, setProfile] = useState<any>(null)
+  const [isLoaded, setIsLoaded] = useState(false)
+
+  useEffect(() => {
+    const supabase = createClient()
+    supabase.auth.getUser().then(({ data: { user: u } }) => {
+      setUser(u)
+      if (u) {
+        supabase.from('profiles').select('*').eq('id', u.id).single().then(({ data }) => {
+          setProfile(data)
+          setIsLoaded(true)
+        })
+      } else {
+        setIsLoaded(true)
+      }
+    })
+  }, [])
 
   async function handleToggle(item: EventItem) {
     setBusyId(item.id)
@@ -32,13 +50,17 @@ export default function OrganizerEventsPage() {
   }
 
   useEffect(() => {
+    if (!isLoaded) return
     async function load() {
       const supabase = createClient()
-      const { data: { user } } = await supabase.auth.getUser()
       if (!user) { setLoading(false); return }
 
+      const { data: profileRow } = await supabase
+        .from('profiles').select('id').eq('id', user.id).maybeSingle()
+      if (!profileRow) { setLoading(false); return }
+
       const { data: organizer } = await supabase
-        .from('organizers').select('id').eq('owner_id', user.id).maybeSingle()
+        .from('organizers').select('id').eq('owner_id', profile.id).maybeSingle()
       if (!organizer) { setLoading(false); return }
 
       const { data } = await supabase
@@ -48,7 +70,7 @@ export default function OrganizerEventsPage() {
       setLoading(false)
     }
     load()
-  }, [])
+  }, [isLoaded, user])
 
   return (
     <div className="mx-auto w-full max-w-6xl px-4 pb-24 pt-8 sm:px-6 lg:px-8">

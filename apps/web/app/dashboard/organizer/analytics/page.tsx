@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import {
   ConsolePageShell,
@@ -59,6 +60,13 @@ export default async function OrganizerAnalyticsPage({
 
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
+  if (!user) redirect('/sign-in')
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('id')
+    .eq('id', user!.id)
+    .maybeSingle()
+  const profileId = profile?.id ?? null
   const nowIso = new Date().toISOString()
   const startIso = shiftDays(nowIso, days - 1)
   const prevStartIso = shiftDays(startIso, days)
@@ -67,7 +75,7 @@ export default async function OrganizerAnalyticsPage({
   const { data: organizer } = await supabase
     .from('organizers')
     .select('id')
-    .eq('owner_id', user?.id ?? '')
+    .eq('owner_id', profileId ?? '')
     .maybeSingle()
 
   const { data: events } = organizer

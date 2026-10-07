@@ -40,7 +40,25 @@ export default function BannerUploadField({
   hint?: string
   onReady?: (ready: boolean) => void
 }) {
+  const [user, setUser] = useState<any>(null)
+  const [profile, setProfile] = useState<any>(null)
+  const [isLoaded, setIsLoaded] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
+
+  useEffect(() => {
+    const supabase = createClient()
+    supabase.auth.getUser().then(({ data: { user: u } }) => {
+      setUser(u)
+      if (u) {
+        supabase.from('profiles').select('*').eq('id', u.id).single().then(({ data }) => {
+          setProfile(data)
+          setIsLoaded(true)
+        })
+      } else {
+        setIsLoaded(true)
+      }
+    })
+  }, [])
   const [status, setStatus] = useState<Status>('idle')
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
   const [publicUrl, setPublicUrl] = useState<string>('')
@@ -131,15 +149,12 @@ export default function BannerUploadField({
     setError(null)
     try {
       const supabase = createClient()
-      const {
-        data: { user },
-      } = await supabase.auth.getUser()
-      if (!user) throw new Error('Please sign in again before uploading a banner.')
+      if (!profile) throw new Error('Please sign in again before uploading a banner.')
 
       const response = await fetch(previewUrl)
       const blob = await response.blob()
       const ext = blob.type === 'image/png' ? 'png' : blob.type === 'image/webp' ? 'webp' : 'jpg'
-      const path = `${user.id}/${Date.now()}.${ext}`
+      const path = `${profile.id}/${Date.now()}.${ext}`
 
       const { error: uploadError } = await supabase.storage.from('banners').upload(path, blob, {
         contentType: blob.type,
