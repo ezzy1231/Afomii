@@ -415,6 +415,18 @@
     background: linear-gradient(90deg, rgb(var(--gold-rgb)), rgb(var(--gold-rgb) / 0.4));
   }
 
+  /* ── Form label ───────────────────────────────────────────────
+     A label is not an eyebrow. It reads in sentence case at body
+     size, carries no pill, dash or tint — it just names the field. */
+  .field-label {
+    display: block;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    line-height: 1.4;
+    color: var(--text-primary);
+    margin-bottom: 0.375rem;
+  }
+
   /* ── Buttons: solid accent / soft glass ghosts ────────────── */
   .btn-primary {
     position: relative;

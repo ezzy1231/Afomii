@@ -39,8 +39,13 @@ that need the restaurant name from a reservation should use the same pattern.
 - Routing: OSRM proxy at `/api/geo/route` with a Haversine fallback labeled
   "straight-line estimate" when routing fails.
 - Distance and duration are computed automatically; fares are read-only.
-- `/api/rides/dispatch-link` builds deep links (uber/yango/lyft/feres) with
-  a Google-Maps fallback.
+- Fares are computed locally in `lib/rides.ts` (base + per-km meter rate, three
+  vehicle tiers). There is no live provider pricing feed.
+- The only outbound action is Google Maps navigation. The earlier
+  `/api/rides/dispatch-link` deep-link generator was removed: it keyed off a
+  provider name the fare table never produced, so every request fell through to
+  the Google Maps fallback and the UI claimed a hand-off to a ride app that
+  never happened.
 - No manual distance entry exists anywhere in the ride flow.
 
 ## Task 3 — My Plans + tied ride booking + reminders

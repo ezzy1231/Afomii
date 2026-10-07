@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import Image from 'next/image'
-import { ArrowRight, BadgeCheck, CarFront, Clock3, Sparkles } from 'lucide-react'
+import { ArrowRight, BadgeCheck, CarFront, Clock3 } from 'lucide-react'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
 import HomeSearch from '@/components/HomeSearch'
@@ -34,10 +34,7 @@ export default async function HomePage() {
               {/* Copy column */}
               <div className="text-center lg:text-left">
                 <Reveal>
-                  <span className="eyebrow">
-                    <Sparkles className="size-3.5" strokeWidth={2.5} />
-                    Addis Ababa · Eat · Go out · Get there
-                  </span>
+                  <span className="eyebrow">Addis Ababa</span>
                 </Reveal>
 
                 <Reveal delay={0.08}>
@@ -102,7 +99,7 @@ export default async function HomePage() {
                     </div>
                   </div>
 
-                  {/* Left card — food */}
+                  {/* Front card — food */}
                   <div className="absolute left-0 top-0 w-60 -rotate-2 overflow-hidden rounded-3xl shadow-elevate transition-transform duration-300 ease-out hover:rotate-0">
                     <div className="relative aspect-[4/5]">
                       <Image
@@ -116,7 +113,7 @@ export default async function HomePage() {
                   </div>
 
                   {/* Front card — event */}
-                  <div className="absolute bottom-0 left-14 w-64 rotate-1 overflow-hidden rounded-3xl bg-white/70 shadow-glass-strong backdrop-blur-xl backdrop-saturate-150 transition-transform duration-300 ease-out hover:rotate-0 dark:bg-white/10">
+                  <div className="absolute bottom-0 left-14 w-64 rotate-1 overflow-hidden rounded-3xl shadow-elevate transition-transform duration-300 ease-out hover:rotate-0">
                     <div className="relative aspect-[16/10]">
                       <Image
                         src="/places/event-1.jpg"
@@ -126,23 +123,7 @@ export default async function HomePage() {
                         className="object-cover"
                       />
                     </div>
-                    <div className="px-3.5 py-3">
-                      <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-ember">
-                        Tonight
-                      </p>
-                      <p className="mt-0.5 text-sm font-semibold text-app-fg">
-                        Night Market Sessions
-                      </p>
-                    </div>
                   </div>
-
-                  {/* Glass pill accents */}
-                  <span className="absolute -left-3 top-28 z-10 rounded-full border border-white/50 bg-white/60 px-3.5 py-1.5 text-xs font-semibold text-app-fg shadow-glass backdrop-blur-xl dark:border-white/10 dark:bg-white/10">
-                    ★ 4.9 rated
-                  </span>
-                  <span className="absolute -right-2 bottom-28 z-10 rounded-full border border-white/50 bg-ember/90 px-3.5 py-1.5 text-xs font-semibold text-on-accent shadow-glass backdrop-blur-xl dark:border-white/10">
-                    ETB fares
-                  </span>
                 </div>
               </Reveal>
             </div>
@@ -160,7 +141,6 @@ export default async function HomePage() {
           <Reveal>
             <SectionHeader
               title="Trending Restaurants"
-              eyebrow="Most booked this week"
               href="/restaurants"
             />
           </Reveal>
@@ -188,7 +168,6 @@ export default async function HomePage() {
           <Reveal>
             <SectionHeader
               title="This Week’s Events"
-              eyebrow="Concerts, shows and festivals near you"
               href="/events"
             />
           </Reveal>

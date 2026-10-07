@@ -10,7 +10,7 @@ export const metadata: Metadata = { title: 'Organizer Dashboard' }
 export default async function OrganizerDashboardPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user) redirect('/sign-in')
+  if (!user) redirect('/auth/signin')
   const { data: profileData } = await supabase
     .from('profiles')
     .select('id, role, email')
@@ -62,6 +62,19 @@ export default async function OrganizerDashboardPage() {
       ticketsSold += Number(p.quantity) || 0
       revenue += Number(p.amount) || 0
       if (p.attended) attendees += 1
+    }
+  }
+
+  // An event with no tier cannot sell a ticket. Flag those rather than letting
+  // an unsellable event sit in the list looking healthy.
+  const tierCounts = new Map<string, number>()
+  if (eventIds.length) {
+    const { data: tiers } = await supabase
+      .from('ticket_types')
+      .select('event_id')
+      .in('event_id', eventIds)
+    for (const t of tiers ?? []) {
+      tierCounts.set(t.event_id, (tierCounts.get(t.event_id) ?? 0) + 1)
     }
   }
 
@@ -123,6 +136,19 @@ export default async function OrganizerDashboardPage() {
                       hour: 'numeric',
                       minute: '2-digit',
                     })}
+                  </p>
+                )}
+                {!tierCounts.get(item.id) && (
+                  <p className="mt-3 flex flex-wrap items-center gap-2 text-xs">
+                    <span className="rounded-full bg-warning/15 px-2.5 py-0.5 font-bold uppercase tracking-wider text-warning">
+                      No tickets
+                    </span>
+                    <Link
+                      href="/dashboard/organizer/tickets"
+                      className="font-semibold text-ember underline underline-offset-2"
+                    >
+                      Add a ticket tier
+                    </Link>
                   </p>
                 )}
               </article>

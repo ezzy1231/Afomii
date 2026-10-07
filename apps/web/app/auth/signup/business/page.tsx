@@ -38,34 +38,13 @@ interface FormData {
   country: string
   phone: string
   website: string
-  plan: 'free' | 'premium_monthly' | 'premium_yearly'
+  /* Partner onboarding is free-only for now; widen this when billing lands. */
+  plan: 'free'
 }
 
-const PLANS = [
-  {
-    key: 'free' as const,
-    name: 'Free',
-    price: '$0',
-    period: 'forever',
-    features: ['Basic listing', 'Up to 10 menu items', 'Standard support'],
-  },
-  {
-    key: 'premium_monthly' as const,
-    name: 'Premium',
-    price: '$29',
-    period: 'per month',
-    badge: 'Popular',
-    features: ['Unlimited menu items', 'Featured placement', 'Analytics dashboard', 'Priority support'],
-  },
-  {
-    key: 'premium_yearly' as const,
-    name: 'Premium Yearly',
-    price: '$290',
-    period: 'per year',
-    badge: 'Save $58',
-    features: ['Everything in Premium', 'Custom promotions', 'Dedicated account manager'],
-  },
-]
+/* Listing is free while partner onboarding is open. Paid tiers are not offered
+   yet — there is no billing wired up — so the form states that plainly instead
+   of showing prices for plans nothing implements. */
 
 const Field = ({
   label,
@@ -77,9 +56,9 @@ const Field = ({
   children: React.ReactNode
 }) => (
   <div>
-    <label className="eyebrow mb-1.5 block">
+    <label className="field-label">
       {label}
-      {optional && <span className="ml-1 font-medium normal-case tracking-normal text-app-muted">(optional)</span>}
+      {optional && <span className="ml-1 font-medium text-app-muted">(optional)</span>}
     </label>
     {children}
   </div>
@@ -258,9 +237,9 @@ export default function BusinessSignupPage() {
               </Field>
               <div>
                 <div className="mb-1.5 flex items-baseline justify-between">
-                  <label className="eyebrow block">
+                  <label className="field-label">
                     Editorial description
-                    <span className="ml-1 font-medium normal-case tracking-normal text-app-muted">(optional)</span>
+                    <span className="ml-1 font-medium text-app-muted">(optional)</span>
                   </label>
                   <span aria-hidden className="text-[11px] font-semibold tabular-nums tracking-widest text-app-muted">
                     {form.description.length} / 500
@@ -327,55 +306,34 @@ export default function BusinessSignupPage() {
             <StickyActionBar
               className="mt-6"
               secondary={{ label: 'Back', onClick: back }}
-              primary={{ label: 'Continue to Listing', onClick: next, tone: 'navy' }}
+              primary={{ label: 'Continue to review', onClick: next, tone: 'navy' }}
             />
           </div>
         )}
 
         {step === 4 && (
           <form onSubmit={handleSubmit}>
-            <h1 className="font-serif text-2xl font-bold text-app-fg mb-1">Choose your plan</h1>
-            <p className="text-sm text-app-muted mb-6">You can upgrade at any time</p>
-            <div className="space-y-3 mb-6">
-              {PLANS.map((plan) => (
-                <label
-                  key={plan.key}
-                  className={`flex items-start gap-4 p-4 rounded-xl border cursor-pointer transition-colors ${
-                    form.plan === plan.key ? 'border-ink bg-ink/5' : 'border-[var(--border)] hover:border-ink/40'
-                  }`}
-                >
-                  <input
-                    type="radio"
-                    name="plan"
-                    value={plan.key}
-                    checked={form.plan === plan.key}
-                    onChange={() => setForm((p) => ({ ...p, plan: plan.key }))}
-                    className="mt-1 accent-navy"
-                  />
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-0.5">
-                      <span className="text-sm font-semibold text-app-fg">{plan.name}</span>
-                      {plan.badge && (
-                        <span className="text-[10px] bg-ember/12 text-ember font-semibold px-1.5 py-0.5 rounded uppercase tracking-wide">{plan.badge}</span>
-                      )}
-                    </div>
-                    <div className="text-lg font-bold text-app-fg">
-                      {plan.price} <span className="text-xs font-normal text-app-muted">{plan.period}</span>
-                    </div>
-                    <ul className="mt-2 space-y-0.5">
-                      {plan.features.map((f) => (
-                          <li key={f} className="text-xs text-app-muted flex items-center gap-1.5">
-                          <svg viewBox="0 0 20 20" fill="currentColor" className="w-3.5 h-3.5 text-ember flex-shrink-0">
-                            <path fillRule="evenodd" d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16Zm3.857-9.809a.75.75 0 0 0-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 1 0-1.06 1.061l2.5 2.5a.75.75 0 0 0 1.137-.089l4-5.5Z" clipRule="evenodd" />
-                          </svg>
-                          {f}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                </label>
-              ))}
-            </div>
+            <h1 className="font-serif text-2xl font-bold text-app-fg mb-1">Create your listing</h1>
+            <p className="text-sm text-app-muted mb-6">
+              Partner listings are free. We&apos;ll email you when your listing has been
+              reviewed and is live.
+            </p>
+            <dl className="mb-6 space-y-2 rounded-xl border border-app-border bg-app-input/50 p-4 text-sm">
+              <div className="flex justify-between gap-4">
+                <dt className="text-app-muted">Business</dt>
+                <dd className="text-right font-medium text-app-fg">{form.businessName}</dd>
+              </div>
+              <div className="flex justify-between gap-4">
+                <dt className="text-app-muted">Category</dt>
+                <dd className="text-right font-medium text-app-fg">{form.category}</dd>
+              </div>
+              <div className="flex justify-between gap-4">
+                <dt className="text-app-muted">Contact</dt>
+                <dd className="truncate text-right font-medium text-app-fg">
+                  {form.contactName} · {form.email}
+                </dd>
+              </div>
+            </dl>
             <StickyActionBar
               className="mt-2"
               secondary={{ label: 'Back', onClick: back }}

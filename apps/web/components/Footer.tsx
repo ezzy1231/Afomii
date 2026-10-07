@@ -2,7 +2,6 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { ArrowUpRight } from 'lucide-react'
 
 const LINKS = {
   Platform: [
@@ -38,8 +37,8 @@ export default function Footer() {
               <p className="text-2xl font-bold tracking-tight text-white">UrbanExplore</p>
             </div>
             <p className="mt-4 max-w-xs text-sm leading-relaxed text-white/65">
-              Elevating your dining and event experiences with seamless, premium
-              transportation.
+              Book a table or a ticket on UrbanExplore, then get an upfront
+              meter-taxi fare for the trip there.
             </p>
             <p className="mt-6 text-xs text-white/40">© 2026 UrbanExplore. All rights reserved.</p>
           </div>
@@ -52,10 +51,9 @@ export default function Footer() {
                   <li key={l.href}>
                     <Link
                       href={l.href}
-                      className="group inline-flex items-center gap-1 text-sm font-medium text-white/70 transition-all hover:text-ember"
+                      className="text-sm font-medium text-white/70 transition-colors hover:text-white"
                     >
                       {l.label}
-                      <ArrowUpRight className="size-3 opacity-0 transition-opacity group-hover:opacity-100" />
                     </Link>
                   </li>
                 ))}
@@ -64,20 +62,10 @@ export default function Footer() {
           ))}
         </div>
 
-        <div className="mt-10 flex items-center justify-between gap-4 border-t border-white/10 pt-6">
+        <div className="mt-10 border-t border-white/10 pt-6">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-white/40">
             Made for Addis Ababa
           </p>
-          <div className="flex gap-3">
-            {['App Store', 'Google Play'].map((store) => (
-              <span
-                key={store}
-                className="rounded-xl border border-white/15 bg-white/5 px-4 py-2 text-xs font-semibold text-white/75"
-              >
-                {store}
-              </span>
-            ))}
-          </div>
         </div>
       </div>
     </footer>

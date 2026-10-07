@@ -23,7 +23,7 @@ export default async function AdminDashboardLayout({
   // Admin console guard — RLS limits data, this gate limits the surface.
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user) redirect('/sign-in?redirect_url=/dashboard/admin')
+  if (!user) redirect('/auth/signin?next=/dashboard/admin')
 
   const { data: profile } = await supabase
     .from('profiles')

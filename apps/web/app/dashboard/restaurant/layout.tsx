@@ -19,7 +19,7 @@ export default async function RestaurantDashboardLayout({
 }) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user) redirect('/sign-in?redirect_url=/dashboard/restaurant')
+  if (!user) redirect('/auth/signin?next=/dashboard/restaurant')
 
   const { data: profile } = await supabase
     .from('profiles')

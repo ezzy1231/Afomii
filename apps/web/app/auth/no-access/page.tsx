@@ -46,7 +46,7 @@ export default async function NoAccessPage() {
         </p>
 
         <div className="mt-6 flex flex-col gap-2.5">
-          <Link href="/sign-in?redirect_url=/dashboard/admin" className="btn-primary w-full !py-2.5">
+          <Link href="/auth/signin?next=/dashboard/admin" className="btn-primary w-full !py-2.5">
             Sign in with another account
           </Link>
           {mainOrigin ? (

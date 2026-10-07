@@ -235,7 +235,7 @@ export default function UserSignupPage() {
 
             <div className="space-y-4">
               <div>
-                <label className="eyebrow mb-1.5 block">Full name</label>
+                <label className="field-label">Full name</label>
                 <input
                   type="text"
                   autoComplete="name"
@@ -246,7 +246,7 @@ export default function UserSignupPage() {
                 />
               </div>
               <div>
-                <label className="eyebrow mb-1.5 block">Email address</label>
+                <label className="field-label">Email address</label>
                 <input
                   type="email"
                   autoComplete="email"
@@ -257,7 +257,7 @@ export default function UserSignupPage() {
                 />
               </div>
               <div>
-                <label className="eyebrow mb-1.5 block">Password</label>
+                <label className="field-label">Password</label>
                 <input
                   type="password"
                   autoComplete="new-password"
@@ -268,7 +268,7 @@ export default function UserSignupPage() {
                 />
               </div>
               <div>
-                <label className="eyebrow mb-1.5 block">Confirm password</label>
+                <label className="field-label">Confirm password</label>
                 <input
                   type="password"
                   autoComplete="new-password"
@@ -295,7 +295,7 @@ export default function UserSignupPage() {
             <div className="space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="eyebrow mb-1.5 block">Language</label>
+                  <label className="field-label">Language</label>
                   <select
                     value={form.language}
                     onChange={(e) => set('language', e.target.value)}
@@ -308,7 +308,7 @@ export default function UserSignupPage() {
                   </select>
                 </div>
                 <div>
-                  <label className="eyebrow mb-1.5 block">Birth date</label>
+                  <label className="field-label">Birth date</label>
                   <div className="mb-1.5 inline-flex rounded-md border border-app-border p-0.5">
                     {([
                       { key: 'gc', label: 'Gregorian (GC)' },
@@ -337,7 +337,7 @@ export default function UserSignupPage() {
                 </div>
               </div>
               <div>
-                <label className="eyebrow mb-1.5 block">Gender</label>
+                <label className="field-label">Gender</label>
                 <select
                   value={form.gender}
                   onChange={(e) => set('gender', e.target.value)}
@@ -351,7 +351,7 @@ export default function UserSignupPage() {
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="eyebrow mb-1.5 block">
+                  <label className="field-label">
                     Country
                   </label>
                   <select
@@ -365,8 +365,8 @@ export default function UserSignupPage() {
                   </select>
                 </div>
                 <div>
-                  <label className="eyebrow mb-1.5 block">
-                    City <span className="ml-1 font-medium normal-case tracking-normal text-app-muted">(optional)</span>
+                  <label className="field-label">
+                    City <span className="ml-1 font-medium text-app-muted">(optional)</span>
                   </label>
                   <input
                     type="text"
@@ -378,8 +378,8 @@ export default function UserSignupPage() {
                 </div>
               </div>
               <div>
-                <label className="eyebrow mb-1.5 block">
-                  Phone number <span className="ml-1 font-medium normal-case tracking-normal text-app-muted">(optional)</span>
+                <label className="field-label">
+                  Phone number <span className="ml-1 font-medium text-app-muted">(optional)</span>
                 </label>
                 <input
                   type="tel"

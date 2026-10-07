@@ -19,7 +19,6 @@ export default function RoleClient({ isAuthenticated }: { isAuthenticated: boole
   const roles = [
     {
       key: 'user',
-      tint: 'bg-rose-100 text-rose-600 dark:bg-rose-500/15 dark:text-rose-300',
       label: 'User',
       icon: (
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="w-8 h-8">
@@ -39,7 +38,6 @@ export default function RoleClient({ isAuthenticated }: { isAuthenticated: boole
     },
     {
       key: 'business',
-      tint: 'bg-blue-100 text-blue-600 dark:bg-blue-500/15 dark:text-blue-300',
       label: 'Food & Dining Business',
       icon: (
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="w-8 h-8">
@@ -52,14 +50,13 @@ export default function RoleClient({ isAuthenticated }: { isAuthenticated: boole
         'Create a rich venue profile',
         'Manage menus, photos, and offers',
         'Handle bookings and reservations',
-        'Unlock analytics and premium plans',
+        'Track bookings and see how each night is filling',
       ],
       cta: 'List My Venue',
       href: `/auth/signup/business?next=${encodeURIComponent(next)}`,
     },
     {
       key: 'organizer',
-      tint: 'bg-violet-100 text-violet-600 dark:bg-violet-500/15 dark:text-violet-300',
       label: 'Events & Entertainment',
       icon: (
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="w-8 h-8">
@@ -107,9 +104,7 @@ export default function RoleClient({ isAuthenticated }: { isAuthenticated: boole
             className="card-elevated animate-fade-in-up p-6 sm:p-8 flex flex-col !rounded-2xl transition-all duration-200 hover:-translate-y-1 hover:border-gold/50"
             style={{ animationDelay: `${i * 90}ms` }}
           >
-            <div
-              className={`mb-4 flex size-14 items-center justify-center rounded-full ${role.tint}`}
-            >
+            <div className="mb-4 flex size-14 items-center justify-center rounded-full bg-ember/10 text-ember">
               {role.icon}
             </div>
             <h2 className="font-serif text-lg font-bold text-app-fg mb-2">

@@ -5,9 +5,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import {
   ArrowRight,
-  Baby,
   CalendarDays,
-  Coins,
   Globe2,
   Heart,
   Music2,
@@ -36,6 +34,44 @@ const quickChips = {
 
 const dateChips = ['All Dates', 'This Weekend', 'Next Week'] as const
 
+/**
+ * "This Weekend" used to return the next seven days from today, which is a
+ * week, not a weekend. The window now matches the label: today up to the end
+ * of the coming Saturday for the weekend chip, and the seven days after that
+ * for "Next Week".
+ */
+function matchesDateRange(item: CatalogueItem, range: (typeof dateChips)[number]) {
+  if (range === 'All Dates' || !item.startsAt) return true
+  const date = new Date(item.startsAt)
+  if (Number.isNaN(date.getTime())) return true
+
+  const now = new Date()
+  const startOfToday = new Date(now)
+  startOfToday.setHours(0, 0, 0, 0)
+
+  const start = new Date(startOfToday)
+  const end = new Date(startOfToday)
+
+  if (range === 'This Weekend') {
+    // Tonight through the end of the coming Saturday.
+    const daysUntilSaturday = (6 - startOfToday.getDay() + 7) % 7 || 7
+    end.setDate(startOfToday.getDate() + daysUntilSaturday)
+    end.setHours(23, 59, 59, 999)
+  } else {
+    start.setDate(startOfToday.getDate() + 7)
+    end.setDate(startOfToday.getDate() + 13)
+    end.setHours(23, 59, 59, 999)
+  }
+
+  return date >= start && date <= end
+}
+
+/**
+ * Filter facets. Each label is matched as a substring against the listing's
+ * name, category, location and detail (see `matchesFilters`), so a facet is
+ * only worth offering when those fields can actually carry it. "Rooftop" or
+ * "Kids friendly" were listed here before and silently matched nothing.
+ */
 const filterGroups = {
   restaurants: [
     {
@@ -48,25 +84,7 @@ const filterGroups = {
         { label: 'International', icon: <Utensils className="size-4" /> },
         { label: 'European', icon: <Utensils className="size-4" /> },
         { label: 'Middle Eastern', icon: <Utensils className="size-4" /> },
-      ],
-    },
-    {
-      key: 'vibe',
-      title: 'Vibe',
-      options: [
-        { label: 'Live music', icon: <Music2 className="size-4" /> },
-        { label: 'Rooftop', icon: <Star className="size-4" /> },
-        { label: 'Outdoor seating', icon: <Star className="size-4" /> },
-        { label: 'Fine dining', icon: <Star className="size-4" /> },
-      ],
-    },
-    {
-      key: 'budget',
-      title: 'Budget',
-      options: [
-        { label: 'Student friendly', icon: <Coins className="size-4" /> },
-        { label: 'Budget friendly', icon: <Coins className="size-4" /> },
-        { label: 'Fine dining', icon: <Coins className="size-4" /> },
+        { label: 'Café', icon: <Utensils className="size-4" /> },
       ],
     },
   ],
@@ -83,25 +101,6 @@ const filterGroups = {
         { label: 'Food & Drink', icon: <Wine className="size-4" /> },
       ],
     },
-    {
-      key: 'audience',
-      title: 'Audience',
-      options: [
-        { label: 'Kids friendly', icon: <Baby className="size-4" /> },
-        { label: 'Family events', icon: <Baby className="size-4" /> },
-        { label: 'Tourists', icon: <Globe2 className="size-4" /> },
-        { label: 'Must visit', icon: <Star className="size-4" /> },
-      ],
-    },
-    {
-      key: 'budget',
-      title: 'Budget',
-      options: [
-        { label: 'Free', icon: <Coins className="size-4" /> },
-        { label: 'Budget friendly', icon: <Coins className="size-4" /> },
-        { label: 'Premium', icon: <Coins className="size-4" /> },
-      ],
-    },
   ],
 } as const
 
@@ -113,19 +112,6 @@ function matchesFilters(item: CatalogueItem, selected: Record<string, string[]>)
     const words = label.toLowerCase().split(/\s+/)
     return words.some((word) => haystack.includes(word))
   })
-}
-
-function matchesDateRange(item: CatalogueItem, range: (typeof dateChips)[number]) {
-  if (range === 'All Dates' || !item.startsAt) return true
-  const date = new Date(item.startsAt)
-  if (Number.isNaN(date.getTime())) return true
-  const now = new Date()
-  const start = new Date(now)
-  start.setDate(now.getDate() + (range === 'This Weekend' ? 0 : 7))
-  start.setHours(0, 0, 0, 0)
-  const end = new Date(start)
-  end.setDate(start.getDate() + (range === 'This Weekend' ? 7 : 7))
-  return date >= start && date <= end
 }
 
 function eventParts(item: CatalogueItem) {
@@ -156,7 +142,8 @@ export default function ExploreCatalogue({
   const [filtersOpen, setFiltersOpen] = useState(false)
   const [selected, setSelected] = useState<Record<string, string[]>>({})
   const [dateRange, setDateRange] = useState<(typeof dateChips)[number]>('All Dates')
-  const [sortDesc, setSortDesc] = useState(false)
+  // Highest-rated first, so the lead card is genuinely the top-rated result.
+  const [sortDesc, setSortDesc] = useState(true)
   const [visible, setVisible] = useState(PAGE_SIZE)
 
   // Persist bookmarks so saved places survive navigation/refresh.
@@ -186,7 +173,12 @@ export default function ExploreCatalogue({
         return sortDesc ? rb - ra : ra - rb
       })
     }
-    return filtered
+    // Soonest first, so the lead card really is the next thing on.
+    return [...filtered].sort((a, b) => {
+      const ta = a.startsAt ? new Date(a.startsAt).getTime() : Infinity
+      const tb = b.startsAt ? new Date(b.startsAt).getTime() : Infinity
+      return ta - tb
+    })
   }, [items, query, activeFilter, selected, dateRange, sortDesc, type])
 
   const featured = visibleItems[0]
@@ -382,7 +374,7 @@ export default function ExploreCatalogue({
           </p>
         )}
 
-        {/* Featured card */}
+        {/* Lead card — the top-rated result, not an editorially "featured" one */}
         {featured && (
           <div className="mt-6">
             {type === 'restaurants' ? (
@@ -404,7 +396,7 @@ export default function ExploreCatalogue({
                 )}
                 <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(10,10,12,0.05)_25%,rgba(10,10,12,0.85))]" />
                 <span className="sticker sticker-amber absolute left-5 top-5 !rotate-0">
-                  Featured
+                  Top rated
                 </span>
                 <span className="absolute right-5 top-5 flex items-center gap-1 rounded-full bg-white/75 px-2.5 py-1 text-xs font-semibold text-app-fg shadow-soft backdrop-blur-md dark:bg-white/15 dark:text-white">
                   <Star className="size-3 fill-ember text-ember" />
@@ -446,7 +438,7 @@ export default function ExploreCatalogue({
                     return bp ? <DateBadge month={bp.month} day={bp.day} size="lg" /> : null
                   })()}
                   <span className="sticker sticker-amber !rotate-0">
-                    Featured
+                    Next up
                   </span>
                 </span>
                 <div className="absolute inset-x-0 bottom-0 p-6">

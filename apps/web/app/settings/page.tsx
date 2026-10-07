@@ -14,7 +14,7 @@ export const metadata: Metadata = { title: 'Settings' }
 export default async function SettingsPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user) redirect('/sign-in?redirect_url=/settings')
+  if (!user) redirect('/auth/signin?next=/settings')
 
   const { data: profile } = await supabase
     .from('profiles')
@@ -22,7 +22,7 @@ export default async function SettingsPage() {
     .eq('id', user.id)
     .maybeSingle()
 
-  if (!profile) redirect('/sign-in?redirect_url=/settings')
+  if (!profile) redirect('/auth/signin?next=/settings')
 
   const role = (profile.role as string) ?? 'user'
   const fullName = profile.full_name ?? ''
@@ -157,7 +157,7 @@ export default async function SettingsPage() {
                       <p className="mt-1 font-mono text-sm font-bold tracking-wider">{t.qrCode}</p>
                     </div>
                     {t.attended && (
-                      <span className="rounded-full bg-emerald-400/20 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-emerald-300">
+                      <span className="rounded-full bg-success/15 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-success">
                         Attended
                       </span>
                     )}

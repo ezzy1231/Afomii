@@ -11,7 +11,7 @@ export const metadata: Metadata = { title: 'Admin settings' }
 export default async function AdminSettingsPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user) redirect('/sign-in')
+  if (!user) redirect('/auth/signin')
 
   let role: string | null = null
   let email: string | null = user!.email ?? null

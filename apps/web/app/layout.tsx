@@ -43,10 +43,13 @@ export const metadata: Metadata = {
   },
 };
 
+/* Mirrors --bg-primary-rgb in globals.css for each theme. The app toggles the
+   theme with data-theme, but the browser chrome picks a colour per colour-scheme
+   media query, so both are listed. */
 export const viewport: Viewport = {
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#F8F8FA" },
-    { media: "(prefers-color-scheme: dark)", color: "#0F0F12" },
+    { media: "(prefers-color-scheme: light)", color: "#FBF5F0" },
+    { media: "(prefers-color-scheme: dark)", color: "#06152D" },
   ],
 };
 

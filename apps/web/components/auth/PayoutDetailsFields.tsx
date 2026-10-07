@@ -76,7 +76,7 @@ export function PayoutDetailsFields({
 
       <div className="space-y-4">
         <div>
-          <label className="eyebrow mb-1.5 block">Bank name</label>
+          <label className="field-label">Bank name</label>
           <select
             value={value.bank}
             onChange={(e) => onChange({ ...value, bank: e.target.value })}
@@ -91,7 +91,7 @@ export function PayoutDetailsFields({
           </select>
         </div>
         <div>
-          <label className="eyebrow mb-1.5 block">Account holder</label>
+          <label className="field-label">Account holder</label>
           <input
             type="text"
             value={value.accountHolder}
@@ -104,7 +104,7 @@ export function PayoutDetailsFields({
           />
         </div>
         <div>
-          <label className="eyebrow mb-1.5 block">Account number</label>
+          <label className="field-label">Account number</label>
           <input
             type="text"
             inputMode="numeric"

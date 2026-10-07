@@ -4,14 +4,12 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import dynamic from 'next/dynamic'
 import {
   ArrowLeft,
-  BadgeCheck,
   CarFront,
   Check,
   CheckCircle2,
   Clock3,
   Loader2,
   LocateFixed,
-  Lock,
   MapPin,
   Navigation,
   Route,
@@ -54,7 +52,6 @@ export default function RidePlanner() {
   const [routeError, setRouteError] = useState<string | null>(null)
 
   const [selectedRide, setSelectedRide] = useState<number | null>(null)
-  const [dispatching, setDispatching] = useState(false)
 
   const [isLocating, setIsLocating] = useState(false)
   const [searchingPickup, setSearchingPickup] = useState(false)
@@ -241,37 +238,13 @@ export default function RidePlanner() {
     return null
   }, [route, pickupCoords, destinationCoords])
 
+  const distanceDisplay = route ? `${route.distanceKm.toFixed(1)} km` : routing ? '…' : '—'
+  const durationDisplay = route ? `${route.durationMin} min` : routing ? '…' : '—'
+  const canNavigate = Boolean(pickupCoords && destinationCoords) || destination.trim().length > 0
   const navigateHref =
     pickupCoords && destinationCoords
       ? `https://www.google.com/maps/dir/?api=1&origin=${pickupCoords.lat},${pickupCoords.lng}&destination=${destinationCoords.lat},${destinationCoords.lng}`
-      : destination.trim()
-        ? `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(destination.trim())}`
-        : '#'
-
-  async function handleDispatch() {
-    if (!selected || dispatching) return
-    setDispatching(true)
-    try {
-      const res = await fetch('/api/rides/dispatch-link', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          providerName: selected.providerName,
-          pickupLat: pickupCoords?.lat ?? 0,
-          pickupLng: pickupCoords?.lng ?? 0,
-          dropoffLat: destinationCoords?.lat ?? 0,
-          dropoffLng: destinationCoords?.lng ?? 0,
-        }),
-      })
-      const result = (await res.json()) as { deepLink?: string; webFallback?: string }
-      const target = result.deepLink || result.webFallback
-      if (target) window.location.href = target
-    } catch {
-      setRouteError('Could not open the provider app. Try the Navigate button instead.')
-    } finally {
-      setDispatching(false)
-    }
-  }
+      : `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(destination.trim())}`
 
   const renderSuggestions = (field: 'pickup' | 'destination', suggestions: Suggestion[], searching: boolean) => {
     if (activeSuggestion !== field) return null
@@ -305,9 +278,6 @@ export default function RidePlanner() {
     )
   }
 
-  const distanceDisplay = route ? `${route.distanceKm.toFixed(1)} km` : routing ? '…' : '—'
-  const durationDisplay = route ? `${route.durationMin} min` : routing ? '…' : '—'
-
   return (
     <main className="mx-auto max-w-7xl px-4 pb-40 pt-6 sm:px-6 lg:px-8">
       {/* Header */}
@@ -322,13 +292,9 @@ export default function RidePlanner() {
           </Link>
           <div>
             <h1 className="text-2xl font-bold tracking-tight sm:text-4xl">Go &amp; Book Ride</h1>
-            <p className="text-xs font-medium text-app-muted">Compare and book from multiple ride partners</p>
+            <p className="text-xs font-medium text-app-muted">Meter-taxi fare estimate for your trip</p>
           </div>
         </div>
-        <span className="trust-pill">
-          <BadgeCheck className="size-3.5" strokeWidth={2.5} />
-          Secure
-        </span>
       </div>
 
       <div className="mx-auto max-w-4xl">
@@ -445,22 +411,18 @@ export default function RidePlanner() {
             </div>
           </div>
 
-          {/* Why book */}
-          <div className="dot-grid glass rounded-2xl p-5">
-            <h2 className="flex items-center gap-2 text-xl font-bold text-app-fg">
-              <BadgeCheck className="size-5 text-ember" strokeWidth={2.5} />
-              Why book your ride here?
-            </h2>
+          {/* Fare rules — the numbers are computed in lib/rides.ts, so say what they are */}
+          <div className="glass rounded-2xl p-5">
+            <h2 className="text-xl font-bold text-app-fg">How these fares are worked out</h2>
             <ul className="mt-4 space-y-3">
               {[
-                'Exact fares upfront — before you confirm',
-                'No surge pricing: meter-rate rules only',
-                'Compare providers side-by-side',
-                'Hands you straight to your ride app',
+                'A fixed boarding base plus a per-kilometre meter rate, in ETB',
+                'Three vehicle tiers, so you can weigh price against speed',
+                'Your driver’s meter is the final price — this is an estimate',
               ].map((item) => (
-                <li key={item} className="flex items-center gap-2.5 rounded-lg bg-white/40 px-2 py-1 text-sm font-medium text-app-muted dark:bg-white/5">
-                  <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-ember text-on-accent">
-                    <Check className="size-3" strokeWidth={3} />
+                <li key={item} className="flex items-start gap-2.5 text-sm leading-6 text-app-muted">
+                  <span className="mt-1 flex size-4 shrink-0 items-center justify-center rounded-full bg-ember text-on-accent">
+                    <Check className="size-2.5" strokeWidth={3} />
                   </span>
                   {item}
                 </li>
@@ -523,7 +485,7 @@ export default function RidePlanner() {
             <h2 className="text-2xl font-bold text-white">Choose a ride</h2>
             <span className="trust-pill">
               <CheckCircle2 className="size-3" strokeWidth={2.5} />
-              Fare upfront · ETB · No surge
+              Meter-rate estimate · ETB
             </span>
           </div>
 
@@ -533,9 +495,10 @@ export default function RidePlanner() {
                 const active = selectedRide === i
                 return (
                   <button
-                    key={`${ride.providerName}-${ride.tier}-${i}`}
+                    key={`${ride.tier}-${i}`}
                     type="button"
                     onClick={() => setSelectedRide(i)}
+                    aria-pressed={active}
                     className={cn(
                       'mb-1 flex w-full items-center gap-4 rounded-xl border px-3 py-3.5 text-left transition-all duration-200',
                       active
@@ -543,15 +506,11 @@ export default function RidePlanner() {
                         : 'border-transparent hover:bg-app-input/70',
                     )}
                   >
-                    <span className={cn(
-                      'flex size-11 shrink-0 items-center justify-center rounded-xl text-xs font-bold uppercase',
-                      active ? 'bg-ember text-on-accent' : 'bg-app-elevated text-app-muted',
-                    )}>
-                      {ride.providerName.slice(0, 2)}
-                    </span>
                     <span className="min-w-0 flex-1">
-                      <span className="block truncate font-semibold text-app-fg">{ride.providerName}</span>
-                      <span className="block text-xs font-medium text-app-muted">{ride.tier}</span>
+                      <span className="block truncate font-semibold text-app-fg">{ride.tier}</span>
+                      <span className="block text-xs font-medium text-app-muted">
+                        Meter taxi · estimated
+                      </span>
                     </span>
                     <span className="shrink-0 text-center">
                       <span className="block text-sm font-bold text-app-fg">{ride.etaMinutes} min</span>
@@ -597,10 +556,9 @@ export default function RidePlanner() {
         <div className="mx-auto flex max-w-4xl flex-wrap items-center justify-center gap-x-6 gap-y-3 px-4 py-3 sm:justify-between">
           <div className="hidden items-center gap-6 sm:flex">
             {[
-              { icon: Clock3, value: fastestEta ? `${fastestEta} min` : '—', label: 'Total time' },
+              { icon: Clock3, value: fastestEta ? `${fastestEta} min` : '—', label: 'Fastest ETA' },
               { icon: Route, value: distanceDisplay, label: 'Distance' },
               { icon: Users, value: '1-4', label: 'Passengers' },
-              { icon: Lock, value: 'In app', label: 'Secure pay' },
             ].map(({ icon: Icon, value, label }) => (
               <span key={label} className="flex flex-col items-center">
                 <Icon className="size-4 text-ember" strokeWidth={2.5} />
@@ -610,41 +568,29 @@ export default function RidePlanner() {
             ))}
           </div>
 
-          <div className="flex w-full gap-3 sm:w-auto">
+          <div className="flex w-full sm:w-auto">
             <a
-              href={navigateHref}
+              href={canNavigate ? navigateHref : undefined}
+              aria-disabled={!canNavigate}
               target="_blank"
               rel="noopener noreferrer"
-              className="glass-subtle flex flex-1 items-center justify-center gap-2 rounded-xl px-6 py-3 text-sm font-semibold text-app-fg transition-all duration-200 hover:-translate-y-0.5 hover:shadow-glass active:translate-y-0 active:scale-[0.98] sm:flex-none"
+              className={cn(
+                'flex w-full items-center justify-center gap-2 rounded-xl px-6 py-3 text-sm font-semibold transition-all duration-200',
+                canNavigate
+                  ? 'bg-gradient-to-br from-ember to-ember-deep text-on-accent shadow-[0_4px_16px_rgb(var(--ember-rgb)/0.35)] hover:-translate-y-0.5 hover:shadow-[0_6px_20px_rgb(var(--ember-rgb)/0.45)] active:translate-y-0 active:scale-[0.98]'
+                  : 'cursor-not-allowed bg-app-input text-app-muted/60'
+              )}
             >
-              <Navigation className="size-4 text-ember" strokeWidth={2.5} />
+              <Navigation className="size-4" strokeWidth={2.5} />
               <span className="flex flex-col items-start leading-none">
-                <span>Go</span>
-                <span className="mt-0.5 text-[9px] font-medium uppercase tracking-wider text-app-muted">
-                  Open navigation
+                <span>{canNavigate ? 'Start the ride' : 'Set a destination'}</span>
+                <span className="mt-0.5 text-[9px] font-medium uppercase tracking-wider opacity-80">
+                  {selected
+                    ? `Opens Google Maps · est. ${selected.estimatedPrice.currency} ${selected.estimatedPrice.amount}`
+                    : 'Opens Google Maps navigation'}
                 </span>
               </span>
             </a>
-            <button
-              type="button"
-              onClick={handleDispatch}
-              disabled={!selected || dispatching}
-              className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-gradient-to-br from-ember to-ember-deep px-6 py-3 text-sm font-semibold text-on-accent shadow-[0_4px_16px_rgb(var(--ember-rgb)/0.35)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_6px_20px_rgb(var(--ember-rgb)/0.45)] active:translate-y-0 active:scale-[0.98] disabled:opacity-40 sm:flex-none"
-            >
-              <CarFront className="size-4" strokeWidth={2.5} />
-              <span className="flex flex-col items-start leading-none">
-                <span>
-                  {dispatching
-                    ? 'Opening…'
-                    : selected
-                      ? `Book · ${selected.providerName}`
-                      : 'Book Ride'}
-                </span>
-                <span className="mt-0.5 text-[9px] font-medium uppercase tracking-wider text-white/70">
-                  {selected ? `${selected.estimatedPrice.currency} ${selected.estimatedPrice.amount}` : 'Select a ride'}
-                </span>
-              </span>
-            </button>
           </div>
         </div>
       </div>

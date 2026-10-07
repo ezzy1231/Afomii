@@ -46,7 +46,7 @@ export async function assignRole(formData: FormData): Promise<void> {
 
   // No session — this is a genuine signup visitor, send them to sign-in.
   if (!user) {
-    redirect(`/sign-in?redirect_url=${encodeURIComponent('/auth/role')}`)
+    redirect(`/auth/signin?next=${encodeURIComponent('/auth/role')}`)
   }
 
   if (!parsed.success) {

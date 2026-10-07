@@ -37,7 +37,7 @@ function displayName(email: string | null | undefined, fallback: string) {
 export default async function RestaurantDashboardPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user) redirect('/sign-in')
+  if (!user) redirect('/auth/signin')
   const { data: profileData } = await supabase
     .from('profiles')
     .select('id, role, email')

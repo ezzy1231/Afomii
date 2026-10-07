@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { ArrowUpRight, Search } from 'lucide-react'
+import { ArrowRight, Search } from 'lucide-react'
 
 export default function HomeSearch() {
   const router = useRouter()
@@ -34,7 +34,7 @@ export default function HomeSearch() {
         className="inline-flex min-h-12 shrink-0 items-center justify-center gap-1.5 rounded-xl bg-gradient-to-br from-ember to-ember-deep px-4 text-sm font-semibold text-on-accent shadow-[0_2px_8px_rgb(var(--ember-rgb)/0.3)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_4px_12px_rgb(var(--ember-rgb)/0.4)] active:translate-y-0 active:scale-[0.98] sm:px-5"
       >
         Explore
-        <ArrowUpRight className="size-4" strokeWidth={2.5} />
+        <ArrowRight className="size-4" strokeWidth={2.5} />
       </button>
     </form>
   )

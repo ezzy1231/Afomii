@@ -19,7 +19,7 @@ export default async function OrganizerDashboardLayout({
 }) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user) redirect('/sign-in?redirect_url=/dashboard/organizer')
+  if (!user) redirect('/auth/signin?next=/dashboard/organizer')
 
   const { data: profile } = await supabase
     .from('profiles')

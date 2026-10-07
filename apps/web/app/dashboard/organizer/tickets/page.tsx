@@ -21,7 +21,7 @@ export type TierRecord = {
 export default async function TicketsPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user) redirect('/sign-in')
+  if (!user) redirect('/auth/signin')
   const { data: profile } = await supabase
     .from('profiles')
     .select('id')

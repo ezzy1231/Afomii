@@ -19,9 +19,9 @@ const gallery = [
     icon: Users,
     caption: 'Discover restaurants and events in one feed',
     items: [
-      { src: '/vision/app-light-screens.jpg', alt: 'Consumer app — home, events and ride tabs', wide: true },
-      { src: '/vision/restaurant-detail.jpg', alt: 'Restaurant profile with menus, branches and reservations' },
-      { src: '/vision/ride-screen.jpg', alt: 'Go and Book Ride — compare partner prices in real time' },
+      { src: '/vision/app-light-screens.jpg', alt: 'Consumer app — home, events and ride tabs', caption: 'Home, events and ride, on one scroll', wide: true },
+      { src: '/vision/restaurant-detail.jpg', alt: 'Restaurant profile with menus, branches and reservations', caption: 'Restaurant profiles with menus, branches and reservations' },
+      { src: '/vision/ride-screen.jpg', alt: 'Go and Book Ride — compare partner prices in real time', caption: 'Ride estimates with distance and time' },
     ],
   },
   {
@@ -29,7 +29,7 @@ const gallery = [
     icon: Utensils,
     caption: 'Everything a restaurant needs to grow',
     items: [
-      { src: '/vision/restaurant-suite.jpg', alt: 'Restaurant features — profiles, reservations, menu management and analytics', wide: true },
+      { src: '/vision/restaurant-suite.jpg', alt: 'Restaurant features — profiles, reservations, menu management and analytics', caption: 'Profiles, reservations, menu management and analytics', wide: true },
     ],
   },
   {
@@ -37,26 +37,26 @@ const gallery = [
     icon: CalendarDays,
     caption: 'Create, publish and sell out events',
     items: [
-      { src: '/vision/organizer-dashboard.jpg', alt: 'Organizer dashboard, calendar, ticket management and analytics', wide: true },
-      { src: '/vision/create-event.jpg', alt: 'Five step create event wizard' },
+      { src: '/vision/organizer-dashboard.jpg', alt: 'Organizer dashboard, calendar, ticket management and analytics', caption: 'Organizer dashboard, calendar and ticket management', wide: true },
+      { src: '/vision/create-event.jpg', alt: 'Five step create event wizard', caption: 'The create-event wizard' },
     ],
   },
   {
-    group: 'One platform, five screens',
+    group: 'The full experience',
     icon: CarFront,
-    caption: 'The full UrbanExplore experience',
+    caption: 'The same screens in dark mode',
     items: [
-      { src: '/vision/app-dark-suite.jpg', alt: 'Dark app suite — home, calendar, event detail, organizer and restaurant profiles', wide: true },
+      { src: '/vision/app-dark-suite.jpg', alt: 'Dark app suite — home, calendar, event detail, organizer and restaurant profiles', caption: 'Home, calendar, event detail and profiles in dark mode', wide: true },
     ],
   },
   {
     group: 'Design language',
     icon: Palette,
-    caption: 'Navy, ivory and gold — Playfair Display with Inter',
+    caption: 'Navy, cream and gold — one family, weight-driven',
     items: [
-      { src: '/vision/design-tokens.jpg', alt: 'Color palette, typography and UI elements', wide: true },
-      { src: '/vision/role-picker.jpg', alt: 'Role selection — explorer, food business or event organizer' },
-      { src: '/vision/signup-categories.jpg', alt: 'Business and organizer category selection' },
+      { src: '/vision/design-tokens.jpg', alt: 'Color palette, typography and UI elements', caption: 'Colour palette, type scale and UI elements', wide: true },
+      { src: '/vision/role-picker.jpg', alt: 'Role selection — explorer, food business or event organizer', caption: 'Role selection at sign-up' },
+      { src: '/vision/signup-categories.jpg', alt: 'Business and organizer category selection', caption: 'Business and organizer category selection' },
     ],
   },
 ]
@@ -118,7 +118,7 @@ export default function VisionPage() {
                       className="object-cover object-top"
                     />
                   </div>
-                  <figcaption className="px-5 py-3 text-sm text-app-muted">{item.alt}</figcaption>
+                  <figcaption className="px-5 py-3 text-sm text-app-muted">{item.caption}</figcaption>
                 </figure>
               ))}
             </div>
