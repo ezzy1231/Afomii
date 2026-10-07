@@ -72,7 +72,7 @@ export default async function Navbar() {
             {user ? (
               <Link
                 href="/settings"
-                className="ml-1 flex size-9 items-center justify-center rounded-xl bg-gradient-to-br from-ember to-ember-deep text-sm font-bold text-white shadow-[0_2px_8px_rgb(var(--ember-rgb)/0.3)] transition-transform hover:scale-105 active:scale-95"
+                className="ml-1 flex size-11 items-center justify-center rounded-xl bg-gradient-to-br from-ember to-ember-deep text-sm font-bold text-white shadow-[0_2px_8px_rgb(var(--ember-rgb)/0.3)] transition-transform hover:scale-105 active:scale-95"
                 aria-label="Your account"
               >
                 {initial ?? 'U'}

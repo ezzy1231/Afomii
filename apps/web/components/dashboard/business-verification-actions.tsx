@@ -36,7 +36,7 @@ export function BusinessVerificationActions({ businessId }: { businessId: string
         type="button"
         disabled={pending}
         onClick={() => act(true)}
-        className="min-h-[36px] rounded-full border border-success/40 bg-success/15 px-4 text-xs font-semibold uppercase tracking-wide text-success transition-colors hover:bg-success/25 disabled:opacity-50"
+        className="min-h-[44px] rounded-full border border-success/40 bg-success/15 px-4 text-xs font-semibold uppercase tracking-wide text-success transition-colors hover:bg-success/25 disabled:opacity-50"
       >
         Verify
       </button>
@@ -44,7 +44,7 @@ export function BusinessVerificationActions({ businessId }: { businessId: string
         type="button"
         disabled={pending}
         onClick={() => act(false)}
-        className="min-h-[36px] rounded-full border border-danger/40 bg-danger/15 px-4 text-xs font-semibold uppercase tracking-wide text-danger transition-colors hover:bg-danger/25 disabled:opacity-50"
+        className="min-h-[44px] rounded-full border border-danger/40 bg-danger/15 px-4 text-xs font-semibold uppercase tracking-wide text-danger transition-colors hover:bg-danger/25 disabled:opacity-50"
       >
         Reject
       </button>

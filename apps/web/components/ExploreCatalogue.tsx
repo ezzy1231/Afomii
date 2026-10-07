@@ -244,7 +244,7 @@ export default function ExploreCatalogue({
                   setQuery('')
                   setSearchOpen(false)
                 }}
-                className="flex size-8 shrink-0 items-center justify-center rounded-lg text-app-muted transition hover:bg-app-input hover:text-app-fg"
+                className="flex size-11 shrink-0 items-center justify-center rounded-lg text-app-muted transition hover:bg-app-input hover:text-app-fg"
                 aria-label="Close restaurant search"
               >
                 <X className="size-4" />
@@ -291,7 +291,7 @@ export default function ExploreCatalogue({
                   setQuery('')
                   setSearchOpen(false)
                 }}
-                className="flex size-8 shrink-0 items-center justify-center rounded-lg text-app-muted transition hover:bg-app-input hover:text-app-fg"
+                className="flex size-11 shrink-0 items-center justify-center rounded-lg text-app-muted transition hover:bg-app-input hover:text-app-fg"
                 aria-label="Close event search"
               >
                 <X className="size-4" />
@@ -395,6 +395,7 @@ export default function ExploreCatalogue({
                     src={featured.imageUrl}
                     alt={featured.name}
                     fill
+                    priority
                     sizes="(max-width: 1024px) 100vw, 900px"
                     className="object-cover transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.03]"
                   />
@@ -431,6 +432,7 @@ export default function ExploreCatalogue({
                     src={featured.imageUrl}
                     alt={featured.name}
                     fill
+                    priority
                     sizes="(max-width: 1024px) 100vw, 1200px"
                     className="object-cover transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.03]"
                   />
@@ -578,7 +580,7 @@ export default function ExploreCatalogue({
                           isSaved ? current.filter((id) => id !== item.id) : [...current, item.id]
                         )
                       }
-                      className="absolute right-3 top-3 flex size-8 items-center justify-center rounded-full bg-white/70 text-app-fg shadow-soft backdrop-blur-md transition-transform hover:scale-105 active:scale-90 dark:bg-white/15"
+                      className="absolute right-2 top-2 flex size-11 items-center justify-center rounded-full bg-white/70 text-app-fg shadow-soft backdrop-blur-md transition-transform hover:scale-105 active:scale-90 dark:bg-white/15"
                       aria-label={isSaved ? `Unsave ${item.name}` : `Save ${item.name}`}
                     >
                       <Heart className={cn('size-4', isSaved && 'fill-danger text-danger')} />

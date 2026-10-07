@@ -256,8 +256,11 @@ export default function SignInPage() {
               <Link href="/auth/forgot-password" className="text-xs font-bold text-ember hover:underline">Forgot password?</Link>
             </div>
             <div className="relative">
-              <input id="password" type={showPw ? 'text' : 'password'} autoComplete="current-password" required value={password} onChange={(e) => setPassword(e.target.value)} className="input-premium pr-11" placeholder="••••••••" />
-              <button type="button" onClick={() => setShowPw(!showPw)} className="absolute right-3 top-1/2 -translate-y-1/2 text-app-muted hover:text-app-fg" aria-label={showPw ? 'Hide password' : 'Show password'}>
+              <input id="password" type={showPw ? 'text' : 'password'} autoComplete="current-password" required value={password} onChange={(e) => setPassword(e.target.value)} className="input-premium pr-12" placeholder="••••••••" />
+              {/* Padded hit area over the field; the icon stays optically centred.
+                  Without this the target is the 16px glyph, well under the 44px
+                  floor, and the overlay swallows clicks aimed at the input. */}
+              <button type="button" onClick={() => setShowPw(!showPw)} className="absolute right-0.5 top-1/2 flex size-11 -translate-y-1/2 items-center justify-center rounded-lg text-app-muted transition-colors hover:text-app-fg" aria-label={showPw ? 'Hide password' : 'Show password'}>
                 {showPw ? (
                   <svg viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
                     <path fillRule="evenodd" d="M3.28 2.22a.75.75 0 0 0-1.06 1.06l14.5 14.5a.75.75 0 1 0 1.06-1.06l-1.745-1.745a10.029 10.029 0 0 0 3.3-4.38 1.651 1.651 0 0 0 0-1.185A10.004 10.004 0 0 0 9.999 3a9.956 9.956 0 0 0-4.744 1.194L3.28 2.22ZM7.752 6.69l1.092 1.092a2.5 2.5 0 0 1 3.374 3.373l1.091 1.092a4 4 0 0 0-5.557-5.557Z" clipRule="evenodd" />
