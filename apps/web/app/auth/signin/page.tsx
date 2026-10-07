@@ -157,15 +157,23 @@ export default function SignInPage() {
     try {
       const supabase = createClient()
       const params = new URLSearchParams(window.location.search)
-      const rawNext = params.get('next') ?? '/'
-      const next = rawNext.startsWith('/') && !rawNext.startsWith('//') ? rawNext : '/'
+      const rawNext = params.get('next')
+      const next = rawNext && rawNext.startsWith('/') && !rawNext.startsWith('//') ? rawNext : '/'
 
       // Carry the destination in sessionStorage, NOT in the OAuth redirectTo.
       // Supabase matches redirectTo against the allowlist as an exact string, so
       // appending `?next=...` makes a wildcard-free entry stop matching and the
       // provider bounces back to the Site URL instead of our callback.
+      //
+      // Only an EXPLICIT destination is stashed. Persisting the default '/' would
+      // make the callback treat it as an explicit choice and skip role routing,
+      // dumping admins on the home page.
       try {
-        sessionStorage.setItem('auth:next', next)
+        if (rawNext && next !== '/') {
+          sessionStorage.setItem('auth:next', next)
+        } else {
+          sessionStorage.removeItem('auth:next')
+        }
       } catch {
         // Storage unavailable (private mode) — fall back to role-based routing.
       }

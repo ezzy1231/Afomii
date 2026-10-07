@@ -74,8 +74,12 @@ function CallbackInner() {
       }
 
       const next = params.get('next') ?? readStoredNext()
+      // '/' is the fallback, not a choice — treating it as explicit would skip
+      // role routing and land every user on the home page.
       const explicitNext =
-        next && next.startsWith('/') && !next.startsWith('//') && !next.includes('\\') ? next : null
+        next && next !== '/' && next.startsWith('/') && !next.startsWith('//') && !next.includes('\\')
+          ? next
+          : null
 
       if (explicitNext) {
         router.replace(explicitNext)
