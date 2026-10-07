@@ -219,6 +219,7 @@ export async function createEventListing(
   }
 
   revalidatePath('/dashboard/organizer')
+  revalidatePath('/dashboard/organizer/events')
   revalidatePath('/dashboard/organizer/tickets')
   revalidatePath('/events')
 

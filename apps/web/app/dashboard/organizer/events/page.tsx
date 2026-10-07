@@ -74,9 +74,19 @@ export default function OrganizerEventsPage() {
 
   return (
     <div className="mx-auto w-full max-w-6xl px-4 pb-24 pt-8 sm:px-6 lg:px-8">
-      <p className="text-xs font-bold uppercase tracking-[0.15em] text-ember">Organizer</p>
-      <h1 className="mt-2  text-3xl font-bold text-app-fg">Events</h1>
-      <p className="mt-2 text-sm text-app-muted">Manage your published and draft events.</p>
+      <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+        <div>
+          <p className="text-xs font-bold uppercase tracking-[0.15em] text-ember">Organizer</p>
+          <h1 className="mt-2  text-3xl font-bold text-app-fg">Events</h1>
+          <p className="mt-2 text-sm text-app-muted">Manage your published and draft events.</p>
+        </div>
+        <Link
+          href="/dashboard/organizer/events/new"
+          className="btn-primary inline-flex !py-2.5 text-sm"
+        >
+          ＋ Create event
+        </Link>
+      </div>
 
       {loading ? (
         <div className="mt-8 space-y-3">
@@ -113,8 +123,8 @@ export default function OrganizerEventsPage() {
           ))}
           {events.length === 0 && (
             <div className="sm:col-span-2 py-12 text-center text-app-muted">
-              <p>No events yet. Create your first event from the dashboard.</p>
-              <Link href="/dashboard/organizer" className="btn-primary mt-4 inline-flex">Create event</Link>
+              <p>No events yet. Create your first event to start selling tickets.</p>
+              <Link href="/dashboard/organizer/events/new" className="btn-primary mt-4 inline-flex">Create event</Link>
             </div>
           )}
         </div>

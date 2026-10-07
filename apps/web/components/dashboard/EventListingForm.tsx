@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import Link from "next/link";
 import {
   createEventListing,
   type DashboardActionState,
@@ -15,7 +16,12 @@ const TIER_TYPES = [
   { value: "group", label: "Group" },
 ] as const;
 
-export default function EventListingForm() {
+export default function EventListingForm({
+  successHref,
+}: {
+  /** When set, a success message links onward instead of leaving the organizer stranded. */
+  successHref?: string;
+}) {
   const [state, setState] = useState<DashboardActionState>({
     ok: false,
     message: "",
@@ -175,11 +181,21 @@ export default function EventListingForm() {
       </form>
 
       {state.message && (
-        <p
+        <div
+          role="status"
+          aria-live="polite"
           className={`animate-pop-in mt-5 rounded-xl px-4 py-3 text-sm ${state.ok ? "bg-ember/10 text-app-fg border border-ember/20" : "bg-red-50 text-red-700 border border-red-200"}`}
         >
-          {state.message}
-        </p>
+          <p>{state.message}</p>
+          {state.ok && successHref && (
+            <Link
+              href={successHref}
+              className="mt-2 inline-block font-semibold text-ember underline underline-offset-2"
+            >
+              View your events
+            </Link>
+          )}
+        </div>
       )}
     </section>
   );
