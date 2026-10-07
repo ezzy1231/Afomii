@@ -7,6 +7,14 @@ import {
 } from "@/app/dashboard/actions";
 import BannerUploadField from "@/components/BannerUploadField";
 
+/** Mirrors the `ticket_tier` enum in packages/supabase/migrations/0001. */
+const TIER_TYPES = [
+  { value: "early_bird", label: "Early Bird" },
+  { value: "standard", label: "Standard" },
+  { value: "vip", label: "VIP" },
+  { value: "group", label: "Group" },
+] as const;
+
 export default function EventListingForm() {
   const [state, setState] = useState<DashboardActionState>({
     ok: false,
@@ -14,6 +22,7 @@ export default function EventListingForm() {
   });
   const [pending, startTransition] = useTransition();
   const [bannerReady, setBannerReady] = useState(false);
+  const [showTier, setShowTier] = useState(true);
 
   async function handleSubmit(formData: FormData) {
     startTransition(async () => {
@@ -80,6 +89,81 @@ export default function EventListingForm() {
             onReady={setBannerReady}
           />
         </div>
+
+        {/* Optional first ticket tier. On by default so a new event is
+            sellable immediately; untick to create the event with no tickets. */}
+        <fieldset className="sm:col-span-2 rounded-xl border border-app-border bg-app-input/40 p-4 sm:p-5">
+          <legend className="sr-only">First ticket tier</legend>
+
+          <label className="flex items-start gap-3">
+            <input
+              type="checkbox"
+              name="addTicketTier"
+              checked={showTier}
+              onChange={(e) => setShowTier(e.target.checked)}
+              className="mt-1 size-4 shrink-0 accent-ember"
+            />
+            <span>
+              <span className="block text-sm font-semibold text-app-fg">
+                Add a ticket tier
+              </span>
+              <span className="mt-0.5 block text-xs text-app-muted">
+                An event needs at least one tier before anyone can buy a ticket.
+                You can add more later under Ticket Management.
+              </span>
+            </span>
+          </label>
+
+          {showTier && (
+            <div className="mt-4 grid gap-4 border-t border-app-border pt-4 sm:grid-cols-2">
+              <label className="block">
+                <span className="field-label">Tier name</span>
+                <input
+                  name="tierName"
+                  className="input-premium"
+                  defaultValue="Early Bird"
+                  placeholder="Early Bird"
+                />
+              </label>
+              <label className="block">
+                <span className="field-label">Tier type</span>
+                <select name="tierType" className="input-premium" defaultValue="early_bird">
+                  {TIER_TYPES.map((t) => (
+                    <option key={t.value} value={t.value}>
+                      {t.label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className="block">
+                <span className="field-label">Price (ETB)</span>
+                <input
+                  name="tierPrice"
+                  type="number"
+                  min={0}
+                  step="1"
+                  inputMode="numeric"
+                  className="input-premium tabular-nums"
+                  defaultValue="500"
+                  placeholder="500"
+                />
+              </label>
+              <label className="block">
+                <span className="field-label">Quantity</span>
+                <input
+                  name="tierQuantity"
+                  type="number"
+                  min={1}
+                  step="1"
+                  inputMode="numeric"
+                  className="input-premium tabular-nums"
+                  defaultValue="100"
+                  placeholder="100"
+                />
+              </label>
+            </div>
+          )}
+        </fieldset>
 
         <button
           type="submit"

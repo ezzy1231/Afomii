@@ -14,6 +14,21 @@ export const uuidSchema = z.string().uuid("Invalid identifier.");
 
 const trimmed = (max: number) => z.string().trim().max(max);
 
+/**
+ * A number field that is required. `z.coerce.number()` turns an empty string
+ * into 0, which would quietly turn a left-blank price into a free ticket, so
+ * empty input is rejected before coercion.
+ */
+const requiredNumber = (opts: { min: number; max: number; int?: boolean; message: string }) => {
+  let schema = z.coerce.number({ invalid_type_error: opts.message });
+  if (opts.int) schema = schema.int(opts.message);
+  return z
+    .string()
+    .trim()
+    .min(1, opts.message)
+    .pipe(schema.min(opts.min, opts.message).max(opts.max, opts.message));
+};
+
 // ── Discovery / partner listing creation ────────────────────────────────
 
 export const restaurantListingInputSchema = z.object({
@@ -117,6 +132,23 @@ export const ticketTierInputSchema = z.object({
   totalQuantity: z.coerce.number().int().min(1, "Total quantity must be at least 1.").max(1_000_000),
   salesStart: z.string().nullable().optional(),
   salesEnd: z.string().nullable().optional(),
+});
+
+/**
+ * The optional first ticket tier offered on the create-event form. Optional by
+ * design — an event can exist with nothing to sell — but it is what makes a new
+ * event buyable without a second trip to the ticket manager.
+ */
+export const firstTicketTierSchema = z.object({
+  name: z.string().trim().min(1, "Tier name is required.").max(120),
+  tier: ticketTierEnum,
+  price: requiredNumber({ min: 0, max: 1_000_000, message: "Enter a valid price." }),
+  totalQuantity: requiredNumber({
+    min: 1,
+    max: 1_000_000,
+    int: true,
+    message: "Quantity must be at least 1.",
+  }),
 });
 
 // ── Helpers ──────────────────────────────────────────────────────────────

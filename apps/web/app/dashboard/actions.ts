@@ -10,6 +10,7 @@ import {
   eventListingWithBannerSchema,
   eventModerationActionSchema,
   firstIssue,
+  firstTicketTierSchema,
   logActionError,
   openingHoursSchema,
   restaurantListingInputSchema,
@@ -130,6 +131,25 @@ export async function createEventListing(
     return { ok: false, message: 'Only event organizer accounts can create event listings.' }
   }
 
+  // The first ticket tier is optional, but offering it here is what makes a
+  // new event buyable without a second visit to the ticket manager.
+  const wantsTier = readText(formData, 'addTicketTier') === 'on'
+  const rawTier = wantsTier
+    ? {
+        name: readText(formData, 'tierName'),
+        tier: readText(formData, 'tierType') || 'early_bird',
+        price: readText(formData, 'tierPrice'),
+        totalQuantity: readText(formData, 'tierQuantity'),
+      }
+    : null
+
+  const tierParsed = rawTier ? firstTicketTierSchema.safeParse(rawTier) : null
+  // A half-filled tier block should block the submit, not silently skip.
+  if (tierParsed && !tierParsed.success) {
+    return { ok: false, message: firstIssue(tierParsed.error) }
+  }
+  const firstTier = tierParsed?.success ? tierParsed.data : null
+
   const parsed = eventListingWithBannerSchema.safeParse({
     title: readText(formData, 'title'),
     category: readText(formData, 'category'),
@@ -156,26 +176,53 @@ export async function createEventListing(
     }
   }
 
-  const { error } = await supabase.from('events').insert({
-    organizer_id: organizer.id,
-    title,
-    category: category || null,
-    venue_name: venueName,
-    starts_at: startsAtDate ? startsAtDate.toISOString() : null,
-    price_label: priceLabel || null,
-    cover_image_url: coverImageUrl,
-    is_active: true,
-  })
+  // Returning the new id lets the optional first tier attach to this event.
+  const { data: created, error } = await supabase
+    .from('events')
+    .insert({
+      organizer_id: organizer.id,
+      title,
+      category: category || null,
+      venue_name: venueName,
+      starts_at: startsAtDate ? startsAtDate.toISOString() : null,
+      price_label: priceLabel || null,
+      cover_image_url: coverImageUrl,
+      is_active: true,
+    })
+    .select('id')
+    .single()
 
-  if (error) {
-    logActionError('createEventListing', error)
+  if (error || !created) {
+    logActionError('createEventListing', error ?? new Error('Event insert returned no row'))
     return defaultErrorState
   }
 
+  // Optional first tier. A failure here must not lose the event the organizer
+  // just created, so it is logged and reported rather than rolled back.
+  let tierNote = ''
+  if (firstTier) {
+    const { error: tierError } = await supabase.from('ticket_types').insert({
+      event_id: created.id,
+      name: firstTier.name,
+      tier: firstTier.tier,
+      price: firstTier.price,
+      total_quantity: firstTier.totalQuantity,
+      remaining_quantity: firstTier.totalQuantity,
+    })
+
+    if (tierError) {
+      logActionError('createEventListing.tier', tierError)
+      tierNote = ' The ticket tier was not saved — add it under Ticket Management.'
+    } else {
+      tierNote = ` Ticket "${firstTier.name}" is live at ETB ${firstTier.price}.`
+    }
+  }
+
   revalidatePath('/dashboard/organizer')
+  revalidatePath('/dashboard/organizer/tickets')
   revalidatePath('/events')
 
-  return { ok: true, message: `Event created: ${title}.` }
+  return { ok: true, message: `Event created: ${title}.${tierNote}` }
 }
 
 export async function updateReservationStatus(
