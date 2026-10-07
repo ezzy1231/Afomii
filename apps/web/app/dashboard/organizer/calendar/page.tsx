@@ -6,9 +6,9 @@ import { createClient } from '@/lib/supabase/client'
 type CalendarEvent = {
   id: string
   title: string
+  // Nullable in Postgres, but the query filters out the nulls.
   starts_at: string
-  endDateTime: string
-  status: string
+  status: string | null
 }
 
 export default function CalendarPage() {
@@ -48,10 +48,14 @@ export default function CalendarPage() {
         .from('organizers').select('id').eq('owner_id', profileRow.id).maybeSingle()
       if (!organizer) { setLoading(false); return }
 
+      // `starts_at`, not `startDateTime` — the camelCase name is Prisma-era and
+      // has no Postgres column, so ordering by it errored and the tab silently
+      // rendered empty for every organizer.
       const { data } = await supabase
         .from('events').select('*').eq('organizer_id', organizer.id)
-        .order('startDateTime', { ascending: true })
-      if (data) setEvents(data)
+        .not('starts_at', 'is', null)
+        .order('starts_at', { ascending: true })
+      if (data) setEvents(data as CalendarEvent[])
       setLoading(false)
     }
     load()
@@ -86,9 +90,11 @@ export default function CalendarPage() {
                       <p className="font-medium text-app-fg">{e.title}</p>
                       <p className="text-xs text-app-muted">{new Date(e.starts_at).toLocaleTimeString()}</p>
                     </div>
+                    {/* The `event_status` Postgres enum is lowercase; these used to compare against
+                        Prisma-era uppercase literals and never matched. */}
                     <span className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase ${
-                      e.status === 'PUBLISHED' ? 'bg-success/15 text-success' :
-                      e.status === 'DRAFT' ? 'bg-app-input text-app-muted' :
+                      e.status === 'published' ? 'bg-success/15 text-success' :
+                      e.status === 'draft' ? 'bg-app-input text-app-muted' :
                       'bg-ember/12 text-ember'
                     }`}>
                       {e.status}

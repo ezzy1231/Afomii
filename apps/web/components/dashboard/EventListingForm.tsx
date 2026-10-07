@@ -29,11 +29,19 @@ export default function EventListingForm({
   const [pending, startTransition] = useTransition();
   const [bannerReady, setBannerReady] = useState(false);
   const [showTier, setShowTier] = useState(true);
+  // Creation is rate limited, so a stale form invites a guaranteed rejection.
+  // Bumping the key remounts the form and its banner uploader from scratch.
+  const [formKey, setFormKey] = useState(0);
 
   async function handleSubmit(formData: FormData) {
     startTransition(async () => {
       const result = await createEventListing(state, formData);
       setState(result);
+      if (result.ok) {
+        setFormKey((k) => k + 1);
+        setBannerReady(false);
+        setShowTier(true);
+      }
     });
   }
 
@@ -44,7 +52,7 @@ export default function EventListingForm({
         Publish upcoming events to the discover feed.
       </p>
 
-      <form action={handleSubmit} className="mt-6 grid gap-5 sm:grid-cols-2">
+      <form key={formKey} action={handleSubmit} className="mt-6 grid gap-5 sm:grid-cols-2">
         <label className="block text-sm font-medium text-app-fg sm:col-span-2">
           <span className="mb-1.5 block">Event title</span>
           <input
