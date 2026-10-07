@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import { cn } from "../../lib/utils";
 import NotificationsBell from "../NotificationsBell";
+import ThemeToggle from "../ThemeToggle";
 
 type NavItem = {
   label: string;
@@ -79,7 +80,10 @@ export function Sidebar({ title, navItems, notificationCount }: SidebarProps) {
                 Partner
               </span>
             </Link>
-            <NotificationsBell initialCount={notificationCount ?? 0} />
+            <div className="flex items-center gap-1">
+              <ThemeToggle />
+              <NotificationsBell initialCount={notificationCount ?? 0} />
+            </div>
           </div>
         </div>
 
