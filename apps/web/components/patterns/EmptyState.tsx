@@ -17,6 +17,7 @@ export function EmptyState({
 }: EmptyStateProps) {
   return (
     <div
+      data-testid="empty-state"
       className={cn(
         "flex flex-col items-center rounded-3xl border border-dashed border-app-border bg-app-panel/40 px-6 py-14 text-center",
         className

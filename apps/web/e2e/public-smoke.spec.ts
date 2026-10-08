@@ -17,23 +17,20 @@ test.describe('Public pages render', () => {
 
   test('restaurants catalogue renders listing cards or an empty state', async ({ page }) => {
     await page.goto('/restaurants')
-    // Either live cards or the explicit empty state — never a crash page.
-    const hasCards = await page
-      .locator('a[href^="/restaurants/"], [data-testid="listing-card"]')
-      .count()
-    if (hasCards === 0) {
-      await expect(page.getByText(/no restaurants|nothing here|empty/i).first()).toBeVisible()
-    }
+    // Exactly one of the two must be visible, so a blank catalogue cannot
+    // pass by asserting nothing. Assert the hook, not the copy: the empty
+    // title is dynamic ("Nothing matches these filters" vs "No results for
+    // ..."), and a prose match rots silently whenever either is reworded.
+    await expect(
+      page.locator('[data-testid="listing-card"]').or(page.getByTestId('empty-state')).first(),
+    ).toBeVisible()
   })
 
   test('events catalogue renders listing cards or an empty state', async ({ page }) => {
     await page.goto('/events')
-    const hasCards = await page
-      .locator('a[href^="/events/"], [data-testid="listing-card"]')
-      .count()
-    if (hasCards === 0) {
-      await expect(page.getByText(/no events|nothing here|empty/i).first()).toBeVisible()
-    }
+    await expect(
+      page.locator('[data-testid="listing-card"]').or(page.getByTestId('empty-state')).first(),
+    ).toBeVisible()
   })
 
   test('ride planner renders and works without any maps key', async ({ page }) => {

@@ -494,7 +494,7 @@ export default function ExploreCatalogue({
             if (type === 'events') {
               return (
                 <StaggerItem key={item.id} className="h-full">
-                  <article className="glass glass-hover group flex h-full flex-col overflow-hidden rounded-3xl">
+                  <article data-testid="listing-card" className="glass glass-hover group flex h-full flex-col overflow-hidden rounded-3xl">
                     <Link href={detailHref} className="relative block h-40">
                       {item.imageUrl ? (
                         <Image
@@ -549,7 +549,7 @@ export default function ExploreCatalogue({
 
             return (
               <StaggerItem key={item.id} className="h-full">
-                <article className="glass glass-hover group flex h-full flex-col overflow-hidden rounded-3xl">
+                <article data-testid="listing-card" className="glass glass-hover group flex h-full flex-col overflow-hidden rounded-3xl">
                   <div className="relative h-40">
                     <Link href={detailHref} className="block h-full">
                       {item.imageUrl ? (
