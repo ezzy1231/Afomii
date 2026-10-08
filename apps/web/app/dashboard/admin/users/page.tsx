@@ -1,12 +1,9 @@
 import type { Metadata } from 'next'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
-import {
-  ConsolePageShell,
-  ConsoleHeader,
-  StatusPill,
-} from '@/components/dashboard/console'
-import { CONSOLE_CARD } from '@/components/dashboard/console-shared'
+import { ConsolePageShell, ConsoleHeader, FilterChip, StatusPill } from '@/components/dashboard/console'
+import { CONSOLE_CARD, statusTone } from '@/components/dashboard/console-shared'
+import { AdminTable } from '@/components/dashboard/admin-table'
 import { UserRoleSelect, UserSuspensionActions } from '@/components/dashboard/admin-actions'
 import { cn } from '@/lib/utils'
 
@@ -17,217 +14,67 @@ const ROLE_FILTERS = ['all', 'customer', 'food_business', 'event_organizer', 'sy
 export default async function AdminUsersPage({
   searchParams,
 }: {
-  searchParams?: { q?: string; role?: string }
+  searchParams?: { q?: string; role?: string; sort?: string; direction?: string; page?: string }
 }) {
   const q = (searchParams?.q ?? '').trim()
-  const roleFilter =
-    searchParams?.role && ROLE_FILTERS.includes(searchParams.role as (typeof ROLE_FILTERS)[number])
-      ? searchParams.role
-      : 'all'
+  const roleFilter = ROLE_FILTERS.includes(searchParams?.role as (typeof ROLE_FILTERS)[number]) ? searchParams?.role ?? 'all' : 'all'
+  const allowedSorts = ['full_name', 'email', 'role', 'created_at'] as const
+  const sort = allowedSorts.includes(searchParams?.sort as (typeof allowedSorts)[number]) ? searchParams?.sort as (typeof allowedSorts)[number] : 'created_at'
+  const direction = searchParams?.direction === 'asc' ? 'asc' : 'desc'
+  const page = Math.max(1, Number.parseInt(searchParams?.page ?? '1', 10) || 1)
 
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/auth/signin')
-  const { data: me } = await supabase
-    .from('profiles')
-    .select('id')
-    .eq('id', user!.id)
-    .maybeSingle()
-  const meId = me?.id ?? null
 
   let query = supabase
     .from('profiles')
-    .select('id, full_name, email, role, is_suspended, created_at')
-    .order('created_at', { ascending: false })
-    .limit(50)
+    .select('id, full_name, email, role, is_suspended, created_at', { count: 'exact' })
+    .order(sort, { ascending: direction === 'asc', nullsFirst: false })
+    .range((page - 1) * 50, page * 50 - 1)
   if (roleFilter !== 'all') query = query.eq('role', roleFilter)
   if (q) query = query.or(`full_name.ilike.%${q}%,email.ilike.%${q}%`)
-
-  const { data } = await query
-  const rows = (data ?? []) as Array<{
-    id: string
-    full_name: string | null
-    email: string | null
-    role: string
-    is_suspended: boolean | null
-    created_at: string
-  }>
+  const { data, error, count } = await query
+  const rows = (data ?? []) as Array<{ id: string; full_name: string | null; email: string | null; role: string; is_suspended: boolean | null; created_at: string }>
 
   return (
-    <ConsolePageShell>
-      <ConsoleHeader
-        eyebrow="Admin console"
-        title="Users"
-        subtitle="Roles, suspension, and account search. Role changes are audited."
-      />
-
-      {/* Filters */}
-      <div className="flex flex-col gap-3">
-        <form method="get" className={cn(CONSOLE_CARD, 'flex items-center gap-3 px-4 py-3')}>
-          <svg viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4 shrink-0 text-app-muted">
-            <path fillRule="evenodd" d="M9 3.5a5.5 5.5 0 1 0 0 11 5.5 5.5 0 0 0 0-11ZM2 9a7 7 0 1 1 12.452 4.391l3.328 3.329a.75.75 0 1 1-1.06 1.06l-3.329-3.328A7 7 0 0 1 2 9Z" clipRule="evenodd" />
-          </svg>
-          <input
-            type="search"
-            name="q"
-            defaultValue={q}
-            placeholder="Search by name or email..."
-            className="w-full bg-transparent text-sm text-app-fg outline-none placeholder:text-app-muted"
-          />
+    <ConsolePageShell maxWidth="max-w-7xl">
+      <ConsoleHeader eyebrow="Admin console" title="Users" subtitle="Roles, suspension, and account search. Role changes are recorded in the audit log." />
+      <div className="space-y-3">
+        <form method="get" className={cn(CONSOLE_CARD, 'flex items-center gap-3 px-3 py-2')}>
+          <label htmlFor="user-search" className="sr-only">Search by name or email</label>
+          <input id="user-search" type="search" name="q" defaultValue={q} placeholder="Search by name or email…" className="min-h-10 w-full bg-transparent text-sm text-app-fg outline-none placeholder:text-app-muted" />
           {roleFilter !== 'all' && <input type="hidden" name="role" value={roleFilter} />}
+          <button className="min-h-10 rounded-lg bg-ember px-4 text-xs font-semibold text-on-accent">Search</button>
         </form>
         <div className="flex flex-wrap gap-2">
-          {ROLE_FILTERS.map((r) => (
-            <a
-              key={r}
-              href={`/dashboard/admin/users?role=${r}${q ? `&q=${encodeURIComponent(q)}` : ''}`}
-              className={cn(
-                'min-h-[36px] whitespace-nowrap rounded-full border px-3.5 py-1.5 text-xs font-semibold transition-colors',
-                roleFilter === r
-                  ? 'border-ember/40 bg-ember/15 text-ember'
-                  : 'border-app-border text-app-muted hover:border-ember/30 hover:text-app-fg'
-              )}
-            >
-              {r}
-            </a>
-          ))}
+          {ROLE_FILTERS.map((role) => <FilterChip key={role} href={`/dashboard/admin/users?role=${role}${q ? `&q=${encodeURIComponent(q)}` : ''}`} active={roleFilter === role}>{role}</FilterChip>)}
         </div>
       </div>
-
-      {/* Mobile — stacked cards */}
-      <div className="space-y-2 md:hidden">
-        {rows.length === 0 ? (
-          <div className={cn(CONSOLE_CARD, 'p-6 text-center text-sm text-app-muted')}>
-            No users match this filter.
-          </div>
-        ) : (
-          rows.map((row) => {
-            const isSelf = row.id === meId
-            return (
-              <div key={row.id} className={cn(CONSOLE_CARD, 'space-y-2.5 p-4')}>
-                <p className="truncate font-semibold">
-                  {row.full_name ?? '—'}
-                  {isSelf && (
-                    <span className="ml-2 rounded bg-ember/15 px-1.5 py-0.5 align-middle text-[10px] font-bold uppercase tracking-wide text-ember">
-                      You
-                    </span>
-                  )}
-                </p>
-                <p className="text-xs text-app-muted">{row.email ?? '—'}</p>
-
-                <dl className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs">
-                  <div className="flex items-center gap-1.5">
-                    <dt className="text-app-muted">Role</dt>
-                    <dd>
-                      {isSelf ? (
-                        <StatusPill status={row.role} tone={row.role === 'system_admin' ? 'gold' : 'info'} />
-                      ) : (
-                        <UserRoleSelect userId={row.id} currentRole={row.role} />
-                      )}
-                    </dd>
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    <dt className="text-app-muted">Status</dt>
-                    <dd>
-                      {row.is_suspended ? (
-                        <StatusPill status="suspended" tone="bad" />
-                      ) : (
-                        <StatusPill status="active" tone="ok" />
-                      )}
-                    </dd>
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    <dt className="text-app-muted">Joined</dt>
-                    <dd className="tabular-nums text-app-muted">
-                      {new Date(row.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
-                    </dd>
-                  </div>
-                </dl>
-
-                <div className="flex flex-wrap gap-2 pt-1">
-                  {isSelf ? (
-                    <span className="text-xs text-app-muted">—</span>
-                  ) : (
-                    <UserSuspensionActions userId={row.id} isSuspended={Boolean(row.is_suspended)} />
-                  )}
-                </div>
-              </div>
-            )
-          })
-        )}
-      </div>
-
-      {/* Desktop */}
-      <div className={cn(CONSOLE_CARD, 'hidden overflow-x-auto md:block')}>
-        <table className="w-full text-left text-sm">
-          <thead>
-            <tr className="border-b border-app-border text-[11px] uppercase tracking-[0.14em] text-app-muted">
-              <th scope="col" className="px-4 py-3 font-semibold">User</th>
-              <th scope="col" className="px-4 py-3 font-semibold">Role</th>
-              <th scope="col" className="px-4 py-3 font-semibold">Status</th>
-              <th scope="col" className="px-4 py-3 font-semibold">Joined</th>
-              <th scope="col" className="px-4 py-3 text-right font-semibold">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {rows.length === 0 ? (
-              <tr>
-                <td colSpan={5} className="px-4 py-10 text-center text-sm text-app-muted">
-                  No users match this filter.
-                </td>
-              </tr>
-            ) : (
-              rows.map((row) => {
-                const isSelf = row.id === meId
-                return (
-                  <tr key={row.id} className="border-b border-app-border last:border-0">
-                    <td className="px-4 py-3.5">
-                      <span className="block truncate font-semibold">
-                        {row.full_name ?? '—'}
-                        {isSelf && (
-                          <span className="ml-2 rounded bg-ember/15 px-1.5 py-0.5 align-middle text-[10px] font-bold uppercase tracking-wide text-ember">
-                            You
-                          </span>
-                        )}
-                      </span>
-                      <span className="text-xs text-app-muted">{row.email ?? '—'}</span>
-                    </td>
-                    <td className="px-4 py-3.5">
-                      {isSelf ? (
-                        <StatusPill status={row.role} tone={row.role === 'system_admin' ? 'gold' : 'info'} />
-                      ) : (
-                        <UserRoleSelect userId={row.id} currentRole={row.role} />
-                      )}
-                    </td>
-                    <td className="px-4 py-3.5">
-                      {row.is_suspended ? (
-                        <StatusPill status="suspended" tone="bad" />
-                      ) : (
-                        <StatusPill status="active" tone="ok" />
-                      )}
-                    </td>
-                    <td className="px-4 py-3.5 tabular-nums text-app-muted">
-                      {new Date(row.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
-                    </td>
-                    <td className="px-4 py-3.5">
-                      <div className="flex justify-end">
-                        {isSelf ? (
-                          <span className="text-xs text-app-muted">—</span>
-                        ) : (
-                          <UserSuspensionActions userId={row.id} isSuspended={Boolean(row.is_suspended)} />
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-                )
-              })
-            )}
-          </tbody>
-        </table>
-      </div>
-      <p className="px-1 text-xs text-app-muted">
-        Showing the latest 50 accounts{q || roleFilter !== 'all' ? ' matching your filters' : ''}.
-      </p>
+      <AdminTable
+        caption="Users"
+        basePath="/dashboard/admin/users"
+        query={{ q, role: roleFilter === 'all' ? undefined : roleFilter, sort, direction }}
+        sort={sort}
+        direction={direction}
+        page={page}
+        total={count ?? 0}
+        error={Boolean(error)}
+        emptyText="No users match this filter."
+        columns={[{ key: 'full_name', label: 'User', sortable: true }, { key: 'email', label: 'Email', sortable: true }, { key: 'role', label: 'Role', sortable: true }, { key: 'status', label: 'Status' }, { key: 'created_at', label: 'Joined', sortable: true }, { key: 'actions', label: 'Actions', align: 'right' }]}
+        rows={rows.map((row) => {
+          const isSelf = row.id === user.id
+          return { key: row.id, cells: [
+            <span key="user" className="inline-flex items-center gap-2 font-medium">{row.full_name ?? '—'}{isSelf && <span className="rounded bg-ember/15 px-1.5 py-0.5 text-[10px] font-bold uppercase text-ember">You</span>}</span>,
+            <span key="email" className="text-app-muted">{row.email ?? '—'}</span>,
+            isSelf ? <StatusPill key="role" status={row.role} tone={statusTone(row.role)} /> : <UserRoleSelect key="role" userId={row.id} currentRole={row.role} />,
+            <StatusPill key="status" status={row.is_suspended ? 'suspended' : 'active'} tone={row.is_suspended ? 'bad' : 'ok'} />,
+            <span key="joined" className="whitespace-nowrap tabular-nums text-app-muted">{new Date(row.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</span>,
+            isSelf ? <span key="actions" className="text-app-muted">—</span> : <UserSuspensionActions key="actions" userId={row.id} isSuspended={Boolean(row.is_suspended)} />,
+          ] }
+        })}
+      />
+      <p className="text-xs text-app-muted">Showing 50 users per page.</p>
     </ConsolePageShell>
   )
 }

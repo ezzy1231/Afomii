@@ -1,27 +1,13 @@
 import type { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
-import {
-  ConsolePageShell,
-  ConsoleHeader,
-} from '@/components/dashboard/console'
+import { ConsolePageShell, ConsoleHeader, FilterChip } from '@/components/dashboard/console'
 import { CONSOLE_CARD } from '@/components/dashboard/console-shared'
+import { AdminTable } from '@/components/dashboard/admin-table'
 import { cn } from '@/lib/utils'
 
 export const metadata: Metadata = { title: 'Audit log · Admin' }
-
 const ENTITY_FILTERS = ['all', 'profile', 'business', 'organizer', 'event', 'reservation'] as const
 const PAGE_SIZE = 50
-
-function relativeTime(iso: string): string {
-  const diffMs = Date.now() - new Date(iso).getTime()
-  const minutes = Math.max(1, Math.round(diffMs / 60_000))
-  if (minutes < 60) return `${minutes}m ago`
-  const hours = Math.round(minutes / 60)
-  if (hours < 24) return `${hours}h ago`
-  const days = Math.round(hours / 24)
-  if (days < 30) return `${days}d ago`
-  return new Date(iso).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
-}
 
 function prefixTone(action: string): '[OK]' | '[WARN]' | '[INFO]' {
   if (/rejected|suspend|cancel|failed/.test(action)) return '[WARN]'
@@ -29,144 +15,72 @@ function prefixTone(action: string): '[OK]' | '[WARN]' | '[INFO]' {
   return '[INFO]'
 }
 
-type AuditRow = {
-  id: string
-  actor_id: string | null
-  action: string
-  entity_type: string | null
-  entity_id: string | null
-  metadata: Record<string, unknown> | null
-  created_at: string
-}
+type AuditRow = { id: string; actor_id: string | null; action: string; entity_type: string | null; entity_id: string | null; metadata: Record<string, unknown> | null; created_at: string }
 
 export default async function AdminAuditPage({
   searchParams,
 }: {
-  searchParams?: { entity?: string; q?: string; page?: string }
+  searchParams?: { entity?: string; q?: string; page?: string; sort?: string; direction?: string }
 }) {
   const q = (searchParams?.q ?? '').trim()
-  const entityFilter =
-    searchParams?.entity &&
-    ENTITY_FILTERS.includes(searchParams.entity as (typeof ENTITY_FILTERS)[number])
-      ? searchParams.entity
-      : 'all'
+  const entityFilter = ENTITY_FILTERS.includes(searchParams?.entity as (typeof ENTITY_FILTERS)[number]) ? searchParams?.entity ?? 'all' : 'all'
   const page = Math.max(1, Number.parseInt(searchParams?.page ?? '1', 10) || 1)
+  const allowedSorts = ['created_at', 'action', 'entity_type'] as const
+  const sort = allowedSorts.includes(searchParams?.sort as (typeof allowedSorts)[number]) ? searchParams?.sort as (typeof allowedSorts)[number] : 'created_at'
+  const direction = searchParams?.direction === 'asc' ? 'asc' : 'desc'
 
   const supabase = await createClient()
   let query = supabase
     .from('audit_logs')
-    .select('id, actor_id, action, entity_type, entity_id, metadata, created_at')
-    .order('created_at', { ascending: false })
+    .select('id, actor_id, action, entity_type, entity_id, metadata, created_at', { count: 'exact' })
+    .order(sort, { ascending: direction === 'asc' })
     .range((page - 1) * PAGE_SIZE, page * PAGE_SIZE - 1)
   if (entityFilter !== 'all') query = query.eq('entity_type', entityFilter)
   if (q) query = query.ilike('action', `%${q}%`)
-
-  const { data } = await query
-  const rows = ((data ?? []) as unknown as AuditRow[])
-
-  // Actor emails for the visible window (profiles readable by admins).
-  const actorIds = Array.from(new Set(rows.map((r) => r.actor_id).filter((v): v is string => Boolean(v))))
-  const actorsRes = actorIds.length
-    ? await supabase.from('profiles').select('id, email').in('id', actorIds)
-    : { data: [] }
-  const actors = new Map(
-    ((actorsRes.data ?? []) as Array<{ id: string; email: string | null }>).map((a) => [a.id, a.email]),
-  )
-
-  const qs = (over: Record<string, string | number>) => {
-    const sp = new URLSearchParams()
-    if (q) sp.set('q', q)
-    if (entityFilter !== 'all') sp.set('entity', entityFilter)
-    for (const [k, v] of Object.entries(over)) sp.set(k, String(v))
-    return `/dashboard/admin/audit?${sp.toString()}`
-  }
+  const { data, error, count } = await query
+  const rows = (data ?? []) as AuditRow[]
+  const actorIds = Array.from(new Set(rows.map((row) => row.actor_id).filter((id): id is string => Boolean(id))))
+  const actorsRes = actorIds.length ? await supabase.from('profiles').select('id, email').in('id', actorIds) : { data: [] }
+  const actors = new Map(((actorsRes.data ?? []) as Array<{ id: string; email: string | null }>).map((actor) => [actor.id, actor.email]))
 
   return (
-    <ConsolePageShell>
-      <ConsoleHeader
-        eyebrow="Admin console"
-        title="System Audit Log"
-        subtitle="Every admin and partner mutation recorded by server actions."
-      />
-
-      <div className="flex flex-col gap-3">
-        <form method="get" className={cn(CONSOLE_CARD, 'flex items-center gap-3 px-4 py-3')}>
-          <svg viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4 shrink-0 text-app-muted">
-            <path fillRule="evenodd" d="M9 3.5a5.5 5.5 0 1 0 0 11 5.5 5.5 0 0 0 0-11ZM2 9a7 7 0 1 1 12.452 4.391l3.328 3.329a.75.75 0 1 1-1.06 1.06l-3.329-3.328A7 7 0 0 1 2 9Z" clipRule="evenodd" />
-          </svg>
-          <input
-            type="search"
-            name="q"
-            defaultValue={q}
-            placeholder="Filter by action… e.g. verification"
-            className="w-full bg-transparent text-sm text-app-fg outline-none placeholder:text-app-muted"
-          />
+    <ConsolePageShell maxWidth="max-w-7xl">
+      <ConsoleHeader eyebrow="Admin console" title="Audit log" subtitle="Administrative and partner activity with actor and entity details." />
+      <div className="space-y-3">
+        <form method="get" className={cn(CONSOLE_CARD, 'flex items-center gap-3 px-3 py-2')}>
+          <label htmlFor="audit-search" className="sr-only">Filter audit actions</label>
+          <input id="audit-search" type="search" name="q" defaultValue={q} placeholder="Filter by action…" className="min-h-10 w-full bg-transparent text-sm text-app-fg outline-none placeholder:text-app-muted" />
           {entityFilter !== 'all' && <input type="hidden" name="entity" value={entityFilter} />}
+          <button className="min-h-10 rounded-lg bg-ember px-4 text-xs font-semibold text-on-accent">Search</button>
         </form>
         <div className="flex flex-wrap gap-2">
-          {ENTITY_FILTERS.map((e) => (
-            <a
-              key={e}
-              href={`/dashboard/admin/audit?entity=${e}${q ? `&q=${encodeURIComponent(q)}` : ''}`}
-              className={cn(
-                'min-h-[36px] whitespace-nowrap rounded-full border px-3.5 py-1.5 text-xs font-semibold transition-colors',
-                entityFilter === e
-                  ? 'border-ember/40 bg-ember/15 text-ember'
-                  : 'border-app-border text-app-muted hover:border-ember/30 hover:text-app-fg'
-              )}
-            >
-              {e}
-            </a>
-          ))}
+          {ENTITY_FILTERS.map((entity) => <FilterChip key={entity} href={`/dashboard/admin/audit?entity=${entity}${q ? `&q=${encodeURIComponent(q)}` : ''}`} active={entityFilter === entity}>{entity}</FilterChip>)}
         </div>
       </div>
-
-      <section className={cn(CONSOLE_CARD, 'overflow-x-auto p-4 font-mono text-xs leading-relaxed')}>
-        {rows.length === 0 ? (
-          <p className="font-sans text-sm text-app-muted">No audit entries match this filter.</p>
-        ) : (
-          rows.map((row) => {
-            const tone = prefixTone(row.action)
-            const meta = row.metadata ?? {}
-            const metaText = Object.entries(meta)
-              .map(([k, v]) => `${k}=${String(v)}`)
-              .join(' ')
-            return (
-              <p key={row.id} className="whitespace-nowrap tabular-nums">
-                <span className={tone === '[WARN]' ? 'text-danger' : tone === '[OK]' ? 'text-success' : 'text-app-muted'}>
-                  {tone}
-                </span>{' '}
-                <span className="text-app-fg">{row.action}</span>
-                {metaText && <span className="text-app-muted"> · {metaText}</span>}
-                <span className="text-app-muted">
-                  {' '}
-                  · {row.entity_type ?? '—'}
-                  {row.entity_id ? `#${row.entity_id.slice(0, 8)}` : ''}
-                </span>
-                <span className="text-app-muted">
-                  {' '}
-                  · by {actors.get(row.actor_id ?? '') ?? 'system'} · {relativeTime(row.created_at)}
-                </span>
-              </p>
-            )
-          })
-        )}
-      </section>
-
-      {/* Pagination */}
-      <nav aria-label="Audit log pages" className="flex items-center justify-between text-xs font-semibold uppercase tracking-widest">
-        {page > 1 ? (
-          <a href={qs({ page: page - 1 })} className="text-app-muted transition-colors hover:text-ember">
-            ← Newer
-          </a>
-        ) : <span />}
-        <span className="tabular-nums text-app-muted">Page {page}</span>
-        {rows.length === PAGE_SIZE ? (
-          <a href={qs({ page: page + 1 })} className="text-app-muted transition-colors hover:text-ember">
-            Older →
-          </a>
-        ) : <span />}
-      </nav>
+      <AdminTable
+        caption="Audit activity"
+        basePath="/dashboard/admin/audit"
+        query={{ q, entity: entityFilter === 'all' ? undefined : entityFilter, sort, direction }}
+        sort={sort}
+        direction={direction}
+        page={page}
+        pageSize={PAGE_SIZE}
+        total={count ?? 0}
+        error={Boolean(error || ('error' in actorsRes && actorsRes.error))}
+        emptyText="No audit entries match this filter."
+        columns={[{ key: 'action', label: 'Action', sortable: true }, { key: 'actor', label: 'Actor' }, { key: 'entity_type', label: 'Entity', sortable: true }, { key: 'metadata', label: 'Details' }, { key: 'created_at', label: 'Timestamp', sortable: true }]}
+        rows={rows.map((row) => {
+          const metadata = Object.entries(row.metadata ?? {}).map(([key, value]) => `${key}=${String(value)}`).join(' · ')
+          const prefix = prefixTone(row.action)
+          return { key: row.id, cells: [
+            <span key="action" className="whitespace-nowrap font-mono"><span className="mr-2 text-app-muted">{prefix}</span>{row.action}</span>,
+            <span key="actor">{actors.get(row.actor_id ?? '') ?? 'system'}</span>,
+            <span key="entity" className="whitespace-nowrap font-mono text-app-muted">{row.entity_type ?? '—'}{row.entity_id ? ` #${row.entity_id.slice(0, 8)}` : ''}</span>,
+            <span key="metadata" className="text-app-muted">{metadata || '—'}</span>,
+            <time key="created_at" dateTime={row.created_at} className="whitespace-nowrap font-mono tabular-nums text-app-muted">{new Date(row.created_at).toLocaleString('en-GB')}</time>,
+          ] }
+        })}
+      />
     </ConsolePageShell>
   )
 }

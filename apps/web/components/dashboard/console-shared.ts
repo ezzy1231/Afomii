@@ -25,6 +25,11 @@ export function statusTone(status: string): StatusTone {
       return 'bad'
     case 'completed':
       return 'gold'
+    case 'pending':
+    case 'draft':
+      return 'gold'
+    case 'inactive':
+      return 'bad'
     default:
       return 'info'
   }

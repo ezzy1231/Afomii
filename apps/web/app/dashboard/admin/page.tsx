@@ -1,60 +1,49 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import { ArrowUpRight, Building2, Store, Users, UserRoundCheck } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
-import {
-  ConsolePageShell,
-  ConsoleHeader,
-  ConsoleKpiCard,
-  SectionTitle,
-  StatusPill,
-} from '@/components/dashboard/console'
+import { ConsoleAreaChart } from '@/components/dashboard/console-area-chart'
+import { ConsolePageShell, ConsoleHeader, SectionTitle, StatusPill } from '@/components/dashboard/console'
 import { CONSOLE_CARD, statusTone } from '@/components/dashboard/console-shared'
 import { BusinessVerificationActions } from '@/components/dashboard/business-verification-actions'
 import { cn } from '@/lib/utils'
 
 export const metadata: Metadata = { title: 'Admin Console' }
 
-type PendingBusiness = {
-  id: string
-  name: string
-  created_at: string | null
-}
-
-type DirectoryRow = {
-  id: string
-  name: string
-  role: 'Food business' | 'Event organizer'
-  status: string
-}
+type DirectoryRow = { id: string; name: string; role: string; status: string }
+type PendingBusiness = { id: string; name: string; created_at: string | null }
 
 function relativeTime(iso: string | null): string {
   if (!iso) return 'recently'
-  const diffMs = Date.now() - new Date(iso).getTime()
-  const minutes = Math.max(1, Math.round(diffMs / 60_000))
+  const minutes = Math.max(1, Math.round((Date.now() - new Date(iso).getTime()) / 60_000))
   if (minutes < 60) return `${minutes}m ago`
-  const hours = Math.round(minutes / 60)
-  if (hours < 24) return `${hours}h ago`
-  const days = Math.round(hours / 24)
-  return `${days}d ago`
+  if (minutes < 1440) return `${Math.round(minutes / 60)}h ago`
+  return `${Math.round(minutes / 1440)}d ago`
 }
 
 function auditPrefix(action: string): '[OK]' | '[WARN]' | '[INFO]' {
-  if (action.includes('rejected') || action.includes('suspend') || action.includes('cancel')) return '[WARN]'
-  if (action.includes('approved') || action.includes('verified') || action.includes('confirm')) return '[OK]'
+  if (/rejected|suspend|cancel/.test(action)) return '[WARN]'
+  if (/approved|verified|confirm/.test(action)) return '[OK]'
   return '[INFO]'
 }
 
-function initialsTile(name: string) {
-  const initials = name
-    .split(/\s+/)
-    .slice(0, 2)
-    .map((w) => w.charAt(0).toUpperCase())
-    .join('')
-  return (
-    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-app-border   text-sm font-bold text-ember">
-      {initials || '?'}
-    </span>
-  )
+function dailySignupSeries(timestamps: string[]) {
+  const now = new Date()
+  const days = Array.from({ length: 30 }, (_, index) => {
+    const date = new Date(now)
+    date.setDate(date.getDate() - (29 - index))
+    date.setHours(0, 0, 0, 0)
+    return date
+  })
+  const counts = new Map(days.map((date) => [date.toISOString().slice(0, 10), 0]))
+  for (const timestamp of timestamps) {
+    const day = timestamp.slice(0, 10)
+    if (counts.has(day)) counts.set(day, (counts.get(day) ?? 0) + 1)
+  }
+  return days.map((date) => ({
+    label: date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }),
+    value: counts.get(date.toISOString().slice(0, 10)) ?? 0,
+  }))
 }
 
 export default async function AdminDashboardPage({
@@ -63,252 +52,141 @@ export default async function AdminDashboardPage({
   searchParams?: { q?: string }
 }) {
   const q = (searchParams?.q ?? '').trim()
-
   const supabase = await createClient()
+  const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()
 
-  const [usersRes, businessesRes, organizersRes, listingsRes, ticketsRes] = await Promise.all([
+  const [usersRes, businessesRes, organizersRes, listingsRes, recentUsersRes, recentBusinessesRes, recentOrganizersRes, recentListingsRes] = await Promise.all([
     supabase.from('profiles').select('id', { count: 'exact', head: true }),
     supabase.from('businesses').select('id', { count: 'exact', head: true }),
     supabase.from('organizers').select('id', { count: 'exact', head: true }),
     supabase.from('restaurants').select('id', { count: 'exact', head: true }).eq('is_active', true),
-    supabase.from('ticket_purchases').select('amount').eq('payment_status', 'paid').limit(5000),
+    supabase.from('profiles').select('id', { count: 'exact', head: true }).gte('created_at', since),
+    supabase.from('businesses').select('id', { count: 'exact', head: true }).gte('created_at', since),
+    supabase.from('organizers').select('id', { count: 'exact', head: true }).gte('created_at', since),
+    supabase.from('restaurants').select('id', { count: 'exact', head: true }).eq('is_active', true).gte('created_at', since),
   ])
 
-  const paidVolume = (ticketsRes.data ?? []).reduce(
-    (sum: number, row: any) => sum + (Number(row.amount) || 0),
-    0,
-  )
-
-  // Pending verification queue
   let pendingQuery = supabase
     .from('businesses')
-    .select('id, name, created_at')
+    .select('id, name, created_at', { count: 'exact' })
     .eq('status', 'pending')
     .order('created_at', { ascending: true })
     .limit(8)
   if (q) pendingQuery = pendingQuery.ilike('name', `%${q}%`)
   const pendingRes = await pendingQuery
 
-  // Directory — businesses + organizers, filtered by the shared search box
-  let businessDirQuery = supabase
-    .from('businesses')
-    .select('id, name, status')
-    .order('created_at', { ascending: false })
-    .limit(q ? 12 : 6)
-  let organizerDirQuery = supabase
-    .from('organizers')
-    .select('id, name, status')
-    .order('created_at', { ascending: false })
-    .limit(q ? 8 : 4)
+  let businessDirQuery = supabase.from('businesses').select('id, name, status').order('created_at', { ascending: false }).limit(6)
+  let organizerDirQuery = supabase.from('organizers').select('id, name, status').order('created_at', { ascending: false }).limit(4)
   if (q) {
     businessDirQuery = businessDirQuery.ilike('name', `%${q}%`)
     organizerDirQuery = organizerDirQuery.ilike('name', `%${q}%`)
   }
-  const [bizDirRes, orgDirRes] = await Promise.all([businessDirQuery, organizerDirQuery])
-
-  const directory: DirectoryRow[] = [
-    ...((bizDirRes.data ?? []) as Array<{ id: string; name: string; status: string }>).map((b) => ({
-      id: b.id,
-      name: b.name,
-      role: 'Food business' as const,
-      status: b.status,
-    })),
-    ...((orgDirRes.data ?? []) as Array<{ id: string; name: string; status: string }>).map((o) => ({
-      id: o.id,
-      name: o.name,
-      role: 'Event organizer' as const,
-      status: o.status,
-    })),
-  ]
-
-  const auditRes = await supabase
-    .from('audit_logs')
-    .select('id, action, entity_type, created_at')
-    .order('created_at', { ascending: false })
-    .limit(12)
+  const [bizDirRes, orgDirRes, auditRes, chartRes] = await Promise.all([
+    businessDirQuery,
+    organizerDirQuery,
+    supabase.from('audit_logs').select('id, actor_id, action, entity_type, created_at').order('created_at', { ascending: false }).limit(12),
+    supabase.from('profiles').select('created_at').gte('created_at', since).order('created_at', { ascending: true }).limit(5000),
+  ])
 
   const pendingRows = (pendingRes.data ?? []) as PendingBusiness[]
+  const directory: DirectoryRow[] = [
+    ...((bizDirRes.data ?? []) as Array<{ id: string; name: string; status: string }>).map((row) => ({ ...row, role: 'Business' })),
+    ...((orgDirRes.data ?? []) as Array<{ id: string; name: string; status: string }>).map((row) => ({ ...row, role: 'Organizer' })),
+  ]
+  const auditRows = (auditRes.data ?? []) as Array<{ id: string; actor_id: string | null; action: string; entity_type: string | null; created_at: string }>
+  const actorIds = Array.from(new Set(auditRows.map((row) => row.actor_id).filter((id): id is string => Boolean(id))))
+  const actorsRes = actorIds.length
+    ? await supabase.from('profiles').select('id, full_name, email').in('id', actorIds)
+    : { data: [] }
+  const actorNames = new Map(((actorsRes.data ?? []) as Array<{ id: string; full_name: string | null; email: string | null }>).map((actor) => [actor.id, actor.full_name || actor.email || 'system']))
+
   const kpis = [
-    { label: 'Total users', value: String(usersRes.count ?? 0), accent: false },
-    { label: 'Businesses', value: String(businessesRes.count ?? 0), accent: false },
-    { label: 'Organizers', value: String(organizersRes.count ?? 0), accent: false },
-    { label: 'Active listings', value: String(listingsRes.count ?? 0), accent: false },
-    {
-      label: 'Paid ticket volume',
-      value: `ETB ${paidVolume.toLocaleString('en-US')}`,
-      accent: true,
-    },
+    { label: 'Total users', value: usersRes.count, added: recentUsersRes.count, Icon: Users, tone: 'bg-console-indigo-soft text-console-indigo' },
+    { label: 'Businesses', value: businessesRes.count, added: recentBusinessesRes.count, Icon: Building2, tone: 'bg-console-sand text-console-sand-ink' },
+    { label: 'Organizers', value: organizersRes.count, added: recentOrganizersRes.count, Icon: UserRoundCheck, tone: 'bg-console-sky text-console-sky-ink' },
+    { label: 'Active listings', value: listingsRes.count, added: recentListingsRes.count, Icon: Store, tone: 'bg-console-mint text-console-mint-ink' },
   ]
 
   return (
-    <ConsolePageShell>
-      <ConsoleHeader eyebrow="Live operations" title="Admin Console" />
+    <ConsolePageShell maxWidth="max-w-7xl">
+      <ConsoleHeader eyebrow="Operations" title="Overview" subtitle="Platform activity and items requiring attention." />
 
-      {/* Metric strip */}
-      <section className="grid grid-cols-2 gap-3 lg:grid-cols-5">
-        {kpis.map((kpi) => (
-          <div key={kpi.label} className={cn(kpi.accent && 'border-l-2 border-ember/40')}>
-            <ConsoleKpiCard label={kpi.label} value={kpi.value} accent={kpi.accent} />
+      <section aria-label="Platform totals" className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        {kpis.map(({ label, value, added, Icon, tone }) => (
+          <div key={label} className={cn(CONSOLE_CARD, 'flex min-h-28 items-center gap-3 p-4')}>
+            <span className={cn('flex size-10 shrink-0 items-center justify-center rounded-full', tone)}><Icon size={18} aria-hidden="true" /></span>
+            <div className="min-w-0">
+              <p className="text-xs font-medium text-app-muted">{label}</p>
+              <p className="text-2xl font-bold tabular-nums text-app-fg">{value ?? '—'}</p>
+              <p className="text-[11px] text-app-muted"><span aria-hidden="true">↑ +</span><span className="sr-only">Up, plus </span>{added ?? 0} in last 30 days</p>
+            </div>
           </div>
         ))}
       </section>
 
-      {/* Pending verification */}
-      <section className="space-y-3">
-        <div className="flex items-center justify-between border-b border-app-border pb-3">
-          <h2 className=" text-xl font-bold">Pending Verification</h2>
-          {pendingRows.length > 0 && (
-            <span className="rounded-full bg-[#FBBC05]/15 px-3 py-1 text-[11px] font-bold uppercase tracking-wide text-[#FBBC05]">
-              {pendingRows.length} require action
-            </span>
-          )}
-        </div>
+      <ConsoleAreaChart
+        title="New user signups"
+        unit="users"
+        series={{ 'Last 30 days': dailySignupSeries(((chartRes.data ?? []) as Array<{ created_at: string }>).map((row) => row.created_at)) }}
+      />
 
-        {pendingRows.length > 0 ? (
-          <div className="space-y-2">
+      <section className="space-y-3">
+        <div className="flex items-center justify-between gap-3">
+          <SectionTitle>Pending verification</SectionTitle>
+          <span className="text-xs font-semibold tabular-nums text-app-muted">{pendingRes.count ?? '—'} awaiting review</span>
+        </div>
+        {pendingRes.error ? (
+          <div role="alert" className={cn(CONSOLE_CARD, 'p-4 text-sm text-danger')}>Could not load verification requests. <Link href="/dashboard/admin/businesses" className="underline">Retry</Link></div>
+        ) : pendingRows.length > 0 ? (
+          <div className="divide-y divide-app-border rounded-xl border border-app-border bg-app-card">
             {pendingRows.map((row) => (
-              <div key={row.id} className={cn(CONSOLE_CARD, 'flex flex-wrap items-center justify-between gap-3 p-4')}>
-                <div className="flex min-w-0 items-center gap-4">
-                  {initialsTile(row.name)}
-                  <div className="min-w-0">
-                    <p className="truncate text-sm font-semibold">{row.name}</p>
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-app-muted">
-                      Food business · Submitted {relativeTime(row.created_at)}
-                    </p>
-                  </div>
+              <div key={row.id} className="flex min-h-14 flex-wrap items-center justify-between gap-3 px-4 py-2">
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-semibold">{row.name}</p>
+                  <p className="text-xs text-app-muted">Submitted {relativeTime(row.created_at)}</p>
                 </div>
                 <BusinessVerificationActions businessId={row.id} />
               </div>
             ))}
+            {(pendingRes.count ?? 0) > pendingRows.length && <Link href="/dashboard/admin/businesses?status=pending" className="flex min-h-11 items-center justify-center text-sm font-semibold text-ember hover:underline">View all {pendingRes.count} requests <ArrowUpRight className="ml-1 size-4" /></Link>}
           </div>
         ) : (
-          <div className={cn(CONSOLE_CARD, 'border-dashed p-8 text-center')}>
-            <p className="font-semibold">Queue is clear</p>
-            <p className="mt-1 text-sm text-app-muted">No businesses are waiting for verification right now.</p>
+          <div className={cn(CONSOLE_CARD, 'p-5 text-sm text-app-muted')}>No businesses are waiting for verification.</div>
+        )}
+      </section>
+
+      <section className="space-y-3">
+        <div className="flex items-center justify-between gap-3"><SectionTitle>Directory</SectionTitle><div className="flex gap-3 text-xs font-semibold text-ember"><Link href="/dashboard/admin/businesses" className="hover:underline">All businesses</Link><Link href="/dashboard/admin/organizers" className="hover:underline">All organizers</Link></div></div>
+        <p className="text-xs text-app-muted">Showing the latest 10 matching businesses and organizers.</p>
+        <form method="get" className={cn(CONSOLE_CARD, 'flex items-center gap-3 px-3 py-2')}>
+          <label htmlFor="directory-search" className="sr-only">Search entities</label>
+          <input id="directory-search" type="search" name="q" defaultValue={q} placeholder="Search entities…" className="min-h-10 w-full bg-transparent text-sm text-app-fg outline-none placeholder:text-app-muted" />
+          <button className="min-h-10 rounded-lg bg-ember px-4 text-xs font-semibold text-on-accent">Search</button>
+        </form>
+        {bizDirRes.error || orgDirRes.error ? (
+          <div role="alert" className={cn(CONSOLE_CARD, 'p-4 text-sm text-danger')}>Could not load the directory. <Link href="/dashboard/admin" className="underline">Retry</Link></div>
+        ) : (
+          <div className={cn(CONSOLE_CARD, 'overflow-x-auto')}>
+            <table className="w-full text-left text-sm">
+              <caption className="sr-only">Recent businesses and organizers</caption>
+              <thead><tr className="border-b border-app-border text-xs text-app-muted"><th scope="col" className="px-3 py-2.5 font-semibold">Name</th><th scope="col" className="px-3 py-2.5 font-semibold">Type</th><th scope="col" className="px-3 py-2.5 font-semibold">Status</th></tr></thead>
+              <tbody>{directory.length ? directory.map((row) => <tr key={`${row.role}-${row.id}`} className="border-b border-app-border last:border-0"><td className="max-w-[340px] truncate px-3 py-2 font-medium">{row.name}</td><td className="px-3 py-2 text-app-muted">{row.role}</td><td className="px-3 py-2"><StatusPill status={row.status} tone={statusTone(row.status)} /></td></tr>) : <tr><td colSpan={3} className="px-3 py-8 text-center text-sm text-app-muted">No entities match “{q}”.</td></tr>}</tbody>
+            </table>
           </div>
         )}
       </section>
 
-      {/* Directory */}
       <section className="space-y-3">
-        <SectionTitle>Directory</SectionTitle>
-        <form method="get" className={cn(CONSOLE_CARD, 'flex items-center gap-3 px-4 py-3')}>
-          <svg viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4 shrink-0 text-app-muted">
-            <path fillRule="evenodd" d="M9 3.5a5.5 5.5 0 1 0 0 11 5.5 5.5 0 0 0 0-11ZM2 9a7 7 0 1 1 12.452 4.391l3.328 3.329a.75.75 0 1 1-1.06 1.06l-3.329-3.328A7 7 0 0 1 2 9Z" clipRule="evenodd" />
-          </svg>
-          <input
-            type="search"
-            name="q"
-            defaultValue={q}
-            placeholder="Search entities..."
-            className="w-full bg-transparent text-sm text-app-fg outline-none placeholder:text-app-muted"
-          />
-        </form>
-
-        {/* Mobile — stacked cards */}
-        <div className="space-y-2 md:hidden">
-          {directory.length === 0 ? (
-            <div className={cn(CONSOLE_CARD, 'p-6 text-center text-sm text-app-muted')}>
-              No entities match “{q}”.
-            </div>
-          ) : (
-            directory.map((row) => (
-              <div key={`${row.role}-${row.id}`} className={cn(CONSOLE_CARD, 'space-y-2.5 p-4')}>
-                <p className="truncate font-semibold">{row.name}</p>
-                <p className="text-xs tabular-nums text-app-muted">ID: {row.id.slice(0, 8).toUpperCase()}</p>
-
-                <dl className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs">
-                  <div className="flex items-center gap-1.5">
-                    <dt className="text-app-muted">Role</dt>
-                    <dd className="text-app-muted">{row.role}</dd>
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    <dt className="text-app-muted">Status</dt>
-                    <dd>
-                      <StatusPill status={row.status} tone={statusTone(row.status)} />
-                    </dd>
-                  </div>
-                </dl>
-              </div>
-            ))
-          )}
-        </div>
-
-        {/* Desktop */}
-        <div className={cn(CONSOLE_CARD, 'hidden overflow-x-auto md:block')}>
-          <table className="w-full text-left text-sm">
-            <thead>
-              <tr className="border-b border-app-border text-[11px] uppercase tracking-[0.14em] text-app-muted">
-                <th scope="col" className="px-4 py-3 font-semibold">Entity</th>
-                <th scope="col" className="px-4 py-3 font-semibold">Role</th>
-                <th scope="col" className="px-4 py-3 font-semibold">Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {directory.length === 0 ? (
-                <tr>
-                  <td colSpan={3} className="px-4 py-8 text-center text-sm text-app-muted">
-                    No entities match “{q}”.
-                  </td>
-                </tr>
-              ) : (
-                directory.map((row) => (
-                  <tr key={`${row.role}-${row.id}`} className="border-b border-app-border last:border-0">
-                    <td className="px-4 py-3.5">
-                      <span className="block truncate font-semibold">{row.name}</span>
-                      <span className="text-[11px] tabular-nums text-app-muted">ID: {row.id.slice(0, 8).toUpperCase()}</span>
-                    </td>
-                    <td className="px-4 py-3.5 text-app-muted">{row.role}</td>
-                    <td className="px-4 py-3.5">
-                      <StatusPill status={row.status} tone={statusTone(row.status)} />
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-        <Link href="/dashboard/admin/businesses" className="block text-right text-xs font-semibold uppercase tracking-widest text-app-muted transition-colors hover:text-ember">
-          View all businesses →
-        </Link>
-      </section>
-
-      {/* Reservations oversight */}
-      <section className="space-y-3">
-        <SectionTitle>Reservations</SectionTitle>
-        <div className={cn(CONSOLE_CARD, 'flex flex-wrap items-center justify-between gap-3 p-4')}>
-          <p className="text-sm text-app-muted">Platform-wide booking oversight with audited cancellations.</p>
-          <Link
-            href="/dashboard/admin/reservations"
-            className="min-h-[36px] rounded-full border border-ember/40 bg-ember/15 px-4 py-1.5 text-xs font-semibold uppercase tracking-wide text-ember transition-colors hover:bg-ember/30"
-          >
-            Open reservations
-          </Link>
-        </div>
-      </section>
-
-      {/* System audit log */}
-      <section className="space-y-3">
-        <SectionTitle>System Audit Log</SectionTitle>
-        <div className={cn(CONSOLE_CARD, 'overflow-x-auto p-4 font-mono text-xs leading-relaxed')}>
-          {((auditRes.data ?? []) as Array<{ id: string; action: string; entity_type: string | null; created_at: string }>).length === 0 ? (
-            <p className="font-sans text-sm text-app-muted">No admin activity recorded yet.</p>
-          ) : (
-            (auditRes.data ?? []).map((row) => (
-              <p key={row.id} className="whitespace-nowrap tabular-nums">
-                <span className={auditPrefix(row.action) === '[WARN]' ? 'text-danger' : auditPrefix(row.action) === '[OK]' ? 'text-success' : 'text-app-muted'}>
-                  {auditPrefix(row.action)}
-                </span>{' '}
-                <span className="text-app-fg">{row.action}</span>
-                {row.entity_type ? <span className="text-app-muted"> · {row.entity_type}</span> : null}
-                <span className="text-app-muted"> · {relativeTime(row.created_at)}</span>
-              </p>
-            ))
-          )}
-        </div>
-        <Link href="/dashboard/admin/audit" className="block text-right text-xs font-semibold uppercase tracking-widest text-app-muted transition-colors hover:text-ember">
-          Full audit log →
-        </Link>
+        <div className="flex items-center justify-between gap-3"><SectionTitle>Audit activity</SectionTitle><Link href="/dashboard/admin/audit" className="text-xs font-semibold text-ember hover:underline">Full audit log</Link></div>
+        {auditRes.error || actorsRes.data === null ? <div role="alert" className={cn(CONSOLE_CARD, 'p-4 text-sm text-danger')}>Could not load audit activity. <Link href="/dashboard/admin/audit" className="underline">Retry</Link></div> : (
+          <div className={cn(CONSOLE_CARD, 'overflow-x-auto')}>
+            <table className="w-full text-left text-xs">
+              <caption className="sr-only">Latest administrative activity</caption>
+              <thead><tr className="border-b border-app-border text-app-muted"><th scope="col" className="px-3 py-2 font-semibold">Action</th><th scope="col" className="px-3 py-2 font-semibold">Actor</th><th scope="col" className="px-3 py-2 font-semibold">Entity</th><th scope="col" className="px-3 py-2 font-semibold">Time</th></tr></thead>
+              <tbody>{auditRows.length ? auditRows.map((row) => <tr key={row.id} className="border-b border-app-border last:border-0"><td className="px-3 py-2 font-mono"><span className="mr-2 text-app-muted">{auditPrefix(row.action)}</span>{row.action}</td><td className="px-3 py-2">{actorNames.get(row.actor_id ?? '') ?? 'system'}</td><td className="px-3 py-2 font-mono text-app-muted">{row.entity_type ?? '—'}</td><td className="whitespace-nowrap px-3 py-2 font-mono tabular-nums text-app-muted">{relativeTime(row.created_at)}</td></tr>) : <tr><td colSpan={4} className="px-3 py-8 text-center text-app-muted">No admin activity recorded yet.</td></tr>}</tbody>
+            </table>
+          </div>
+        )}
       </section>
     </ConsolePageShell>
   )

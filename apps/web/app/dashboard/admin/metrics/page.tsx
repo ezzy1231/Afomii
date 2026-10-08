@@ -4,11 +4,8 @@ import {
   ConsolePageShell,
   ConsoleHeader,
   ConsoleKpiCard,
-  SectionTitle,
-  Sparkline,
 } from '@/components/dashboard/console'
-import { CONSOLE_CARD } from '@/components/dashboard/console-shared'
-import { cn } from '@/lib/utils'
+import { ConsoleAreaChart } from '@/components/dashboard/console-area-chart'
 
 export const metadata: Metadata = { title: 'Metrics · Admin' }
 
@@ -32,10 +29,10 @@ function trend(current: number, previous: number) {
 }
 
 /** Bucket timestamped rows into per-day counts across the last N days. */
-function dailySeries(timestamps: string[], days: number): number[] {
+function dailySeries(timestamps: string[], days: number) {
   const today = new Date().toISOString().slice(0, 10)
   const buckets = new Map<string, number>()
-  for (let i = 0; i < days; i++) {
+  for (let i = days - 1; i >= 0; i--) {
     const d = new Date(`${today}T00:00:00Z`)
     d.setUTCDate(d.getUTCDate() - i)
     buckets.set(d.toISOString().slice(0, 10), 0)
@@ -44,7 +41,10 @@ function dailySeries(timestamps: string[], days: number): number[] {
     const day = ts.slice(0, 10)
     if (buckets.has(day)) buckets.set(day, (buckets.get(day) ?? 0) + 1)
   }
-  return Array.from(buckets.values())
+  return Array.from(buckets.entries()).map(([date, value]) => ({
+    label: new Date(`${date}T00:00:00Z`).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }),
+    value,
+  }))
 }
 
 export default async function AdminMetricsPage() {
@@ -122,10 +122,10 @@ export default async function AdminMetricsPage() {
     },
   ]
 
-  const charts: Array<{ title: string; points: number[]; label: string }> = [
-    { title: 'New signups', points: signupSeries, label: 'Daily new user signups over the past 30 days' },
-    { title: 'Reservations', points: bookingSeries, label: 'Daily reservations over the past 30 days' },
-    { title: 'Paid tickets', points: ticketSeries, label: 'Daily paid tickets over the past 30 days' },
+  const charts: Array<{ title: string; points: Array<{ label: string; value: number }>; unit: string }> = [
+    { title: 'New signups', points: signupSeries, unit: 'users' },
+    { title: 'Reservations', points: bookingSeries, unit: 'reservations' },
+    { title: 'Paid tickets', points: ticketSeries, unit: 'tickets' },
   ]
 
   return (
@@ -143,22 +143,7 @@ export default async function AdminMetricsPage() {
       </section>
 
       {charts.map((chart) => (
-        <section key={chart.title} className="space-y-3">
-          <SectionTitle>{chart.title}</SectionTitle>
-          <div className={cn(CONSOLE_CARD, 'p-5')}>
-            {chart.points.some((v) => v > 0) ? (
-              <>
-                <p className="mb-4 text-xs uppercase tracking-widest text-app-muted">Past {WINDOW_DAYS} days</p>
-                <Sparkline points={chart.points} label={chart.label} />
-              </>
-            ) : (
-              <div className="border-dashed py-8 text-center">
-                <p className="font-semibold">Not enough data yet</p>
-                <p className="mt-1 text-sm text-app-muted">{chart.title} will chart here once activity lands.</p>
-              </div>
-            )}
-          </div>
-        </section>
+        <ConsoleAreaChart key={chart.title} title={chart.title} unit={chart.unit} series={{ [`Past ${WINDOW_DAYS} days`]: chart.points }} />
       ))}
 
       <p className="px-1 text-xs text-app-muted">

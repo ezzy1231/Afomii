@@ -14,10 +14,11 @@ export function BusinessVerificationActions({ businessId }: { businessId: string
   const [error, setError] = useState<string | null>(null)
   const [done, setDone] = useState(false)
 
-  if (done) return null
+  if (done) return <span role="status" className="text-xs font-medium text-success">Decision saved.</span>
 
   function act(approve: boolean) {
     setError(null)
+    if (!approve && !window.confirm('Reject this business verification?')) return
     startTransition(async () => {
       const result = await setBusinessVerification(businessId, approve)
       if (!result.ok) {
@@ -31,7 +32,7 @@ export function BusinessVerificationActions({ businessId }: { businessId: string
 
   return (
     <div className="flex items-center gap-2">
-      {error && <span className="text-[10px] text-danger">{error}</span>}
+      {error && <span role="alert" className="text-[10px] text-danger">{error}</span>}
       <button
         type="button"
         disabled={pending}

@@ -8,6 +8,7 @@ import {
   Bell,
   CalendarCheck,
   CalendarDays,
+  Building2,
   ChevronDown,
   LayoutDashboard,
   LogOut,
@@ -26,11 +27,10 @@ import { cn } from '@/lib/utils'
 import { createClient } from '@/lib/supabase/client'
 
 /**
- * Fixed-light partner console shell — organizer + restaurant dashboards only.
+ * Shared console shell for partner and admin dashboards.
  *
  * Tokens come from `.shell-console` in `app/globals.css`, so nothing here
- * depends on `data-theme` and nothing leaks into the public site or the
- * admin portal (which still render `Sidebar` from `./sidebar`).
+ * depends on `data-theme` and nothing leaks into the public site.
  */
 
 export type ConsoleNavItem = {
@@ -46,6 +46,11 @@ export type ConsoleNavItem = {
 const NAV_ICONS: Record<string, LucideIcon> = {
   Dashboard: LayoutDashboard,
   Overview: LayoutDashboard,
+  Users: LayoutDashboard,
+  Businesses: Building2,
+  Organizers: CalendarCheck,
+  'Audit Log': BarChart3,
+  Metrics: BarChart3,
   Calendar: CalendarDays,
   Events: CalendarDays,
   Reservations: CalendarCheck,
@@ -69,6 +74,7 @@ type ConsoleShellProps = {
   notificationCount?: number
   /** Rendered as a full-width primary action under the nav. */
   primaryAction?: { label: string; href: string }
+  showPromo?: boolean
   /**
    * In-console destinations. Both default to the public marketing/consumer
    * pages, which is wrong for a partner rail — the logo must not dump you
@@ -172,9 +178,6 @@ function ConsoleBrand({ account, homeHref }: { account: ConsoleAccount; homeHref
       className="flex items-center gap-2.5 rounded-xl"
       aria-label={`${account.organization} dashboard`}
     >
-      <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-console-indigo text-sm font-bold text-white shadow-[0_4px_14px_rgb(91_63_240/0.45)]">
-        {initialsFor(account)}
-      </span>
       <span className="min-w-0">
         <span className="block truncate text-[15px] font-bold tracking-tight text-white">
           {account.organization}
@@ -191,6 +194,7 @@ function ConsoleNav({
   navItems,
   account,
   primaryAction,
+  showPromo,
   homeHref,
   settingsHref,
   onNavigate,
@@ -198,6 +202,7 @@ function ConsoleNav({
   navItems: ConsoleNavItem[]
   account: ConsoleAccount
   primaryAction?: { label: string; href: string }
+  showPromo: boolean
   homeHref: string
   /** Anchored target for the "Boost Now" promo. */
   settingsHref: string
@@ -248,26 +253,26 @@ function ConsoleNav({
           </Link>
         </div>
       )}
-
-      {/* Promo card pinned to the bottom of the rail. */}
-      <div className="p-3">
-        <div className="rounded-2xl bg-gradient-to-br from-console-indigo to-[#7C4DFF] p-4 shadow-[0_10px_28px_rgb(0_0_0/0.3)]">
-          <span className="flex size-9 items-center justify-center rounded-xl bg-white/20">
-            <Rocket className="size-[18px] text-white" strokeWidth={2.2} />
-          </span>
-          <p className="mt-3 text-sm font-bold leading-snug text-white">Boost Your Event</p>
-          <p className="mt-1 text-[11px] leading-relaxed text-white/75">
-            Featured placement in Explore and priority email drops.
-          </p>
-          <Link
-            href={`${settingsHref}#boost`}
-            onClick={onNavigate}
-            className="mt-3 flex min-h-9 w-full items-center justify-center rounded-lg bg-white px-3 py-2 text-xs font-bold text-console-indigo-deep transition-colors hover:bg-white/90"
-          >
-            Boost Now
-          </Link>
+      {showPromo && (
+        <div className="p-3">
+          <div className="rounded-2xl bg-gradient-to-br from-console-indigo to-[#7C4DFF] p-4 shadow-[0_10px_28px_rgb(0_0_0/0.3)]">
+            <span className="flex size-9 items-center justify-center rounded-xl bg-white/20">
+              <Rocket className="size-[18px] text-white" strokeWidth={2.2} />
+            </span>
+            <p className="mt-3 text-sm font-bold leading-snug text-white">Boost Your Event</p>
+            <p className="mt-1 text-[11px] leading-relaxed text-white/75">
+              Featured placement in Explore and priority email drops.
+            </p>
+            <Link
+              href={`${settingsHref}#boost`}
+              onClick={onNavigate}
+              className="mt-3 flex min-h-9 w-full items-center justify-center rounded-lg bg-white px-3 py-2 text-xs font-bold text-console-indigo-deep transition-colors hover:bg-white/90"
+            >
+              Boost Now
+            </Link>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   )
 }
@@ -354,7 +359,7 @@ function ConsoleProfile({
         </span>
         <span className="hidden text-left sm:block">
           <span className="block text-[13px] font-semibold leading-tight text-console-ink">
-            {account.organization}
+            {account.displayName?.trim() || account.organization}
           </span>
           <span className="block text-[11px] leading-tight text-console-muted">{account.role}</span>
         </span>
@@ -371,7 +376,7 @@ function ConsoleProfile({
         className="absolute right-0 top-full z-50 mt-2 w-60 overflow-hidden rounded-2xl border border-console-border bg-console-card py-1.5 shadow-elevate"
       >
         <div className="border-b border-console-border px-4 pb-3 pt-2">
-          <p className="truncate text-[13px] font-semibold text-console-ink">{account.organization}</p>
+          <p className="truncate text-[13px] font-semibold text-console-ink">{account.displayName?.trim() || account.organization}</p>
           <p className="truncate text-[11px] text-console-muted">{account.role}</p>
         </div>
         <Link
@@ -403,6 +408,7 @@ export function ConsoleShell({
   account,
   notificationCount = 0,
   primaryAction,
+  showPromo = true,
   homeHref = '/dashboard',
   settingsHref = '/dashboard',
   children,
@@ -440,6 +446,7 @@ export function ConsoleShell({
           navItems={navItems}
           account={account}
           primaryAction={primaryAction}
+          showPromo={showPromo}
           homeHref={homeHref}
           settingsHref={settingsHref}
         />
@@ -473,6 +480,7 @@ export function ConsoleShell({
               navItems={navItems}
               account={account}
               primaryAction={primaryAction}
+              showPromo={showPromo}
               homeHref={homeHref}
               settingsHref={settingsHref}
               onNavigate={closeDrawer}
@@ -495,9 +503,9 @@ export function ConsoleShell({
               <MenuIcon className="size-5" strokeWidth={2.2} />
             </button>
 
-            <h1 className="min-w-0 flex-1 truncate text-lg font-bold tracking-tight text-console-ink">
+            <p className="min-w-0 flex-1 truncate text-lg font-bold tracking-tight text-console-ink">
               {title}
-            </h1>
+            </p>
 
             <ConsoleBell count={notificationCount} settingsHref={settingsHref} />
             <ConsoleProfile account={account} settingsHref={settingsHref} />

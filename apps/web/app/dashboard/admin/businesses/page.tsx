@@ -4,10 +4,12 @@ import { createClient } from '@/lib/supabase/server'
 import {
   ConsolePageShell,
   ConsoleHeader,
+  FilterChip,
   StatusPill,
 } from '@/components/dashboard/console'
 import { CONSOLE_CARD, statusTone } from '@/components/dashboard/console-shared'
 import { BusinessLifecycleActions, BusinessSuspendAction } from '@/components/dashboard/admin-actions'
+import { AdminTable } from '@/components/dashboard/admin-table'
 import { cn } from '@/lib/utils'
 
 export const metadata: Metadata = { title: 'Businesses · Admin' }
@@ -17,7 +19,7 @@ const STATUS_FILTERS = ['all', 'pending', 'active', 'inactive', 'rejected'] as c
 export default async function AdminBusinessesPage({
   searchParams,
 }: {
-  searchParams?: { q?: string; status?: string }
+  searchParams?: { q?: string; status?: string; sort?: string; direction?: string; page?: string }
 }) {
   const q = (searchParams?.q ?? '').trim()
   const statusFilter =
@@ -25,17 +27,21 @@ export default async function AdminBusinessesPage({
     STATUS_FILTERS.includes(searchParams.status as (typeof STATUS_FILTERS)[number])
       ? searchParams.status
       : 'all'
+  const allowedSorts = ['name', 'plan', 'status', 'created_at'] as const
+  const sort = allowedSorts.includes(searchParams?.sort as (typeof allowedSorts)[number]) ? searchParams?.sort as (typeof allowedSorts)[number] : 'created_at'
+  const direction = searchParams?.direction === 'asc' ? 'asc' : 'desc'
+  const page = Math.max(1, Number.parseInt(searchParams?.page ?? '1', 10) || 1)
 
   const supabase = await createClient()
   let query = supabase
     .from('businesses')
-    .select('id, name, email, status, is_verified, plan, created_at')
-    .order('created_at', { ascending: false })
-    .limit(50)
+    .select('id, name, email, status, is_verified, plan, created_at', { count: 'exact' })
+    .order(sort, { ascending: direction === 'asc' })
+    .range((page - 1) * 50, page * 50 - 1)
   if (statusFilter !== 'all') query = query.eq('status', statusFilter)
   if (q) query = query.ilike('name', `%${q}%`)
 
-  const { data } = await query
+  const { data, error, count } = await query
   const rows = (data ?? []) as Array<{
     id: string
     name: string
@@ -70,120 +76,37 @@ export default async function AdminBusinessesPage({
         </form>
         <div className="flex flex-wrap gap-2">
           {STATUS_FILTERS.map((s) => (
-            <a
+            <FilterChip
               key={s}
               href={`/dashboard/admin/businesses?status=${s}${q ? `&q=${encodeURIComponent(q)}` : ''}`}
-              className={cn(
-                'min-h-[36px] whitespace-nowrap rounded-full border px-3.5 py-1.5 text-xs font-semibold transition-colors',
-                statusFilter === s
-                  ? 'border-ember/40 bg-ember/15 text-ember'
-                  : 'border-app-border text-app-muted hover:border-ember/30 hover:text-app-fg'
-              )}
+              active={statusFilter === s}
             >
               {s}
-            </a>
+            </FilterChip>
           ))}
         </div>
       </div>
 
-      {/* Mobile — stacked cards */}
-      <div className="space-y-2 md:hidden">
-        {rows.length === 0 ? (
-          <div className={cn(CONSOLE_CARD, 'p-6 text-center text-sm text-app-muted')}>
-            No businesses match this filter.
-          </div>
-        ) : (
-          rows.map((row) => (
-            <div
-              key={row.id}
-              className={cn(CONSOLE_CARD, 'space-y-2.5 p-4', row.status === 'inactive' && 'opacity-60')}
-            >
-              <p className="truncate font-semibold">
-                <Link href={`/dashboard/admin/businesses/${row.id}`} className="underline-offset-2 hover:underline">
-                  {row.name}
-                </Link>
-              </p>
-              <p className="text-xs tabular-nums text-app-muted">ID: {row.id.slice(0, 8).toUpperCase()}</p>
-
-              <dl className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs">
-                <div className="flex items-center gap-1.5">
-                  <dt className="text-app-muted">Plan</dt>
-                  <dd className="capitalize text-app-muted">{row.plan ?? 'free'}</dd>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <dt className="text-app-muted">Status</dt>
-                  <dd>
-                    <StatusPill status={row.status} tone={statusTone(row.status)} />
-                  </dd>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <dt className="text-app-muted">Verified</dt>
-                  <dd>{row.is_verified ? '✓' : '—'}</dd>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <dt className="text-app-muted">Joined</dt>
-                  <dd className="tabular-nums text-app-muted">
-                    {new Date(row.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
-                  </dd>
-                </div>
-              </dl>
-
-              <div className="flex flex-wrap items-center gap-2 pt-1">
-                <BusinessLifecycleActions businessId={row.id} status={row.status} />
-                <BusinessSuspendAction businessId={row.id} status={row.status} />
-              </div>
-            </div>
-          ))
-        )}
-      </div>
-
-      {/* Desktop */}
-      <div className={cn(CONSOLE_CARD, 'hidden overflow-x-auto md:block')}>
-        <table className="w-full text-left text-sm">
-          <thead>
-            <tr className="border-b border-app-border text-[11px] uppercase tracking-[0.14em] text-app-muted">
-              <th scope="col" className="px-4 py-3 font-semibold">Business</th>
-              <th scope="col" className="px-4 py-3 font-semibold">Plan</th>
-              <th scope="col" className="px-4 py-3 font-semibold">Status</th>
-              <th scope="col" className="px-4 py-3 font-semibold">Verified</th>
-              <th scope="col" className="px-4 py-3 font-semibold">Joined</th>
-              <th scope="col" className="px-4 py-3 text-right font-semibold">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {rows.length === 0 ? (
-              <tr>
-                <td colSpan={6} className="px-4 py-10 text-center text-sm text-app-muted">
-                  No businesses match this filter.
-                </td>
-              </tr>
-            ) : (
-              rows.map((row) => (
-                <tr key={row.id} className={cn('border-b border-app-border last:border-0', row.status === 'inactive' && 'opacity-60')}>
-                  <td className="max-w-[220px] px-4 py-3.5">
-                    <Link href={`/dashboard/admin/businesses/${row.id}`} className="block truncate font-semibold underline-offset-2 hover:underline">
-                      {row.name}
-                    </Link>
-                    <span className="text-xs tabular-nums text-app-muted">ID: {row.id.slice(0, 8).toUpperCase()}</span>
-                  </td>
-                  <td className="px-4 py-3.5 capitalize text-app-muted">{row.plan ?? 'free'}</td>
-                  <td className="px-4 py-3.5"><StatusPill status={row.status} tone={statusTone(row.status)} /></td>
-                  <td className="px-4 py-3.5">{row.is_verified ? '✓' : '—'}</td>
-                  <td className="px-4 py-3.5 tabular-nums text-app-muted">
-                    {new Date(row.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
-                  </td>
-                  <td className="px-4 py-3.5">
-                    <div className="flex flex-wrap items-center justify-end gap-2">
-                      <BusinessLifecycleActions businessId={row.id} status={row.status} />
-                      <BusinessSuspendAction businessId={row.id} status={row.status} />
-                    </div>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
+      <AdminTable
+        caption="Businesses"
+        basePath="/dashboard/admin/businesses"
+        query={{ q, status: statusFilter === 'all' ? undefined : statusFilter, sort, direction }}
+        sort={sort}
+        direction={direction}
+        page={page}
+        total={count ?? 0}
+        error={Boolean(error)}
+        emptyText="No businesses match this filter."
+        columns={[{ key: 'name', label: 'Business', sortable: true }, { key: 'plan', label: 'Plan', sortable: true }, { key: 'status', label: 'Status', sortable: true }, { key: 'verified', label: 'Verified' }, { key: 'created_at', label: 'Joined', sortable: true }, { key: 'actions', label: 'Actions', align: 'right' }]}
+        rows={rows.map((row) => ({ key: row.id, cells: [
+          <Link key="business" href={`/dashboard/admin/businesses/${row.id}`} className="font-semibold underline-offset-2 hover:underline">{row.name}</Link>,
+          <span key="plan" className="capitalize text-app-muted">{row.plan ?? 'free'}</span>,
+          <StatusPill key="status" status={row.status} tone={statusTone(row.status)} />,
+          <span key="verified" aria-label={row.is_verified ? 'Verified' : 'Not verified'}>{row.is_verified ? '✓' : '—'}</span>,
+          <span key="created_at" className="whitespace-nowrap tabular-nums text-app-muted">{new Date(row.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</span>,
+          <div key="actions" className="flex flex-wrap justify-end gap-2"><BusinessLifecycleActions businessId={row.id} status={row.status} /><BusinessSuspendAction businessId={row.id} status={row.status} /></div>,
+        ] }))}
+      />
     </ConsolePageShell>
   )
 }

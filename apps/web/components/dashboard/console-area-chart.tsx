@@ -108,7 +108,7 @@ export function ConsoleAreaChart({
       </div>
 
       {hasData ? (
-        <div className="h-[260px] w-full px-2 py-4 sm:px-4">
+        <div className="h-72 w-full px-2 py-4 sm:px-4">
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={points} margin={{ top: 8, right: 12, bottom: 4, left: 4 }}>
             <defs>

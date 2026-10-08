@@ -55,6 +55,7 @@ export default async function AdminBusinessDetailPage({
     .from('branches')
     .select('id, branch_name, address')
     .eq('business_id', b.id)
+    .limit(100)
   const branches = (branchRows ?? []) as Array<{ id: string; branch_name: string; address: string | null }>
   const branchIds = branches.map((x) => x.id)
 
@@ -62,7 +63,8 @@ export default async function AdminBusinessDetailPage({
     supabase
       .from('restaurants')
       .select('id, name, cuisine, area_label, rating, is_active')
-      .eq('business_id', b.id),
+      .eq('business_id', b.id)
+      .limit(100),
     branchIds.length
       ? supabase.from('menu_items').select('id', { count: 'exact', head: true }).in('branch_id', branchIds)
       : Promise.resolve({ count: 0 }),
@@ -107,7 +109,7 @@ export default async function AdminBusinessDetailPage({
         className={cn(
           'flex flex-wrap items-center gap-3 rounded-lg border p-4 text-sm',
           b.status === 'pending'
-            ? 'border-[#FBBC05]/40 bg-[#FBBC05]/10'
+            ? 'border-ember/40 bg-ember/10'
             : 'border-app-border bg-app-card/70'
         )}
       >
@@ -170,6 +172,7 @@ export default async function AdminBusinessDetailPage({
       {/* Listings */}
       <section className="space-y-3">
         <SectionTitle>Listings</SectionTitle>
+        <p className="text-xs text-app-muted">Showing up to 100 listings.</p>
         {restaurants.length === 0 ? (
           <div className={cn(CONSOLE_CARD, 'border-dashed p-8 text-center')}>
             <p className="text-sm text-app-muted">This partner has no published listings yet.</p>
@@ -198,6 +201,7 @@ export default async function AdminBusinessDetailPage({
       {/* Branches */}
       <section className="space-y-3">
         <SectionTitle>Branches</SectionTitle>
+        <p className="text-xs text-app-muted">Showing up to 100 branches.</p>
         {branches.length === 0 ? (
           <div className={cn(CONSOLE_CARD, 'border-dashed p-8 text-center')}>
             <p className="text-sm text-app-muted">No branches created yet.</p>

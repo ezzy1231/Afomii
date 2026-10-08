@@ -1,17 +1,13 @@
 import Link from 'next/link'
 import type { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
-import {
-  ConsolePageShell,
-  ConsoleHeader,
-  StatusPill,
-} from '@/components/dashboard/console'
+import { ConsolePageShell, ConsoleHeader, FilterChip, StatusPill } from '@/components/dashboard/console'
 import { CONSOLE_CARD, statusTone } from '@/components/dashboard/console-shared'
+import { AdminTable } from '@/components/dashboard/admin-table'
 import { EventModerationActions } from '@/components/dashboard/admin-actions'
 import { cn } from '@/lib/utils'
 
 export const metadata: Metadata = { title: 'Events · Admin' }
-
 const STATUS_FILTERS = ['all', 'published', 'draft', 'cancelled', 'completed'] as const
 
 function formatDate(iso: string | null): string {
@@ -22,156 +18,63 @@ function formatDate(iso: string | null): string {
 export default async function AdminEventsPage({
   searchParams,
 }: {
-  searchParams?: { q?: string; status?: string }
+  searchParams?: { q?: string; status?: string; sort?: string; direction?: string; page?: string }
 }) {
   const q = (searchParams?.q ?? '').trim()
-  const statusFilter =
-    searchParams?.status &&
-    STATUS_FILTERS.includes(searchParams.status as (typeof STATUS_FILTERS)[number])
-      ? searchParams.status
-      : 'all'
+  const statusFilter = STATUS_FILTERS.includes(searchParams?.status as (typeof STATUS_FILTERS)[number]) ? searchParams?.status ?? 'all' : 'all'
+  const allowedSorts = ['title', 'starts_at', 'status'] as const
+  const sort = allowedSorts.includes(searchParams?.sort as (typeof allowedSorts)[number]) ? searchParams?.sort as (typeof allowedSorts)[number] : 'starts_at'
+  const direction = searchParams?.direction === 'desc' ? 'desc' : 'asc'
+  const page = Math.max(1, Number.parseInt(searchParams?.page ?? '1', 10) || 1)
 
   const supabase = await createClient()
   let query = supabase
     .from('events')
-    .select('id, title, status, is_active, starts_at, organizers(name)')
-    .order('starts_at', { ascending: true, nullsFirst: false })
-    .limit(50)
+    .select('id, title, status, is_active, starts_at, organizers(name)', { count: 'exact' })
+    .order(sort, { ascending: direction === 'asc', nullsFirst: false })
+    .range((page - 1) * 50, page * 50 - 1)
   if (statusFilter !== 'all') query = query.eq('status', statusFilter)
   if (q) query = query.ilike('title', `%${q}%`)
-
-  const { data } = await query
-  const rows = (data ?? []) as Array<{
-    id: string
-    title: string
-    status: string
-    is_active: boolean | null
-    starts_at: string | null
-    organizers: { name: string }[] | { name: string } | null
-  }>
+  const { data, error, count } = await query
+  const rows = (data ?? []) as Array<{ id: string; title: string; status: string; is_active: boolean | null; starts_at: string | null; organizers: { name: string }[] | { name: string } | null }>
 
   return (
-    <ConsolePageShell>
-      <ConsoleHeader
-        eyebrow="Admin console"
-        title="Events"
-        subtitle="Moderate what appears on the public events catalogue."
-      />
-
-      <div className="flex flex-col gap-3">
-        <form method="get" className={cn(CONSOLE_CARD, 'flex items-center gap-3 px-4 py-3')}>
-          <svg viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4 shrink-0 text-app-muted">
-            <path fillRule="evenodd" d="M9 3.5a5.5 5.5 0 1 0 0 11 5.5 5.5 0 0 0 0-11ZM2 9a7 7 0 1 1 12.452 4.391l3.328 3.329a.75.75 0 1 1-1.06 1.06l-3.329-3.328A7 7 0 0 1 2 9Z" clipRule="evenodd" />
-          </svg>
-          <input
-            type="search"
-            name="q"
-            defaultValue={q}
-            placeholder="Search events..."
-            className="w-full bg-transparent text-sm text-app-fg outline-none placeholder:text-app-muted"
-          />
+    <ConsolePageShell maxWidth="max-w-7xl">
+      <ConsoleHeader eyebrow="Admin console" title="Events" subtitle="Moderate what appears on the public events catalogue." />
+      <div className="space-y-3">
+        <form method="get" className={cn(CONSOLE_CARD, 'flex items-center gap-3 px-3 py-2')}>
+          <label htmlFor="event-search" className="sr-only">Search events</label>
+          <input id="event-search" type="search" name="q" defaultValue={q} placeholder="Search events…" className="min-h-10 w-full bg-transparent text-sm text-app-fg outline-none placeholder:text-app-muted" />
           {statusFilter !== 'all' && <input type="hidden" name="status" value={statusFilter} />}
+          <button className="min-h-10 rounded-lg bg-ember px-4 text-xs font-semibold text-on-accent">Search</button>
         </form>
         <div className="flex flex-wrap gap-2">
-          {STATUS_FILTERS.map((s) => (
-            <a
-              key={s}
-              href={`/dashboard/admin/events?status=${s}${q ? `&q=${encodeURIComponent(q)}` : ''}`}
-              className={cn(
-                'min-h-[36px] whitespace-nowrap rounded-full border px-3.5 py-1.5 text-xs font-semibold transition-colors',
-                statusFilter === s
-                  ? 'border-ember/40 bg-ember/15 text-ember'
-                  : 'border-app-border text-app-muted hover:border-ember/30 hover:text-app-fg'
-              )}
-            >
-              {s}
-            </a>
-          ))}
+          {STATUS_FILTERS.map((status) => <FilterChip key={status} href={`/dashboard/admin/events?status=${status}${q ? `&q=${encodeURIComponent(q)}` : ''}`} active={statusFilter === status}>{status}</FilterChip>)}
         </div>
       </div>
-
-      {/* Mobile — stacked cards */}
-      <div className="space-y-2 md:hidden">
-        {rows.length === 0 ? (
-          <div className={cn(CONSOLE_CARD, 'p-6 text-center text-sm text-app-muted')}>
-            No events match this filter.
-          </div>
-        ) : (
-          rows.map((row) => {
-            const organizerName = Array.isArray(row.organizers)
-              ? row.organizers[0]?.name ?? '—'
-              : row.organizers?.name ?? '—'
-            return (
-              <div key={row.id} className={cn(CONSOLE_CARD, 'space-y-2.5 p-4')}>
-                <p className="truncate font-semibold">
-                  <Link href={`/dashboard/admin/events/${row.id}`} className="underline-offset-2 hover:underline">
-                    {row.title}
-                  </Link>
-                </p>
-                <p className="truncate text-xs text-app-muted">{organizerName}</p>
-
-                <dl className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs">
-                  <div className="flex items-center gap-1.5">
-                    <dt className="text-app-muted">Date</dt>
-                    <dd className="tabular-nums text-app-muted">{formatDate(row.starts_at)}</dd>
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    <dt className="text-app-muted">Status</dt>
-                    <dd>
-                      <StatusPill status={row.status} tone={statusTone(row.status)} />
-                    </dd>
-                  </div>
-                </dl>
-
-                <div className="flex flex-wrap gap-2 pt-1">
-                  <EventModerationActions eventId={row.id} status={row.status} />
-                </div>
-              </div>
-            )
-          })
-        )}
-      </div>
-
-      {/* Desktop */}
-      <div className={cn(CONSOLE_CARD, 'hidden overflow-x-auto md:block')}>
-        <table className="w-full text-left text-sm">
-          <thead>
-            <tr className="border-b border-app-border text-[11px] uppercase tracking-[0.14em] text-app-muted">
-              <th scope="col" className="px-4 py-3 font-semibold">Event</th>
-              <th scope="col" className="px-4 py-3 font-semibold">Organizer</th>
-              <th scope="col" className="px-4 py-3 font-semibold">Date</th>
-              <th scope="col" className="px-4 py-3 font-semibold">Status</th>
-              <th scope="col" className="px-4 py-3 text-right font-semibold">Moderate</th>
-            </tr>
-          </thead>
-          <tbody>
-            {rows.length === 0 ? (
-              <tr>
-                <td colSpan={5} className="px-4 py-10 text-center text-sm text-app-muted">
-                  No events match this filter.
-                </td>
-              </tr>
-            ) : (
-              rows.map((row) => {
-                const organizerName = Array.isArray(row.organizers)
-                  ? row.organizers[0]?.name ?? '—'
-                  : row.organizers?.name ?? '—'
-                return (
-                  <tr key={row.id} className="border-b border-app-border last:border-0">
-                    <td className="max-w-[240px] truncate px-4 py-3.5"><Link href={`/dashboard/admin/events/${row.id}`} className="font-semibold underline-offset-2 hover:underline">{row.title}</Link></td>
-                    <td className="max-w-[160px] truncate px-4 py-3.5 text-app-muted">{organizerName}</td>
-                    <td className="px-4 py-3.5 tabular-nums text-app-muted">{formatDate(row.starts_at)}</td>
-                    <td className="px-4 py-3.5"><StatusPill status={row.status} tone={statusTone(row.status)} /></td>
-                    <td className="px-4 py-3.5">
-                      <EventModerationActions eventId={row.id} status={row.status} />
-                    </td>
-                  </tr>
-                )
-              })
-            )}
-          </tbody>
-        </table>
-      </div>
+      <AdminTable
+        caption="Events"
+        basePath="/dashboard/admin/events"
+        query={{ q, status: statusFilter === 'all' ? undefined : statusFilter, sort, direction }}
+        sort={sort}
+        direction={direction}
+        page={page}
+        total={count ?? 0}
+        error={Boolean(error)}
+        emptyText="No events match this filter."
+        columns={[{ key: 'title', label: 'Event', sortable: true }, { key: 'organizer', label: 'Organizer' }, { key: 'starts_at', label: 'Date', sortable: true }, { key: 'status', label: 'Status', sortable: true }, { key: 'actions', label: 'Moderate', align: 'right' }]}
+        rows={rows.map((row) => {
+          const organizerName = Array.isArray(row.organizers) ? row.organizers[0]?.name ?? '—' : row.organizers?.name ?? '—'
+          return { key: row.id, cells: [
+            <Link key="event" href={`/dashboard/admin/events/${row.id}`} className="font-semibold underline-offset-2 hover:underline">{row.title}</Link>,
+            <span key="organizer" className="text-app-muted">{organizerName}</span>,
+            <span key="date" className="whitespace-nowrap tabular-nums text-app-muted">{formatDate(row.starts_at)}</span>,
+            <StatusPill key="status" status={row.status} tone={statusTone(row.status)} />,
+            <EventModerationActions key="actions" eventId={row.id} status={row.status} />,
+          ] }
+        })}
+      />
+      <p className="text-xs text-app-muted">Showing 50 events per page.</p>
     </ConsolePageShell>
   )
 }

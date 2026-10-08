@@ -1,18 +1,18 @@
 import { redirect } from 'next/navigation'
+import { ConsoleShell } from '@/components/dashboard/console-shell'
 import { createClient } from '@/lib/supabase/server'
 import { getUnreadNotificationCount } from '@/lib/supabase/queries'
-import { Sidebar } from '@/components/dashboard/sidebar'
 
 const navItems = [
-  { label: 'Overview', href: '/dashboard/admin', icon: '📊' },
-  { label: 'Users', href: '/dashboard/admin/users', icon: '👥' },
-  { label: 'Businesses', href: '/dashboard/admin/businesses', icon: '🏪' },
-  { label: 'Organizers', href: '/dashboard/admin/organizers', icon: '📣' },
-  { label: 'Events', href: '/dashboard/admin/events', icon: '🎉' },
-  { label: 'Reservations', href: '/dashboard/admin/reservations', icon: '📅' },
-  { label: 'Audit Log', href: '/dashboard/admin/audit', icon: '📜' },
-  { label: 'Metrics', href: '/dashboard/admin/metrics', icon: '📈' },
-  { label: 'Settings', href: '/dashboard/admin/settings', icon: '⚙️' },
+  { label: 'Overview', href: '/dashboard/admin' },
+  { label: 'Users', href: '/dashboard/admin/users' },
+  { label: 'Businesses', href: '/dashboard/admin/businesses' },
+  { label: 'Organizers', href: '/dashboard/admin/organizers' },
+  { label: 'Events', href: '/dashboard/admin/events' },
+  { label: 'Reservations', href: '/dashboard/admin/reservations' },
+  { label: 'Audit Log', href: '/dashboard/admin/audit' },
+  { label: 'Metrics', href: '/dashboard/admin/metrics' },
+  { label: 'Settings', href: '/dashboard/admin/settings' },
 ]
 
 export default async function AdminDashboardLayout({
@@ -20,14 +20,14 @@ export default async function AdminDashboardLayout({
 }: {
   children: React.ReactNode
 }) {
-  // Admin console guard — RLS limits data, this gate limits the surface.
+  // Keep the layout gate in addition to middleware and per-action authorization.
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/auth/signin?next=/dashboard/admin')
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('id, role')
+    .select('id, role, full_name')
     .eq('id', user.id)
     .maybeSingle()
 
@@ -36,9 +36,15 @@ export default async function AdminDashboardLayout({
   const notificationCount = profile?.id ? await getUnreadNotificationCount(profile.id) : 0
 
   return (
-    <div className="flex min-h-screen">
-      <Sidebar title="Admin Panel" navItems={navItems} notificationCount={notificationCount} />
-      <main className="min-w-0 flex-1 overflow-x-hidden">{children}</main>
-    </div>
+    <ConsoleShell
+      navItems={navItems}
+      account={{ organization: 'UrbanExplore', role: 'System Admin', displayName: profile?.full_name }}
+      notificationCount={notificationCount}
+      showPromo={false}
+      homeHref="/dashboard/admin"
+      settingsHref="/dashboard/admin/settings"
+    >
+      {children}
+    </ConsoleShell>
   )
 }

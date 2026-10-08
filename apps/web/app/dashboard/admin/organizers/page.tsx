@@ -4,10 +4,12 @@ import { createClient } from '@/lib/supabase/server'
 import {
   ConsolePageShell,
   ConsoleHeader,
+  FilterChip,
   StatusPill,
 } from '@/components/dashboard/console'
 import { CONSOLE_CARD, statusTone } from '@/components/dashboard/console-shared'
 import { OrganizerVerificationActions } from '@/components/dashboard/admin-actions'
+import { AdminTable } from '@/components/dashboard/admin-table'
 import { cn } from '@/lib/utils'
 
 export const metadata: Metadata = { title: 'Organizers · Admin' }
@@ -17,7 +19,7 @@ const STATUS_FILTERS = ['all', 'pending', 'active', 'rejected', 'inactive'] as c
 export default async function AdminOrganizersPage({
   searchParams,
 }: {
-  searchParams?: { q?: string; status?: string }
+  searchParams?: { q?: string; status?: string; sort?: string; direction?: string; page?: string }
 }) {
   const q = (searchParams?.q ?? '').trim()
   const statusFilter =
@@ -25,17 +27,21 @@ export default async function AdminOrganizersPage({
     STATUS_FILTERS.includes(searchParams.status as (typeof STATUS_FILTERS)[number])
       ? searchParams.status
       : 'all'
+  const allowedSorts = ['name', 'email', 'status', 'created_at'] as const
+  const sort = allowedSorts.includes(searchParams?.sort as (typeof allowedSorts)[number]) ? searchParams?.sort as (typeof allowedSorts)[number] : 'created_at'
+  const direction = searchParams?.direction === 'asc' ? 'asc' : 'desc'
+  const page = Math.max(1, Number.parseInt(searchParams?.page ?? '1', 10) || 1)
 
   const supabase = await createClient()
   let query = supabase
     .from('organizers')
-    .select('id, name, email, status, is_verified, created_at')
-    .order('created_at', { ascending: false })
-    .limit(50)
+    .select('id, name, email, status, is_verified, created_at', { count: 'exact' })
+    .order(sort, { ascending: direction === 'asc' })
+    .range((page - 1) * 50, page * 50 - 1)
   if (statusFilter !== 'all') query = query.eq('status', statusFilter)
   if (q) query = query.ilike('name', `%${q}%`)
 
-  const { data } = await query
+  const { data, error, count } = await query
   const rows = (data ?? []) as Array<{
     id: string
     name: string
@@ -71,53 +77,43 @@ export default async function AdminOrganizersPage({
         </form>
         <div className="flex flex-wrap gap-2">
           {STATUS_FILTERS.map((s) => (
-            <a
+            <FilterChip
               key={s}
               href={`/dashboard/admin/organizers?status=${s}${q ? `&q=${encodeURIComponent(q)}` : ''}`}
-              className={cn(
-                'min-h-[36px] whitespace-nowrap rounded-full border px-3.5 py-1.5 text-xs font-semibold transition-colors',
-                statusFilter === s
-                  ? 'border-ember/40 bg-ember/15 text-ember'
-                  : 'border-app-border text-app-muted hover:border-ember/30 hover:text-app-fg'
-              )}
+              active={statusFilter === s}
             >
               {s}
-            </a>
+            </FilterChip>
           ))}
         </div>
       </div>
 
       <section className="space-y-3">
         {pendingCount > 0 && (
-          <span className="inline-block rounded-full bg-[#FBBC05]/15 px-3 py-1 text-[11px] font-bold uppercase tracking-wide text-[#FBBC05]">
+          <span className="inline-block rounded-full bg-ember/15 px-3 py-1 text-[11px] font-bold uppercase tracking-wide text-ember">
             {pendingCount} pending in view
           </span>
         )}
 
-        {rows.length === 0 ? (
-          <div className={cn(CONSOLE_CARD, 'border-dashed p-10 text-center')}>
-            <p className="font-semibold">No organizers match this filter</p>
-            <p className="mt-1 text-sm text-app-muted">New organizer signups will queue here for review.</p>
-          </div>
-        ) : (
-          <div className="space-y-2">
-            {rows.map((row) => (
-              <div key={row.id} className={cn(CONSOLE_CARD, 'flex flex-wrap items-center justify-between gap-3 p-4')}>
-                <div className="min-w-0">
-                  <Link href={`/dashboard/admin/organizers/${row.id}`} className="block truncate text-sm font-semibold underline-offset-2 hover:underline">{row.name}</Link>
-                  <p className="text-[11px] uppercase tracking-[0.12em] text-app-muted">
-                    {row.email ?? 'No public email'} · joined{' '}
-                    {new Date(row.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' })}
-                  </p>
-                </div>
-                <div className="flex shrink-0 items-center gap-3">
-                  <StatusPill status={row.status} tone={statusTone(row.status)} />
-                  <OrganizerVerificationActions organizerId={row.id} status={row.status} />
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
+        <AdminTable
+          caption="Organizers"
+          basePath="/dashboard/admin/organizers"
+          query={{ q, status: statusFilter === 'all' ? undefined : statusFilter, sort, direction }}
+          sort={sort}
+          direction={direction}
+          page={page}
+          total={count ?? 0}
+          error={Boolean(error)}
+          emptyText="No organizers match this filter."
+          columns={[{ key: 'name', label: 'Organizer', sortable: true }, { key: 'email', label: 'Email', sortable: true }, { key: 'status', label: 'Status', sortable: true }, { key: 'created_at', label: 'Joined', sortable: true }, { key: 'actions', label: 'Actions', align: 'right' }]}
+          rows={rows.map((row) => ({ key: row.id, cells: [
+            <Link key="organizer" href={`/dashboard/admin/organizers/${row.id}`} className="font-semibold underline-offset-2 hover:underline">{row.name}</Link>,
+            <span key="email" className="text-app-muted">{row.email ?? 'No public email'}</span>,
+            <StatusPill key="status" status={row.status} tone={statusTone(row.status)} />,
+            <span key="joined" className="whitespace-nowrap tabular-nums text-app-muted">{new Date(row.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</span>,
+            <OrganizerVerificationActions key="actions" organizerId={row.id} status={row.status} />,
+          ] }))}
+        />
       </section>
     </ConsolePageShell>
   )

@@ -45,6 +45,7 @@ export default async function AdminOrganizerDetailPage({
     .select('id, title, status, starts_at, venue_name')
     .eq('organizer_id', o.id)
     .order('starts_at', { ascending: false, nullsFirst: false })
+    .limit(100)
   const events = (eventRows ?? []) as Array<{
     id: string; title: string; status: string; starts_at: string | null; venue_name: string | null
   }>
@@ -116,6 +117,7 @@ export default async function AdminOrganizerDetailPage({
       {/* Events */}
       <section className="space-y-3">
         <SectionTitle>Events</SectionTitle>
+        <p className="text-xs text-app-muted">Showing the latest 100 events.</p>
         {events.length === 0 ? (
           <div className={cn(CONSOLE_CARD, 'border-dashed p-8 text-center')}>
             <p className="text-sm text-app-muted">This organizer has not created any events yet.</p>

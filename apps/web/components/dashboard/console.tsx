@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import { useId } from 'react'
 import { CONSOLE_CARD } from './console-shared'
 import { cn } from '@/lib/utils'
 
@@ -159,23 +160,42 @@ export function SegmentedControl<T extends string>({
 export function FilterChip({
   active,
   onClick,
+  href,
   children,
 }: {
   active: boolean
-  onClick: () => void
+  onClick?: () => void
+  href?: string
   children: React.ReactNode
 }) {
+  const className = cn(
+    'inline-flex min-h-11 items-center gap-1.5 whitespace-nowrap rounded-full border px-3.5 text-xs font-semibold transition-colors duration-200',
+    active
+      ? 'border-ember/40 bg-ember/12 text-ember'
+      : 'border-app-border text-app-muted hover:border-ember/30 hover:text-app-fg',
+  )
+
+  if (href) {
+    return (
+      <Link href={href} aria-current={active ? 'page' : undefined} className={className}>
+        {active && <span aria-hidden="true">✓</span>}
+        {children}
+      </Link>
+    )
+  }
+
   return (
     <button
       type="button"
       onClick={onClick}
+      // Selection is otherwise carried by colour alone, so a screen reader
+      // cannot tell which branch/range is on screen.
+      aria-pressed={active}
       className={cn(
-        'whitespace-nowrap rounded-full border px-3.5 py-1.5 text-xs font-semibold transition-colors duration-200',
-        active
-          ? 'border-ember/40 bg-ember/12 text-ember'
-          : 'border-app-border text-app-muted hover:border-ember/30 hover:text-app-fg'
+        className,
       )}
     >
+      {active && <span aria-hidden="true">✓</span>}
       {children}
     </button>
   )
@@ -267,6 +287,7 @@ export function Sparkline({
   label?: string
   className?: string
 }) {
+  const generatedId = useId()
   const width = 320
   const height = 96
   const max = Math.max(...points, 1)
@@ -278,12 +299,12 @@ export function Sparkline({
   })
   const linePath = `M${coords.join(' L')}`
   const areaPath = `${linePath} L${width},${height} L0,${height} Z`
-  const gradientId = `spark-${label ?? 'chart'}-${points.length}-${max}`.replace(/[^a-zA-Z0-9-]/g, '')
+  const gradientId = `spark-${generatedId.replace(/:/g, '')}`
 
   return (
     <svg
       viewBox={`0 0 ${width} ${height}`}
-      preserveAspectRatio="none"
+      preserveAspectRatio="xMidYMid meet"
       role="img"
       aria-label={label ?? 'Trend chart'}
       className={cn('h-24 w-full', className)}
@@ -302,6 +323,7 @@ export function Sparkline({
           cy={coords[coords.length - 1].split(',')[1]}
           r="4"
           fill="rgb(var(--ember-rgb))"
+          vectorEffect="non-scaling-stroke"
         />
       )}
     </svg>

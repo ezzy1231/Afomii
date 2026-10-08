@@ -61,7 +61,8 @@ export default async function AdminEventDetailPage({
     supabase
       .from('ticket_types')
       .select('id, name, tier, price, total_quantity, remaining_quantity, sales_start, sales_end')
-      .eq('event_id', e.id),
+      .eq('event_id', e.id)
+      .limit(100),
     supabase
       .from('ticket_purchases')
       .select('id, quantity, amount, payment_status, attended, created_at')
@@ -164,6 +165,7 @@ export default async function AdminEventDetailPage({
       {/* Ticket tiers */}
       <section className="space-y-3">
         <SectionTitle>Ticket tiers</SectionTitle>
+        <p className="text-xs text-app-muted">Showing up to 100 ticket tiers.</p>
         {tiers.length === 0 ? (
           <div className={cn(CONSOLE_CARD, 'border-dashed p-8 text-center')}>
             <p className="text-sm text-app-muted">No ticket tiers configured for this event.</p>
