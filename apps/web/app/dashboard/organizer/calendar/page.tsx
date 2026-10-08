@@ -1,114 +1,54 @@
-'use client'
+import type { Metadata } from 'next'
+import Link from 'next/link'
+import { redirect } from 'next/navigation'
+import { createClient } from '@/lib/supabase/server'
+import { getOrganizerCalendar } from '@/lib/dashboard/organizer-data'
+import { ConsoleEventCalendar } from '@/components/dashboard/console-event-calendar'
+import { ConsoleStack } from '@/components/dashboard/console-primitives'
+import { CONSOLE_CARD } from '@/components/dashboard/console-tokens'
 
-import { useEffect, useState } from 'react'
-import { createClient } from '@/lib/supabase/client'
+export const metadata: Metadata = { title: 'Organizer Calendar' }
 
-type CalendarEvent = {
-  id: string
-  title: string
-  // Nullable in Postgres, but the query filters out the nulls.
-  starts_at: string
-  status: string | null
-}
+export default async function OrganizerCalendarPage() {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) redirect('/auth/signin?next=/dashboard/organizer/calendar')
 
-export default function CalendarPage() {
-  const [events, setEvents] = useState<CalendarEvent[]>([])
-  const [loading, setLoading] = useState(true)
-  const [user, setUser] = useState<any>(null)
-  const [profile, setProfile] = useState<any>(null)
-  const [isLoaded, setIsLoaded] = useState(false)
-
-  useEffect(() => {
-    const supabase = createClient()
-    supabase.auth.getUser().then(({ data: { user: u } }) => {
-      setUser(u)
-      if (u) {
-        supabase.from('profiles').select('*').eq('id', u.id).single().then(({ data }) => {
-          setProfile(data)
-          setIsLoaded(true)
-        })
-      } else {
-        setIsLoaded(true)
-      }
-    })
-  }, [])
-
-  useEffect(() => {
-    if (!isLoaded) return
-    async function load() {
-      const supabase = createClient()
-      if (!user) { setLoading(false); return }
-
-      const { data: profileRow } = await supabase
-        .from('profiles').select('id').eq('id', user.id).maybeSingle()
-      if (!profileRow) { setLoading(false); return }
-      setProfile(profileRow)
-
-      const { data: organizer } = await supabase
-        .from('organizers').select('id').eq('owner_id', profileRow.id).maybeSingle()
-      if (!organizer) { setLoading(false); return }
-
-      // `starts_at`, not `startDateTime` — the camelCase name is Prisma-era and
-      // has no Postgres column, so ordering by it errored and the tab silently
-      // rendered empty for every organizer.
-      const { data } = await supabase
-        .from('events').select('*').eq('organizer_id', organizer.id)
-        .not('starts_at', 'is', null)
-        .order('starts_at', { ascending: true })
-      if (data) setEvents(data as CalendarEvent[])
-      setLoading(false)
-    }
-    load()
-  }, [isLoaded, user])
-
-  const grouped = events.reduce<Record<string, CalendarEvent[]>>((acc, e) => {
-    const date = new Date(e.starts_at).toDateString()
-    if (!acc[date]) acc[date] = []
-    acc[date].push(e)
-    return acc
-  }, {})
+  const { events } = await getOrganizerCalendar(supabase, user)
 
   return (
-    <div className="mx-auto w-full max-w-6xl px-4 pb-24 pt-8 sm:px-6 lg:px-8">
-      <p className="text-xs font-bold uppercase tracking-[0.15em] text-ember">Organizer</p>
-      <h1 className="mt-2  text-3xl font-bold text-app-fg">Calendar</h1>
-      <p className="mt-2 text-sm text-app-muted">View your events by date.</p>
+    <ConsoleStack
+      eyebrow="Organizer"
+      title="Calendar"
+      subtitle={
+        events.length > 0
+          ? `${events.length} dated ${events.length === 1 ? 'event' : 'events'} on your schedule.`
+          : 'Every event with a start date shows up here.'
+      }
+      action={
+        <Link
+          href="/dashboard/organizer/events/new"
+          className="inline-flex min-h-11 items-center justify-center rounded-xl bg-console-indigo px-4 text-sm font-semibold text-white shadow-[0_6px_18px_rgb(91_63_240/0.28)] transition-colors hover:bg-console-indigo-deep"
+        >
+          Create event
+        </Link>
+      }
+    >
+      <ConsoleEventCalendar
+        events={events}
+        createHref="/dashboard/organizer/events/new"
+      />
 
-      {loading ? (
-        <div className="mt-8 space-y-3">
-          {[1, 2, 3].map((i) => <div key={i} className="h-16 animate-pulse rounded-xl bg-[var(--bg-input)]" />)}
-        </div>
-      ) : (
-        <div className="mt-8 space-y-6">
-          {Object.entries(grouped).map(([date, dayEvents]) => (
-            <div key={date}>
-              <h3 className="mb-3 text-sm font-semibold text-app-fg">{date}</h3>
-              <div className="space-y-2">
-                {dayEvents.map((e) => (
-                  <div key={e.id} className="flex items-center justify-between rounded-xl border border-[var(--border)] px-4 py-3">
-                    <div>
-                      <p className="font-medium text-app-fg">{e.title}</p>
-                      <p className="text-xs text-app-muted">{new Date(e.starts_at).toLocaleTimeString()}</p>
-                    </div>
-                    {/* The `event_status` Postgres enum is lowercase; these used to compare against
-                        Prisma-era uppercase literals and never matched. */}
-                    <span className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase ${
-                      e.status === 'published' ? 'bg-success/15 text-success' :
-                      e.status === 'draft' ? 'bg-app-input text-app-muted' :
-                      'bg-ember/12 text-ember'
-                    }`}>
-                      {e.status}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          ))}
-          {events.length === 0 && (
-            <p className="py-12 text-center text-app-muted">No events scheduled.</p>
-          )}
+      {events.length === 0 && (
+        <div className={`${CONSOLE_CARD} border-dashed p-10 text-center`}>
+          <p className="font-semibold text-console-ink">No dated events yet</p>
+          <p className="mx-auto mt-1 max-w-sm text-sm text-console-muted">
+            The calendar fills in as soon as an event has a start date. Create one to get started.
+          </p>
         </div>
       )}
-    </div>
+    </ConsoleStack>
   )
 }

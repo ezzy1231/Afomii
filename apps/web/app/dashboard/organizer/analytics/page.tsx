@@ -2,13 +2,13 @@ import type { Metadata } from 'next'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import {
-  ConsolePageShell,
   ConsoleHeader,
   ConsoleKpiCard,
   ConsoleRangeLinks,
   SectionTitle,
   Sparkline,
 } from '@/components/dashboard/console'
+import { ConsoleStack } from '@/components/dashboard/console-primitives'
 import { CONSOLE_CARD } from '@/components/dashboard/console-shared'
 import { cn } from '@/lib/utils'
 
@@ -145,7 +145,7 @@ export default async function OrganizerAnalyticsPage({
   const hasData = ticketsSold > 0 || paidRevenue > 0
 
   return (
-    <ConsolePageShell>
+    <ConsoleStack>
       <ConsoleHeader
         eyebrow="Organizer console"
         title="Analytics"
@@ -205,6 +205,6 @@ export default async function OrganizerAnalyticsPage({
           </div>
         )}
       </section>
-    </ConsolePageShell>
+    </ConsoleStack>
   )
 }

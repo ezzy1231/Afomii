@@ -241,11 +241,7 @@ export function BranchManager() {
 }
 
 function ConsolePage({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="min-h-full bg-app-bg px-4 pb-16 pt-8 text-app-fg sm:px-6 lg:px-8">
-      <div className="mx-auto w-full max-w-5xl space-y-8">{children}</div>
-    </div>
-  );
+  return <div className="space-y-6">{children}</div>;
 }
 
 const consoleInput =

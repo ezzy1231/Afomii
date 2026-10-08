@@ -189,8 +189,7 @@ export default function ReservationsPage() {
   }, [rows, range, today, weekEnd])
 
   return (
-    <div className="min-h-full px-4 pb-16 pt-8 text-app-fg sm:px-6 lg:px-8">
-      <div className="mx-auto w-full max-w-5xl space-y-6">
+    <div className="space-y-6">
         <header className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <p className="text-[11px] font-semibold uppercase tracking-[0.15em] text-app-muted">
@@ -293,6 +292,5 @@ export default function ReservationsPage() {
           </div>
         )}
       </div>
-    </div>
   )
 }

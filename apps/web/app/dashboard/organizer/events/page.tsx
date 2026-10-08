@@ -1,134 +1,59 @@
-'use client'
-
-import { useEffect, useState } from 'react'
-import { createClient } from '@/lib/supabase/client'
-import { toggleEventActive } from '@/app/dashboard/actions'
+import type { Metadata } from 'next'
 import Link from 'next/link'
-import { CalendarDays, MapPin } from 'lucide-react'
+import { redirect } from 'next/navigation'
+import { createClient } from '@/lib/supabase/server'
+import { getOrganizerEventRecords } from '@/lib/dashboard/organizer-data'
+import { OrganizerEventGrid } from '@/components/dashboard/organizer-event-grid'
+import { ConsoleStack } from '@/components/dashboard/console-primitives'
+import { CONSOLE_CARD } from '@/components/dashboard/console-tokens'
 
-type EventItem = {
-  id: string
-  title: string
-  category: string
-  venue_name: string
-  starts_at: string | null
-  is_active: boolean
-}
+export const metadata: Metadata = { title: 'Organizer Events' }
 
-export default function OrganizerEventsPage() {
-  const [events, setEvents] = useState<EventItem[]>([])
-  const [loading, setLoading] = useState(true)
-  const [busyId, setBusyId] = useState<string | null>(null)
-  const [user, setUser] = useState<any>(null)
-  const [profile, setProfile] = useState<any>(null)
-  const [isLoaded, setIsLoaded] = useState(false)
+export default async function OrganizerEventsPage() {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) redirect('/auth/signin?next=/dashboard/organizer/events')
 
-  useEffect(() => {
-    const supabase = createClient()
-    supabase.auth.getUser().then(({ data: { user: u } }) => {
-      setUser(u)
-      if (u) {
-        supabase.from('profiles').select('*').eq('id', u.id).single().then(({ data }) => {
-          setProfile(data)
-          setIsLoaded(true)
-        })
-      } else {
-        setIsLoaded(true)
-      }
-    })
-  }, [])
-
-  async function handleToggle(item: EventItem) {
-    setBusyId(item.id)
-    const res = await toggleEventActive(item.id, !item.is_active)
-    if (res.ok) {
-      setEvents((prev) =>
-        prev.map((e) => (e.id === item.id ? { ...e, is_active: !e.is_active } : e))
-      )
-    }
-    setBusyId(null)
-  }
-
-  useEffect(() => {
-    if (!isLoaded) return
-    async function load() {
-      const supabase = createClient()
-      if (!user) { setLoading(false); return }
-
-      const { data: profileRow } = await supabase
-        .from('profiles').select('id').eq('id', user.id).maybeSingle()
-      if (!profileRow) { setLoading(false); return }
-
-      const { data: organizer } = await supabase
-        .from('organizers').select('id').eq('owner_id', profile.id).maybeSingle()
-      if (!organizer) { setLoading(false); return }
-
-      const { data } = await supabase
-        .from('events').select('*').eq('organizer_id', organizer.id)
-        .order('created_at', { ascending: false }).limit(50)
-      if (data) setEvents(data)
-      setLoading(false)
-    }
-    load()
-  }, [isLoaded, user])
+  const { events } = await getOrganizerEventRecords(supabase, user)
 
   return (
-    <div className="mx-auto w-full max-w-6xl px-4 pb-24 pt-8 sm:px-6 lg:px-8">
-      <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
-        <div>
-          <p className="text-xs font-bold uppercase tracking-[0.15em] text-ember">Organizer</p>
-          <h1 className="mt-2  text-3xl font-bold text-app-fg">Events</h1>
-          <p className="mt-2 text-sm text-app-muted">Manage your published and draft events.</p>
-        </div>
+    <ConsoleStack
+      eyebrow="Organizer"
+      title="Events"
+      subtitle={
+        events.length > 0
+          ? `${events.length} ${events.length === 1 ? 'event' : 'events'} · ${
+              events.filter((e) => e.isActive).length
+            } published`
+          : 'Manage your published and draft events.'
+      }
+      action={
         <Link
           href="/dashboard/organizer/events/new"
-          className="btn-primary inline-flex !py-2.5 text-sm"
+          className="inline-flex min-h-11 items-center justify-center rounded-xl bg-console-indigo px-4 text-sm font-semibold text-white shadow-[0_6px_18px_rgb(91_63_240/0.28)] transition-colors hover:bg-console-indigo-deep"
         >
-          ＋ Create event
+          Create event
         </Link>
-      </div>
-
-      {loading ? (
-        <div className="mt-8 space-y-3">
-          {[1, 2, 3].map((i) => <div key={i} className="h-20 animate-pulse rounded-xl bg-[var(--bg-input)]" />)}
+      }
+    >
+      {events.length === 0 ? (
+        <div className={`${CONSOLE_CARD} border-dashed p-10 text-center`}>
+          <p className="font-semibold text-console-ink">No events yet</p>
+          <p className="mx-auto mt-1 max-w-sm text-sm text-console-muted">
+            Create your first event to start selling tickets.
+          </p>
+          <Link
+            href="/dashboard/organizer/events/new"
+            className="mt-4 inline-flex min-h-11 items-center justify-center rounded-xl bg-console-indigo px-5 text-sm font-semibold text-white transition-colors hover:bg-console-indigo-deep"
+          >
+            Create event
+          </Link>
         </div>
       ) : (
-        <div className="mt-8 grid gap-4 sm:grid-cols-2">
-          {events.map((item) => (
-            <article key={item.id} className="card-elevated p-5">
-              <div className="flex items-center justify-between gap-3">
-                <h3 className="font-semibold text-app-fg">{item.title}</h3>
-                <span className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ${
-                  item.is_active ? 'bg-success/15 text-success' : 'bg-app-input text-app-muted'
-                }`}>
-                  {item.is_active ? 'Published' : 'Draft'}
-                </span>
-              </div>
-              <p className="mt-1 text-sm text-app-muted">{item.category}</p>
-              <div className="mt-3 flex flex-wrap gap-3 text-xs text-app-muted">
-                <span className="flex items-center gap-1"><MapPin className="size-3" />{item.venue_name}</span>
-                {item.starts_at && (
-                  <span className="flex items-center gap-1"><CalendarDays className="size-3" />{new Date(item.starts_at).toLocaleDateString()}</span>
-                )}
-              </div>
-              <button
-                type="button"
-                onClick={() => handleToggle(item)}
-                disabled={busyId === item.id}
-                className="mt-4 rounded-xl border border-[var(--border)] px-3 py-1.5 text-sm font-medium text-app-fg transition hover:border-gold/50 disabled:opacity-50"
-              >
-                {busyId === item.id ? 'Updating…' : item.is_active ? 'Unpublish' : 'Publish'}
-              </button>
-            </article>
-          ))}
-          {events.length === 0 && (
-            <div className="sm:col-span-2 py-12 text-center text-app-muted">
-              <p>No events yet. Create your first event to start selling tickets.</p>
-              <Link href="/dashboard/organizer/events/new" className="btn-primary mt-4 inline-flex">Create event</Link>
-            </div>
-          )}
-        </div>
+        <OrganizerEventGrid events={events} />
       )}
-    </div>
+    </ConsoleStack>
   )
 }

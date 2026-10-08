@@ -94,6 +94,35 @@ const config: Config = {
         success: "rgb(var(--success-rgb) / <alpha-value>)",
         danger: "rgb(var(--danger-rgb) / <alpha-value>)",
         warning: "rgb(var(--warning-rgb) / <alpha-value>)",
+        /* ── Partner console ────────────────────────────────────────
+           Deliberately theme-independent (fixed light console, always
+           dark sidebar). The backing vars live in globals.css scoped to
+           `.shell-console`, so these utilities only resolve inside the
+           organizer + restaurant dashboard shell — the public site and
+           the admin portal keep the ember/glass system untouched. */
+        console: {
+          DEFAULT: "rgb(var(--console-card-rgb) / <alpha-value>)",
+          bg: "rgb(var(--console-bg-rgb) / <alpha-value>)",
+          card: "rgb(var(--console-card-rgb) / <alpha-value>)",
+          border: "rgb(var(--console-border-rgb) / <alpha-value>)",
+          nav: "rgb(var(--console-nav-rgb) / <alpha-value>)",
+          "nav-soft": "rgb(var(--console-nav-soft-rgb) / <alpha-value>)",
+          "nav-muted": "rgb(var(--console-nav-muted-rgb) / <alpha-value>)",
+          ink: "rgb(var(--console-ink-rgb) / <alpha-value>)",
+          muted: "rgb(var(--console-muted-rgb) / <alpha-value>)",
+          indigo: "rgb(var(--console-indigo-rgb) / <alpha-value>)",
+          "indigo-deep": "rgb(var(--console-indigo-deep-rgb) / <alpha-value>)",
+          "indigo-soft": "rgb(var(--console-indigo-soft-rgb) / <alpha-value>)",
+          green: "rgb(var(--console-green-rgb) / <alpha-value>)",
+          mint: "rgb(var(--console-mint-rgb) / <alpha-value>)",
+          "mint-ink": "rgb(var(--console-mint-ink-rgb) / <alpha-value>)",
+          blush: "rgb(var(--console-blush-rgb) / <alpha-value>)",
+          "blush-ink": "rgb(var(--console-blush-ink-rgb) / <alpha-value>)",
+          sand: "rgb(var(--console-sand-rgb) / <alpha-value>)",
+          "sand-ink": "rgb(var(--console-sand-ink-rgb) / <alpha-value>)",
+          sky: "rgb(var(--console-sky-rgb) / <alpha-value>)",
+          "sky-ink": "rgb(var(--console-sky-ink-rgb) / <alpha-value>)",
+        },
       },
       fontFamily: {
         /* One clean sans family everywhere — display = sans, bold */
@@ -113,6 +142,7 @@ const config: Config = {
         /* legacy names → soft equivalents */
         hard: "0 1px 2px rgb(16 18 27 / 0.05), 0 2px 8px rgb(16 18 27 / 0.05)",
         "hard-lg": "0 2px 4px rgb(16 18 27 / 0.05), 0 8px 24px rgb(16 18 27 / 0.08)",
+        "console-card": "var(--console-shadow)",
       },
       transitionTimingFunction: {
         // clean ease-out for micro-interactions (no bounce/overshoot)

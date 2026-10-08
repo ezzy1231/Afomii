@@ -3,10 +3,10 @@ import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import {
-  ConsolePageShell,
   ConsoleHeader,
   StatusPill,
 } from '@/components/dashboard/console'
+import { ConsoleStack } from '@/components/dashboard/console-primitives'
 import { CONSOLE_CARD } from '@/components/dashboard/console-shared'
 import { cn } from '@/lib/utils'
 
@@ -49,7 +49,7 @@ export default async function RestaurantListingsPage() {
   }>
 
   return (
-    <ConsolePageShell>
+    <ConsoleStack>
       <ConsoleHeader
         eyebrow="Partner console"
         title="Listings"
@@ -103,6 +103,6 @@ export default async function RestaurantListingsPage() {
           ))}
         </div>
       )}
-    </ConsolePageShell>
+    </ConsoleStack>
   )
 }

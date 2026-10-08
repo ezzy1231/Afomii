@@ -3,13 +3,13 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import {
-  ConsolePageShell,
   ConsoleHeader,
   SectionTitle,
   ToggleSwitch,
   FilterChip,
   ConsoleSkeletonRow,
 } from '@/components/dashboard/console'
+import { ConsoleStack } from '@/components/dashboard/console-primitives'
 import { CONSOLE_CARD } from '@/components/dashboard/console-shared'
 import { cn } from '@/lib/utils'
 
@@ -226,7 +226,7 @@ export default function MenuPage() {
   )
 
   return (
-    <ConsolePageShell>
+    <ConsoleStack>
       <ConsoleHeader
         eyebrow="Partner console"
         title="Menu Manager"
@@ -457,6 +457,6 @@ export default function MenuPage() {
           </div>
         </div>
       )}
-    </ConsolePageShell>
+    </ConsoleStack>
   )
 }

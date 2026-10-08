@@ -2,31 +2,40 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
+import {
+  getRestaurantDashboard,
+  reservationIsTerminal,
+} from '@/lib/dashboard/restaurant-data'
 import { ReservationQuickActions } from '@/components/dashboard/reservation-quick-actions'
+import { ConsoleStatRow } from '@/components/dashboard/console-primitives'
+import { ConsoleEventCalendar } from '@/components/dashboard/console-event-calendar'
+import { ConsoleAreaChart } from '@/components/dashboard/console-area-chart'
+import { ConsoleUpcomingList } from '@/components/dashboard/console-upcoming-list'
+import { CONSOLE_CARD } from '@/components/dashboard/console-tokens'
 import { cn } from '@/lib/utils'
 
 export const metadata: Metadata = { title: 'Restaurant Dashboard' }
 
-const CONSOLE_CARD = 'glass rounded-2xl'
-
 function statusPill(status: string) {
   switch (status) {
     case 'confirmed':
-      return 'bg-success/20 text-success'
+      return 'bg-console-mint text-console-mint-ink'
     case 'rejected':
     case 'cancelled':
-      return 'bg-danger/15 text-danger'
+      return 'bg-console-blush text-console-blush-ink'
     case 'completed':
-      return 'bg-ember/20 text-ember'
+      return 'bg-console-sky text-console-sky-ink'
     default:
-      return 'bg-app-elevated/80 text-app-muted'
+      return 'bg-console-sand text-console-sand-ink'
   }
 }
 
 function displayName(email: string | null | undefined, fallback: string) {
   if (!email) return fallback
-  const local = email.split('@')[0] ?? ''
-  const cleaned = local.replace(/[._-]+/g, ' ').trim()
+  const cleaned = email
+    .split('@')[0]
+    ?.replace(/[._-]+/g, ' ')
+    .trim()
   if (!cleaned) return fallback
   return cleaned
     .split(' ')
@@ -36,219 +45,159 @@ function displayName(email: string | null | undefined, fallback: string) {
 
 export default async function RestaurantDashboardPage() {
   const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) redirect('/auth/signin')
-  const { data: profileData } = await supabase
-    .from('profiles')
-    .select('id, role, email')
-    .eq('id', user!.id)
-    .maybeSingle()
-  const profile = profileData ?? null
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) redirect('/auth/signin?next=/dashboard/restaurant')
 
-  const today = new Date().toISOString().slice(0, 10)
-
-  const { data: businessRaw } = await supabase
-    .from('businesses')
-    .select('id, name')
-    .eq('owner_id', profile?.id ?? '')
-    .maybeSingle()
-
-  // Self-heal pre-provisioning accounts on first view.
-  let business = businessRaw
-  if (!business && profile) {
-    const metaRole =
-      (user!.user_metadata as Record<string, unknown> | undefined)?.role ?? profile.role
-    if (metaRole === 'food_business') {
-      const { ensureBusiness } = await import('@/lib/provision')
-      business = await ensureBusiness(supabase, {
-        id: profile.id,
-        email: profile.email ?? user!.email,
-        user_metadata: (user!.user_metadata as Record<string, unknown> | undefined) ?? undefined,
-      })
-    }
-  }
-
-  const { data: branches } = business
-    ? await supabase.from('branches').select('id').eq('business_id', business.id)
-    : { data: [] }
-  const branchIds = (branches ?? []).map((b) => b.id)
-
-  const [listingsRes, menuRes, upcomingRes, todayRes] = await Promise.all([
-    business
-      ? supabase
-          .from('restaurants')
-          .select('id', { count: 'exact', head: true })
-          .eq('business_id', business.id)
-          .eq('is_active', true)
-      : Promise.resolve({ count: 0 }),
-    branchIds.length
-      ? supabase.from('menu_items').select('id', { count: 'exact', head: true }).in('branch_id', branchIds)
-      : Promise.resolve({ count: 0 }),
-    branchIds.length
-      ? supabase
-          .from('reservations')
-          .select('guest_count')
-          .in('branch_id', branchIds)
-          .gte('reservation_date', today)
-          .in('status', ['pending', 'confirmed'])
-          .limit(2000)
-      : Promise.resolve({ data: [] }),
-    branchIds.length
-      ? supabase
-          .from('reservations')
-          .select('id, time_slot, guest_count, status, user_id')
-          .in('branch_id', branchIds)
-          .eq('reservation_date', today)
-          .order('time_slot', { ascending: true })
-          .limit(8)
-      : Promise.resolve({ data: [] }),
-  ])
-
-  const upcomingCount = (upcomingRes.data ?? []).length as number
-  const coversUpcoming = (upcomingRes.data ?? []).reduce(
-    (sum: number, r: any) => sum + (Number(r.guest_count) || 0),
-    0,
-  )
-  const todaysRows = (todayRes.data ?? []) as Array<{
-    id: string
-    time_slot: string | null
-    guest_count: number
-    status: string
-    user_id: string | null
-  }>
-
-  // Customer contact names via owner-scoped RPC (profiles are own-row RLS).
-  const userIds = Array.from(
-    new Set(todaysRows.map((r) => r.user_id).filter((v): v is string => Boolean(v))),
-  )
-  const contactsResult = userIds.length
-    ? await supabase.rpc('partner_customer_contacts', { p_user_ids: userIds })
-    : { data: [] as Array<{ id: string; email: string | null }> }
-  const contacts = new Map(
-    ((contactsResult.data ?? []) as Array<{ id: string; email: string | null }>).map((c) => [c.id, c.email]),
-  )
-
-  const kpis = [
-    { label: 'Upcoming reservations', value: String(upcomingCount), accent: true },
-    { label: 'Covers upcoming', value: String(coversUpcoming), accent: false },
-    { label: 'Published listings', value: String((listingsRes.count as number) ?? 0), accent: false },
-    { label: 'Menu items', value: String((menuRes.count as number) ?? 0), accent: false },
-  ]
+  const data = await getRestaurantDashboard(supabase, user)
 
   return (
-    <div className="min-h-full px-4 pb-16 pt-8 text-app-fg sm:px-6 lg:px-8">
-      <div className="mx-auto w-full max-w-5xl space-y-8">
-        {/* Greeting */}
-        <header>
-          <p className="text-[11px] font-semibold uppercase tracking-[0.15em] text-app-muted">
-            Partner console
+    <div className="space-y-6">
+      {!data.business ? (
+        <section className={`${CONSOLE_CARD} border-dashed p-10 text-center`}>
+          <p className="font-semibold text-console-ink">No linked business profile</p>
+          <p className="mx-auto mt-1 max-w-sm text-sm text-console-muted">
+            Your account is not connected to a restaurant, so reservations cannot be shown. Complete
+            business signup to continue.
           </p>
-          <h1 className="mt-2  text-3xl font-bold sm:text-4xl">
-            Good day, {business?.name ?? 'Partner'} 👋
-          </h1>
-        </header>
-
-        {!business && (
-          <section className="animate-pop-in rounded-xl border border-[#FBBC05]/40 bg-[#FBBC05]/10 p-4 text-sm text-app-fg">
-            No linked business profile was found for your account. Complete business signup first.
-          </section>
-        )}
-
-        {business && (listingsRes.count ?? 0) === 0 && (
-          <section className={cn(CONSOLE_CARD, 'animate-pop-in border-dashed p-8 text-center')}>
-            <p className="font-semibold">No published listings yet</p>
-            <p className="mt-1 text-sm text-app-muted">
-              Create your first listing so diners can find and book you.
-            </p>
-            <Link
-              href="/dashboard/restaurant/listings/new"
-              className="mt-4 inline-block min-h-[44px] rounded-full bg-ember px-6 py-2.5 text-sm font-semibold text-on-accent shadow-glass transition-all hover:brightness-110"
-            >
-              Create your first listing
-            </Link>
-          </section>
-        )}
-
-        {/* KPI grid */}
-        <section className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-          {kpis.map((kpi) => (
-            <div key={kpi.label} className={cn(CONSOLE_CARD, 'flex h-32 flex-col justify-between p-4')}>
-              <span className="text-[11px] font-semibold uppercase tracking-[0.15em] text-app-muted">
-                {kpi.label}
-              </span>
-              <span
-                className={cn(
-                  'text-4xl font-bold tabular-nums',
-                  kpi.accent ? 'text-ember' : 'text-app-fg',
-                )}
-              >
-                {kpi.value}
-              </span>
-            </div>
-          ))}
-        </section>
-
-        {/* Today's reservations timeline */}
-        <section className="space-y-3">
-          <h2 className="border-b border-app-border pb-3  text-xl font-bold">
-            Today&apos;s reservations
-          </h2>
-
-          {todaysRows.length > 0 ? (
-            <div className="space-y-2">
-              {todaysRows.map((row) => {
-                const terminal = row.status === 'cancelled' || row.status === 'rejected' || row.status === 'completed'
-                return (
-                  <div
-                    key={row.id}
-                    className={cn(CONSOLE_CARD, 'flex items-center justify-between p-4', terminal && 'opacity-70')}
-                  >
-                    <div className="flex min-w-0 items-center gap-4">
-                      <span className="w-12 shrink-0 text-center text-[11px] font-semibold uppercase tracking-[0.12em] text-app-muted tabular-nums">
-                        {row.time_slot ?? '—'}
-                      </span>
-                      <span className="h-10 w-px shrink-0 bg-app-elevated/80" aria-hidden />
-                      <div className="min-w-0">
-                        <p className={cn('truncate text-sm font-semibold', terminal && 'line-through')}>
-                          {displayName(contacts.get(row.user_id ?? '') ?? null, 'Guest')}
-                        </p>
-                        <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-app-muted">
-                          Party of {row.guest_count}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex shrink-0 items-center gap-3">
-                      <span
-                        className={cn(
-                          'rounded-full px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide',
-                          statusPill(row.status),
-                        )}
-                      >
-                        {row.status}
-                      </span>
-                      <ReservationQuickActions reservationId={row.id} status={row.status} />
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
-          ) : (
-            <div className={cn(CONSOLE_CARD, 'border-dashed p-8 text-center')}>
-              <p className="font-semibold">No reservations for today</p>
-              <p className="mt-1 text-sm text-app-muted">
-                Publish your listing and share your page to start filling tables.
-              </p>
-            </div>
-          )}
-
           <Link
-            href="/dashboard/restaurant/reservations"
-            className="mt-2 block w-full rounded-full border border-app-border bg-app-input/70 py-3 text-center text-sm font-semibold transition-colors hover:bg-app-elevated"
+            href="/settings"
+            className="mt-4 inline-flex min-h-11 items-center justify-center rounded-xl bg-console-indigo px-5 text-sm font-semibold text-white transition-colors hover:bg-console-indigo-deep"
           >
-            View all reservations
+            Account settings
           </Link>
         </section>
-      </div>
+      ) : (
+        <>
+          {!data.listingsCount && (
+            <section
+              className={cn(
+                CONSOLE_CARD,
+                'flex flex-wrap items-center justify-between gap-4 border-dashed p-6',
+              )}
+            >
+              <div>
+                <p className="font-semibold text-console-ink">No published listings yet</p>
+                <p className="mt-1 text-sm text-console-muted">
+                  Create your first listing so diners can find and book you.
+                </p>
+              </div>
+              <Link
+                href="/dashboard/restaurant/listings/new"
+                className="inline-flex min-h-11 items-center justify-center rounded-xl bg-console-indigo px-5 text-sm font-semibold text-white shadow-[0_6px_18px_rgb(91_63_240/0.28)] transition-colors hover:bg-console-indigo-deep"
+              >
+                Create your first listing
+              </Link>
+            </section>
+          )}
+
+          <ConsoleStatRow stats={data.stats} />
+
+          <div className="grid items-start gap-6 xl:grid-cols-[minmax(0,7fr)_minmax(0,3fr)]">
+            <div className="min-w-0 space-y-6">
+              <ConsoleEventCalendar
+                events={data.calendar}
+                createHref="/dashboard/restaurant/reservations"
+                createLabel="Add Reservation"
+              />
+
+              <section className={CONSOLE_CARD}>
+                <div className="border-b border-console-border px-5 py-4">
+                  <h2 className="text-[15px] font-bold text-console-ink">
+                    Today&apos;s reservations
+                  </h2>
+                </div>
+
+                {data.today.length === 0 ? (
+                  <p className="px-5 py-10 text-center text-sm text-console-muted">
+                    No reservations for today. Publish your listing and share your page to start
+                    filling tables.
+                  </p>
+                ) : (
+                  <ul className="divide-y divide-console-border">
+                    {data.today.map((row) => {
+                      const terminal = reservationIsTerminal(row.status)
+                      const guest = row.userId
+                        ? displayName(data.contacts.get(row.userId), 'Guest')
+                        : 'Guest'
+                      return (
+                        <li
+                          key={row.id}
+                          className={cn(
+                            'flex flex-wrap items-center justify-between gap-3 px-5 py-3.5 transition-colors hover:bg-console-bg/70',
+                            terminal && 'opacity-70',
+                          )}
+                        >
+                          <div className="flex min-w-0 items-center gap-4">
+                            <span className="w-14 shrink-0 text-[11px] font-semibold uppercase tracking-[0.12em] text-console-muted tabular-nums">
+                              {row.timeSlot ?? '—'}
+                            </span>
+                            <div className="min-w-0">
+                              <p
+                                className={cn(
+                                  'truncate text-sm font-semibold text-console-ink',
+                                  terminal && 'line-through',
+                                )}
+                              >
+                                {guest}
+                              </p>
+                              <p className="mt-0.5 text-xs text-console-muted">
+                                Party of {row.guestCount}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="flex shrink-0 items-center gap-3">
+                            <span
+                              className={cn(
+                                'rounded-full px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide',
+                                statusPill(row.status),
+                              )}
+                            >
+                              {row.status}
+                            </span>
+                            <ReservationQuickActions reservationId={row.id} status={row.status} />
+                          </div>
+                        </li>
+                      )
+                    })}
+                  </ul>
+                )}
+
+                <div className="border-t border-console-border px-5 py-3">
+                  <Link
+                    href="/dashboard/restaurant/reservations"
+                    className="text-[13px] font-semibold text-console-indigo hover:underline"
+                  >
+                    View all reservations
+                  </Link>
+                </div>
+              </section>
+            </div>
+
+            <div className="min-w-0 space-y-6">
+              <ConsoleUpcomingList
+                events={data.upcoming}
+                title="Upcoming Reservations"
+                viewAllHref="/dashboard/restaurant/reservations"
+                manageHref="/dashboard/restaurant/reservations"
+                detailHrefFor={(event) => {
+                  const branch = data.branches.find(
+                    (b) => b.name === event.venue,
+                  )
+                  return branch ? `/restaurants/${data.business?.id}?branch=${branch.id}` : '/restaurants'
+                }}
+                emptyHint="No open bookings yet."
+              />
+              <ConsoleAreaChart
+                series={data.series}
+                title="Covers Overview"
+                unit="Covers"
+              />
+            </div>
+          </div>
+        </>
+      )}
     </div>
   )
 }

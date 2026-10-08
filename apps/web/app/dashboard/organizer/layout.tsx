@@ -1,16 +1,18 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { getUnreadNotificationCount } from '@/lib/supabase/queries'
-import { Sidebar } from '@/components/dashboard/sidebar'
+import { ConsoleShell } from '@/components/dashboard/console-shell'
 
 const navItems = [
-  { label: 'Dashboard', href: '/dashboard/organizer', icon: '📊' },
-  { label: 'Events', href: '/dashboard/organizer/events', icon: '🎉' },
-  { label: 'Calendar', href: '/dashboard/organizer/calendar', icon: '📅' },
-  { label: 'Tickets', href: '/dashboard/organizer/tickets', icon: '🎫' },
-  { label: 'Analytics', href: '/dashboard/organizer/analytics', icon: '📈' },
-  { label: 'Settings', href: '/settings', icon: '⚙️' },
+  { label: 'Dashboard', href: '/dashboard/organizer' },
+  { label: 'Calendar', href: '/dashboard/organizer/calendar' },
+  { label: 'Events', href: '/dashboard/organizer/events' },
+  { label: 'Tickets', href: '/dashboard/organizer/tickets' },
+  { label: 'Analytics', href: '/dashboard/organizer/analytics' },
+  { label: 'Settings', href: '/settings' },
 ]
+
+const ORGANIZATION_NAME = 'PartyWave Events'
 
 export default async function OrganizerDashboardLayout({
   children,
@@ -18,12 +20,14 @@ export default async function OrganizerDashboardLayout({
   children: React.ReactNode
 }) {
   const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
   if (!user) redirect('/auth/signin?next=/dashboard/organizer')
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('id, role')
+    .select('id, role, full_name')
     .eq('id', user.id)
     .maybeSingle()
 
@@ -32,9 +36,17 @@ export default async function OrganizerDashboardLayout({
   const notificationCount = profile?.id ? await getUnreadNotificationCount(profile.id) : 0
 
   return (
-    <div className="flex min-h-screen">
-      <Sidebar title="Organizer" navItems={navItems} notificationCount={notificationCount} />
-      <main className="min-w-0 flex-1 overflow-auto">{children}</main>
-    </div>
+    <ConsoleShell
+      navItems={navItems}
+      account={{
+        organization: ORGANIZATION_NAME,
+        role: 'Event Organizer',
+        displayName: profile?.full_name ?? null,
+      }}
+      notificationCount={notificationCount}
+      primaryAction={{ label: '+ Create Event', href: '/dashboard/organizer/events/new' }}
+    >
+      {children}
+    </ConsoleShell>
   )
 }

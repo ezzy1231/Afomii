@@ -152,6 +152,140 @@
     color-scheme: dark;
   }
 
+  /* ═══════════════════════════════════════════════════════════════
+     PARTNER CONSOLE — scoped token set
+     Deliberately defined ONLY on `.shell-console`, so these values
+     cannot leak into the public site, the admin portal, or any other
+     surface. A console-* utility used outside the console shell
+     resolves to an empty rgb() and renders transparent — a built-in
+     guard rail, not a convention to remember.
+
+     This shell is intentionally fixed-light (light #F7F8FC field,
+     white cards, permanently dark navy sidebar). It ignores the
+     `data-theme` attribute, so the in-app theme toggle does not
+     apply inside the organizer + restaurant dashboards.
+     ═══════════════════════════════════════════════════════════════ */
+  .shell-console {
+    /* Main field + chrome */
+    --console-bg-rgb: 247 248 252;
+    --console-card-rgb: 255 255 255;
+    --console-border-rgb: 232 234 242;
+
+    /* Dark navy sidebar */
+    --console-nav-rgb: 19 26 46;
+    --console-nav-soft-rgb: 30 39 63;
+    --console-nav-muted-rgb: 148 158 180;
+
+    /* Ink */
+    --console-ink-rgb: 22 25 43;
+    --console-muted-rgb: 122 130 150;
+
+    /* Accent — indigo pill, buttons, chart stroke */
+    --console-indigo-rgb: 91 63 240;
+    --console-indigo-deep-rgb: 71 45 205;
+    --console-indigo-soft-rgb: 238 235 254;
+
+    /* Positive data colour (sold counts, growth) */
+    --console-green-rgb: 21 163 74;
+
+    /* Pastel tints for stat + event chips */
+    --console-mint-rgb: 220 247 237;
+    --console-mint-ink-rgb: 13 130 90;
+    --console-blush-rgb: 253 230 240;
+    --console-blush-ink-rgb: 194 42 106;
+    --console-sand-rgb: 254 240 214;
+    --console-sand-ink-rgb: 161 105 15;
+    --console-sky-rgb: 219 236 254;
+    --console-sky-ink-rgb: 22 111 189;
+
+    --console-shadow: 0 1px 2px rgb(16 24 40 / 0.04), 0 8px 24px rgb(16 24 40 / 0.06);
+    --console-radius: 14px;
+
+    background: rgb(var(--console-bg-rgb));
+    color: rgb(var(--console-ink-rgb));
+    color-scheme: light;
+
+    /* ── Console rebase ────────────────────────────────────────────
+       The organizer + restaurant sub-pages (events, tickets, menu,
+       reservations, analytics…) are still written against the legacy
+       `app-*` / `glass` vocabulary. Rebasing those semantic vars to
+       the console palette here adopts the new look across all of them
+       in one place, instead of rewriting ~90 utility strings. Because
+       this lives on `.shell-console` only, the public site and the
+       admin portal keep their cream/navy + gold theme untouched. */
+    --bg-primary-rgb: var(--console-bg-rgb);
+    --bg-alt-rgb: var(--console-bg-rgb);
+    --bg-card-rgb: var(--console-card-rgb);
+    --bg-input-rgb: var(--console-bg-rgb);
+    --bg-elevated-rgb: var(--console-bg-rgb);
+
+    --text-primary-rgb: var(--console-ink-rgb);
+    --text-secondary-rgb: var(--console-muted-rgb);
+    --text-muted-rgb: var(--console-muted-rgb);
+
+    /* `ember` is the legacy accent name — point it at indigo so existing
+       `bg-ember` buttons and `text-ember` links read as console indigo. */
+    --ember-rgb: var(--console-indigo-rgb);
+    --ember-deep-rgb: var(--console-indigo-deep-rgb);
+    --ember-soft-rgb: var(--console-indigo-soft-rgb);
+    --on-accent-rgb: 255 255 255;
+
+    --success-rgb: var(--console-green-rgb);
+    --danger-rgb: 196 43 28;
+    --warning-rgb: var(--console-sand-ink-rgb);
+
+    /* Frosted glass has no meaning on a flat #F7F8FC field — collapse it
+       to opaque cards with the console hairline and shadow. */
+    --glass-bg: rgb(var(--console-card-rgb));
+    --glass-bg-strong: rgb(var(--console-card-rgb));
+    --glass-bg-subtle: rgb(var(--console-bg-rgb));
+    --glass-border: rgb(var(--console-border-rgb));
+    --glass-border-soft: rgb(var(--console-border-rgb));
+    --glass-highlight: transparent;
+    --glass-shadow: var(--console-shadow);
+    --glass-shadow-strong: var(--console-shadow);
+    --glass-blur: 0px;
+    --glass-blur-strong: 0px;
+
+    --border: rgb(var(--console-border-rgb));
+    --border-soft: rgb(var(--console-border-rgb));
+    --shadow-sm: var(--console-shadow);
+    --shadow-md: var(--console-shadow);
+    --shadow-lg: var(--console-shadow);
+  }
+
+  /* `.glass` itself is declared in `@layer components`, which outranks this
+     base layer regardless of specificity — the console's glass overrides
+     live at the bottom of the components layer. */
+
+  /* The console field is a flat light surface — drop the ambient glow
+     and the global cream/navy page background underneath it. */
+  .shell-console-shell {
+    background: rgb(var(--console-bg-rgb));
+  }
+
+  /* The global focus ring follows `data-theme` (gold in dark mode), which
+     measures ~2.8:1 on the console's white cards. Pin it to indigo. */
+  .shell-console :focus-visible {
+    outline: 2px solid rgb(var(--console-indigo-rgb));
+  }
+
+  /* Global hairlines resolve to the cream/navy ramp; rebase them onto the
+     console border so unstyled elements don't read as warm gray. */
+  .shell-console,
+  .shell-console * {
+    border-color: rgb(var(--console-border-rgb));
+  }
+
+  .shell-console ::-webkit-scrollbar-thumb {
+    background: rgb(var(--console-muted-rgb) / 0.35);
+    border-color: rgb(var(--console-card-rgb));
+  }
+
+  .shell-console ::-webkit-scrollbar-thumb:hover {
+    background: rgb(var(--console-muted-rgb) / 0.55);
+  }
+
   .theme-icon-dark { display: none; }
   [data-theme='dark'] .theme-icon-light { display: none; }
   [data-theme='dark'] .theme-icon-dark { display: inline-flex; }
@@ -770,4 +904,16 @@
 @keyframes pop-in {
   from { opacity: 0; transform: scale(0.96); }
   to { opacity: 1; transform: scale(1); }
+}
+/* ------------------------------------------------------------
+   PARTNER CONSOLE glass overrides
+   Must live in @layer components so it outranks `.glass` above.
+   ------------------------------------------------------------ */
+@layer components {
+  .shell-console .glass,
+  .shell-console .glass-strong,
+  .shell-console .glass-subtle {
+    background-image: none;
+    border-radius: var(--console-radius);
+  }
 }

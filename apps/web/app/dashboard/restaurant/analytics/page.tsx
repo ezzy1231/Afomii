@@ -2,13 +2,13 @@ import type { Metadata } from 'next'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import {
-  ConsolePageShell,
   ConsoleHeader,
   ConsoleKpiCard,
   ConsoleRangeLinks,
   SectionTitle,
   Sparkline,
 } from '@/components/dashboard/console'
+import { ConsoleStack } from '@/components/dashboard/console-primitives'
 import { CONSOLE_CARD } from '@/components/dashboard/console-shared'
 import { cn } from '@/lib/utils'
 
@@ -165,7 +165,7 @@ export default async function RestaurantAnalyticsPage({
   const hasData = bookings > 0
 
   return (
-    <ConsolePageShell>
+    <ConsoleStack>
       <ConsoleHeader
         eyebrow="Partner console"
         title="Analytics"
@@ -250,6 +250,6 @@ export default async function RestaurantAnalyticsPage({
           Revenue and dish-level analytics unlock once order tracking ships — we don&apos;t show estimates.
         </p>
       </section>
-    </ConsolePageShell>
+    </ConsoleStack>
   )
 }
