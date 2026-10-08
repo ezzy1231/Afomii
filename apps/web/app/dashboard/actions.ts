@@ -37,6 +37,17 @@ function readText(formData: FormData, key: string) {
   return value.trim()
 }
 
+/**
+ * A blank optional number input arrives as an empty string, which
+ * `z.coerce.number()` would happily turn into 0. Map it to null so an unset
+ * coordinate stays unset instead of pointing at 0,0.
+ */
+function blankToNull(value: FormDataEntryValue | null): string | null {
+  if (typeof value !== 'string') return null
+  const trimmed = value.trim()
+  return trimmed ? trimmed : null
+}
+
 async function getCurrentUserRole() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -152,16 +163,35 @@ export async function createEventListing(
 
   const parsed = eventListingWithBannerSchema.safeParse({
     title: readText(formData, 'title'),
-    category: readText(formData, 'category'),
+    // Blank select maps to undefined so the optional enum accepts it.
+    category: readText(formData, 'category') || undefined,
+    description: readText(formData, 'description'),
     venueName: readText(formData, 'venueName'),
     startsAt: readText(formData, 'startsAt'),
+    endDateTime: readText(formData, 'endDateTime'),
     priceLabel: readText(formData, 'priceLabel'),
     coverImageUrl: readText(formData, 'coverImageUrl'),
+    // Same blank-to-null treatment as addBranch: z.coerce.number() would turn
+    // an empty field into 0,0 in the Gulf of Guinea.
+    latitude: blankToNull(formData.get('latitude')),
+    longitude: blankToNull(formData.get('longitude')),
   })
   if (!parsed.success) return { ok: false, message: firstIssue(parsed.error) }
 
-  const { title, category, venueName, startsAt, priceLabel, coverImageUrl } = parsed.data
+  const {
+    title,
+    category,
+    description,
+    venueName,
+    startsAt,
+    endDateTime,
+    priceLabel,
+    coverImageUrl,
+    latitude,
+    longitude,
+  } = parsed.data
   const startsAtDate = startsAt ? new Date(startsAt) : null
+  const endDateTimeDate = endDateTime ? new Date(endDateTime) : null
 
   const { data: organizer } = await supabase
     .from('organizers')
@@ -182,9 +212,13 @@ export async function createEventListing(
     .insert({
       organizer_id: organizer.id,
       title,
+      description: description || null,
       category: category || null,
       venue_name: venueName,
+      latitude,
+      longitude,
       starts_at: startsAtDate ? startsAtDate.toISOString() : null,
+      end_date_time: endDateTimeDate ? endDateTimeDate.toISOString() : null,
       price_label: priceLabel || null,
       cover_image_url: coverImageUrl,
       is_active: true,
@@ -344,14 +378,12 @@ export async function addBranch(
     .maybeSingle()
   if (!business) return { ok: false, message: 'No linked business profile found.' }
 
-  const latRaw = formData.get('latitude')
-  const lngRaw = formData.get('longitude')
   const parsed = branchInputSchema.safeParse({
     branchName: readText(formData, 'branchName'),
     address: readText(formData, 'address'),
     phone: readText(formData, 'phone'),
-    latitude: typeof latRaw === 'string' && latRaw.trim() ? latRaw : null,
-    longitude: typeof lngRaw === 'string' && lngRaw.trim() ? lngRaw : null,
+    latitude: blankToNull(formData.get('latitude')),
+    longitude: blankToNull(formData.get('longitude')),
   })
   if (!parsed.success) return { ok: false, message: firstIssue(parsed.error) }
 

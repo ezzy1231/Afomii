@@ -7,6 +7,7 @@ import {
   type DashboardActionState,
 } from "@/app/dashboard/actions";
 import BannerUploadField from "@/components/BannerUploadField";
+import { EVENT_CATEGORIES } from "@/lib/categories";
 
 /** Mirrors the `ticket_tier` enum in packages/supabase/migrations/0001. */
 const TIER_TYPES = [
@@ -64,11 +65,13 @@ export default function EventListingForm({
         </label>
         <label className="block text-sm font-medium text-app-fg">
           <span className="mb-1.5 block">Category</span>
-          <input
-            name="category"
-            className="input-premium"
-            placeholder="Food and music"
-          />
+          <select name="category" className="input-premium" defaultValue={EVENT_CATEGORIES[0]}>
+            {EVENT_CATEGORIES.map((c) => (
+              <option key={c} value={c}>
+                {c}
+              </option>
+            ))}
+          </select>
         </label>
         <label className="block text-sm font-medium text-app-fg">
           <span className="mb-1.5 block">Venue</span>
@@ -88,6 +91,23 @@ export default function EventListingForm({
           />
         </label>
         <label className="block text-sm font-medium text-app-fg">
+          <span className="mb-1.5 block">End date and time</span>
+          <input
+            name="endDateTime"
+            type="datetime-local"
+            className="input-premium"
+          />
+        </label>
+        <label className="block text-sm font-medium text-app-fg sm:col-span-2">
+          <span className="mb-1.5 block">Description</span>
+          <textarea
+            name="description"
+            rows={4}
+            className="input-premium resize-y"
+            placeholder="What happens, who it is for, what to bring…"
+          />
+        </label>
+        <label className="block text-sm font-medium text-app-fg">
           <span className="mb-1.5 block">Price label</span>
           <input
             name="priceLabel"
@@ -95,6 +115,32 @@ export default function EventListingForm({
             placeholder="From ETB 500"
           />
         </label>
+        <div className="text-sm font-medium text-app-fg">
+          <span className="mb-1.5 block">Venue coordinates</span>
+          <div className="flex gap-3">
+            <input
+              name="latitude"
+              type="number"
+              step="any"
+              inputMode="decimal"
+              className="input-premium tabular-nums"
+              placeholder="Latitude"
+              aria-label="Latitude"
+            />
+            <input
+              name="longitude"
+              type="number"
+              step="any"
+              inputMode="decimal"
+              className="input-premium tabular-nums"
+              placeholder="Longitude"
+              aria-label="Longitude"
+            />
+          </div>
+          <span className="mt-1.5 block text-xs font-normal text-app-muted">
+            Optional. Powers the ride estimate on the event page.
+          </span>
+        </div>
 
         {/* Banner upload — required */}
         <div className="sm:col-span-2">

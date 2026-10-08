@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { reportError } from "@/lib/monitoring";
+import { EVENT_CATEGORIES } from "@/lib/categories";
 
 /**
  * Server Action input validation (PRODUCTION_READINESS_PLAN M1/F1).
@@ -57,7 +58,11 @@ export const restaurantListingWithBannerSchema = restaurantListingInputSchema.ex
 
 export const eventListingInputSchema = z.object({
   title: z.string().trim().min(2, "Event title must be at least 2 characters.").max(160),
-  category: trimmed(80).optional(),
+  // Constrained to the shared vocabulary (lib/categories.ts) so every event
+  // matches a discover-feed filter chip. Free text produced listings no chip
+  // could reach, plus near-duplicates that split the same audience.
+  category: z.enum(EVENT_CATEGORIES).optional(),
+  description: trimmed(2000).optional(),
   venueName: z.string().trim().min(1, "Venue is required.").max(160),
   startsAt: z
     .string()
@@ -66,7 +71,19 @@ export const eventListingInputSchema = z.object({
       message: "Please provide a valid date and time.",
     })
     .optional(),
+  endDateTime: z
+    .string()
+    .trim()
+    .refine((v) => !v || !Number.isNaN(new Date(v).getTime()), {
+      message: "Please provide a valid end date and time.",
+    })
+    .optional(),
   priceLabel: trimmed(60).optional(),
+  // Blank input arrives as null from the action (see createEventListing), so a
+  // left-blank coordinate does not coerce to 0,0. Optional so callers that
+  // never touch coordinates still validate.
+  latitude: z.coerce.number().min(-90).max(90).nullable().optional(),
+  longitude: z.coerce.number().min(-180).max(180).nullable().optional(),
 });
 
 export const eventListingWithBannerSchema = eventListingInputSchema.extend({

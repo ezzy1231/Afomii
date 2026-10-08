@@ -57,6 +57,9 @@ function formatDate(dateStr: string) {
 function timeRange(event: Event) {
   const fmt = (d: string) =>
     new Date(d).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })
+  // An event with no end time arrives as an empty string, which formats as
+  // "Invalid Date". Show the start time alone rather than a broken range.
+  if (!event.endDateTime) return fmt(event.startDateTime)
   return `${fmt(event.startDateTime)} - ${fmt(event.endDateTime)}`
 }
 

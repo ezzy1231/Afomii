@@ -10,6 +10,7 @@ import {
   restaurantListingInputSchema,
   ticketTierInputSchema,
 } from '@/lib/validation'
+import { EVENT_CATEGORIES } from '@/lib/categories'
 
 const UUID = '123e4567-e89b-12d3-a456-426614174000'
 
@@ -124,6 +125,31 @@ describe('eventListingInputSchema', () => {
     const base = { title: 'Night Market', venueName: 'Meskel Square' }
     expect(eventListingInputSchema.safeParse({ ...base, startsAt: 'next tuesday' }).success).toBe(false)
     expect(eventListingInputSchema.safeParse({ ...base, startsAt: '' }).success).toBe(true)
+  })
+
+  it('rejects invalid end dates but allows empty', () => {
+    const base = { title: 'Night Market', venueName: 'Meskel Square' }
+    expect(eventListingInputSchema.safeParse({ ...base, endDateTime: 'tomorrow-ish' }).success).toBe(false)
+    expect(eventListingInputSchema.safeParse({ ...base, endDateTime: '' }).success).toBe(true)
+  })
+
+  // Free-text categories produced events no discover-filter chip could match,
+  // so the schema pins them to the shared vocabulary.
+  it('accepts only shared event categories', () => {
+    const base = { title: 'Night Market', venueName: 'Meskel Square' }
+    for (const category of EVENT_CATEGORIES) {
+      expect(eventListingInputSchema.safeParse({ ...base, category }).success).toBe(true)
+    }
+    expect(eventListingInputSchema.safeParse({ ...base, category: 'food and music' }).success).toBe(false)
+    expect(eventListingInputSchema.safeParse({ ...base, category: '' }).success).toBe(false)
+  })
+
+  it('bounds venue coordinates and allows them to be absent', () => {
+    const base = { title: 'Night Market', venueName: 'Meskel Square' }
+    expect(eventListingInputSchema.safeParse({ ...base, latitude: 9.02, longitude: 38.75 }).success).toBe(true)
+    expect(eventListingInputSchema.safeParse({ ...base, latitude: 200, longitude: 38.75 }).success).toBe(false)
+    expect(eventListingInputSchema.safeParse({ ...base, latitude: 9.02, longitude: 400 }).success).toBe(false)
+    expect(eventListingInputSchema.safeParse({ ...base, latitude: null, longitude: null }).success).toBe(true)
   })
 })
 

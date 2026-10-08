@@ -26,10 +26,13 @@ import { DateBadge, dateBadgeParts } from '@/components/patterns/DateBadge'
 import { StaggerGroup, StaggerItem } from '@/components/motion'
 import { cn } from '@/lib/utils'
 import { loadSavedIds, persistSavedIds } from '@/lib/saved'
+import { ALL_CATEGORIES, EVENT_CATEGORIES } from '@/lib/categories'
 
 const quickChips = {
   restaurants: ['All', 'Ethiopian', 'Italian', 'Japanese', 'International', 'European', 'Café'],
-  events: ['All', 'Music', 'Food & Drink', 'Networking', 'Theatre'],
+  // Event chips come from the shared vocabulary the create form writes to, so a
+  // listing can always be reached by a chip. See lib/categories.ts.
+  events: [ALL_CATEGORIES, ...EVENT_CATEGORIES],
 } as const
 
 const dateChips = ['All Dates', 'This Weekend', 'Next Week'] as const
