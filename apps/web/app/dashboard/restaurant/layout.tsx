@@ -1,19 +1,20 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { getUnreadNotificationCount } from '@/lib/supabase/queries'
+import { getBusinessAccount } from '@/lib/dashboard/restaurant-data'
 import { ConsoleShell } from '@/components/dashboard/console-shell'
 
-const navItems = [
-  { label: 'Overview', href: '/dashboard/restaurant' },
-  { label: 'Reservations', href: '/dashboard/restaurant/reservations' },
-  { label: 'Listings', href: '/dashboard/restaurant/listings' },
-  { label: 'Branches', href: '/dashboard/restaurant/branches' },
-  { label: 'Menu', href: '/dashboard/restaurant/menu' },
-  { label: 'Analytics', href: '/dashboard/restaurant/analytics' },
-  { label: 'Settings', href: '/settings' },
-]
+const ROOT = '/dashboard/restaurant'
 
-const ORGANIZATION_NAME = 'Sky Garden'
+const navItems = [
+  { label: 'Overview', href: ROOT },
+  { label: 'Reservations', href: `${ROOT}/reservations` },
+  { label: 'Listings', href: `${ROOT}/listings` },
+  { label: 'Branches', href: `${ROOT}/branches` },
+  { label: 'Menu', href: `${ROOT}/menu` },
+  { label: 'Analytics', href: `${ROOT}/analytics` },
+  { label: 'Settings', href: `${ROOT}/settings` },
+]
 
 export default async function RestaurantDashboardLayout({
   children,
@@ -24,7 +25,7 @@ export default async function RestaurantDashboardLayout({
   const {
     data: { user },
   } = await supabase.auth.getUser()
-  if (!user) redirect('/auth/signin?next=/dashboard/restaurant')
+  if (!user) redirect(`/auth/signin?next=${ROOT}`)
 
   const { data: profile } = await supabase
     .from('profiles')
@@ -34,18 +35,23 @@ export default async function RestaurantDashboardLayout({
 
   if ((profile?.role as string | undefined) !== 'food_business') redirect('/auth/no-access')
 
+  // The rail shows the venue's own registered name. `heal: false` — see the
+  // organizer layout.
+  const business = await getBusinessAccount(supabase, user, { heal: false })
   const notificationCount = profile?.id ? await getUnreadNotificationCount(profile.id) : 0
 
   return (
     <ConsoleShell
       navItems={navItems}
       account={{
-        organization: ORGANIZATION_NAME,
+        organization: business?.name ?? profile?.full_name ?? 'Restaurant',
         role: 'Restaurant Partner',
         displayName: profile?.full_name ?? null,
       }}
       notificationCount={notificationCount}
-      primaryAction={{ label: '+ New Reservation', href: '/dashboard/restaurant/reservations' }}
+      primaryAction={{ label: '+ New Reservation', href: `${ROOT}/reservations` }}
+      homeHref={ROOT}
+      settingsHref={`${ROOT}/settings`}
     >
       {children}
     </ConsoleShell>

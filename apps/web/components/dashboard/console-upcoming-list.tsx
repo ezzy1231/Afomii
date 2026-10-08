@@ -45,13 +45,17 @@ function EventThumb({ event }: { event: ConsoleEvent }) {
 
 function RowMenu({
   event,
-  detailHref,
+  listingHrefPrefix,
   manageHref,
 }: {
   event: ConsoleEvent
-  /** Public listing — there is no per-event route inside the console. */
-  detailHref: string
-  /** The console tab that owns this row. */
+  /**
+   * Public listing path *without* the id — `console-upcoming-list` is a
+   * client component, so the href has to be finished here from a plain
+   * string. A function prop from a server parent would not serialize.
+   * Omitted for rows that have no public page (reservations).
+   */
+  listingHrefPrefix?: string
   manageHref: string
 }) {
   const [open, setOpen] = useState(false)
@@ -90,14 +94,16 @@ function RowMenu({
           role="menu"
           className="absolute right-0 top-full z-20 mt-1 w-44 overflow-hidden rounded-xl border border-console-border bg-console-card py-1 shadow-elevate"
         >
-          <Link
-            href={detailHref}
-            role="menuitem"
-            onClick={() => setOpen(false)}
-            className="block px-3.5 py-2 text-[13px] text-console-ink transition-colors hover:bg-console-bg"
-          >
-            View listing
-          </Link>
+          {listingHrefPrefix && (
+            <Link
+              href={`${listingHrefPrefix}/${event.id}`}
+              role="menuitem"
+              onClick={() => setOpen(false)}
+              className="block px-3.5 py-2 text-[13px] text-console-ink transition-colors hover:bg-console-bg"
+            >
+              View listing
+            </Link>
+          )}
           <Link
             href={manageHref}
             role="menuitem"
@@ -116,15 +122,15 @@ export function ConsoleUpcomingList({
   events,
   title,
   viewAllHref,
-  detailHrefFor,
+  listingHrefPrefix,
   manageHref,
   emptyHint = 'Nothing scheduled yet.',
 }: {
   events: ConsoleEvent[]
   title: string
   viewAllHref: string
-  /** Per-row destination for "View listing". */
-  detailHrefFor: (event: ConsoleEvent) => string
+  /** Public listing path without the id, e.g. `/events`. Omit if none. */
+  listingHrefPrefix?: string
   /** Console tab that owns these rows. */
   manageHref: string
   emptyHint?: string
@@ -173,7 +179,7 @@ export function ConsoleUpcomingList({
               </div>
               <RowMenu
                 event={event}
-                detailHref={detailHrefFor(event)}
+                listingHrefPrefix={listingHrefPrefix}
                 manageHref={manageHref}
               />
             </li>

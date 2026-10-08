@@ -37,7 +37,72 @@ type UserLike = {
   user_metadata?: Record<string, unknown>
 }
 
-export type BusinessRow = { id: string; name: string }
+export type BusinessRow = {
+  id: string
+  name: string
+  plan: string | null
+  status: string | null
+  is_verified: boolean | null
+  email: string | null
+  phone: string | null
+  city: string | null
+  address: string | null
+  category: string | null
+  description: string | null
+}
+
+const ACCOUNT_COLUMNS =
+  'id,name,plan,status,is_verified,email,phone,city,address,category,description'
+
+/**
+ * The business's own record, for the console chrome (rail, settings).
+ *
+ * `heal: false` is what the layout passes — see the organizer twin for why
+ * a layout must not heal alongside its own page.
+ */
+export async function getBusinessAccount(
+  supabase: SupabaseClient,
+  user: UserLike,
+  { heal = true }: { heal?: boolean } = {},
+): Promise<BusinessRow | null> {
+  const { data } = await supabase
+    .from('businesses')
+    .select(ACCOUNT_COLUMNS)
+    .eq('owner_id', user.id)
+    .order('created_at', { ascending: true })
+    .limit(1)
+
+  const row = (data?.[0] as BusinessRow | undefined) ?? null
+  if (row) return row
+  if (!heal) return null
+
+  const metaRole = user.user_metadata?.role as string | undefined
+  if (metaRole !== 'food_business') return null
+
+  const created = await ensureBusiness(supabase, user)
+  if (!created) return null
+
+  const { data: fresh } = await supabase
+    .from('businesses')
+    .select(ACCOUNT_COLUMNS)
+    .eq('id', created.id)
+    .maybeSingle()
+
+  return (
+    (fresh as BusinessRow | null) ?? {
+      ...created,
+      plan: 'free',
+      status: null,
+      is_verified: null,
+      email: null,
+      phone: null,
+      city: null,
+      address: null,
+      category: null,
+      description: null,
+    }
+  )
+}
 
 export type TodayReservation = {
   id: string
@@ -122,18 +187,9 @@ export async function getRestaurantDashboard(
   supabase: SupabaseClient,
   user: UserLike,
 ): Promise<RestaurantDashboardData> {
-  const { data: businessRaw } = await supabase
-    .from('businesses')
-    .select('id,name')
-    .eq('owner_id', user.id)
-    .maybeSingle()
-
-  // Self-heal accounts provisioned before the callback fix.
-  const metaRole = (user.user_metadata?.role as string | undefined) ?? null
-  let business = (businessRaw as BusinessRow | null) ?? null
-  if (!business && metaRole === 'food_business') {
-    business = await ensureBusiness(supabase, user)
-  }
+  // Self-heals a missing row, so the dashboard and the rail agree on the
+  // business without each running its own lookup.
+  const business = await getBusinessAccount(supabase, user)
 
   if (!business) {
     return {

@@ -29,17 +29,38 @@ function metaStr(meta: Record<string, unknown> | undefined, key: string): string
   return typeof v === 'string' ? v : undefined
 }
 
+/**
+ * Reads the owner's single partner row.
+ *
+ * Ordered + limited rather than `.maybeSingle()`: if duplicates exist
+ * (they could before migration 0015 added the unique index, because a
+ * layout and its page can self-heal concurrently) `maybeSingle()` errors
+ * and the dashboard can no longer resolve whose row it is. Oldest wins,
+ * matching the dedupe in that migration so `events` / `branches` /
+ * `reservations` keep pointing at the surviving row.
+ */
+async function readOwnedRow(
+  supabase: SupabaseClient,
+  table: 'organizers' | 'businesses',
+  userId: string,
+) {
+  const { data } = await supabase
+    .from(table)
+    .select('id, name')
+    .eq('owner_id', userId)
+    .order('created_at', { ascending: true })
+    .limit(1)
+
+  return (data?.[0] as { id: string; name: string } | undefined) ?? null
+}
+
 export async function ensureOrganizer(
   supabase: SupabaseClient,
   user: AnyUser
 ): Promise<{ id: string; name: string } | null> {
   const meta = user.user_metadata ?? {}
-  const existing = await supabase
-    .from('organizers')
-    .select('id, name')
-    .eq('owner_id', user.id)
-    .maybeSingle()
-  if (existing.data) return existing.data
+  const existing = await readOwnedRow(supabase, 'organizers', user.id)
+  if (existing) return existing
 
   const name = (
     metaStr(meta, 'org_name') ??
@@ -75,12 +96,8 @@ export async function ensureBusiness(
   user: AnyUser
 ): Promise<{ id: string; name: string } | null> {
   const meta = user.user_metadata ?? {}
-  const existing = await supabase
-    .from('businesses')
-    .select('id, name')
-    .eq('owner_id', user.id)
-    .maybeSingle()
-  if (existing.data) return existing.data
+  const existing = await readOwnedRow(supabase, 'businesses', user.id)
+  if (existing) return existing
 
   const name = (
     metaStr(meta, 'business_name') ??

@@ -23,6 +23,7 @@ import {
   type LucideIcon,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { createClient } from '@/lib/supabase/client'
 
 /**
  * Fixed-light partner console shell — organizer + restaurant dashboards only.
@@ -68,6 +69,14 @@ type ConsoleShellProps = {
   notificationCount?: number
   /** Rendered as a full-width primary action under the nav. */
   primaryAction?: { label: string; href: string }
+  /**
+   * In-console destinations. Both default to the public marketing/consumer
+   * pages, which is wrong for a partner rail — the logo must not dump you
+   * out of the console, and Settings must not open the customer account
+   * page.
+   */
+  homeHref?: string
+  settingsHref?: string
   children: React.ReactNode
 }
 
@@ -156,11 +165,15 @@ function useDismissOnOutside(open: boolean, onClose: () => void) {
   return ref
 }
 
-function ConsoleBrand({ account }: { account: ConsoleAccount }) {
+function ConsoleBrand({ account, homeHref }: { account: ConsoleAccount; homeHref: string }) {
   return (
-    <Link href="/" className="flex items-center gap-2.5 rounded-xl">
+    <Link
+      href={homeHref}
+      className="flex items-center gap-2.5 rounded-xl"
+      aria-label={`${account.organization} dashboard`}
+    >
       <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-console-indigo text-sm font-bold text-white shadow-[0_4px_14px_rgb(91_63_240/0.45)]">
-        PW
+        {initialsFor(account)}
       </span>
       <span className="min-w-0">
         <span className="block truncate text-[15px] font-bold tracking-tight text-white">
@@ -178,11 +191,16 @@ function ConsoleNav({
   navItems,
   account,
   primaryAction,
+  homeHref,
+  settingsHref,
   onNavigate,
 }: {
   navItems: ConsoleNavItem[]
   account: ConsoleAccount
   primaryAction?: { label: string; href: string }
+  homeHref: string
+  /** Anchored target for the "Boost Now" promo. */
+  settingsHref: string
   onNavigate?: () => void
 }) {
   const pathname = usePathname()
@@ -191,7 +209,7 @@ function ConsoleNav({
   return (
     <div className="flex h-full flex-col">
       <div className="px-5 pb-6 pt-6">
-        <ConsoleBrand account={account} />
+        <ConsoleBrand account={account} homeHref={homeHref} />
       </div>
 
       <nav aria-label="Dashboard sections" className="flex-1 space-y-1 overflow-y-auto px-3">
@@ -242,7 +260,8 @@ function ConsoleNav({
             Featured placement in Explore and priority email drops.
           </p>
           <Link
-            href="/plans"
+            href={`${settingsHref}#boost`}
+            onClick={onNavigate}
             className="mt-3 flex min-h-9 w-full items-center justify-center rounded-lg bg-white px-3 py-2 text-xs font-bold text-console-indigo-deep transition-colors hover:bg-white/90"
           >
             Boost Now
@@ -253,7 +272,7 @@ function ConsoleNav({
   )
 }
 
-function ConsoleBell({ count }: { count: number }) {
+function ConsoleBell({ count, settingsHref }: { count: number; settingsHref: string }) {
   const [open, setOpen] = useState(false)
   const ref = useDismissOnOutside(open, () => setOpen(false))
   const id = useId()
@@ -287,7 +306,7 @@ function ConsoleBell({ count }: { count: number }) {
             : 'You are all caught up.'}
         </p>
         <Link
-          href="/settings"
+          href={`${settingsHref}#notifications`}
           className="mt-3 block text-xs font-semibold text-console-indigo hover:underline"
         >
           Notification settings
@@ -297,10 +316,28 @@ function ConsoleBell({ count }: { count: number }) {
   )
 }
 
-function ConsoleProfile({ account }: { account: ConsoleAccount }) {
+function ConsoleProfile({
+  account,
+  settingsHref,
+}: {
+  account: ConsoleAccount
+  settingsHref: string
+}) {
   const [open, setOpen] = useState(false)
+  const [signingOut, setSigningOut] = useState(false)
   const ref = useDismissOnOutside(open, () => setOpen(false))
   const id = useId()
+
+  // There is no `/auth/signout` route, so sign-out calls Supabase and then
+  // hard-navigates, which forces the server components to read the new
+  // (empty) session instead of serving a cached one.
+  async function signOut() {
+    setSigningOut(true)
+    setOpen(false)
+    const supabase = createClient()
+    await supabase.auth.signOut()
+    window.location.assign('/auth/signin')
+  }
 
   return (
     <div ref={ref} className="relative">
@@ -338,7 +375,7 @@ function ConsoleProfile({ account }: { account: ConsoleAccount }) {
           <p className="truncate text-[11px] text-console-muted">{account.role}</p>
         </div>
         <Link
-          href="/settings"
+          href={settingsHref}
           role="menuitem"
           onClick={() => setOpen(false)}
           className="flex min-h-10 items-center gap-2.5 px-4 py-2 text-sm text-console-ink transition-colors hover:bg-console-bg"
@@ -346,15 +383,16 @@ function ConsoleProfile({ account }: { account: ConsoleAccount }) {
           <Settings className="size-4 text-console-muted" strokeWidth={2} />
           Settings
         </Link>
-        <Link
-          href="/auth/signout"
+        <button
+          type="button"
           role="menuitem"
-          onClick={() => setOpen(false)}
-          className="flex min-h-10 items-center gap-2.5 px-4 py-2 text-sm text-console-ink transition-colors hover:bg-console-bg"
+          onClick={signOut}
+          disabled={signingOut}
+          className="flex min-h-10 w-full items-center gap-2.5 px-4 py-2 text-left text-sm text-console-ink transition-colors hover:bg-console-bg disabled:opacity-50"
         >
           <LogOut className="size-4 text-console-muted" strokeWidth={2} />
-          Sign out
-        </Link>
+          {signingOut ? 'Signing out…' : 'Sign out'}
+        </button>
       </div>
     </div>
   )
@@ -365,6 +403,8 @@ export function ConsoleShell({
   account,
   notificationCount = 0,
   primaryAction,
+  homeHref = '/dashboard',
+  settingsHref = '/dashboard',
   children,
 }: ConsoleShellProps) {
   const pathname = usePathname()
@@ -400,6 +440,8 @@ export function ConsoleShell({
           navItems={navItems}
           account={account}
           primaryAction={primaryAction}
+          homeHref={homeHref}
+          settingsHref={settingsHref}
         />
       </aside>
 
@@ -431,6 +473,8 @@ export function ConsoleShell({
               navItems={navItems}
               account={account}
               primaryAction={primaryAction}
+              homeHref={homeHref}
+              settingsHref={settingsHref}
               onNavigate={closeDrawer}
             />
           </div>
@@ -455,8 +499,8 @@ export function ConsoleShell({
               {title}
             </h1>
 
-            <ConsoleBell count={notificationCount} />
-            <ConsoleProfile account={account} />
+            <ConsoleBell count={notificationCount} settingsHref={settingsHref} />
+            <ConsoleProfile account={account} settingsHref={settingsHref} />
           </div>
         </header>
 

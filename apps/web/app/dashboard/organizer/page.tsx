@@ -53,7 +53,7 @@ export default async function OrganizerDashboardPage() {
                 title="Upcoming Events"
                 viewAllHref="/dashboard/organizer/events"
                 manageHref="/dashboard/organizer/events"
-                detailHrefFor={(event) => `/events/${event.id}`}
+                listingHrefPrefix="/events"
                 emptyHint="No dated events in the next 30 days."
               />
               <ConsoleAreaChart

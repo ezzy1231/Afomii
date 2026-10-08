@@ -63,7 +63,74 @@ type PurchaseRow = {
   created_at: string
 }
 
-export type OrganizerRow = { id: string; name: string }
+export type OrganizerRow = {
+  id: string
+  name: string
+  plan: string | null
+  status: string | null
+  is_verified: boolean | null
+  email: string | null
+  phone: string | null
+  city: string | null
+  address: string | null
+  category: string | null
+  description: string | null
+}
+
+const ACCOUNT_COLUMNS =
+  'id,name,plan,status,is_verified,email,phone,city,address,category,description'
+
+/**
+ * The organizer's own record, for the console chrome (rail, settings).
+ *
+ * `heal: false` is what the layout passes: a layout and its page render
+ * concurrently, and both healing would race two inserts for the same owner.
+ * The page heals; the layout just falls back to the profile name until the
+ * row exists.
+ */
+export async function getOrganizerAccount(
+  supabase: SupabaseClient,
+  user: UserLike,
+  { heal = true }: { heal?: boolean } = {},
+): Promise<OrganizerRow | null> {
+  const { data } = await supabase
+    .from('organizers')
+    .select(ACCOUNT_COLUMNS)
+    .eq('owner_id', user.id)
+    .order('created_at', { ascending: true })
+    .limit(1)
+
+  const row = (data?.[0] as OrganizerRow | undefined) ?? null
+  if (row) return row
+  if (!heal) return null
+
+  const metaRole = user.user_metadata?.role as string | undefined
+  if (metaRole !== 'event_organizer') return null
+
+  const created = await ensureOrganizer(supabase, user)
+  if (!created) return null
+
+  const { data: fresh } = await supabase
+    .from('organizers')
+    .select(ACCOUNT_COLUMNS)
+    .eq('id', created.id)
+    .maybeSingle()
+
+  return (
+    (fresh as OrganizerRow | null) ?? {
+      ...created,
+      plan: 'free',
+      status: null,
+      is_verified: null,
+      email: null,
+      phone: null,
+      city: null,
+      address: null,
+      category: null,
+      description: null,
+    }
+  )
+}
 
 export type OrganizerEventRecord = {
   id: string
@@ -184,19 +251,9 @@ export async function getOrganizerDashboard(
   supabase: SupabaseClient,
   user: UserLike,
 ): Promise<OrganizerDashboardData> {
-  const { data: organizerRaw } = await supabase
-    .from('organizers')
-    .select('id,name')
-    .eq('owner_id', user.id)
-    .maybeSingle()
-
-  // Self-heal accounts provisioned before the callback fix.
-  const metaRole =
-    (user.user_metadata?.role as string | undefined) ?? null
-  let organizer = (organizerRaw as OrganizerRow | null) ?? null
-  if (!organizer && metaRole === 'event_organizer') {
-    organizer = await ensureOrganizer(supabase, user)
-  }
+  // Self-heals a missing row, so the dashboard and the rail agree on the
+  // organizer without each running its own lookup.
+  const organizer = await getOrganizerAccount(supabase, user)
 
   const empty: OrganizerDashboardData = {
     organizer: null,
@@ -311,13 +368,7 @@ export async function getOrganizerCalendar(
   supabase: SupabaseClient,
   user: UserLike,
 ) {
-  const { data: organizer } = await supabase
-    .from('organizers')
-    .select('id,name')
-    .eq('owner_id', user.id)
-    .maybeSingle()
-
-  const organizerRow = (organizer as OrganizerRow | null) ?? null
+  const organizerRow = await getOrganizerAccount(supabase, user)
   if (!organizerRow) return { organizer: null, events: [] as ConsoleEvent[] }
 
   const events = await loadEvents(supabase, organizerRow.id)
@@ -341,13 +392,7 @@ export async function getOrganizerEventRecords(
   supabase: SupabaseClient,
   user: UserLike,
 ) {
-  const { data: organizer } = await supabase
-    .from('organizers')
-    .select('id,name')
-    .eq('owner_id', user.id)
-    .maybeSingle()
-
-  const organizerRow = (organizer as OrganizerRow | null) ?? null
+  const organizerRow = await getOrganizerAccount(supabase, user)
   if (!organizerRow) return { organizer: null, events: [] as OrganizerEventRecord[] }
 
   const events = await loadEvents(supabase, organizerRow.id)

@@ -181,12 +181,6 @@ export default async function RestaurantDashboardPage() {
                 title="Upcoming Reservations"
                 viewAllHref="/dashboard/restaurant/reservations"
                 manageHref="/dashboard/restaurant/reservations"
-                detailHrefFor={(event) => {
-                  const branch = data.branches.find(
-                    (b) => b.name === event.venue,
-                  )
-                  return branch ? `/restaurants/${data.business?.id}?branch=${branch.id}` : '/restaurants'
-                }}
                 emptyHint="No open bookings yet."
               />
               <ConsoleAreaChart
