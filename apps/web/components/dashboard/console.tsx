@@ -205,29 +205,39 @@ export function ToggleSwitch({
   checked,
   onChange,
   label,
+  id,
 }: {
   checked: boolean
   onChange: (next: boolean) => void
   label: string
+  id?: string
 }) {
   return (
     <button
       type="button"
+      id={id}
       role="switch"
       aria-checked={checked}
       aria-label={label}
       onClick={() => onChange(!checked)}
       className={cn(
-        // Negative margin keeps the visual footprint while padding widens the
-        // tap target to the 44px minimum.
-        'relative -m-2.5 inline-flex h-6 w-11 shrink-0 items-center rounded-full p-0 transition-colors duration-200',
-        checked ? 'bg-success' : 'bg-app-elevated'
+        // A negative margin widens the *layout* box but not the painted or hit
+        // box, so the real target was 44x24. An explicit border brings it to a
+        // 44px-tall target and, in the off state, gives the white knob an edge
+        // to read against — at 1.05:1 it was invisible on the console surface.
+        'relative inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full',
+        'before:absolute before:h-6 before:w-11 before:rounded-full before:transition-colors before:duration-200',
+        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember/60 focus-visible:ring-offset-2 focus-visible:ring-offset-console-card',
+        checked
+          ? 'before:bg-success'
+          : 'before:bg-app-elevated before:ring-1 before:ring-inset before:ring-app-border'
       )}
     >
       <span
+        aria-hidden
         className={cn(
-          'inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform duration-200 ease-out',
-          checked ? 'translate-x-6' : 'translate-x-1'
+          'relative inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform duration-200 ease-out',
+          checked ? 'translate-x-2.5' : '-translate-x-2.5'
         )}
       />
     </button>
