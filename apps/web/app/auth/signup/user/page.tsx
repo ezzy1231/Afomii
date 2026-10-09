@@ -75,7 +75,7 @@ function ToggleChip({
   )
 }
 
-const GENDER_OPTIONS = ['Female', 'Male', 'Non-binary', 'Prefer not to say']
+const GENDER_OPTIONS = ['Male', 'Female']
 
 export default function UserSignupPage() {
   const [step, setStep] = useState(1)
