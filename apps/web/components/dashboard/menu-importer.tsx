@@ -6,7 +6,7 @@ import { importMenuItems } from '@/app/dashboard/actions'
 
 const CATEGORIES = ['Appetizers', 'Mains', 'Grills', 'Drinks', 'Desserts', 'General']
 
-type DraftItem = { key: string; name: string; price: string; category: string }
+type DraftItem = { key: string; name: string; description: string; price: string; category: string }
 type PDFDocument = {
   numPages: number
   getPage: (page: number) => Promise<{
@@ -26,7 +26,9 @@ function newKey() {
 function parseMenuText(rawText: string): DraftItem[] {
   const rows: DraftItem[] = []
   let category = 'General'
-  const priceAtEnd = /^(.*?)(?:\s*(?:ETB|Birr|Br\.?))?\s+([\d]{1,3}(?:[, ]\d{3})*(?:\.\d{1,2})?)\s*(?:ETB|Birr|Br\.?)?$/i
+  let currentItem: DraftItem | undefined
+  const priceAtEnd = /^(.*?)(?:\s*[.…·•-]{2,})?\s*(?:(?:ETB|Birr|Br\.?)\s*)?(\d[\d,]*(?:\.\d{1,2})?)\s*(?:ETB|Birr|Br\.?)?$/i
+  const knownCategories = new Set(CATEGORIES.map((value) => value.toLowerCase()))
 
   for (const rawLine of rawText.split(/\r?\n/)) {
     const line = rawLine.replace(/[•|]/g, ' ').replace(/\s+/g, ' ').trim()
@@ -34,14 +36,31 @@ function parseMenuText(rawText: string): DraftItem[] {
     const heading = CATEGORIES.find((value) => value.toLowerCase() === line.toLowerCase())
     if (heading) {
       category = heading
+      currentItem = undefined
       continue
     }
     const match = line.match(priceAtEnd)
-    if (!match) continue
-    const name = match[1].replace(/[-–—:]+$/g, '').trim()
-    const price = Number(match[2].replace(/[ ,]/g, ''))
-    if (name.length < 2 || !Number.isFinite(price) || price > 1_000_000) continue
-    rows.push({ key: newKey(), name, price: String(price), category })
+    if (match) {
+      const name = match[1].replace(/[.…·•\s-]+$/g, '').replace(/[:–—]+$/g, '').trim()
+      const price = Number(match[2].replace(/,/g, ''))
+      if (name.length >= 2 && Number.isFinite(price) && price <= 1_000_000) {
+        currentItem = { key: newKey(), name, description: '', price: String(price), category }
+        rows.push(currentItem)
+        continue
+      }
+    }
+
+    // Short standalone labels between priced rows are usually section headings
+    // (for example, “Eggs” or “Ethiopian Taste”), while sentence-like lines
+    // after a dish are its description.
+    const isHeading = line.length <= 36 && /^[\p{Lu}][\p{L}\p{N}&'’ -]*$/u.test(line) &&
+      !/^(with|served|fresh|layers|made|includes|topped|fried|grilled|baked|contains)\b/i.test(line)
+    if (isHeading && (knownCategories.has(line.toLowerCase()) || currentItem)) {
+      category = line
+      currentItem = undefined
+      continue
+    }
+    if (currentItem) currentItem.description = [currentItem.description, line].filter(Boolean).join(' ')
   }
   return rows.slice(0, 100)
 }
@@ -176,7 +195,7 @@ export function MenuImporter({
     try {
       const result = await importMenuItems(
         branchId,
-        items.map(({ name, price, category }) => ({ name, price: Number(price), category })),
+        items.map(({ name, description, price, category }) => ({ name, description, price: Number(price), category })),
       )
       setMessage({ ok: result.ok, text: result.message })
       if (result.ok) {
@@ -232,14 +251,15 @@ export function MenuImporter({
         <div className="mt-5 space-y-3">
           <div className="flex items-center justify-between gap-3">
             <h3 className="text-sm font-bold text-app-fg">Review extracted items</h3>
-            <button type="button" onClick={() => setItems((rows) => [...rows, { key: newKey(), name: '', price: '', category: 'General' }])} className="inline-flex min-h-9 items-center gap-1 rounded-lg px-3 text-xs font-semibold text-ember hover:bg-ember/10"><Plus className="size-3.5" /> Add row</button>
+            <button type="button" onClick={() => setItems((rows) => [...rows, { key: newKey(), name: '', description: '', price: '', category: 'General' }])} className="inline-flex min-h-9 items-center gap-1 rounded-lg px-3 text-xs font-semibold text-ember hover:bg-ember/10"><Plus className="size-3.5" /> Add row</button>
           </div>
           {items.map((item) => (
             <div key={item.key} className="grid gap-2 rounded-xl border border-app-border p-3 sm:grid-cols-[minmax(0,1.4fr)_minmax(100px,.5fr)_minmax(130px,.7fr)_40px]">
               <label className="text-[10px] font-semibold uppercase tracking-wider text-app-muted">Name<input value={item.name} onChange={(event) => setItems((rows) => rows.map((row) => row.key === item.key ? { ...row, name: event.target.value } : row))} className="mt-1 min-h-10 w-full rounded-lg border border-app-border bg-app-input px-3 text-sm font-medium normal-case tracking-normal text-app-fg" /></label>
               <label className="text-[10px] font-semibold uppercase tracking-wider text-app-muted">Price (ETB)<input type="number" min="0" step="0.01" value={item.price} onChange={(event) => setItems((rows) => rows.map((row) => row.key === item.key ? { ...row, price: event.target.value } : row))} className="mt-1 min-h-10 w-full rounded-lg border border-app-border bg-app-input px-3 text-sm font-medium normal-case tracking-normal text-app-fg" /></label>
-              <label className="text-[10px] font-semibold uppercase tracking-wider text-app-muted">Category<select value={item.category} onChange={(event) => setItems((rows) => rows.map((row) => row.key === item.key ? { ...row, category: event.target.value } : row))} className="mt-1 min-h-10 w-full rounded-lg border border-app-border bg-app-input px-3 text-sm font-medium normal-case tracking-normal text-app-fg">{CATEGORIES.map((category) => <option key={category}>{category}</option>)}</select></label>
+              <label className="text-[10px] font-semibold uppercase tracking-wider text-app-muted">Category<select value={item.category} onChange={(event) => setItems((rows) => rows.map((row) => row.key === item.key ? { ...row, category: event.target.value } : row))} className="mt-1 min-h-10 w-full rounded-lg border border-app-border bg-app-input px-3 text-sm font-medium normal-case tracking-normal text-app-fg">{Array.from(new Set([...CATEGORIES, ...items.map((candidate) => candidate.category)])).map((category) => <option key={category}>{category}</option>)}</select></label>
               <button type="button" onClick={() => setItems((rows) => rows.filter((row) => row.key !== item.key))} aria-label={`Remove ${item.name || 'menu item'}`} className="mt-4 flex size-10 items-center justify-center rounded-lg text-app-muted hover:bg-danger/10 hover:text-danger"><Trash2 className="size-4" /></button>
+              <label className="text-[10px] font-semibold uppercase tracking-wider text-app-muted sm:col-span-3">Description<textarea value={item.description} maxLength={500} rows={2} onChange={(event) => setItems((rows) => rows.map((row) => row.key === item.key ? { ...row, description: event.target.value } : row))} placeholder="Ingredients or menu details" className="mt-1 w-full resize-y rounded-lg border border-app-border bg-app-input px-3 py-2 text-sm font-medium normal-case tracking-normal text-app-fg placeholder:text-app-muted" /></label>
             </div>
           ))}
           <button type="button" onClick={() => void save()} disabled={!branchId || saving || items.some((item) => item.name.trim().length < 2 || !item.price || Number(item.price) < 0)} className="min-h-11 w-full rounded-xl bg-ember px-5 text-sm font-semibold text-on-accent disabled:opacity-50">

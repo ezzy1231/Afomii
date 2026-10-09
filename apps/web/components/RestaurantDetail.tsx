@@ -350,6 +350,7 @@ export default function RestaurantDetail({ restaurant }: { restaurant: Restauran
                           >
                             <div className="min-w-0">
                               <div className="truncate text-sm font-bold text-app-fg">{item.name}</div>
+                              {item.description && <p className="mt-0.5 text-xs text-app-muted">{item.description}</p>}
                               <div className={cn('text-xs font-medium', item.isAvailable ? 'text-success' : 'text-app-muted')}>
                                 {item.isAvailable ? 'Available' : 'Unavailable'}
                               </div>

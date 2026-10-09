@@ -22,6 +22,7 @@ export type DetailBranch = {
   menuItems: {
     id: string
     name: string
+    description?: string | null
     price: number
     category: string
     isAvailable: boolean
@@ -89,7 +90,7 @@ export async function getRestaurantDetail(id: string): Promise<RestaurantDetail 
   const { data: branches } = await supabase
     .from('branches')
     .select(
-      'id, branch_name, address, latitude, longitude, phone, booking_configs(booking_mode, total_tables, max_guest_per_table, slot_duration_minutes, advance_notice_hours, cancellation_policy), menu_items(id, name, price, category, is_available)'
+      'id, branch_name, address, latitude, longitude, phone, booking_configs(booking_mode, total_tables, max_guest_per_table, slot_duration_minutes, advance_notice_hours, cancellation_policy), menu_items(id, name, description, price, category, is_available)'
     )
     .eq('business_id', restaurant.business_id)
     .order('created_at', { ascending: true })
@@ -117,6 +118,7 @@ export async function getRestaurantDetail(id: string): Promise<RestaurantDetail 
     menuItems: (b.menu_items ?? []).map((m: any) => ({
       id: m.id,
       name: m.name,
+      description: m.description,
       price: Number(m.price),
       category: m.category,
       isAvailable: m.is_available,
