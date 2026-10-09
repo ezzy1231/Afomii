@@ -1086,21 +1086,36 @@ export async function updateBranchBookingConfig(input: {
     .maybeSingle()
   if (!branch) return { ok: false, message: 'Branch not found or not authorized.' }
 
-  const { error } = await supabase.from('booking_configs').upsert({
-    branch_id: parsed.data.branchId,
-    booking_mode: parsed.data.bookingMode,
-    total_tables: parsed.data.totalTables,
-    max_guest_per_table: parsed.data.maxGuestPerTable,
-    slot_duration_minutes: parsed.data.slotDurationMinutes,
-    advance_notice_hours: parsed.data.advanceNoticeHours,
-    ...(parsed.data.cancellationPolicy !== undefined
-      ? { cancellation_policy: parsed.data.cancellationPolicy }
-      : {}),
-  })
+  // `branch_id` is the conflict target, not the default primary key. Without
+  // it PostgREST resolves on `id`, which is absent from the payload — so
+  // Postgres generated a new id per call and every save hit the unique
+  // constraint on branch_id (23505). One config row per branch, upserted.
+  const { error } = await supabase
+    .from('booking_configs')
+    .upsert(
+      {
+        branch_id: parsed.data.branchId,
+        booking_mode: parsed.data.bookingMode,
+        total_tables: parsed.data.totalTables,
+        max_guest_per_table: parsed.data.maxGuestPerTable,
+        slot_duration_minutes: parsed.data.slotDurationMinutes,
+        advance_notice_hours: parsed.data.advanceNoticeHours,
+        ...(parsed.data.cancellationPolicy !== undefined
+          ? { cancellation_policy: parsed.data.cancellationPolicy }
+          : {}),
+      },
+      { onConflict: 'branch_id' },
+    )
 
   if (error) {
     logActionError('updateBranchBookingConfig', error)
-    return defaultErrorState
+    return {
+      ok: false,
+      message:
+        (error as { code?: string }).code === '23505'
+          ? 'This branch already has an availability record. Refresh the page and try saving again.'
+          : defaultErrorState.message,
+    }
   }
 
   const listing = await getOwnedRestaurantByBranch(supabase, business.id, parsed.data.branchId)
