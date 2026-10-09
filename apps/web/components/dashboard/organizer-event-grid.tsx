@@ -93,6 +93,13 @@ export function OrganizerEventGrid({ events }: { events: OrganizerEventRecord[] 
             </p>
 
             <div className="mt-4 flex items-center gap-2 pt-1">
+              <Link
+                href={`/dashboard/organizer/tickets?event=${event.id}`}
+                className="inline-flex min-h-10 items-center justify-center gap-1.5 rounded-xl bg-console-indigo px-3.5 text-[13px] font-semibold text-white transition-colors hover:bg-console-indigo-deep"
+              >
+                <Ticket className="size-3.5" aria-hidden="true" />
+                Manage tickets
+              </Link>
               <button
                 type="button"
                 onClick={() => toggle(event)}

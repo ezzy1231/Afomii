@@ -53,10 +53,16 @@ function newBlankRow(eventId: string): TierRow {
 export function TiersManager({
   events,
   initialTiers,
+  initialEventId,
 }: {
   events: EventOption[]
   initialTiers: TierRecord[]
+  initialEventId?: string
 }) {
+  const firstEventId = events.some((event) => event.id === initialEventId)
+    ? initialEventId!
+    : events[0]?.id ?? ''
+  const [selectedEventId, setSelectedEventId] = useState(firstEventId)
   const [rows, setRows] = useState<TierRow[]>(() =>
     initialTiers.map((t) => ({
       id: t.id,
@@ -114,34 +120,55 @@ export function TiersManager({
     })
   }
 
-  // Group rows under their event so the page reads like a box office.
+  // Keep the selected event visible in the form so new ticket types are never ambiguous.
+  const selectedEvent = events.find((event) => event.id === selectedEventId)
+  const selectedEventRows = rows.filter((row) => row.eventId === selectedEventId)
+  const hasNewRow = selectedEventRows.some((row) => !isExisting(row.id))
   return (
     <div className="mt-8 space-y-8">
-      {events.map((event) => {
-        const eventRows = rows.filter((r) => r.eventId === event.id)
-        const hasNew = eventRows.some((r) => !isExisting(r.id))
-        return (
-          <section key={event.id} className="card-elevated p-5 sm:p-6">
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <h2 className=" text-lg font-bold text-app-fg">{event.title}</h2>
-              <button
-                type="button"
-                onClick={() => addRow(event.id)}
-                disabled={hasNew}
-                className="inline-flex min-h-[44px] items-center gap-1.5 rounded-xl bg-gradient-to-br from-ember to-ember-deep px-4 text-sm font-semibold text-on-accent shadow-[0_2px_8px_rgb(var(--ember-rgb)/0.3)] transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] disabled:opacity-40"
+      {events.length > 0 && (
+        <section className="card-elevated space-y-5 p-5 sm:p-6">
+          <div className="grid gap-4 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end">
+            <label className="block text-sm font-semibold text-app-fg">
+              <span className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-app-muted">
+                Choose event
+              </span>
+              <select
+                className="input-premium"
+                value={selectedEventId}
+                onChange={(event) => setSelectedEventId(event.target.value)}
               >
-                <Plus className="size-4" />
-                Add tier
-              </button>
-            </div>
+                {events.map((event) => (
+                  <option key={event.id} value={event.id}>{event.title}</option>
+                ))}
+              </select>
+            </label>
+            <button
+              type="button"
+              onClick={() => selectedEventId && addRow(selectedEventId)}
+              disabled={!selectedEventId || hasNewRow}
+              className="inline-flex min-h-[44px] items-center justify-center gap-1.5 rounded-xl bg-gradient-to-br from-ember to-ember-deep px-4 text-sm font-semibold text-on-accent shadow-[0_2px_8px_rgb(var(--ember-rgb)/0.3)] transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] disabled:opacity-40"
+            >
+              <Plus className="size-4" />
+              Add ticket
+            </button>
+          </div>
 
-            {eventRows.length === 0 ? (
-              <p className="mt-4 rounded-xl border border-dashed border-app-border px-4 py-6 text-center text-sm text-app-muted">
-                No tiers yet for this event. Add one to open ticket sales.
-              </p>
-            ) : (
-              <ul className="mt-4 space-y-3">
-                {eventRows.map((row) => (
+          {selectedEvent && (
+            <section aria-labelledby="selected-event-tickets" className="border-t border-app-border pt-5">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wider text-app-muted">Tickets for</p>
+                  <h2 id="selected-event-tickets" className="mt-1 text-lg font-bold text-app-fg">{selectedEvent.title}</h2>
+                </div>
+              </div>
+              {selectedEventRows.length === 0 ? (
+                <p className="mt-4 rounded-xl border border-dashed border-app-border px-4 py-6 text-center text-sm text-app-muted">
+                  No tickets for this event yet. Select “Add ticket” to create its first ticket type.
+                </p>
+              ) : (
+                <ul className="mt-4 space-y-3">
+                  {selectedEventRows.map((row) => (
                   <li
                     key={row.id}
                     className="rounded-xl border border-app-border bg-[var(--bg-primary)] p-4"
@@ -235,12 +262,13 @@ export function TiersManager({
                       </div>
                     </div>
                   </li>
-                ))}
-              </ul>
-            )}
-          </section>
-        )
-      })}
+                  ))}
+                </ul>
+              )}
+            </section>
+          )}
+        </section>
+      )}
 
       {state.message && (
         <p

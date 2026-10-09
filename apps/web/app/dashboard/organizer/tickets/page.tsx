@@ -1,6 +1,8 @@
 import type { Metadata } from 'next'
+import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
+import { getOrganizerAccount } from '@/lib/dashboard/organizer-data'
 import { TiersManager } from './tiers-manager'
 
 export const metadata: Metadata = { title: 'Ticket Management' }
@@ -18,22 +20,15 @@ export type TierRecord = {
   salesEnd: string
 }
 
-export default async function TicketsPage() {
+export default async function TicketsPage({
+  searchParams,
+}: {
+  searchParams?: { event?: string }
+}) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/auth/signin')
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('id')
-    .eq('id', user!.id)
-    .maybeSingle()
-  const profileId = profile?.id ?? null
-
-  const { data: organizer } = await supabase
-    .from('organizers')
-    .select('id')
-    .eq('owner_id', profileId ?? '')
-    .maybeSingle()
+  const organizer = await getOrganizerAccount(supabase, user)
 
   const { data: events } = organizer
     ? await supabase
@@ -85,12 +80,28 @@ export default async function TicketsPage() {
       )}
 
       {organizer && eventOptions.length === 0 && (
-        <section className="animate-pop-in mt-6 rounded-xl border border-warning/40 bg-warning/10 p-4 text-sm text-app-fg">
-          Create an event first — ticket tiers attach to an event.
+        <section className="animate-pop-in mt-6 rounded-xl border border-dashed border-app-border bg-app-card p-8 text-center">
+          <h2 className="text-lg font-bold text-app-fg">No events to add tickets to yet</h2>
+          <p className="mx-auto mt-2 max-w-md text-sm text-app-muted">
+            Create an event first. Then choose it here to add and manage its ticket types.
+          </p>
+          <Link
+            href="/dashboard/organizer/events/new"
+            className="mt-5 inline-flex min-h-11 items-center justify-center rounded-xl bg-ember px-5 text-sm font-semibold text-on-accent"
+          >
+            Create event
+          </Link>
         </section>
       )}
 
-      {organizer && <TiersManager events={eventOptions} initialTiers={tiers} />}
+      {organizer && (
+        <TiersManager
+          key={searchParams?.event ?? 'default'}
+          events={eventOptions}
+          initialTiers={tiers}
+          initialEventId={searchParams?.event}
+        />
+      )}
     </div>
   )
 }
