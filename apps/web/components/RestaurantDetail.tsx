@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import {
   ArrowLeft,
+  BadgeCheck,
   Bookmark,
   CalendarPlus,
   CarFront,
@@ -17,21 +18,11 @@ import {
 import Image from 'next/image'
 import Link from 'next/link'
 import { ReservationForm } from '@/components/reservation-form'
-import { StickyActionBar, PremiumBadge } from '@/components/patterns'
-import type { RestaurantDetail as Restaurant, DetailBranch as Branch } from '@/lib/supabase/queries'
+import { StickyActionBar } from '@/components/patterns'
+import type { RestaurantDetail as Restaurant } from '@/lib/supabase/queries'
 import { cn } from '@/lib/utils'
 import { sharePage } from '@/lib/share'
 import { loadSavedIds, persistSavedIds } from '@/lib/saved'
-
-const PHOTO_POOL = [
-  '/places/food-1.jpg',
-  '/places/food-2.jpg',
-  '/places/food-3.jpg',
-  '/places/food-4.jpg',
-  '/places/food-5.jpg',
-  '/places/food-6.jpg',
-  '/places/cafe-1.jpg',
-]
 
 const WEEK_DAYS = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'] as const
 const DAY_SHORT: Record<(typeof WEEK_DAYS)[number], string> = {
@@ -51,19 +42,9 @@ export default function RestaurantDetail({ restaurant }: { restaurant: Restauran
     })
   }
   const branch = restaurant.branches.find((b) => b.id === selectedBranch) ?? restaurant.branches[0]
-  const menuCategories = branch?.menuItems
-    ? [...new Set(branch.menuItems.map((item) => item.category))]
-    : []
   const initial = restaurant.name.charAt(0).toUpperCase()
   // JS getDay(): 0=Sunday … 6=Saturday → our keys are 'mon'-first
   const todayKey = (['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'] as const)[new Date().getDay()]
-
-  const photos = [
-    ...(restaurant.coverUrl ? [restaurant.coverUrl] : []),
-    ...PHOTO_POOL,
-  ].slice(0, 4)
-
-  const highlights = ['Rooftop Dining', 'Live Music', 'Signature Cocktails']
 
   return (
     <div className="mx-auto max-w-7xl px-4 pb-28 pt-5 sm:px-6 lg:px-8">
@@ -143,18 +124,25 @@ export default function RestaurantDetail({ restaurant }: { restaurant: Restauran
                     <Star className="size-4 fill-ember text-ember" />
                     <span className="font-bold text-app-fg">{restaurant.rating ?? 'New'}</span>
                   </span>
-                  <span aria-hidden>·</span>
-                  <span className="font-medium capitalize">{restaurant.category ?? 'Restaurant'}</span>
+                  {restaurant.category && <>
+                    <span aria-hidden>·</span>
+                    <span className="font-medium capitalize">{restaurant.category}</span>
+                  </>}
                 </p>
               </div>
             </div>
-            <PremiumBadge className="sticker sticker-ember !rotate-0" />
+            {restaurant.isVerified && (
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-success/10 px-3 py-1.5 text-xs font-semibold text-success">
+                <BadgeCheck className="size-4" />
+                Verified
+              </span>
+            )}
           </div>
 
           <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-app-border pt-4">
             <p className="flex min-w-0 items-center gap-2 text-sm font-medium text-app-muted">
               <MapPin className="size-4 shrink-0 text-ember" strokeWidth={2.5} />
-              <span className="truncate">{branch?.address ?? 'Addis Ababa'}</span>
+              <span className="truncate">{branch?.address || 'Location not provided'}</span>
             </p>
             <Link
               href={`/ride?to=${encodeURIComponent(restaurant.name)}${branch?.latitude != null && branch?.longitude != null ? `&lat=${branch.latitude}&lng=${branch.longitude}` : ''}`}
@@ -170,17 +158,20 @@ export default function RestaurantDetail({ restaurant }: { restaurant: Restauran
       {/* Quick actions */}
       <div className="mx-auto mt-5 grid max-w-3xl grid-cols-3 gap-3 px-4 sm:px-0">
         {[
-          { label: 'Menu', icon: Utensils, href: '#menu' },
+          { label: 'View Menu', icon: Utensils, href: `/restaurants/${restaurant.id}/menu` },
           { label: 'Reserve', icon: CalendarPlus, href: '#reserve' },
-          { label: 'Save', icon: Bookmark, toggle: true, active: saved },
-        ].map(({ label, icon: Icon, href, toggle, active }) =>
+          { label: 'Save', icon: Bookmark, active: saved },
+        ].map(({ label, icon: Icon, href, active }) =>
           href ? (
             <Link
               key={label}
               href={href}
-              className="glass glass-hover flex flex-col items-center gap-1.5 rounded-2xl py-4 text-xs font-semibold text-app-fg"
+              className={cn(
+                'glass glass-hover flex flex-col items-center gap-1.5 rounded-2xl py-4 text-xs font-semibold text-app-fg',
+                label === 'View Menu' && 'border-ember bg-ember text-on-accent shadow-[0_2px_8px_rgb(var(--ember-rgb)/0.3)]'
+              )}
             >
-              <Icon className="size-5 text-ember" strokeWidth={2.5} />
+              <Icon className={cn('size-5', label === 'View Menu' ? 'text-on-accent' : 'text-ember')} strokeWidth={2.5} />
               {label}
             </Link>
           ) : (
@@ -226,64 +217,21 @@ export default function RestaurantDetail({ restaurant }: { restaurant: Restauran
       <div className="mx-auto mt-6 grid max-w-5xl gap-6 lg:grid-cols-[1.6fr_1fr]">
         {/* Left */}
         <div>
-          {/* Photos */}
-          <div className="glass rounded-2xl p-4">
-            <div className="mb-3 flex items-center justify-between">
-              <h2 className="text-lg font-bold text-app-fg">Photos & Videos</h2>
-              <span className="text-[10px] font-semibold uppercase tracking-widest text-ember">
-                View all ›
-              </span>
-            </div>
-            <div className="snap-row">
-              {photos.map((src, i) => (
-                <div key={`${src}-${i}`} className="relative aspect-[4/3] overflow-hidden rounded-xl border border-app-border bg-app-input">
-                  <Image
-                    src={src}
-                    alt={`${restaurant.name} photo ${i + 1}`}
-                    fill
-                    sizes="(max-width: 640px) 82vw, (max-width: 1024px) 46vw, 300px"
-                    className="object-cover"
-                  />
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* About + Highlights */}
-          <div className="mt-5 grid gap-4 sm:grid-cols-2">
+          {/* Restaurant supplied details */}
+          <div className="grid gap-4">
             <div className="rounded-2xl border border-app-border bg-app-card p-5 shadow-card">
               <h3 className="text-lg font-bold text-app-fg">About {restaurant.name}</h3>
               <p className="mt-2 text-sm leading-6 text-app-muted">
-                {restaurant.description || `${restaurant.name} offers a curated ${restaurant.category || 'signature'} dining experience in ${branch?.address ?? 'Addis Ababa'}. Reservations, menus and directions — all in one place.`}
+                {restaurant.description || 'Restaurant details have not been added yet.'}
               </p>
-              <div className="mt-3 flex flex-wrap gap-2">
+              {restaurant.category && <div className="mt-3 flex flex-wrap gap-2">
                 <span className="sticker sticker-ember !rotate-0 !py-1 !text-[10px]">
-                  {restaurant.category ?? 'Restaurant'}
+                  {restaurant.category}
                 </span>
-                <span className="sticker sticker-cream !rotate-0 !py-1 !text-[10px]">
-                  Dining
-                </span>
-              </div>
-            </div>
-
-            <div className="rounded-2xl border border-app-border bg-app-card p-5 shadow-card">
-              {[
-                { icon: Star, title: 'HIGHLIGHTS', body: highlights.join(' • ') },
-                { icon: CarFront, title: 'PARKING', body: 'Valet Available • Free Parking' },
-              ].map(({ icon: Icon, title, body }) => (
-                <div key={title} className="mb-4 flex gap-3">
-                  <Icon className="mt-0.5 size-4 shrink-0 text-ember" strokeWidth={2.5} />
-                  <div>
-                    <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-app-fg">
-                      {title}
-                    </p>
-                    <p className="mt-0.5 text-sm font-medium text-app-muted">{body}</p>
-                  </div>
-                </div>
-              ))}
+              </div>}
 
               {/* Per-day opening hours with today highlighted (Stitch artboard pattern) */}
-              <div className="flex gap-3">
+              <div className="mt-5 flex gap-3">
                 <Clock3 className="mt-0.5 size-4 shrink-0 text-ember" strokeWidth={2.5} />
                 <div className="min-w-0 flex-1">
                   <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-app-fg">
@@ -323,49 +271,13 @@ export default function RestaurantDetail({ restaurant }: { restaurant: Restauran
                       </tbody>
                     </table>
                   ) : (
-                    <p className="mt-0.5 text-sm text-app-muted">Open daily — hours vary</p>
+                    <p className="mt-0.5 text-sm text-app-muted">Opening hours not provided.</p>
                   )}
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Menu */}
-          {branch?.menuItems && branch.menuItems.length > 0 && (
-            <div id="menu" className="mt-5 scroll-mt-24">
-              <h2 className="mb-3 text-2xl font-bold text-app-fg">Menu</h2>
-              <div className="space-y-5 rounded-2xl border border-app-border bg-app-card p-5 shadow-card">
-                {menuCategories.map((category) => (
-                  <div key={category}>
-                    <div className="mb-2 text-xs font-semibold uppercase tracking-[0.16em] text-ember">
-                      {category}
-                    </div>
-                    <div className="space-y-2">
-                      {branch.menuItems
-                        .filter((item) => item.category === category)
-                        .map((item) => (
-                          <div
-                            key={item.id}
-                            className="flex items-center justify-between gap-3 border-b-[1.5px] border-app-border py-2.5 last:border-0"
-                          >
-                            <div className="min-w-0">
-                              <div className="truncate text-sm font-bold text-app-fg">{item.name}</div>
-                              {item.description && <p className="mt-0.5 text-xs text-app-muted">{item.description}</p>}
-                              <div className={cn('text-xs font-medium', item.isAvailable ? 'text-success' : 'text-app-muted')}>
-                                {item.isAvailable ? 'Available' : 'Unavailable'}
-                              </div>
-                            </div>
-                            <div className="shrink-0 text-sm font-semibold tabular-nums text-app-fg">
-                              ETB {item.price}
-                            </div>
-                          </div>
-                        ))}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
         </div>
 
         {/* Right — reserve + ride */}
@@ -386,7 +298,7 @@ export default function RestaurantDetail({ restaurant }: { restaurant: Restauran
               <div className="dot-grid flex h-32 items-center justify-center border-b-[1.5px] border-app-border bg-app-input">
                 <span className="flex items-center gap-2 text-sm font-bold text-app-muted">
                   <MapPin className="size-5 text-ember" strokeWidth={2.5} />
-                  {branch?.address ?? 'Addis Ababa'}
+                  {branch?.address || 'Location not provided'}
                 </span>
               </div>
               <div className="p-4">

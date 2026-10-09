@@ -1,6 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { createAnonClient } from '@/lib/supabase/anon'
-import { fallbackRestaurants, fallbackEvents, type CatalogueItem } from '@/lib/catalogue'
+import { fallbackEvents, type CatalogueItem } from '@/lib/catalogue'
 
 // Sample-detail builders must never serve fake menus/prices in production.
 const SAMPLE_DETAIL_DATA = process.env.NODE_ENV !== 'production'
@@ -81,10 +81,6 @@ export async function getRestaurantDetail(id: string): Promise<RestaurantDetail 
 
   if (error || !restaurant) {
     console.error('[queries] restaurant detail unavailable:', error?.message ?? 'not found')
-    if (SAMPLE_DETAIL_DATA) {
-      const sample = fallbackRestaurants.find((r) => r.id === id)
-      return sample ? buildSampleRestaurantDetail(sample) : null
-    }
     return null
   }
 
@@ -320,63 +316,6 @@ export async function getConsumerTickets(userId: string): Promise<ConsumerTicket
       createdAt: r.created_at,
     }
   })
-}
-
-const ALL_DAYS = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun']
-
-function buildSampleRestaurantDetail(item: CatalogueItem): RestaurantDetail {
-  const hours = ALL_DAYS.reduce(
-    (acc, day) => ({ ...acc, [day]: [{ open: '11:00', close: '22:00' }] }),
-    {}
-  )
-
-  const menuByCuisine: Record<string, { name: string; price: number; category: string }[]> = {
-    default: [
-      { name: 'Signature platter', price: 450, category: 'Main Course' },
-      { name: 'Seasonal soup', price: 180, category: 'Soup & Salad' },
-      { name: 'Garden salad', price: 160, category: 'Soup & Salad' },
-      { name: 'Grilled specialty', price: 520, category: 'Main Course' },
-      { name: 'Fried appetizer mix', price: 220, category: 'Appetizers' },
-      { name: 'Fresh juice', price: 90, category: 'Drinks' },
-    ],
-  }
-
-  return {
-    id: item.id,
-    name: item.name,
-    category: item.category,
-    description: null,
-    logoUrl: null,
-    coverUrl: item.imageUrl ?? null,
-    isVerified: true,
-    rating: Number(item.rating) || null,
-    openingHours: hours,
-    branches: [
-      {
-        id: `${item.id}-branch-1`,
-        branchName: `${item.name} — ${item.location}`,
-        address: item.location,
-        latitude: null,
-        longitude: null,
-        phone: null,
-        bookingConfig: {
-          bookingMode: 'instant',
-          totalTables: 10,
-          maxGuestPerTable: 6,
-          slotDurationMinutes: 60,
-          advanceNoticeHours: 0,
-          cancellationPolicy: 'Free cancellation up to 2 hours before your reservation.',
-        },
-        menuItems: (menuByCuisine[item.category] ?? menuByCuisine.default).map((m, i) => ({
-          id: `${item.id}-menu-${i}`,
-          name: m.name,
-          price: m.price,
-          category: m.category,
-          isAvailable: true,
-        })),
-      },
-    ],
-  }
 }
 
 function nextOccurrence(detail: string): Date {
