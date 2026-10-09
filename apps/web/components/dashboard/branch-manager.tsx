@@ -11,6 +11,7 @@ import { Plus } from "lucide-react";
 import { ConsoleSkeletonRow, SectionTitle } from "./console";
 import { CONSOLE_CARD } from "@/components/dashboard/console-shared";
 import { BranchMenu } from "@/components/dashboard/branch-menu";
+import { BranchActions } from "@/components/dashboard/branch-actions";
 import { cn } from "@/lib/utils";
 
 const DAYS = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"];
@@ -38,6 +39,7 @@ export type Branch = {
   branch_name: string;
   address: string | null;
   phone: string | null;
+  is_active: boolean;
   booking_configs: BookingConfig | null;
 };
 
@@ -124,7 +126,7 @@ export function BranchManager({
       const { data: branchRows, error } = await supabase
         .from("branches")
         .select(
-          "id, branch_name, address, phone, booking_configs(booking_mode, total_tables, max_guest_per_table, slot_duration_minutes, advance_notice_hours, cancellation_policy)",
+          "id, branch_name, address, phone, is_active, booking_configs(booking_mode, total_tables, max_guest_per_table, slot_duration_minutes, advance_notice_hours, cancellation_policy)",
         )
         .eq("restaurant_id", restaurantId)
         .order("created_at", { ascending: true });
@@ -147,6 +149,7 @@ export function BranchManager({
         branch_name: b.branch_name,
         address: b.address,
         phone: b.phone,
+        is_active: b.is_active !== false,
         booking_configs: Array.isArray(b.booking_configs)
           ? (b.booking_configs[0] ?? null)
           : (b.booking_configs ?? null),
@@ -195,15 +198,6 @@ export function BranchManager({
         </p>
       </section>
 
-      <AddBranchForm
-        restaurantId={restaurantId}
-        onCreated={(newBranchId) => {
-          // Select the location just created so its settings open immediately.
-          if (newBranchId) setSelectedId(newBranchId)
-          setRefreshKey((key) => key + 1)
-        }}
-      />
-
       {branchError ? (
         <div className={cn(CONSOLE_CARD, "border-danger/30 p-6 text-center")}>
           <p className="font-semibold text-danger">Could not load branches</p>
@@ -213,13 +207,23 @@ export function BranchManager({
         <ConsoleSkeletonRow count={2} />
       ) : branches.length === 0 ? (
         <div className={cn(CONSOLE_CARD, "border-dashed p-8 text-center")}>
-          <p className="font-semibold">No branches yet</p>
-          <p className="mt-1 text-sm text-app-muted">
-            Add your first location above, then set its hours and menu.
+          <p className="font-semibold text-console-ink">No locations yet</p>
+          <p className="mx-auto mt-1 max-w-sm text-sm text-app-muted">
+            A location is one place guests can book or order from. Add one to set its hours and
+            menu.
           </p>
+          <div className="mt-5 flex justify-center">
+            <AddBranchForm
+              restaurantId={restaurantId}
+              onCreated={(newBranchId) => {
+                if (newBranchId) setSelectedId(newBranchId)
+                setRefreshKey((key) => key + 1)
+              }}
+            />
+          </div>
         </div>
       ) : (
-        <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,18rem)_minmax(0,1fr)]">
+        <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,19rem)_minmax(0,1fr)]">
           {/* Branch list — the entry point to each location's settings and menu. */}
           <nav
             aria-label="Locations"
@@ -229,16 +233,20 @@ export function BranchManager({
               {branches.map((branch) => {
                 const isSelected = branch.id === selectedId;
                 const dishes = dishCounts[branch.id] ?? 0;
+                const isPaused = branch.is_active === false;
                 return (
-                  <li key={branch.id}>
+                  <li
+                    key={branch.id}
+                    className={cn(
+                      "flex items-center gap-1 px-2 py-1 transition-colors",
+                      isSelected ? "bg-console-bg" : "hover:bg-console-bg/60",
+                    )}
+                  >
                     <button
                       type="button"
                       onClick={() => setSelectedId(branch.id)}
                       aria-current={isSelected ? "true" : undefined}
-                      className={cn(
-                        "flex w-full items-center gap-3 px-4 py-3 text-left transition-colors",
-                        isSelected ? "bg-console-bg" : "hover:bg-console-bg/60",
-                      )}
+                      className="flex min-w-0 flex-1 items-center gap-3 rounded-lg px-2 py-2 text-left"
                     >
                       <span
                         aria-hidden
@@ -248,26 +256,55 @@ export function BranchManager({
                         )}
                       />
                       <span className="min-w-0 flex-1">
-                        <span
-                          className={cn(
-                            "block truncate text-sm font-semibold",
-                            isSelected ? "text-console-ink" : "text-app-fg",
+                        <span className="flex items-center gap-1.5">
+                          <span
+                            className={cn(
+                              "truncate text-sm font-semibold",
+                              isSelected ? "text-console-ink" : "text-app-fg",
+                              isPaused && "line-through",
+                            )}
+                          >
+                            {branch.branch_name}
+                          </span>
+                          {isPaused && (
+                            <span className="shrink-0 rounded-full bg-console-sand px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-console-sand-ink">
+                              Paused
+                            </span>
                           )}
-                        >
-                          {branch.branch_name}
                         </span>
                         <span className="mt-0.5 block truncate text-xs text-app-muted">
                           {branch.address || "No address"}
                         </span>
                         <span className="mt-1 block text-xs text-app-muted tabular-nums">
-                          {dishes === 0 ? "No dishes yet" : `${dishes} dish${dishes === 1 ? "" : "es"}`}
+                          {dishes === 0
+                            ? "No dishes yet"
+                            : `${dishes} dish${dishes === 1 ? "" : "es"}`}
                         </span>
                       </span>
                     </button>
+
+                    <div className="flex shrink-0 flex-col items-stretch gap-1">
+                      <BranchActions
+                        branchId={branch.id}
+                        branchName={branch.branch_name}
+                        isActive={branch.is_active !== false}
+                        dishCount={dishes}
+                      />
+                    </div>
                   </li>
                 );
               })}
             </ul>
+
+            <div className="border-t border-app-border p-2">
+              <AddBranchForm
+                restaurantId={restaurantId}
+                onCreated={(newBranchId) => {
+                  if (newBranchId) setSelectedId(newBranchId)
+                  setRefreshKey((key) => key + 1)
+                }}
+              />
+            </div>
           </nav>
 
           {selected && (

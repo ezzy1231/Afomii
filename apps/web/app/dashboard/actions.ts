@@ -1053,6 +1053,150 @@ export async function assignBranchToListing(
   return { ok: true, message: 'Branch assigned to listing.' }
 }
 
+/**
+ * Pausing is the reversible counterpart to deleting: the location stays in the
+ * console with its menu and settings intact, but drops off the public listing
+ * and stops being reservable.
+ */
+export async function setBranchActive(
+  branchId: string,
+  active: boolean
+): Promise<DashboardActionState> {
+  const branchCheck = uuidSchema.safeParse(branchId)
+  if (!branchCheck.success) return { ok: false, message: 'Invalid location identifier.' }
+
+  const { supabase, user, role } = await getCurrentUserRole()
+  if (!user) return { ok: false, message: 'Please sign in again to continue.' }
+  if (role !== 'food_business') {
+    return { ok: false, message: 'Only restaurant partners can pause locations.' }
+  }
+
+  const { data: business } = await supabase
+    .from('businesses')
+    .select('id')
+    .eq('owner_id', user.id)
+    .maybeSingle()
+  if (!business) return { ok: false, message: 'No linked business profile found.' }
+
+  const { data: branch } = await supabase
+    .from('branches')
+    .select('id, restaurant_id')
+    .eq('id', branchCheck.data)
+    .eq('business_id', business.id)
+    .maybeSingle()
+  if (!branch) return { ok: false, message: 'Location not found or not authorized.' }
+
+  const { error } = await supabase
+    .from('branches')
+    .update({ is_active: active })
+    .eq('id', branch.id)
+    .eq('business_id', business.id)
+
+  if (error) {
+    logActionError('setBranchActive', error)
+    // 42703: migration 0018 (is_active) has not been applied to this project.
+    if ((error as { code?: string }).code === '42703') {
+      return {
+        ok: false,
+        message:
+          'Pausing a location needs the is_active column. Apply migration 0018_branch_lifecycle.sql, then try again.',
+      }
+    }
+    return defaultErrorState
+  }
+
+  const listingId = branch.restaurant_id
+  revalidatePath('/dashboard/restaurant/listings')
+  if (listingId) {
+    revalidatePath(`/dashboard/restaurant/listings/${listingId}`)
+    revalidatePath(`/dashboard/restaurant/listings/${listingId}/branches`)
+  }
+  revalidatePath(`/restaurants/${listingId ?? ''}`)
+  revalidatePath('/restaurants')
+  return {
+    ok: true,
+    message: active
+      ? 'Location is live again and bookable.'
+      : 'Location paused. Its menu and settings are kept.',
+  }
+}
+
+/**
+ * Irreversible. The FK cascade removes this branch's booking config and every
+ * menu item under it, so the caller confirms with the counts in hand.
+ */
+export async function removeBranch(branchId: string): Promise<DashboardActionState> {
+  const branchCheck = uuidSchema.safeParse(branchId)
+  if (!branchCheck.success) return { ok: false, message: 'Invalid location identifier.' }
+
+  const { supabase, user, role } = await getCurrentUserRole()
+  if (!user) return { ok: false, message: 'Please sign in again to continue.' }
+  if (role !== 'food_business') {
+    return { ok: false, message: 'Only restaurant partners can remove locations.' }
+  }
+
+  const { data: business } = await supabase
+    .from('businesses')
+    .select('id')
+    .eq('owner_id', user.id)
+    .maybeSingle()
+  if (!business) return { ok: false, message: 'No linked business profile found.' }
+
+  const { data: branch } = await supabase
+    .from('branches')
+    .select('id, branch_name, restaurant_id')
+    .eq('id', branchCheck.data)
+    .eq('business_id', business.id)
+    .maybeSingle()
+  if (!branch) return { ok: false, message: 'Location not found or not authorized.' }
+
+  // Count first: the confirm dialog needs the real number, not a guess.
+  const { count: dishCount } = await supabase
+    .from('menu_items')
+    .select('id', { count: 'exact', head: true })
+    .eq('branch_id', branch.id)
+
+  const { count: reservationCount } = await supabase
+    .from('reservations')
+    .select('id', { count: 'exact', head: true })
+    .eq('branch_id', branch.id)
+
+  const { error } = await supabase
+    .from('branches')
+    .delete()
+    .eq('id', branch.id)
+    .eq('business_id', business.id)
+
+  if (error) {
+    logActionError('removeBranch', error)
+    return defaultErrorState
+  }
+
+  const listingId = branch.restaurant_id
+  revalidatePath('/dashboard/restaurant/listings')
+  if (listingId) {
+    revalidatePath(`/dashboard/restaurant/listings/${listingId}`)
+    revalidatePath(`/dashboard/restaurant/listings/${listingId}/branches`)
+  }
+  revalidatePath('/dashboard/restaurant')
+  revalidatePath(`/restaurants/${listingId ?? ''}`)
+  revalidatePath('/restaurants')
+
+  const dishes = dishCount ?? 0
+  const reservations = reservationCount ?? 0
+  const lost: string[] = []
+  if (dishes > 0) lost.push(`${dishes} menu item${dishes === 1 ? '' : 's'}`)
+  if (reservations > 0) {
+    lost.push(`${reservations} reservation${reservations === 1 ? '' : 's'}`)
+  }
+  return {
+    ok: true,
+    message: lost.length
+      ? `Location removed, along with its ${lost.join(' and ')}.`
+      : 'Location removed.',
+  }
+}
+
 export async function updateBranchBookingConfig(input: {
   branchId: string
   bookingMode: string

@@ -40,6 +40,7 @@
 --   0015_partner_owner_uniqueness.sql   39 lines  sha256:6faa09490dfc
 --   0016_partner_console_workflows.sql  159 lines  sha256:db528a763c09
 --   0017_restaurant_listing_branches.sql   78 lines  sha256:090811703448
+--   0018_branch_lifecycle.sql          21 lines  sha256:58eb597e75ed
 --   20261009115229_restaurant_event_public_visibility.sql   72 lines  sha256:813c9a95705e
 
 -- ================= 0001_extensions_enums.sql =================
@@ -2265,6 +2266,32 @@ create policy branches_update on public.branches
         and business.owner_id = (select auth.uid())
     )
   );
+
+
+-- ================= 0018_branch_lifecycle.sql =================
+-- (21 lines, sha256:58eb597e75ed)
+
+-- Branch lifecycle: a partner can pause a location without deleting it, so a
+-- seasonal closure or a renovation does not cost them the menu and settings
+-- they already built for that site.
+--
+-- `is_active` is a console-side flag only. It is NOT folded into the public
+-- `branches_select` policy, because that policy is `using (true)` and the
+-- partner console reads branches through the same authenticated channel —
+-- hiding inactive rows there would hide the very rows a partner needs in order
+-- to reactivate them. Public surfaces filter explicitly instead
+-- (lib/supabase/queries.ts -> getRestaurantDetail).
+
+alter table public.branches
+  add column if not exists is_active boolean not null default true;
+
+create index if not exists idx_branches_listing_active
+  on public.branches (restaurant_id, is_active);
+
+-- Paused locations drop out of capacity accounting: a walk-in-only or paused
+-- branch must not appear as reservable on the public listing.
+comment on column public.branches.is_active is
+  'false pauses the location: hidden from public listings and not reservable, while remaining editable in the partner console.';
 
 
 -- ================= 20261009115229_restaurant_event_public_visibility.sql =================

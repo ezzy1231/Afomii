@@ -90,6 +90,10 @@ export async function getRestaurantDetail(id: string): Promise<RestaurantDetail 
       'id, branch_name, address, latitude, longitude, phone, booking_configs(booking_mode, total_tables, max_guest_per_table, slot_duration_minutes, advance_notice_hours, cancellation_policy), menu_items(id, name, description, price, category, is_available)'
     )
     .eq('business_id', restaurant.business_id)
+    // A paused location is hidden from guests but stays editable in the partner
+    // console, so this filter belongs here rather than in the RLS policy —
+    // `branches_select` is `using (true)` for both roles.
+    .eq('is_active', true)
     .order('created_at', { ascending: true })
 
   const mappedBranches: DetailBranch[] = (branches ?? []).map((b: any) => ({
