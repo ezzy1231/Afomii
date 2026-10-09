@@ -23,29 +23,67 @@ function newKey() {
   return typeof crypto !== 'undefined' && 'randomUUID' in crypto ? crypto.randomUUID() : `${Date.now()}-${Math.random()}`
 }
 
+function cleanMenuName(value: string) {
+  return value
+    .split(/[.…·•]{2,}/u, 1)[0]
+    .replace(/\b[A-Za-z0-9]{24,}\b/gu, '')
+    .replace(/[-–—:]+$/g, '')
+    .replace(/\s+/g, ' ')
+    .trim()
+}
+
 function parseMenuText(rawText: string): DraftItem[] {
   const rows: DraftItem[] = []
   let category = 'General'
   let currentItem: DraftItem | undefined
+  let pendingName = ''
   const priceAtEnd = /^(.*?)(?:\s*[.…·•-]{2,})?\s*(?:(?:ETB|Birr|Br\.?)\s*)?(\d[\d,]*(?:\.\d{1,2})?)\s*(?:ETB|Birr|Br\.?)?$/i
   const knownCategories = new Set(CATEGORIES.map((value) => value.toLowerCase()))
 
   for (const rawLine of rawText.split(/\r?\n/)) {
-    const line = rawLine.replace(/[•|]/g, ' ').replace(/\s+/g, ' ').trim()
+    const line = rawLine
+      .replace(/[•|]/g, ' ')
+      .replace(/\b[A-Za-z0-9]{24,}\b/gu, ' ')
+      .replace(/\s+/g, ' ')
+      .trim()
     if (!line) continue
     const heading = CATEGORIES.find((value) => value.toLowerCase() === line.toLowerCase())
     if (heading) {
       category = heading
       currentItem = undefined
+      pendingName = ''
       continue
     }
     const match = line.match(priceAtEnd)
     if (match) {
-      const name = match[1].replace(/[.…·•\s-]+$/g, '').replace(/[:–—]+$/g, '').trim()
+      const name = cleanMenuName(match[1]) || pendingName
       const price = Number(match[2].replace(/,/g, ''))
       if (name.length >= 2 && Number.isFinite(price) && price <= 1_000_000) {
         currentItem = { key: newKey(), name, description: '', price: String(price), category }
         rows.push(currentItem)
+        pendingName = ''
+        continue
+      }
+    }
+
+    // Some OCR layouts put the dish title on one line and its price on the
+    // next. A leader-only row is a title cue, never useful description text.
+    const leaderAt = line.search(/[.…·•]{2,}/u)
+    if (leaderAt >= 0) {
+      const title = cleanMenuName(line.slice(0, leaderAt))
+      if (title.length >= 2) pendingName = title
+      currentItem = undefined
+      continue
+    }
+
+    // Prices can also land in their own right-aligned OCR line.
+    if (/^(?:(?:ETB|Birr|Br\.?)\s*)?\d[\d,]*(?:\.\d{1,2})?\s*(?:ETB|Birr|Br\.?)?$/i.test(line) && pendingName) {
+      const priceText = line.replace(/^(?:ETB|Birr|Br\.?)\s*/i, '').replace(/\s*(?:ETB|Birr|Br\.?)$/i, '')
+      const price = Number(priceText.replace(/,/g, ''))
+      if (Number.isFinite(price) && price <= 1_000_000) {
+        currentItem = { key: newKey(), name: pendingName, description: '', price: String(price), category }
+        rows.push(currentItem)
+        pendingName = ''
         continue
       }
     }
@@ -53,14 +91,15 @@ function parseMenuText(rawText: string): DraftItem[] {
     // Short standalone labels between priced rows are usually section headings
     // (for example, “Eggs” or “Ethiopian Taste”), while sentence-like lines
     // after a dish are its description.
-    const isHeading = line.length <= 36 && /^[\p{Lu}][\p{L}\p{N}&'’ -]*$/u.test(line) &&
+    const isHeading = line.length <= 36 && /^[\p{Lu}][\p{L}\p{N}&/'’() -]*$/u.test(line) &&
       !/^(with|served|fresh|layers|made|includes|topped|fried|grilled|baked|contains)\b/i.test(line)
-    if (isHeading && (knownCategories.has(line.toLowerCase()) || currentItem)) {
+    if (isHeading && (knownCategories.has(line.toLowerCase()) || currentItem || rows.length === 0)) {
       category = line
       currentItem = undefined
+      pendingName = ''
       continue
     }
-    if (currentItem) currentItem.description = [currentItem.description, line].filter(Boolean).join(' ')
+    if (currentItem) currentItem.description = [currentItem.description, line].filter(Boolean).join(' ').slice(0, 500)
   }
   return rows.slice(0, 100)
 }
@@ -96,13 +135,14 @@ async function readPDF(file: File, languages: string[], onProgress: (message: st
   const digitalText = pages.map((page) => page.text).join('\n')
   if (digitalText.replace(/\s/g, '').length >= 24) return digitalText
 
-  const { createWorker } = await import('tesseract.js')
+  const { createWorker, PSM } = await import('tesseract.js')
   const worker = await createWorker(languages, 1, {
     logger: (event) => {
       if (event.status === 'recognizing text') onProgress(`Reading menu text… ${Math.round(event.progress * 100)}%`)
     },
   })
   try {
+    await worker.setParameters({ tessedit_pageseg_mode: PSM.AUTO, preserve_interword_spaces: '1' })
     const recognized: string[] = []
     for (let index = 0; index < pages.length; index += 1) {
       onProgress(`Scanning PDF page ${index + 1} of ${pages.length}…`)
@@ -126,14 +166,67 @@ async function readPDF(file: File, languages: string[], onProgress: (message: st
 }
 
 async function readImage(file: File, languages: string[], onProgress: (message: string) => void) {
-  const { createWorker } = await import('tesseract.js')
+  const { createWorker, PSM } = await import('tesseract.js')
   const worker = await createWorker(languages, 1, {
     logger: (event) => {
       if (event.status === 'recognizing text') onProgress(`Reading menu text… ${Math.round(event.progress * 100)}%`)
     },
   })
   try {
-    return (await worker.recognize(file)).data.text
+    await worker.setParameters({ tessedit_pageseg_mode: PSM.AUTO, preserve_interword_spaces: '1' })
+    onProgress('Reading original image…')
+    const original = await worker.recognize(file)
+    onProgress('Improving contrast and reading again…')
+    let bitmap: ImageBitmap
+    try {
+      bitmap = await createImageBitmap(file)
+    } catch {
+      return original.data.text
+    }
+    const scale = Math.min(2, 3200 / Math.max(bitmap.width, bitmap.height))
+    const canvas = document.createElement('canvas')
+    canvas.width = Math.max(1, Math.round(bitmap.width * scale))
+    canvas.height = Math.max(1, Math.round(bitmap.height * scale))
+    const context = canvas.getContext('2d', { willReadFrequently: true })
+    if (!context) throw new Error('Could not prepare this image for scanning.')
+    context.drawImage(bitmap, 0, 0, canvas.width, canvas.height)
+    bitmap.close()
+
+    const pixels = context.getImageData(0, 0, canvas.width, canvas.height)
+    const histogram = new Uint32Array(256)
+    for (let index = 0; index < pixels.data.length; index += 4) {
+      const luminance = Math.round(pixels.data[index] * 0.299 + pixels.data[index + 1] * 0.587 + pixels.data[index + 2] * 0.114)
+      histogram[luminance] += 1
+    }
+    const percentile = (fraction: number) => {
+      const target = pixels.data.length / 4 * fraction
+      let count = 0
+      for (let value = 0; value < histogram.length; value += 1) {
+        count += histogram[value]
+        if (count >= target) return value
+      }
+      return 255
+    }
+    const low = percentile(0.03)
+    const high = Math.max(low + 1, percentile(0.97))
+    const span = high - low
+    for (let index = 0; index < pixels.data.length; index += 4) {
+      const luminance = pixels.data[index] * 0.299 + pixels.data[index + 1] * 0.587 + pixels.data[index + 2] * 0.114
+      const contrast = Math.max(0, Math.min(255, Math.round(((luminance - low) / span) * 255)))
+      pixels.data[index] = contrast
+      pixels.data[index + 1] = contrast
+      pixels.data[index + 2] = contrast
+    }
+    context.putImageData(pixels, 0, 0)
+
+    const enhanced = await worker.recognize(canvas)
+    const score = (text: string, confidence: number) => {
+      const pricedLines = text.split(/\r?\n/).filter((line) => /\d[\d,]*(?:\.\d{1,2})?\s*(?:ETB|Birr|Br\.?)?\s*$/i.test(line.trim())).length
+      return Math.min(pricedLines, 100) * 100 + confidence
+    }
+    return score(enhanced.data.text, enhanced.data.confidence) >= score(original.data.text, original.data.confidence)
+      ? enhanced.data.text
+      : original.data.text
   } finally {
     await worker.terminate()
   }
