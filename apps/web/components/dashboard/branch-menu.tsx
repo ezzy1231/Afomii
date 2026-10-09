@@ -324,7 +324,7 @@ export function BranchMenu({
                 type="button"
                 onClick={closeModal}
                 aria-label="Close"
-                className="flex size-11 items-center justify-center rounded-full text-app-muted transition-colors hover:bg-white/5 hover:text-app-fg"
+                className="flex size-11 items-center justify-center rounded-full text-app-muted transition-colors hover:bg-app-elevated hover:text-app-fg"
               >
                 ✕
               </button>

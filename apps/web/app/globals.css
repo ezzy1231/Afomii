@@ -317,12 +317,17 @@
       radial-gradient(46rem 30rem at -10% 30%, rgb(var(--glow-b-rgb) / calc(var(--glow-opacity) * 0.75)), transparent 62%);
   }
 
-  [data-theme='dark'] .bg-white,
-  [data-theme='dark'] .bg-app-panel {
+  /* These repaint hardcoded-`bg-white` surfaces for the dark theme. The
+     partner console is fixed-light and carries its own palette, so the
+     overrides must stop at its boundary — otherwise a partner with dark mode
+     enabled gets navy form fields with console-dark ink on top: unreadable.
+     `:where()` keeps the exclusion at zero specificity. */
+  [data-theme='dark'] .bg-white:not(:where(.shell-console *)),
+  [data-theme='dark'] .bg-app-panel:not(:where(.shell-console *)) {
     background-color: var(--bg-card) !important;
   }
 
-  [data-theme='dark'] .bg-ivory {
+  [data-theme='dark'] .bg-ivory:not(:where(.shell-console *)) {
     background-color: var(--bg-primary) !important;
   }
 
@@ -672,7 +677,9 @@
     background: rgb(255 255 255 / 0.85);
     box-shadow: 0 0 0 4px rgb(var(--ember-rgb) / 0.12);
   }
-  [data-theme='dark'] .input-premium:focus {
+  /* Same console boundary as the `bg-white` overrides above: a focused input
+     inside the fixed-light console stays on the console card surface. */
+  [data-theme='dark'] .input-premium:focus:not(:where(.shell-console *)) {
     background: rgb(27 27 32 / 0.9);
   }
 
