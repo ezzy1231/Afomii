@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import {
   createRestaurantListing,
   type DashboardActionState,
@@ -8,6 +9,7 @@ import {
 import BannerUploadField from "@/components/BannerUploadField";
 
 export default function RestaurantListingForm() {
+  const router = useRouter();
   const [state, setState] = useState<DashboardActionState>({
     ok: false,
     message: "",
@@ -19,6 +21,11 @@ export default function RestaurantListingForm() {
     startTransition(async () => {
       const result = await createRestaurantListing(state, formData);
       setState(result);
+      // A listing owns its branches and menu, so send the partner straight
+      // into the new listing rather than back to the list.
+      if (result.ok && result.id) {
+        router.push(`/dashboard/restaurant/listings/${result.id}`);
+      }
     });
   }
 
@@ -28,7 +35,8 @@ export default function RestaurantListingForm() {
         Create restaurant listing
       </h2>
       <p className="mt-2 text-sm text-app-muted">
-        Publish a live listing for the explore feed.
+        Publish a live listing for the explore feed. You will add branches and
+        the menu right after.
       </p>
 
       <form action={handleSubmit} className="mt-6 grid gap-5 sm:grid-cols-2">

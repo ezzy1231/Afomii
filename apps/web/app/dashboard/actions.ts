@@ -15,6 +15,7 @@ import {
   openingHoursSchema,
   restaurantListingWithBannerSchema,
   reservationStatusSchema,
+  restaurantListingInputSchema,
   userRoleSchema,
   uuidSchema,
 } from '@/lib/validation'
@@ -145,6 +146,7 @@ export async function createRestaurantListing(
 
   revalidatePath('/dashboard/restaurant')
   revalidatePath('/dashboard/restaurant/listings')
+  revalidatePath(`/dashboard/restaurant/listings/${listing.id}`)
   revalidatePath('/restaurants')
 
   return { ok: true, id: listing.id, message: `Restaurant listing created for ${name}.` }
@@ -644,7 +646,7 @@ export async function importMenuItems(
 
   const { data: branch } = await supabase
     .from('branches')
-    .select('id, business_id')
+    .select('id, business_id, restaurant_id')
     .eq('id', idCheck.data)
     .maybeSingle()
   if (!branch) return { ok: false, message: 'Branch not found or not authorized.' }
@@ -657,6 +659,10 @@ export async function importMenuItems(
     .maybeSingle()
   if (!business) return { ok: false, message: 'Branch not found or not authorized.' }
 
+  if (!branch.restaurant_id) {
+    return { ok: false, message: 'Assign this branch to a listing before importing menu items.' }
+  }
+
   const { error } = await supabase.from('menu_items').insert(
     cleanItems.map((item) => ({ ...item, branch_id: branch.id, is_available: true })),
   )
@@ -665,9 +671,144 @@ export async function importMenuItems(
     return defaultErrorState
   }
 
-  revalidatePath('/dashboard/restaurant/menu')
+  revalidatePath(`/dashboard/restaurant/listings/${branch.restaurant_id}`)
+  revalidatePath(`/dashboard/restaurant/listings/${branch.restaurant_id}/menu`)
   revalidatePath('/restaurants')
   return { ok: true, message: `Imported ${cleanItems.length} menu items. Review availability in your menu.` }
+}
+
+/** Owner-scoped lookup so a branch action can revalidate its own listing tabs. */
+async function getOwnedRestaurant(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  businessId: string,
+  listingId: string,
+) {
+  const { data } = await supabase
+    .from('restaurants')
+    .select('id')
+    .eq('id', listingId)
+    .eq('business_id', businessId)
+    .maybeSingle()
+  return data as { id: string } | null
+}
+
+/** The listing a branch belongs to, so its menu/branches tabs can revalidate. */
+async function getOwnedRestaurantByBranch(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  businessId: string,
+  branchId: string,
+) {
+  const { data } = await supabase
+    .from('branches')
+    .select('restaurant_id')
+    .eq('id', branchId)
+    .eq('business_id', businessId)
+    .maybeSingle()
+  const listingId = (data as { restaurant_id: string | null } | null)?.restaurant_id
+  if (!listingId) return null
+  return { id: listingId }
+}
+
+export async function saveListingDetails(
+  _prevState: DashboardActionState,
+  formData: FormData
+): Promise<DashboardActionState> {
+  const { supabase, user, role } = await getCurrentUserRole()
+  if (!user) return { ok: false, message: 'Please sign in again to continue.' }
+  if (role !== 'food_business') {
+    return { ok: false, message: 'Only restaurant partners can edit listings.' }
+  }
+
+  const idCheck = uuidSchema.safeParse(readText(formData, 'listingId'))
+  if (!idCheck.success) return { ok: false, message: 'Invalid listing identifier.' }
+
+  // The banner is set at creation and validated against our storage bucket
+  // there, so an edit deliberately cannot swap it out.
+  const parsed = restaurantListingInputSchema.safeParse({
+    name: readText(formData, 'name'),
+    cuisine: readText(formData, 'cuisine'),
+    areaLabel: readText(formData, 'areaLabel'),
+    city: readText(formData, 'city'),
+    closingLabel: readText(formData, 'closingLabel'),
+  })
+  if (!parsed.success) return { ok: false, message: firstIssue(parsed.error) }
+
+  const { data: business } = await supabase
+    .from('businesses')
+    .select('id')
+    .eq('owner_id', user.id)
+    .maybeSingle()
+  if (!business) return { ok: false, message: 'No linked business profile found.' }
+
+  const listing = await getOwnedRestaurant(supabase, business.id, idCheck.data)
+  if (!listing) return { ok: false, message: 'Listing not found or not authorized.' }
+
+  const { name, cuisine, areaLabel, city, closingLabel } = parsed.data
+
+  const { error } = await supabase
+    .from('restaurants')
+    .update({
+      name,
+      cuisine: cuisine || null,
+      area_label: areaLabel || null,
+      city,
+      closing_label: closingLabel || null,
+    })
+    .eq('id', idCheck.data)
+    .eq('business_id', business.id)
+
+  if (error) {
+    logActionError('saveListingDetails', error)
+    return defaultErrorState
+  }
+
+  revalidatePath(`/dashboard/restaurant/listings/${idCheck.data}`)
+  revalidatePath('/dashboard/restaurant/listings')
+  revalidatePath(`/restaurants/${idCheck.data}`)
+  revalidatePath('/restaurants')
+  return { ok: true, message: 'Listing details saved.' }
+}
+
+export async function setListingActive(
+  listingId: string,
+  active: boolean
+): Promise<DashboardActionState> {
+  const idCheck = uuidSchema.safeParse(listingId)
+  if (!idCheck.success) return { ok: false, message: 'Invalid listing identifier.' }
+
+  const { supabase, user, role } = await getCurrentUserRole()
+  if (!user) return { ok: false, message: 'Please sign in again to continue.' }
+  if (role !== 'food_business') {
+    return { ok: false, message: 'Only restaurant partners can publish listings.' }
+  }
+
+  const { data: business } = await supabase
+    .from('businesses')
+    .select('id')
+    .eq('owner_id', user.id)
+    .maybeSingle()
+  if (!business) return { ok: false, message: 'No linked business profile found.' }
+
+  const listing = await getOwnedRestaurant(supabase, business.id, idCheck.data)
+  if (!listing) return { ok: false, message: 'Listing not found or not authorized.' }
+
+  const { error } = await supabase
+    .from('restaurants')
+    .update({ is_active: active })
+    .eq('id', idCheck.data)
+    .eq('business_id', business.id)
+
+  if (error) {
+    logActionError('setListingActive', error)
+    return defaultErrorState
+  }
+
+  revalidatePath(`/dashboard/restaurant/listings/${idCheck.data}`)
+  revalidatePath('/dashboard/restaurant/listings')
+  revalidatePath('/dashboard/restaurant')
+  revalidatePath(`/restaurants/${idCheck.data}`)
+  revalidatePath('/restaurants')
+  return { ok: true, message: active ? 'Listing published.' : 'Listing unpublished.' }
 }
 
 export async function toggleEventActive(
@@ -783,6 +924,7 @@ export async function addBranch(
 
   revalidatePath('/dashboard/restaurant/listings')
   revalidatePath(`/dashboard/restaurant/listings/${restaurant.id}`)
+  revalidatePath(`/dashboard/restaurant/listings/${restaurant.id}/branches`)
   revalidatePath(`/dashboard/restaurant/listings/${restaurant.id}/menu`)
   revalidatePath('/restaurants')
   return { ok: true, message: `Branch "${branchName}" added.` }
@@ -840,6 +982,7 @@ export async function assignBranchToListing(
 
   revalidatePath('/dashboard/restaurant/listings')
   revalidatePath(`/dashboard/restaurant/listings/${restaurant.id}`)
+  revalidatePath(`/dashboard/restaurant/listings/${restaurant.id}/branches`)
   revalidatePath(`/dashboard/restaurant/listings/${restaurant.id}/menu`)
   revalidatePath('/restaurants')
   return { ok: true, message: 'Branch assigned to listing.' }
@@ -895,7 +1038,10 @@ export async function updateBranchBookingConfig(input: {
     return defaultErrorState
   }
 
-  revalidatePath('/dashboard/restaurant/branches')
+  const listing = await getOwnedRestaurantByBranch(supabase, business.id, parsed.data.branchId)
+
+  revalidatePath(`/dashboard/restaurant/listings/${listing?.id ?? ''}`)
+  revalidatePath(`/dashboard/restaurant/listings/${listing?.id ?? ''}/branches`)
   revalidatePath('/restaurants')
   return { ok: true, message: 'Availability settings saved.' }
 }
@@ -941,7 +1087,8 @@ export async function updateRestaurantHours(input: {
     return defaultErrorState
   }
 
-  revalidatePath('/dashboard/restaurant/branches')
+  revalidatePath(`/dashboard/restaurant/listings/${idCheck.data}`)
+  revalidatePath(`/dashboard/restaurant/listings/${idCheck.data}/branches`)
   revalidatePath('/restaurants')
   return { ok: true, message: 'Opening hours saved.' }
 }

@@ -14,6 +14,9 @@ const navItems = [
   { label: 'Settings', href: `${ROOT}/settings` },
 ]
 
+// Branch and menu management moved under a listing, so the rail no longer
+// carries standalone entries for them — they are reached from Listings.
+
 export default async function RestaurantDashboardLayout({
   children,
 }: {

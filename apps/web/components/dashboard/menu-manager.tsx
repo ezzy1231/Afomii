@@ -20,7 +20,6 @@ type MenuItem = {
   description: string | null
   price: number
   category: string
-  // Postgres column is snake_case (`is_available`); normalize on read.
   isAvailable: boolean
 }
 
@@ -48,13 +47,21 @@ function initialsTile(name: string) {
     .map((w) => w.charAt(0).toUpperCase())
     .join('')
   return (
-    <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-md border border-app-border   text-base font-bold text-ember">
+    <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-md border border-app-border text-base font-bold text-ember">
       {initials || '?'}
     </span>
   )
 }
 
-export default function MenuPage() {
+export function MenuManager({
+  restaurantId,
+  listingName,
+  branchesHref,
+}: {
+  restaurantId: string
+  listingName: string
+  branchesHref: string
+}) {
   const [loading, setLoading] = useState(true)
   const [branches, setBranches] = useState<Branch[]>([])
   const [branchId, setBranchId] = useState<string | null>(null)
@@ -62,26 +69,10 @@ export default function MenuPage() {
   const [items, setItems] = useState<MenuItem[]>([])
   const [search, setSearch] = useState('')
   const [activeCategory, setActiveCategory] = useState('All')
-  const [user, setUser] = useState<any>(null)
-  const [isLoaded, setIsLoaded] = useState(false)
   const [formError, setFormError] = useState<string | null>(null)
   const dialogRef = useRef<HTMLDivElement>(null)
   const firstFieldRef = useRef<HTMLInputElement>(null)
   const openerRef = useRef<HTMLElement | null>(null)
-
-  useEffect(() => {
-    const supabase = createClient()
-    supabase.auth.getUser().then(({ data: { user: u } }) => {
-      setUser(u)
-      setIsLoaded(true)
-    })
-  }, [])
-
-  // Add / edit modal state
-  const [editing, setEditing] = useState<MenuItem | null>(null)
-  const [creating, setCreating] = useState(false)
-  const [draft, setDraft] = useState({ name: '', price: '', category: 'Mains', description: '' })
-  const [saving, setSaving] = useState(false)
 
   const loadItems = useCallback(async (pBranchId: string) => {
     const supabase = createClient()
@@ -103,31 +94,16 @@ export default function MenuPage() {
   }, [])
 
   useEffect(() => {
-    if (!isLoaded) return
+    let active = true
     async function load() {
       const supabase = createClient()
-      if (!user) { setLoading(false); return }
-
-      const { data: business, error: businessError } = await supabase
-        .from('businesses')
-        .select('id')
-        .eq('owner_id', user.id)
-        .order('created_at', { ascending: true })
-        .limit(1)
-        .maybeSingle()
-      if (businessError || !business) {
-        if (businessError) {
-          console.error('[menu] business unavailable:', businessError.message)
-          setBranchLoadError('Could not load your restaurant account. Refresh the page and try again.')
-        } else {
-          setBranchLoadError('No restaurant business is linked to this account.')
-        }
-        setLoading(false)
-        return
-      }
-
+      setLoading(true)
       const { data: branchRows, error: branchError } = await supabase
-        .from('branches').select('id, branch_name').eq('business_id', business.id).order('created_at')
+        .from('branches')
+        .select('id, branch_name')
+        .eq('restaurant_id', restaurantId)
+        .order('created_at')
+      if (!active) return
       if (branchError) {
         console.error('[menu] branches unavailable:', branchError.message)
         setBranchLoadError('Could not load your branches. Refresh the page and try again.')
@@ -140,14 +116,20 @@ export default function MenuPage() {
         name: branch.branch_name,
       }))
       setBranches(list)
-      if (!list.length) { setLoading(false); return }
-
+      if (!list.length) {
+        setLoading(false)
+        return
+      }
       setBranchId(list[0].id)
       await loadItems(list[0].id)
+      if (!active) return
       setLoading(false)
     }
-    load()
-  }, [loadItems, isLoaded, user])
+    void load()
+    return () => {
+      active = false
+    }
+  }, [loadItems, restaurantId])
 
   async function switchBranch(id: string) {
     setBranchId(id)
@@ -156,6 +138,11 @@ export default function MenuPage() {
     await loadItems(id)
     setLoading(false)
   }
+
+  const [editing, setEditing] = useState<MenuItem | null>(null)
+  const [creating, setCreating] = useState(false)
+  const [draft, setDraft] = useState({ name: '', price: '', category: 'Mains', description: '' })
+  const [saving, setSaving] = useState(false)
 
   function openCreate() {
     openerRef.current = document.activeElement as HTMLElement | null
@@ -184,8 +171,6 @@ export default function MenuPage() {
     setFormError(null)
   }
 
-  // Focus contract for the sheet: move in on open, Escape closes, Tab stays
-  // inside, and focus returns to whatever opened it.
   useEffect(() => {
     if (!creating) return
     const panel = dialogRef.current
@@ -210,10 +195,10 @@ export default function MenuPage() {
         return
       }
       if (event.key !== 'Tab') return
-      const items = focusables()
-      if (!items.length) return
-      const first = items[0]
-      const last = items[items.length - 1]
+      const focusable = focusables()
+      if (!focusable.length) return
+      const first = focusable[0]
+      const last = focusable[focusable.length - 1]
       if (event.shiftKey && document.activeElement === first) {
         event.preventDefault()
         last.focus()
@@ -237,9 +222,6 @@ export default function MenuPage() {
     setSaving(true)
     setFormError(null)
     const supabase = createClient()
-    // `is_available` must round-trip through the payload. Omitting it made the
-    // modal's toggle silently revert on save (the row was rebuilt from the DB
-    // value) and left a phantom change behind on cancel.
     const payload = {
       branch_id: branchId,
       name: draft.name.trim(),
@@ -274,8 +256,6 @@ export default function MenuPage() {
         ])
       }
     }
-    // Keep the modal open on failure so the draft survives, but never swallow
-    // the reason — a silent no-op is indistinguishable from a successful save.
     if (error) setFormError(error.message)
     else closeModal()
     setSaving(false)
@@ -285,7 +265,6 @@ export default function MenuPage() {
     const next = !item.isAvailable
     setItems((prev) => prev.map((i) => (i.id === item.id ? { ...i, isAvailable: next } : i)))
     const supabase = createClient()
-    // Column is `is_available`, not `isAvailable`.
     const { error } = await supabase.from('menu_items').update({ is_available: next }).eq('id', item.id)
     if (error) setItems((prev) => prev.map((i) => (i.id === item.id ? { ...i, isAvailable: !next } : i)))
   }
@@ -306,9 +285,9 @@ export default function MenuPage() {
   return (
     <ConsoleStack>
       <ConsoleHeader
-        eyebrow="Partner console"
-        title="Menu Manager"
-        subtitle="Curate what guests can order across your branches."
+        eyebrow="Listing menu"
+        title={`${listingName} menu`}
+        subtitle="Curate what guests can order at this listing's locations."
         action={
           <button
             type="button"
@@ -320,7 +299,6 @@ export default function MenuPage() {
         }
       />
 
-      {/* Branch selector */}
       {branches.length > 1 && (
         <div className="flex flex-wrap gap-2">
           {branches.map((b) => (
@@ -334,12 +312,12 @@ export default function MenuPage() {
       <MenuImporter
         branchId={branchId}
         branchName={branches.find((branch) => branch.id === branchId)?.name}
+        branchHref={branchesHref}
         onImported={async () => {
           if (branchId) await loadItems(branchId)
         }}
       />
 
-      {/* Search */}
       <div className={cn(CONSOLE_CARD, 'flex items-center gap-3 px-4 py-3')}>
         <svg viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4 shrink-0 text-app-muted">
           <path fillRule="evenodd" d="M9 3.5a5.5 5.5 0 1 0 0 11 5.5 5.5 0 0 0 0-11ZM2 9a7 7 0 1 1 12.452 4.391l3.328 3.329a.75.75 0 1 1-1.06 1.06l-3.329-3.328A7 7 0 0 1 2 9Z" clipRule="evenodd" />
@@ -353,7 +331,6 @@ export default function MenuPage() {
         />
       </div>
 
-      {/* Category tabs */}
       {!loading && categories.length > 1 && (
         <nav aria-label="Menu categories" className="flex gap-6 overflow-x-auto border-b border-app-border [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {categories.map((cat) => (
@@ -376,14 +353,21 @@ export default function MenuPage() {
         </nav>
       )}
 
-      {/* Items */}
       {loading ? (
         <ConsoleSkeletonRow count={4} />
       ) : !branchId ? (
         <div className={cn(CONSOLE_CARD, 'border-dashed p-10 text-center')}>
           <p className="font-semibold">{branchLoadError ? 'Branches unavailable' : 'No branches yet'}</p>
           <p className="mt-1 text-sm text-app-muted">
-            {branchLoadError ?? 'Create a branch first — menu items live per location.'}
+            {branchLoadError ?? (
+              <>
+                This listing has no locations yet. Add one on the{' '}
+                <a href={branchesHref} className="font-semibold text-ember hover:underline">
+                  branches tab
+                </a>{' '}
+                — menu items live per location.
+              </>
+            )}
           </p>
         </div>
       ) : visible.length === 0 ? (
@@ -412,7 +396,7 @@ export default function MenuPage() {
                     {item.description && (
                       <p className="mt-0.5 truncate text-xs text-app-muted">{item.description}</p>
                     )}
-                    <p className="mt-1  text-sm font-bold tabular-nums text-ember">
+                    <p className="mt-1 text-sm font-bold tabular-nums text-ember">
                       {formatETB(item.price)}
                     </p>
                   </div>
@@ -438,7 +422,6 @@ export default function MenuPage() {
         </section>
       )}
 
-      {/* Add / edit modal — bottom sheet on mobile, centered dialog on desktop */}
       {creating && (
         <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center">
           <button type="button" aria-label="Close" onClick={closeModal} className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
@@ -450,7 +433,7 @@ export default function MenuPage() {
             className="animate-pop-in relative w-full sm:max-w-lg glass rounded-t-xl p-6 sm:rounded-3xl safe-bottom max-h-[90vh] overflow-y-auto"
           >
             <div className="mb-5 flex items-center justify-between">
-              <h3 id="menu-item-dialog-title" className=" text-xl font-bold">{editing ? 'Edit Item' : 'Add Item'}</h3>
+              <h3 id="menu-item-dialog-title" className="text-xl font-bold">{editing ? 'Edit Item' : 'Add Item'}</h3>
               <button
                 type="button"
                 onClick={closeModal}
@@ -471,14 +454,14 @@ export default function MenuPage() {
                   value={draft.name}
                   onChange={(e) => setDraft((d) => ({ ...d, name: e.target.value }))}
                   placeholder="e.g. Doro Wat Premium"
-                  className="w-full rounded-lg border border-app-border  px-3.5 py-2.5 text-sm text-app-fg outline-none transition-colors placeholder:text-app-muted/70 focus:border-ember/40"
+                  className="w-full rounded-lg border border-app-border px-3.5 py-2.5 text-sm text-app-fg outline-none transition-colors placeholder:text-app-muted/70 focus:border-ember/40"
                 />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label htmlFor="mi-price" className="mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.15em] text-app-muted">Price</label>
                   <div className="relative">
-                    <span className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2  text-xs font-bold text-ember">ETB</span>
+                    <span className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-xs font-bold text-ember">ETB</span>
                     <input
                       id="mi-price"
                       required
@@ -489,7 +472,7 @@ export default function MenuPage() {
                       value={draft.price}
                       onChange={(e) => setDraft((d) => ({ ...d, price: e.target.value }))}
                       placeholder="450"
-                      className="w-full rounded-lg border border-app-border  py-2.5 pl-12 pr-3.5 text-sm tabular-nums text-app-fg outline-none transition-colors placeholder:text-app-muted/70 focus:border-ember/40"
+                      className="w-full rounded-lg border border-app-border py-2.5 pl-12 pr-3.5 text-sm tabular-nums text-app-fg outline-none transition-colors placeholder:text-app-muted/70 focus:border-ember/40"
                     />
                   </div>
                 </div>
@@ -499,7 +482,7 @@ export default function MenuPage() {
                     id="mi-category"
                     value={draft.category}
                     onChange={(e) => setDraft((d) => ({ ...d, category: e.target.value }))}
-                    className="w-full rounded-lg border border-app-border  px-3.5 py-2.5 text-sm text-app-fg outline-none transition-colors focus:border-ember/40"
+                    className="w-full rounded-lg border border-app-border px-3.5 py-2.5 text-sm text-app-fg outline-none transition-colors focus:border-ember/40"
                   >
                     {CATEGORIES.map((c) => (
                       <option key={c} value={c}>{c}</option>
@@ -515,17 +498,15 @@ export default function MenuPage() {
                   value={draft.description}
                   onChange={(e) => setDraft((d) => ({ ...d, description: e.target.value }))}
                   placeholder="Traditional spicy chicken stew with hard-boiled egg and injera"
-                  className="w-full resize-none rounded-lg border border-app-border  px-3.5 py-2.5 text-sm text-app-fg outline-none transition-colors placeholder:text-app-muted/70 focus:border-ember/40"
+                  className="w-full resize-none rounded-lg border border-app-border px-3.5 py-2.5 text-sm text-app-fg outline-none transition-colors placeholder:text-app-muted/70 focus:border-ember/40"
                 />
               </div>
               {editing && (
-                <div className="flex items-center justify-between rounded-lg border border-app-border  px-4 py-3">
+                <div className="flex items-center justify-between rounded-lg border border-app-border px-4 py-3">
                   <label htmlFor="mi-available" className="text-sm font-semibold">Available for Order</label>
                   <ToggleSwitch
                     id="mi-available"
                     checked={editing.isAvailable}
-                    // Pending until Save: deliberately does not touch `items`, so
-                    // Cancel is a true no-op rather than a phantom row change.
                     onChange={(next) => setEditing({ ...editing, isAvailable: next })}
                     label="Available for order"
                   />

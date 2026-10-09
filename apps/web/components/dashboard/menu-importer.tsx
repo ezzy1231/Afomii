@@ -235,10 +235,13 @@ async function readImage(file: File, languages: string[], onProgress: (message: 
 export function MenuImporter({
   branchId,
   branchName,
+  branchHref = '/dashboard/restaurant/listings',
   onImported,
 }: {
   branchId: string | null
   branchName?: string
+  /** Where "create a branch" points, so it stays inside the current listing. */
+  branchHref?: string
   onImported: () => Promise<void>
 }) {
   const [items, setItems] = useState<DraftItem[]>([])
@@ -358,7 +361,7 @@ export function MenuImporter({
           <button type="button" onClick={() => void save()} disabled={!branchId || saving || items.some((item) => item.name.trim().length < 2 || !item.price || Number(item.price) < 0)} className="min-h-11 w-full rounded-xl bg-ember px-5 text-sm font-semibold text-on-accent disabled:opacity-50">
             {saving ? 'Adding items…' : branchId ? `Add ${items.length} item${items.length === 1 ? '' : 's'} to this branch` : 'Create a branch to add items'}
           </button>
-          {!branchId && <a href="/dashboard/restaurant/branches" className="block text-center text-sm font-semibold text-ember hover:underline">Open branch settings</a>}
+          {!branchId && <a href={branchHref} className="block text-center text-sm font-semibold text-ember hover:underline">Open branch settings</a>}
         </div>
       )}
 

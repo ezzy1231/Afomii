@@ -31,7 +31,7 @@ type BookingConfig = {
   cancellation_policy?: string | null;
 };
 
-type Branch = {
+export type Branch = {
   id: string;
   branch_name: string;
   address: string | null;
@@ -39,7 +39,7 @@ type Branch = {
   booking_configs: BookingConfig | null;
 };
 
-type Restaurant = {
+export type Restaurant = {
   id: string;
   name: string;
   opening_hours: Record<string, { open: string; close: string }[]> | null;
@@ -100,53 +100,22 @@ function Stepper({
   );
 }
 
-export function BranchManager({ restaurantId }: { restaurantId: string }) {
+export function BranchManager({
+  restaurantId,
+  listingName,
+}: {
+  restaurantId: string
+  listingName?: string
+}) {
   const [branches, setBranches] = useState<Branch[]>([]);
-  const [restaurant, setRestaurant] = useState<Restaurant | null>(null);
   const [loading, setLoading] = useState(true);
-  const [user, setUser] = useState<any>(null);
-  const [isLoaded, setIsLoaded] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
-    const supabase = createClient();
-    supabase.auth.getUser().then(({ data: { user: u } }) => {
-      setUser(u);
-      setIsLoaded(true);
-    });
-  }, []);
-
-  useEffect(() => {
-    if (!isLoaded) return;
-    async function load() {
+    let active = true
+    async function fetchBranches() {
       const supabase = createClient();
       setLoading(true);
-      if (!user) {
-        setLoading(false);
-        return;
-      }
-
-      const { data: business } = await supabase
-        .from("businesses")
-        .select("id")
-        .eq("owner_id", user.id)
-        .maybeSingle();
-      if (!business) {
-        setLoading(false);
-        return;
-      }
-
-      const { data: listing } = await supabase
-        .from("restaurants")
-        .select("id, name, opening_hours")
-        .eq("id", restaurantId)
-        .eq("business_id", business.id)
-        .maybeSingle();
-      if (!listing) {
-        setLoading(false);
-        return;
-      }
-
       const { data: branchRows } = await supabase
         .from("branches")
         .select(
@@ -154,7 +123,7 @@ export function BranchManager({ restaurantId }: { restaurantId: string }) {
         )
         .eq("restaurant_id", restaurantId)
         .order("created_at", { ascending: true });
-
+      if (!active) return;
       setBranches(
         (branchRows ?? []).map((b: any) => ({
           id: b.id,
@@ -166,20 +135,18 @@ export function BranchManager({ restaurantId }: { restaurantId: string }) {
             : (b.booking_configs ?? null),
         })),
       );
-      setRestaurant({
-        id: listing.id,
-        name: listing.name,
-        opening_hours: listing.opening_hours ?? {},
-      });
       setLoading(false);
     }
-    load();
-  }, [isLoaded, user, restaurantId, refreshKey]);
+    void fetchBranches()
+    return () => {
+      active = false
+    }
+  }, [restaurantId, refreshKey])
 
   return (
     <ConsolePage>
       <section className="space-y-3">
-        <SectionTitle>Branches</SectionTitle>
+        <SectionTitle>{listingName ? `${listingName} branches` : "Branches"}</SectionTitle>
         <AddBranchForm
           restaurantId={restaurantId}
           onCreated={() => setRefreshKey((key) => key + 1)}
@@ -205,13 +172,7 @@ export function BranchManager({ restaurantId }: { restaurantId: string }) {
         )}
       </section>
 
-      {!loading && restaurant && (
-        <section className="space-y-3">
-          <SectionTitle>Opening hours</SectionTitle>
-          <RestaurantHoursCard restaurant={restaurant} />
-        </section>
-      )}
-    </ConsolePage>
+      </ConsolePage>
   );
 }
 
@@ -573,7 +534,11 @@ function BranchConfigCard({ branch }: { branch: Branch }) {
   );
 }
 
-function RestaurantHoursCard({ restaurant }: { restaurant: Restaurant }) {
+export function RestaurantHoursCard({
+  restaurant,
+}: {
+  restaurant: Restaurant
+}) {
   const [hours, setHours] = useState<
     Record<string, { open: string; close: string }[]>
   >(() => structuredClone(restaurant.opening_hours ?? {}));

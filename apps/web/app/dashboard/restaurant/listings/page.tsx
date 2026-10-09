@@ -2,11 +2,10 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
-import {
-  ConsoleHeader,
-  StatusPill,
-} from '@/components/dashboard/console'
+import { getOwnedListings } from '@/lib/dashboard/listing-data'
+import { ConsoleHeader, StatusPill } from '@/components/dashboard/console'
 import { ConsoleStack } from '@/components/dashboard/console-primitives'
+import { UnassignedBranches } from '@/components/dashboard/unassigned-branches'
 import { CONSOLE_CARD } from '@/components/dashboard/console-shared'
 import { cn } from '@/lib/utils'
 
@@ -14,46 +13,25 @@ export const metadata: Metadata = { title: 'Listings · Restaurant' }
 
 export default async function RestaurantListingsPage() {
   const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
   if (!user) redirect('/auth/signin')
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('id')
-    .eq('id', user!.id)
-    .maybeSingle()
-  const profileId = profile?.id ?? null
 
-  const { data: business } = await supabase
-    .from('businesses')
-    .select('id')
-    .eq('owner_id', profileId ?? '')
-    .maybeSingle()
+  const listings = await getOwnedListings(supabase, user)
 
-  const { data: restaurants } = business
-    ? await supabase
-        .from('restaurants')
-        .select('id, name, cuisine, area_label, city, rating, closing_label, is_active')
-        .eq('business_id', business.id)
-        .order('created_at', { ascending: false })
-    : { data: [] }
-
-  const rows = (restaurants ?? []) as Array<{
-    id: string
-    name: string
-    cuisine: string | null
-    area_label: string | null
-    city: string | null
-    rating: number | null
-    closing_label: string | null
-    is_active: boolean | null
-  }>
+  const { data: unassigned } = await supabase
+    .from('branches')
+    .select('id, branch_name, address')
+    .is('restaurant_id', null)
+    .order('created_at', { ascending: true })
 
   return (
     <ConsoleStack>
       <ConsoleHeader
         eyebrow="Partner console"
         title="Listings"
-        subtitle="What diners see on the explore feed."
+        subtitle="Open a listing to manage its branches, availability, and menu."
         action={
           <Link
             href="/dashboard/restaurant/listings/new"
@@ -64,7 +42,7 @@ export default async function RestaurantListingsPage() {
         }
       />
 
-      {rows.length === 0 ? (
+      {listings.length === 0 ? (
         <div className={cn(CONSOLE_CARD, 'border-dashed p-10 text-center')}>
           <p className="font-semibold">No listings yet</p>
           <p className="mt-1 text-sm text-app-muted">
@@ -79,29 +57,42 @@ export default async function RestaurantListingsPage() {
         </div>
       ) : (
         <div className="space-y-2">
-          {rows.map((row) => (
-            <div key={row.id} className={cn(CONSOLE_CARD, 'flex flex-wrap items-center justify-between gap-3 p-4')}>
+          {listings.map((row) => (
+            <Link
+              key={row.id}
+              href={`/dashboard/restaurant/listings/${row.id}`}
+              className={cn(
+                CONSOLE_CARD,
+                'flex flex-wrap items-center justify-between gap-3 p-4 transition-colors hover:border-ember/40',
+              )}
+            >
               <div className="min-w-0">
                 <p className="truncate text-sm font-semibold">{row.name}</p>
                 <p className="text-xs capitalize text-app-muted">
-                  {[row.cuisine, row.area_label, row.city].filter(Boolean).join(' · ') || 'Restaurant'}
+                  {[row.cuisine, row.area_label, row.city].filter(Boolean).join(' · ') ||
+                    'Restaurant'}
                   {row.closing_label ? ` · ${row.closing_label}` : ''}
-                  {row.rating != null ? ` · ★ ${String(row.rating)}` : ''}
                 </p>
               </div>
               <div className="flex shrink-0 items-center gap-3">
-                <StatusPill status={(row.is_active ?? false) ? 'active' : 'inactive'} tone={(row.is_active ?? false) ? 'ok' : 'info'} />
-                <Link
-                  href={`/restaurants/${row.id}`}
-                  target="_blank"
-                  className="min-h-[36px] rounded-full border border-app-border px-3.5 py-1.5 text-xs font-semibold text-app-muted transition-colors hover:border-ember/30"
-                >
-                  View public page ↗
-                </Link>
+                <StatusPill
+                  status={row.is_active ? 'active' : 'inactive'}
+                  tone={row.is_active ? 'ok' : 'info'}
+                />
+                <span className="min-h-[36px] rounded-full border border-app-border px-3.5 py-1.5 text-xs font-semibold text-app-muted">
+                  Manage →
+                </span>
               </div>
-            </div>
+            </Link>
           ))}
         </div>
+      )}
+
+      {listings.length > 0 && (
+        <UnassignedBranches
+          branches={unassigned ?? []}
+          listings={listings.map((listing) => ({ id: listing.id, name: listing.name }))}
+        />
       )}
     </ConsoleStack>
   )
