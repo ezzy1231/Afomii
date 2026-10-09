@@ -58,6 +58,7 @@ export default function MenuPage() {
   const [loading, setLoading] = useState(true)
   const [branches, setBranches] = useState<Branch[]>([])
   const [branchId, setBranchId] = useState<string | null>(null)
+  const [branchLoadError, setBranchLoadError] = useState<string | null>(null)
   const [items, setItems] = useState<MenuItem[]>([])
   const [search, setSearch] = useState('')
   const [activeCategory, setActiveCategory] = useState('All')
@@ -119,9 +120,19 @@ export default function MenuPage() {
         .from('businesses').select('id').eq('owner_id', profileRow.id).maybeSingle()
       if (!business) { setLoading(false); return }
 
-      const { data: branchRows } = await supabase
-        .from('branches').select('id, name').eq('business_id', business.id).order('created_at')
-      const list = (branchRows ?? []) as Branch[]
+      const { data: branchRows, error: branchError } = await supabase
+        .from('branches').select('id, branch_name').eq('business_id', business.id).order('created_at')
+      if (branchError) {
+        console.error('[menu] branches unavailable:', branchError.message)
+        setBranchLoadError('Could not load your branches. Refresh the page and try again.')
+        setLoading(false)
+        return
+      }
+      setBranchLoadError(null)
+      const list: Branch[] = (branchRows ?? []).map((branch) => ({
+        id: branch.id,
+        name: branch.branch_name,
+      }))
       setBranches(list)
       if (!list.length) { setLoading(false); return }
 
@@ -304,8 +315,10 @@ export default function MenuPage() {
         <ConsoleSkeletonRow count={4} />
       ) : !branchId ? (
         <div className={cn(CONSOLE_CARD, 'border-dashed p-10 text-center')}>
-          <p className="font-semibold">No branches yet</p>
-          <p className="mt-1 text-sm text-app-muted">Create a branch first — menu items live per location.</p>
+          <p className="font-semibold">{branchLoadError ? 'Branches unavailable' : 'No branches yet'}</p>
+          <p className="mt-1 text-sm text-app-muted">
+            {branchLoadError ?? 'Create a branch first — menu items live per location.'}
+          </p>
         </div>
       ) : visible.length === 0 ? (
         <div className={cn(CONSOLE_CARD, 'border-dashed p-10 text-center')}>
