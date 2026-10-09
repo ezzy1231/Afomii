@@ -1,6 +1,7 @@
 'use client'
 
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { Plus, Search } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { ToggleSwitch } from '@/components/dashboard/console'
 import { MenuImporter } from '@/components/dashboard/menu-importer'
@@ -32,6 +33,14 @@ function formatETB(value: number) {
     : value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
 }
 
+/** Price column inside the list — the ETB unit lives in the section, not each row. */
+function formatPrice(value: number) {
+  return value.toLocaleString('en-US', {
+    minimumFractionDigits: Number.isInteger(value) ? 0 : 2,
+    maximumFractionDigits: 2,
+  })
+}
+
 function toItem(row: MenuRow): MenuItem {
   return {
     id: row.id,
@@ -55,6 +64,7 @@ export function BranchMenu({
   branchName: string
 }) {
   const [items, setItems] = useState<MenuItem[]>([])
+  const [search, setSearch] = useState('')
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
@@ -231,20 +241,90 @@ export function BranchMenu({
     setItems((prev) => prev.filter((i) => i.id !== item.id))
   }
 
+  /**
+   * Kitchen order rather than alphabetical: a diner reads breakfast first,
+   * then mains, then drinks. Imported menus often land everything in
+   * "General", so that bucket sorts last instead of drowning the real ones.
+   */
+  const CATEGORY_ORDER = [
+    'Breakfast',
+    'Appetizers',
+    'Starters',
+    'Mains',
+    'Grills',
+    'Sides',
+    'Desserts',
+    'Drinks',
+    'Juices',
+  ]
+
+  const filtered = useMemo(() => {
+    const term = search.trim().toLowerCase()
+    if (!term) return items
+    return items.filter(
+      (item) =>
+        item.name.toLowerCase().includes(term) ||
+        item.category.toLowerCase().includes(term) ||
+        (item.description ?? '').toLowerCase().includes(term),
+    )
+  }, [items, search])
+
+  const groups = useMemo(() => {
+    const byCategory = new Map<string, MenuItem[]>()
+    for (const item of filtered) {
+      const list = byCategory.get(item.category) ?? []
+      list.push(item)
+      byCategory.set(item.category, list)
+    }
+    return Array.from(byCategory.entries()).sort(([a], [b]) => {
+      const ia = CATEGORY_ORDER.indexOf(a)
+      const ib = CATEGORY_ORDER.indexOf(b)
+      if (ia !== -1 && ib !== -1) return ia - ib
+      if (ia !== -1) return -1
+      if (ib !== -1) return 1
+      return a.localeCompare(b)
+    })
+  }, [filtered])
+
+  const hiddenCount = items.length - filtered.length
+
   return (
-    <section className="space-y-3 border-t border-app-border px-5 py-4">
+    <section className="space-y-4 border-t border-app-border px-5 py-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h3 className="text-[11px] font-semibold uppercase tracking-[0.15em] text-app-muted">
-          Menu · {branchName}
-        </h3>
+        <div>
+          <h3 className="text-[15px] font-bold text-console-ink">Menu</h3>
+          <p className="mt-0.5 text-xs text-app-muted">
+            {loading
+              ? 'Loading…'
+              : `${items.length} dish${items.length === 1 ? '' : 'es'} at ${branchName}`}
+          </p>
+        </div>
         <button
           type="button"
           onClick={openCreate}
-          className="min-h-9 rounded-full border border-dashed border-app-border px-4 text-xs font-semibold text-ember transition-colors hover:border-ember/40 hover:bg-ember/10"
+          className="inline-flex min-h-9 items-center gap-1.5 rounded-lg border border-dashed border-console-border px-3.5 text-xs font-semibold text-console-ink transition-colors hover:border-console-indigo/50 hover:bg-console-bg"
         >
-          ＋ Add item
+          <Plus className="size-3.5" strokeWidth={2.2} />
+          Add dish
         </button>
       </div>
+
+      {items.length > 8 && !loading && (
+        <div className="relative">
+          <Search
+            className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-app-muted"
+            aria-hidden
+          />
+          <input
+            type="search"
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+            placeholder="Find a dish"
+            aria-label="Search dishes"
+            className="min-h-11 w-full rounded-xl border border-console-border bg-console-card py-2 pl-9 pr-3 text-sm text-console-ink outline-none transition-colors placeholder:text-app-muted focus:border-console-indigo/50"
+          />
+        </div>
+      )}
 
       {loading ? (
         <p className="text-sm text-app-muted">Loading menu…</p>
@@ -253,46 +333,103 @@ export function BranchMenu({
           {loadError}
         </p>
       ) : items.length === 0 ? (
+        <div className="rounded-xl border border-dashed border-console-border px-4 py-8 text-center">
+          <p className="text-sm font-semibold text-console-ink">No dishes yet</p>
+          <p className="mx-auto mt-1 max-w-xs text-sm text-app-muted">
+            Add dishes by hand, or import a PDF or photo of the menu below.
+          </p>
+        </div>
+      ) : filtered.length === 0 ? (
         <p className="text-sm text-app-muted">
-          No dishes yet for this location. Add items by hand, or import a PDF or photo of the menu
-          below.
+          No dishes match “{search.trim()}”. Clear the search to see all {items.length}.
         </p>
       ) : (
-        <ul className="divide-y divide-app-border">
-          {items.map((item) => (
-            <li key={item.id} className={cn('flex items-center justify-between gap-3 py-2.5', !item.isAvailable && 'opacity-60')}>
-              <div className="min-w-0">
-                <p className="truncate text-sm font-semibold">{item.name}</p>
-                <p className="text-xs text-app-muted">
-                  {item.category} · <span className="font-bold tabular-nums text-ember">{formatETB(item.price)}</span>
-                </p>
+        <div className="space-y-6">
+          {groups.map(([category, dishes]) => (
+            <section key={category} className="space-y-1">
+              <div className="flex items-baseline justify-between gap-3 border-b border-app-border pb-1.5">
+                <h4 className="text-sm font-bold text-console-ink">{category}</h4>
+                <span className="text-xs text-app-muted tabular-nums">
+                  {dishes.length} dish{dishes.length === 1 ? '' : 'es'}
+                </span>
               </div>
-              <div className="flex shrink-0 items-center gap-2">
-                <ToggleSwitch
-                  checked={item.isAvailable}
-                  onChange={() => toggleAvailability(item)}
-                  label={`${item.isAvailable ? 'Hide' : 'Show'} ${item.name}`}
-                />
-                <button
-                  type="button"
-                  onClick={() => openEdit(item)}
-                  aria-label={`Edit ${item.name}`}
-                  className="min-h-9 rounded-full px-3 text-xs font-semibold text-app-muted transition-colors hover:text-app-fg"
-                >
-                  Edit
-                </button>
-                <button
-                  type="button"
-                  onClick={() => removeItem(item)}
-                  aria-label={`Remove ${item.name}`}
-                  className="min-h-9 rounded-full px-3 text-xs font-semibold text-app-muted transition-colors hover:text-danger"
-                >
-                  Remove
-                </button>
-              </div>
-            </li>
+
+              <ul>
+                {dishes.map((item) => (
+                  <li
+                    key={item.id}
+                    className={cn(
+                      'group flex items-center gap-3 rounded-lg px-2 py-2 transition-colors hover:bg-console-bg',
+                      !item.isAvailable && 'opacity-55',
+                    )}
+                  >
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-baseline gap-2">
+                        <span
+                          className={cn(
+                            'truncate text-sm',
+                            item.isAvailable ? 'font-medium text-console-ink' : 'text-app-muted',
+                            !item.price && 'italic',
+                          )}
+                        >
+                          {item.name}
+                        </span>
+                        <span
+                          aria-hidden
+                          className="hidden h-px min-w-4 flex-1 translate-y-[-3px] bg-app-border sm:block"
+                        />
+                        <span
+                          className={cn(
+                            'shrink-0 text-sm font-bold tabular-nums',
+                            item.price ? 'text-console-ink' : 'text-danger',
+                          )}
+                        >
+                          {item.price ? formatPrice(item.price) : 'no price'}
+                        </span>
+                      </div>
+                      {item.description && (
+                        <p className="mt-0.5 truncate text-xs text-app-muted">{item.description}</p>
+                      )}
+                      {!item.isAvailable && (
+                        <p className="mt-0.5 text-xs font-medium text-app-muted">Hidden from guests</p>
+                      )}
+                    </div>
+
+                    <div className="flex shrink-0 items-center gap-1">
+                      <ToggleSwitch
+                        checked={item.isAvailable}
+                        onChange={() => toggleAvailability(item)}
+                        label={`${item.isAvailable ? 'Hide' : 'Show'} ${item.name}`}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => openEdit(item)}
+                        aria-label={`Edit ${item.name}`}
+                        className="min-h-9 rounded-lg px-2.5 text-xs font-semibold text-app-muted transition-colors hover:bg-console-bg hover:text-console-ink"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => removeItem(item)}
+                        aria-label={`Remove ${item.name}`}
+                        className="min-h-9 rounded-lg px-2.5 text-xs font-semibold text-app-muted opacity-0 transition-opacity hover:text-danger focus-visible:opacity-100 group-hover:opacity-100"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </section>
           ))}
-        </ul>
+
+          {hiddenCount > 0 && (
+            <p className="text-xs text-app-muted">
+              {hiddenCount} dish{hiddenCount === 1 ? '' : 'es'} hidden by your search.
+            </p>
+          )}
+        </div>
       )}
 
       <MenuImporter
