@@ -63,21 +63,13 @@ export default function MenuPage() {
   const [search, setSearch] = useState('')
   const [activeCategory, setActiveCategory] = useState('All')
   const [user, setUser] = useState<any>(null)
-  const [profile, setProfile] = useState<any>(null)
   const [isLoaded, setIsLoaded] = useState(false)
 
   useEffect(() => {
     const supabase = createClient()
     supabase.auth.getUser().then(({ data: { user: u } }) => {
       setUser(u)
-      if (u) {
-        supabase.from('profiles').select('*').eq('id', u.id).single().then(({ data }) => {
-          setProfile(data)
-          setIsLoaded(true)
-        })
-      } else {
-        setIsLoaded(true)
-      }
+      setIsLoaded(true)
     })
   }, [])
 
@@ -112,13 +104,23 @@ export default function MenuPage() {
       const supabase = createClient()
       if (!user) { setLoading(false); return }
 
-      const { data: profileRow } = await supabase
-        .from('profiles').select('id').eq('id', user.id).maybeSingle()
-      if (!profileRow) { setLoading(false); return }
-
-      const { data: business } = await supabase
-        .from('businesses').select('id').eq('owner_id', profileRow.id).maybeSingle()
-      if (!business) { setLoading(false); return }
+      const { data: business, error: businessError } = await supabase
+        .from('businesses')
+        .select('id')
+        .eq('owner_id', user.id)
+        .order('created_at', { ascending: true })
+        .limit(1)
+        .maybeSingle()
+      if (businessError || !business) {
+        if (businessError) {
+          console.error('[menu] business unavailable:', businessError.message)
+          setBranchLoadError('Could not load your restaurant account. Refresh the page and try again.')
+        } else {
+          setBranchLoadError('No restaurant business is linked to this account.')
+        }
+        setLoading(false)
+        return
+      }
 
       const { data: branchRows, error: branchError } = await supabase
         .from('branches').select('id, branch_name').eq('business_id', business.id).order('created_at')
