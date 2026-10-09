@@ -65,12 +65,17 @@ export function BusinessLifecycleActions({
     <div className="flex items-center gap-2">
       <ActionError message={error} />
       <ActionSuccess message={success} />
-      {status !== 'active' && (
+      {status === 'pending' && (
         <button type="button" disabled={pending} onClick={() => run(true)} className={pillOk}>
-          {status === 'pending' ? 'Verify' : 'Activate'}
+          Verify
         </button>
       )}
-      {status !== 'rejected' && (
+      {status === 'rejected' && (
+        <button type="button" disabled={pending} onClick={() => run(true)} className={pillOk}>
+          Approve &amp; activate
+        </button>
+      )}
+      {(status === 'active' || status === 'pending') && (
         <button type="button" disabled={pending} onClick={() => run(false)} className={pillBad}>
           Reject
         </button>
