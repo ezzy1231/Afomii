@@ -7,6 +7,7 @@ import {
   updateBranchBookingConfig,
   updateRestaurantHours,
 } from "@/app/dashboard/actions";
+import { Plus } from "lucide-react";
 import { ConsoleSkeletonRow, SectionTitle } from "./console";
 import { CONSOLE_CARD } from "@/components/dashboard/console-shared";
 import { BranchMenu } from "@/components/dashboard/branch-menu";
@@ -109,6 +110,8 @@ export function BranchManager({
   listingName?: string
 }) {
   const [branches, setBranches] = useState<Branch[]>([]);
+  const [dishCounts, setDishCounts] = useState<Record<string, number>>({});
+  const [selectedId, setSelectedId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [branchError, setBranchError] = useState<string | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
@@ -139,18 +142,41 @@ export function BranchManager({
         return;
       }
       setBranchError(null);
-      setBranches(
-        (branchRows ?? []).map((b: any) => ({
-          id: b.id,
-          branch_name: b.branch_name,
-          address: b.address,
-          phone: b.phone,
-          booking_configs: Array.isArray(b.booking_configs)
-            ? (b.booking_configs[0] ?? null)
-            : (b.booking_configs ?? null),
-        })),
+      const list: Branch[] = (branchRows ?? []).map((b: any) => ({
+        id: b.id,
+        branch_name: b.branch_name,
+        address: b.address,
+        phone: b.phone,
+        booking_configs: Array.isArray(b.booking_configs)
+          ? (b.booking_configs[0] ?? null)
+          : (b.booking_configs ?? null),
+      }));
+      setBranches(list);
+      // Default to the first branch so the detail pane is never empty, and
+      // drop a stale selection if that branch has since been removed.
+      setSelectedId((current) =>
+        current && list.some((b) => b.id === current) ? current : list[0]?.id ?? null,
       );
       setLoading(false);
+
+      if (list.length === 0) {
+        setDishCounts({});
+        return;
+      }
+      // One aggregate read for every branch in the listing, not one per branch.
+      const { data: menuRows } = await supabase
+        .from("menu_items")
+        .select("branch_id")
+        .in(
+          "branch_id",
+          list.map((b) => b.id),
+        );
+      if (!active) return;
+      const counts: Record<string, number> = {};
+      for (const row of (menuRows ?? []) as Array<{ branch_id: string }>) {
+        counts[row.branch_id] = (counts[row.branch_id] ?? 0) + 1;
+      }
+      setDishCounts(counts);
     }
     void fetchBranches()
     return () => {
@@ -158,41 +184,101 @@ export function BranchManager({
     }
   }, [restaurantId, refreshKey])
 
+  const selected = branches.find((branch) => branch.id === selectedId) ?? null
+
   return (
     <ConsolePage>
       <section className="space-y-3">
         <SectionTitle>{listingName ? `${listingName} branches` : "Branches"}</SectionTitle>
-        <AddBranchForm
-          restaurantId={restaurantId}
-          onCreated={() => setRefreshKey((key) => key + 1)}
-        />
+        <p className="text-sm text-app-muted">
+          Pick a location to set its availability and menu. Each one is independent.
+        </p>
       </section>
 
-      <section className="space-y-3">
-        {branchError ? (
-          <div className={cn(CONSOLE_CARD, "border-danger/30 p-6 text-center")}>
-            <p className="font-semibold text-danger">Could not load branches</p>
-            <p className="mt-1 text-sm text-app-muted">{branchError}</p>
-          </div>
-        ) : loading ? (
-          <ConsoleSkeletonRow count={2} />
-        ) : branches.length ? (
-          <div className="space-y-4">
-            {branches.map((branch) => (
-              <BranchConfigCard key={branch.id} branch={branch} />
-            ))}
-          </div>
-        ) : (
-          <div className={cn(CONSOLE_CARD, "border-dashed p-8 text-center")}>
-            <p className="font-semibold">No branches yet</p>
-            <p className="mt-1 text-sm text-app-muted">
-              Add your first branch above to configure availability and add its menu.
-            </p>
-          </div>
-        )}
-      </section>
+      <AddBranchForm
+        restaurantId={restaurantId}
+        onCreated={(newBranchId) => {
+          // Select the location just created so its settings open immediately.
+          if (newBranchId) setSelectedId(newBranchId)
+          setRefreshKey((key) => key + 1)
+        }}
+      />
 
-      </ConsolePage>
+      {branchError ? (
+        <div className={cn(CONSOLE_CARD, "border-danger/30 p-6 text-center")}>
+          <p className="font-semibold text-danger">Could not load branches</p>
+          <p className="mt-1 text-sm text-app-muted">{branchError}</p>
+        </div>
+      ) : loading ? (
+        <ConsoleSkeletonRow count={2} />
+      ) : branches.length === 0 ? (
+        <div className={cn(CONSOLE_CARD, "border-dashed p-8 text-center")}>
+          <p className="font-semibold">No branches yet</p>
+          <p className="mt-1 text-sm text-app-muted">
+            Add your first location above, then set its hours and menu.
+          </p>
+        </div>
+      ) : (
+        <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,18rem)_minmax(0,1fr)]">
+          {/* Branch list — the entry point to each location's settings and menu. */}
+          <nav
+            aria-label="Locations"
+            className={cn(CONSOLE_CARD, "overflow-hidden lg:sticky lg:top-6")}
+          >
+            <ul className="divide-y divide-app-border">
+              {branches.map((branch) => {
+                const isSelected = branch.id === selectedId;
+                const dishes = dishCounts[branch.id] ?? 0;
+                return (
+                  <li key={branch.id}>
+                    <button
+                      type="button"
+                      onClick={() => setSelectedId(branch.id)}
+                      aria-current={isSelected ? "true" : undefined}
+                      className={cn(
+                        "flex w-full items-center gap-3 px-4 py-3 text-left transition-colors",
+                        isSelected ? "bg-console-bg" : "hover:bg-console-bg/60",
+                      )}
+                    >
+                      <span
+                        aria-hidden
+                        className={cn(
+                          "h-9 w-1 shrink-0 rounded-full",
+                          isSelected ? "bg-console-indigo" : "bg-transparent",
+                        )}
+                      />
+                      <span className="min-w-0 flex-1">
+                        <span
+                          className={cn(
+                            "block truncate text-sm font-semibold",
+                            isSelected ? "text-console-ink" : "text-app-fg",
+                          )}
+                        >
+                          {branch.branch_name}
+                        </span>
+                        <span className="mt-0.5 block truncate text-xs text-app-muted">
+                          {branch.address || "No address"}
+                        </span>
+                        <span className="mt-1 block text-xs text-app-muted tabular-nums">
+                          {dishes === 0 ? "No dishes yet" : `${dishes} dish${dishes === 1 ? "" : "es"}`}
+                        </span>
+                      </span>
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
+          </nav>
+
+          {selected && (
+            <div className="min-w-0">
+              <BranchConfigCard key={selected.id} branch={selected} />
+            </div>
+          )}
+        </div>
+      )}
+
+    </ConsolePage>
   );
 }
 
@@ -208,25 +294,49 @@ function AddBranchForm({
   onCreated,
 }: {
   restaurantId: string;
-  onCreated: () => void;
+  onCreated: (newBranchId?: string) => void;
 }) {
-  const [state, setState] = useState<{ ok: boolean; message: string } | null>(
+  const [state, setState] = useState<{ ok: boolean; message: string; id?: string } | null>(
     null,
   );
+  const [showForm, setShowForm] = useState(false);
+
+  if (!showForm) {
+    return (
+      <button
+        type="button"
+        onClick={() => setShowForm(true)}
+        className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-dashed border-console-border px-4 text-sm font-semibold text-console-ink transition-colors hover:border-console-indigo/50 hover:bg-console-card"
+      >
+        <Plus className="size-4" strokeWidth={2.2} />
+        Add a location
+      </button>
+    );
+  }
 
   return (
     <form
       action={async (formData: FormData) => {
         const res = await addBranch(state as any, formData);
         setState(res);
-        if (res.ok) onCreated();
+        if (res.ok) {
+          setShowForm(false);
+          onCreated(res.id);
+        }
       }}
       className={cn(CONSOLE_CARD, "border-dashed p-6")}
     >
       <input type="hidden" name="restaurantId" value={restaurantId} />
-      <h3 className="mb-4 text-sm font-semibold uppercase tracking-[0.15em] text-app-muted">
-        New branch
-      </h3>
+      <div className="mb-4 flex items-center justify-between gap-3">
+        <h3 className="text-[15px] font-bold text-console-ink">New location</h3>
+        <button
+          type="button"
+          onClick={() => setShowForm(false)}
+          className="min-h-9 rounded-lg px-3 text-xs font-semibold text-app-muted transition-colors hover:text-app-fg"
+        >
+          Cancel
+        </button>
+      </div>
       <div className="grid gap-3 sm:grid-cols-2">
         <input
           name="branchName"
@@ -261,14 +371,12 @@ function AddBranchForm({
       <div className="mt-4 flex flex-wrap items-center gap-3">
         <button
           type="submit"
-          className="min-h-[44px] rounded-full bg-ember px-6 text-sm font-semibold text-on-accent shadow-glass transition-all hover:brightness-110 active:scale-[0.98]"
+          className="min-h-11 rounded-xl bg-console-indigo px-5 text-sm font-semibold text-white transition-colors hover:bg-console-indigo-deep"
         >
-          Add branch
+          Add location
         </button>
         {state && (
-          <p
-            className={cn("text-sm", state.ok ? "text-success" : "text-danger")}
-          >
+          <p role="status" className={cn("text-sm", state.ok ? "text-success" : "text-danger")}>
             {state.message}
           </p>
         )}
@@ -350,9 +458,10 @@ function BranchConfigCard({ branch }: { branch: Branch }) {
 
   return (
     <div className={cn(CONSOLE_CARD, "overflow-hidden")}>
-      {/* Branch header */}
+      {/* Repeats the selected branch from the list — this pane becomes its own
+          context when stacked below the list on narrow screens. */}
       <div className="border-b border-app-border px-5 py-4">
-        <p className="text-lg font-bold">{branch.branch_name}</p>
+        <h2 className="text-lg font-bold text-console-ink">{branch.branch_name}</h2>
         {branch.address && (
           <p className="mt-0.5 text-xs text-app-muted">{branch.address}</p>
         )}
