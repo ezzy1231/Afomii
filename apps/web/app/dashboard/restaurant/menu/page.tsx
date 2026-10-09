@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import {
   ConsoleHeader,
@@ -64,6 +64,10 @@ export default function MenuPage() {
   const [activeCategory, setActiveCategory] = useState('All')
   const [user, setUser] = useState<any>(null)
   const [isLoaded, setIsLoaded] = useState(false)
+  const [formError, setFormError] = useState<string | null>(null)
+  const dialogRef = useRef<HTMLDivElement>(null)
+  const firstFieldRef = useRef<HTMLInputElement>(null)
+  const openerRef = useRef<HTMLElement | null>(null)
 
   useEffect(() => {
     const supabase = createClient()
@@ -154,12 +158,16 @@ export default function MenuPage() {
   }
 
   function openCreate() {
+    openerRef.current = document.activeElement as HTMLElement | null
+    setFormError(null)
     setEditing(null)
     setDraft({ name: '', price: '', category: activeCategory !== 'All' ? activeCategory : 'Mains', description: '' })
     setCreating(true)
   }
 
   function openEdit(item: MenuItem) {
+    openerRef.current = document.activeElement as HTMLElement | null
+    setFormError(null)
     setEditing(item)
     setDraft({
       name: item.name,
@@ -173,19 +181,72 @@ export default function MenuPage() {
   function closeModal() {
     setCreating(false)
     setEditing(null)
+    setFormError(null)
   }
+
+  // Focus contract for the sheet: move in on open, Escape closes, Tab stays
+  // inside, and focus returns to whatever opened it.
+  useEffect(() => {
+    if (!creating) return
+    const panel = dialogRef.current
+    if (!panel) return
+
+    const overflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    firstFieldRef.current?.focus()
+
+    function focusables() {
+      return Array.from(
+        panel!.querySelectorAll<HTMLElement>(
+          'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+        ),
+      ).filter((el) => el.offsetParent !== null)
+    }
+
+    function onKeyDown(event: KeyboardEvent) {
+      if (event.key === 'Escape') {
+        event.preventDefault()
+        closeModal()
+        return
+      }
+      if (event.key !== 'Tab') return
+      const items = focusables()
+      if (!items.length) return
+      const first = items[0]
+      const last = items[items.length - 1]
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault()
+        last.focus()
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault()
+        first.focus()
+      }
+    }
+
+    document.addEventListener('keydown', onKeyDown)
+    return () => {
+      document.removeEventListener('keydown', onKeyDown)
+      document.body.style.overflow = overflow
+      openerRef.current?.focus()
+    }
+  }, [creating])
 
   async function saveItem(e: React.FormEvent) {
     e.preventDefault()
     if (!branchId || !draft.name.trim() || !draft.price) return
     setSaving(true)
+    setFormError(null)
     const supabase = createClient()
+    // `is_available` must round-trip through the payload. Omitting it made the
+    // modal's toggle silently revert on save (the row was rebuilt from the DB
+    // value) and left a phantom change behind on cancel.
     const payload = {
       branch_id: branchId,
       name: draft.name.trim(),
       price: parseFloat(draft.price),
       category: draft.category || 'General',
       description: draft.description.trim() || null,
+      ...(editing ? { is_available: editing.isAvailable } : null),
     }
 
     let error: { message: string } | null = null
@@ -213,7 +274,10 @@ export default function MenuPage() {
         ])
       }
     }
-    if (!error) closeModal()
+    // Keep the modal open on failure so the draft survives, but never swallow
+    // the reason — a silent no-op is indistinguishable from a successful save.
+    if (error) setFormError(error.message)
+    else closeModal()
     setSaving(false)
   }
 
@@ -376,16 +440,22 @@ export default function MenuPage() {
 
       {/* Add / edit modal — bottom sheet on mobile, centered dialog on desktop */}
       {creating && (
-        <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center" role="dialog" aria-modal="true">
+        <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center">
           <button type="button" aria-label="Close" onClick={closeModal} className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
-          <div className="animate-pop-in relative w-full sm:max-w-lg glass rounded-t-xl p-6 sm:rounded-3xl safe-bottom max-h-[90vh] overflow-y-auto">
+          <div
+            ref={dialogRef}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="menu-item-dialog-title"
+            className="animate-pop-in relative w-full sm:max-w-lg glass rounded-t-xl p-6 sm:rounded-3xl safe-bottom max-h-[90vh] overflow-y-auto"
+          >
             <div className="mb-5 flex items-center justify-between">
-              <h3 className=" text-xl font-bold">{editing ? 'Edit Item' : 'Add Item'}</h3>
+              <h3 id="menu-item-dialog-title" className=" text-xl font-bold">{editing ? 'Edit Item' : 'Add Item'}</h3>
               <button
                 type="button"
                 onClick={closeModal}
                 aria-label="Close"
-                className="flex h-9 w-9 items-center justify-center rounded-full text-app-muted transition-colors hover:bg-white/5 hover:text-app-fg"
+                className="flex size-11 items-center justify-center rounded-full text-app-muted transition-colors hover:bg-white/5 hover:text-app-fg"
               >
                 ✕
               </button>
@@ -396,6 +466,7 @@ export default function MenuPage() {
                 <label htmlFor="mi-name" className="mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.15em] text-app-muted">Item Name</label>
                 <input
                   id="mi-name"
+                  ref={firstFieldRef}
                   required
                   value={draft.name}
                   onChange={(e) => setDraft((d) => ({ ...d, name: e.target.value }))}
@@ -449,16 +520,22 @@ export default function MenuPage() {
               </div>
               {editing && (
                 <div className="flex items-center justify-between rounded-lg border border-app-border  px-4 py-3">
-                  <span className="text-sm font-semibold">Available for Order</span>
+                  <label htmlFor="mi-available" className="text-sm font-semibold">Available for Order</label>
                   <ToggleSwitch
+                    id="mi-available"
                     checked={editing.isAvailable}
-                    onChange={(next) => {
-                      setEditing({ ...editing, isAvailable: next })
-                      setItems((prev) => prev.map((i) => (i.id === editing.id ? { ...i, isAvailable: next } : i)))
-                    }}
+                    // Pending until Save: deliberately does not touch `items`, so
+                    // Cancel is a true no-op rather than a phantom row change.
+                    onChange={(next) => setEditing({ ...editing, isAvailable: next })}
                     label="Available for order"
                   />
                 </div>
+              )}
+
+              {formError && (
+                <p role="alert" className="rounded-lg border border-danger/30 bg-danger/10 px-3.5 py-2.5 text-sm font-medium text-danger">
+                  {formError}
+                </p>
               )}
 
               <div className="flex gap-3 pt-1">
@@ -472,7 +549,7 @@ export default function MenuPage() {
                 <button
                   type="submit"
                   disabled={saving || !draft.name.trim() || !draft.price}
-                  className="min-h-[44px] flex-1 rounded-full bg-ink text-sm font-semibold text-white shadow-glass transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] disabled:opacity-50"
+                  className="min-h-[44px] flex-1 rounded-full bg-ember text-sm font-semibold text-on-accent shadow-glass transition-all duration-200 hover:brightness-110 active:translate-y-0 active:scale-[0.98] disabled:opacity-50"
                 >
                   {saving ? 'Saving…' : editing ? 'Save Changes' : 'Add Item'}
                 </button>

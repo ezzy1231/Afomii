@@ -10,8 +10,6 @@ const navItems = [
   { label: 'Overview', href: ROOT },
   { label: 'Reservations', href: `${ROOT}/reservations` },
   { label: 'Listings', href: `${ROOT}/listings` },
-  { label: 'Branches', href: `${ROOT}/branches` },
-  { label: 'Menu', href: `${ROOT}/menu` },
   { label: 'Analytics', href: `${ROOT}/analytics` },
   { label: 'Settings', href: `${ROOT}/settings` },
 ]

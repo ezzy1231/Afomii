@@ -23,6 +23,7 @@ import { ACTION_LIMITS, RATE_LIMIT_MESSAGE, guardActionLimit } from '@/lib/rate-
 export type DashboardActionState = {
   ok: boolean
   message: string
+  id?: string
 }
 
 const defaultErrorState: DashboardActionState = {
@@ -126,7 +127,7 @@ export async function createRestaurantListing(
     }
   }
 
-  const { error } = await supabase.from('restaurants').insert({
+  const { data: listing, error } = await supabase.from('restaurants').insert({
     business_id: business.id,
     name,
     cuisine: cuisine || null,
@@ -135,9 +136,9 @@ export async function createRestaurantListing(
     closing_label: closingLabel || null,
     cover_url: coverUrl,
     is_active: true,
-  })
+  }).select('id').maybeSingle()
 
-  if (error) {
+  if (error || !listing) {
     logActionError('createRestaurantListing', error)
     return defaultErrorState
   }
@@ -146,7 +147,7 @@ export async function createRestaurantListing(
   revalidatePath('/dashboard/restaurant/listings')
   revalidatePath('/restaurants')
 
-  return { ok: true, message: `Restaurant listing created for ${name}.` }
+  return { ok: true, id: listing.id, message: `Restaurant listing created for ${name}.` }
 }
 
 export async function createEventListing(
@@ -729,6 +730,17 @@ export async function addBranch(
     .maybeSingle()
   if (!business) return { ok: false, message: 'No linked business profile found.' }
 
+  const restaurantCheck = uuidSchema.safeParse(readText(formData, 'restaurantId'))
+  if (!restaurantCheck.success) return { ok: false, message: 'Choose a restaurant listing for this branch.' }
+
+  const { data: restaurant } = await supabase
+    .from('restaurants')
+    .select('id')
+    .eq('id', restaurantCheck.data)
+    .eq('business_id', business.id)
+    .maybeSingle()
+  if (!restaurant) return { ok: false, message: 'Restaurant listing not found or not authorized.' }
+
   const parsed = branchInputSchema.safeParse({
     branchName: readText(formData, 'branchName'),
     address: readText(formData, 'address'),
@@ -744,6 +756,7 @@ export async function addBranch(
     .from('branches')
     .insert({
       business_id: business.id,
+      restaurant_id: restaurant.id,
       branch_name: branchName,
       address,
       phone: phone || null,
@@ -768,9 +781,68 @@ export async function addBranch(
   })
   if (configError) logActionError('addBranch.config', configError)
 
-  revalidatePath('/dashboard/restaurant/branches')
+  revalidatePath('/dashboard/restaurant/listings')
+  revalidatePath(`/dashboard/restaurant/listings/${restaurant.id}`)
+  revalidatePath(`/dashboard/restaurant/listings/${restaurant.id}/menu`)
   revalidatePath('/restaurants')
   return { ok: true, message: `Branch "${branchName}" added.` }
+}
+
+export async function assignBranchToListing(
+  branchId: string,
+  restaurantId: string
+): Promise<DashboardActionState> {
+  const branchCheck = uuidSchema.safeParse(branchId)
+  const restaurantCheck = uuidSchema.safeParse(restaurantId)
+  if (!branchCheck.success || !restaurantCheck.success) {
+    return { ok: false, message: 'Choose a valid branch and restaurant listing.' }
+  }
+
+  const { supabase, user, role } = await getCurrentUserRole()
+  if (!user) return { ok: false, message: 'Please sign in again to continue.' }
+  if (role !== 'food_business') return { ok: false, message: 'Only restaurant partners can assign branches.' }
+
+  const { data: business } = await supabase
+    .from('businesses')
+    .select('id')
+    .eq('owner_id', user.id)
+    .maybeSingle()
+  if (!business) return { ok: false, message: 'No linked business profile found.' }
+
+  const { data: branch } = await supabase
+    .from('branches')
+    .select('id, restaurant_id')
+    .eq('id', branchCheck.data)
+    .eq('business_id', business.id)
+    .is('restaurant_id', null)
+    .maybeSingle()
+  if (!branch) return { ok: false, message: 'Branch not found, already assigned, or not authorized.' }
+
+  const { data: restaurant } = await supabase
+    .from('restaurants')
+    .select('id')
+    .eq('id', restaurantCheck.data)
+    .eq('business_id', business.id)
+    .maybeSingle()
+  if (!restaurant) return { ok: false, message: 'Restaurant listing not found or not authorized.' }
+
+  const { error } = await supabase
+    .from('branches')
+    .update({ restaurant_id: restaurant.id })
+    .eq('id', branch.id)
+    .eq('business_id', business.id)
+    .is('restaurant_id', null)
+
+  if (error) {
+    logActionError('assignBranchToListing', error)
+    return defaultErrorState
+  }
+
+  revalidatePath('/dashboard/restaurant/listings')
+  revalidatePath(`/dashboard/restaurant/listings/${restaurant.id}`)
+  revalidatePath(`/dashboard/restaurant/listings/${restaurant.id}/menu`)
+  revalidatePath('/restaurants')
+  return { ok: true, message: 'Branch assigned to listing.' }
 }
 
 export async function updateBranchBookingConfig(input: {

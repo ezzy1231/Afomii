@@ -7,7 +7,7 @@ import {
   updateBranchBookingConfig,
   updateRestaurantHours,
 } from "@/app/dashboard/actions";
-import { ConsoleHeader, ConsoleSkeletonRow, SectionTitle } from "./console";
+import { ConsoleSkeletonRow, SectionTitle } from "./console";
 import { CONSOLE_CARD } from "@/components/dashboard/console-shared";
 import { cn } from "@/lib/utils";
 
@@ -100,26 +100,19 @@ function Stepper({
   );
 }
 
-export function BranchManager() {
+export function BranchManager({ restaurantId }: { restaurantId: string }) {
   const [branches, setBranches] = useState<Branch[]>([]);
-  const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
+  const [restaurant, setRestaurant] = useState<Restaurant | null>(null);
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<any>(null);
-  const [profile, setProfile] = useState<any>(null);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
     const supabase = createClient();
     supabase.auth.getUser().then(({ data: { user: u } }) => {
       setUser(u);
-      if (u) {
-        supabase.from("profiles").select("*").eq("id", u.id).single().then(({ data }) => {
-          setProfile(data);
-          setIsLoaded(true);
-        });
-      } else {
-        setIsLoaded(true);
-      }
+      setIsLoaded(true);
     });
   }, []);
 
@@ -127,28 +120,29 @@ export function BranchManager() {
     if (!isLoaded) return;
     async function load() {
       const supabase = createClient();
+      setLoading(true);
       if (!user) {
         setLoading(false);
         return;
       }
 
-      const { data: profileRow } = await supabase
-        .from("profiles")
-        .select("id")
-        .eq("id", user.id)
-        .maybeSingle();
-      if (!profileRow) {
-        setLoading(false);
-        return;
-      }
-      setProfile(profileRow);
-
       const { data: business } = await supabase
         .from("businesses")
         .select("id")
-        .eq("owner_id", profile.id)
+        .eq("owner_id", user.id)
         .maybeSingle();
       if (!business) {
+        setLoading(false);
+        return;
+      }
+
+      const { data: listing } = await supabase
+        .from("restaurants")
+        .select("id, name, opening_hours")
+        .eq("id", restaurantId)
+        .eq("business_id", business.id)
+        .maybeSingle();
+      if (!listing) {
         setLoading(false);
         return;
       }
@@ -158,13 +152,7 @@ export function BranchManager() {
         .select(
           "id, branch_name, address, phone, booking_configs(booking_mode, total_tables, max_guest_per_table, slot_duration_minutes, advance_notice_hours, cancellation_policy)",
         )
-        .eq("business_id", business.id)
-        .order("created_at", { ascending: true });
-
-      const { data: restaurantRows } = await supabase
-        .from("restaurants")
-        .select("id, name, opening_hours")
-        .eq("business_id", business.id)
+        .eq("restaurant_id", restaurantId)
         .order("created_at", { ascending: true });
 
       setBranches(
@@ -178,33 +166,27 @@ export function BranchManager() {
             : (b.booking_configs ?? null),
         })),
       );
-      setRestaurants(
-        (restaurantRows ?? []).map((r: any) => ({
-          id: r.id,
-          name: r.name,
-          opening_hours: r.opening_hours ?? {},
-        })),
-      );
+      setRestaurant({
+        id: listing.id,
+        name: listing.name,
+        opening_hours: listing.opening_hours ?? {},
+      });
       setLoading(false);
     }
     load();
-  }, [isLoaded, user]);
+  }, [isLoaded, user, restaurantId, refreshKey]);
 
   return (
     <ConsolePage>
-      <ConsoleHeader
-        eyebrow="Partner console"
-        title="Booking Settings"
-        subtitle="Configure availability and rules."
-      />
-
       <section className="space-y-3">
-        <SectionTitle>Add a branch</SectionTitle>
-        <AddBranchForm />
+        <SectionTitle>Branches</SectionTitle>
+        <AddBranchForm
+          restaurantId={restaurantId}
+          onCreated={() => setRefreshKey((key) => key + 1)}
+        />
       </section>
 
       <section className="space-y-3">
-        <SectionTitle>Branches</SectionTitle>
         {loading ? (
           <ConsoleSkeletonRow count={2} />
         ) : branches.length ? (
@@ -223,17 +205,10 @@ export function BranchManager() {
         )}
       </section>
 
-      {!loading && restaurants.length > 0 && (
+      {!loading && restaurant && (
         <section className="space-y-3">
           <SectionTitle>Opening hours</SectionTitle>
-          <div className="space-y-4">
-            {restaurants.map((restaurant) => (
-              <RestaurantHoursCard
-                key={restaurant.id}
-                restaurant={restaurant}
-              />
-            ))}
-          </div>
+          <RestaurantHoursCard restaurant={restaurant} />
         </section>
       )}
     </ConsolePage>
@@ -247,7 +222,13 @@ function ConsolePage({ children }: { children: React.ReactNode }) {
 const consoleInput =
   "w-full rounded-lg border border-app-border bg-app-bg px-3.5 py-2.5 text-sm text-app-fg outline-none transition-colors placeholder:text-app-muted/70 focus:border-ember/50";
 
-function AddBranchForm() {
+function AddBranchForm({
+  restaurantId,
+  onCreated,
+}: {
+  restaurantId: string;
+  onCreated: () => void;
+}) {
   const [state, setState] = useState<{ ok: boolean; message: string } | null>(
     null,
   );
@@ -257,9 +238,11 @@ function AddBranchForm() {
       action={async (formData: FormData) => {
         const res = await addBranch(state as any, formData);
         setState(res);
+        if (res.ok) onCreated();
       }}
       className={cn(CONSOLE_CARD, "border-dashed p-6")}
     >
+      <input type="hidden" name="restaurantId" value={restaurantId} />
       <h3 className="mb-4 text-sm font-semibold uppercase tracking-[0.15em] text-app-muted">
         New branch
       </h3>
@@ -332,11 +315,15 @@ function BranchConfigCard({ branch }: { branch: Branch }) {
     cfg?.cancellation_policy ?? "",
   );
   const [saving, setSaving] = useState(false);
-  const [msg, setMsg] = useState<string | null>(null);
+  const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
+  // Baseline for `dirty`. Seeded from the `cfg` prop, then replaced by the last
+  // *successful* save — the prop never changes, so deriving `dirty` from it
+  // left the card permanently "unsaved" after a successful write.
+  const [saved, setSaved] = useState<string | null>(null);
 
-  const initial = `${cfg?.booking_mode ?? "instant"}|${cfg?.total_tables ?? 10}|${cfg?.max_guest_per_table ?? 8}|${cfg?.slot_duration_minutes ?? 60}|${cfg?.advance_notice_hours ?? 2}|${cfg?.cancellation_policy ?? ""}`;
+  const fromProps = `${cfg?.booking_mode ?? "instant"}|${cfg?.total_tables ?? 10}|${cfg?.max_guest_per_table ?? 8}|${cfg?.slot_duration_minutes ?? 60}|${cfg?.advance_notice_hours ?? 2}|${cfg?.cancellation_policy ?? ""}`;
   const current = `${bookingMode}|${totalTables}|${maxGuestPerTable}|${slotDurationMinutes}|${advanceNoticeHours}|${cancellationPolicy}`;
-  const dirty = initial !== current;
+  const dirty = (saved ?? fromProps) !== current;
 
   function discard() {
     setBookingMode(cfg?.booking_mode ?? "instant");
@@ -345,6 +332,7 @@ function BranchConfigCard({ branch }: { branch: Branch }) {
     setSlotDurationMinutes(cfg?.slot_duration_minutes ?? 60);
     setAdvanceNoticeHours(cfg?.advance_notice_hours ?? 2);
     setCancellationPolicy(cfg?.cancellation_policy ?? "");
+    setSaved(null);
     setMsg(null);
   }
 
@@ -361,7 +349,8 @@ function BranchConfigCard({ branch }: { branch: Branch }) {
       cancellationPolicy,
     });
     setSaving(false);
-    setMsg(res.message);
+    setMsg({ ok: res.ok, text: res.message });
+    if (res.ok) setSaved(current);
   }
 
   // Live preview of what guests see, per the artboard's navy strip.
@@ -571,7 +560,14 @@ function BranchConfigCard({ branch }: { branch: Branch }) {
             {saving ? "Saving…" : "Save"}
           </button>
         </div>
-        {msg && !dirty && <p className="w-full text-xs text-success">{msg}</p>}
+        {msg && (
+          <p
+            role={msg.ok ? "status" : "alert"}
+            className={cn("w-full text-xs", msg.ok ? "text-success" : "text-danger")}
+          >
+            {msg.text}
+          </p>
+        )}
       </div>
     </div>
   );
@@ -582,10 +578,11 @@ function RestaurantHoursCard({ restaurant }: { restaurant: Restaurant }) {
     Record<string, { open: string; close: string }[]>
   >(() => structuredClone(restaurant.opening_hours ?? {}));
   const [saving, setSaving] = useState(false);
-  const [msg, setMsg] = useState<string | null>(null);
+  const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
 
   function setRange(day: string, open: string, close: string) {
     setHours((prev) => ({ ...prev, [day]: [{ open, close }] }));
+    setMsg(null);
   }
 
   async function save() {
@@ -596,7 +593,7 @@ function RestaurantHoursCard({ restaurant }: { restaurant: Restaurant }) {
       openingHours: hours,
     });
     setSaving(false);
-    setMsg(res.message);
+    setMsg({ ok: res.ok, text: res.message });
   }
 
   return (
@@ -641,7 +638,14 @@ function RestaurantHoursCard({ restaurant }: { restaurant: Restaurant }) {
         >
           {saving ? "Saving…" : "Save hours"}
         </button>
-        {msg && <p className="text-sm text-success">{msg}</p>}
+        {msg && (
+          <p
+            role={msg.ok ? "status" : "alert"}
+            className={cn("text-sm", msg.ok ? "text-success" : "text-danger")}
+          >
+            {msg.text}
+          </p>
+        )}
       </div>
     </div>
   );
