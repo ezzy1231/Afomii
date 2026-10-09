@@ -884,19 +884,23 @@ export async function setBusinessVerification(
   const { supabase, user, error: guardError } = await requireSystemAdmin()
   if (guardError || !user) return { ok: false, message: guardError ?? 'Not allowed.' }
 
+  const expectedStatus = approve ? 'active' : 'rejected'
   const { data: updatedBusiness, error } = await supabase
     .from('businesses')
-    .update({ status: approve ? 'active' : 'rejected', is_verified: approve })
+    .update({ status: expectedStatus, is_verified: approve })
     .eq('id', idCheck.data)
     .select('id, status')
     .maybeSingle()
 
   if (error) {
     logActionError('setBusinessVerification', error)
-    return defaultErrorState
+    return { ok: false, message: `Business verification failed (${error.code}): ${error.message}` }
   }
   if (!updatedBusiness) {
     return { ok: false, message: 'Business was not updated. Check that it exists and you have permission.' }
+  }
+  if (updatedBusiness.status !== expectedStatus) {
+    return { ok: false, message: `Database kept this business at “${updatedBusiness.status}” instead of “${expectedStatus}”.` }
   }
 
   const { error: auditError } = await supabase.from('audit_logs').insert({
@@ -1133,19 +1137,23 @@ export async function adminSetBusinessActive(
   if (guardError || !user) return { ok: false, message: guardError ?? 'Not allowed.' }
 
   // moderation_status has no 'suspended' value; suspension = 'inactive'.
+  const expectedStatus = active ? 'active' : 'inactive'
   const { data: updatedBusiness, error } = await supabase
     .from('businesses')
-    .update({ status: active ? 'active' : 'inactive' })
+    .update({ status: expectedStatus })
     .eq('id', idCheck.data)
     .select('id, status')
     .maybeSingle()
 
   if (error) {
     logActionError('adminSetBusinessActive', error)
-    return defaultErrorState
+    return { ok: false, message: `Business status update failed (${error.code}): ${error.message}` }
   }
   if (!updatedBusiness) {
     return { ok: false, message: 'Business was not updated. Check that it exists and you have permission.' }
+  }
+  if (updatedBusiness.status !== expectedStatus) {
+    return { ok: false, message: `Database kept this business at “${updatedBusiness.status}” instead of “${expectedStatus}”.` }
   }
 
   const { error: auditError } = await supabase.from('audit_logs').insert({
@@ -1157,6 +1165,7 @@ export async function adminSetBusinessActive(
   })
   if (auditError) logActionError('adminSetBusinessActive.audit', auditError)
 
+  revalidatePath('/dashboard/admin')
   revalidatePath('/dashboard/admin/businesses')
   revalidatePath(`/dashboard/admin/businesses/${businessId}`)
   revalidateTag('restaurant-catalogue')

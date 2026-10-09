@@ -14,13 +14,12 @@ import {
 
 /**
  * Client controls for the admin panel's inline mutations. Each wraps a guarded
- * server action with useTransition + router.refresh(), matching the console's
- * ReservationQuickActions pattern.
+ * server action with useTransition and refreshes the relevant dashboard data.
  */
 
 function ActionError({ message }: { message: string | null }) {
   if (!message) return null
-  return <span role="alert" className="text-[10px] text-danger">{message}</span>
+  return <span role="alert" className="max-w-[360px] text-xs text-danger">{message}</span>
 }
 
 function ActionSuccess({ message }: { message: string | null }) {
@@ -41,7 +40,6 @@ export function BusinessLifecycleActions({
   businessId: string
   status: string
 }) {
-  const router = useRouter()
   const [pending, startTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
@@ -57,7 +55,9 @@ export function BusinessLifecycleActions({
         return
       }
       setSuccess(result.message)
-      router.refresh()
+      // A full navigation forces the server-rendered business list/detail to
+      // read its current status from Supabase after moderation.
+      window.location.reload()
     })
   }
 
@@ -312,7 +312,6 @@ export function BusinessSuspendAction({
   businessId: string
   status: string
 }) {
-  const router = useRouter()
   const [pending, startTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
@@ -332,7 +331,7 @@ export function BusinessSuspendAction({
         return
       }
       setSuccess(result.message)
-      router.refresh()
+      window.location.reload()
     })
   }
 
