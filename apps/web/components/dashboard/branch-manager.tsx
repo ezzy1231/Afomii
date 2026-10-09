@@ -9,6 +9,7 @@ import {
 } from "@/app/dashboard/actions";
 import { ConsoleSkeletonRow, SectionTitle } from "./console";
 import { CONSOLE_CARD } from "@/components/dashboard/console-shared";
+import { BranchMenu } from "@/components/dashboard/branch-menu";
 import { cn } from "@/lib/utils";
 
 const DAYS = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"];
@@ -109,6 +110,7 @@ export function BranchManager({
 }) {
   const [branches, setBranches] = useState<Branch[]>([]);
   const [loading, setLoading] = useState(true);
+  const [branchError, setBranchError] = useState<string | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
@@ -116,7 +118,7 @@ export function BranchManager({
     async function fetchBranches() {
       const supabase = createClient();
       setLoading(true);
-      const { data: branchRows } = await supabase
+      const { data: branchRows, error } = await supabase
         .from("branches")
         .select(
           "id, branch_name, address, phone, booking_configs(booking_mode, total_tables, max_guest_per_table, slot_duration_minutes, advance_notice_hours, cancellation_policy)",
@@ -124,6 +126,19 @@ export function BranchManager({
         .eq("restaurant_id", restaurantId)
         .order("created_at", { ascending: true });
       if (!active) return;
+      if (error) {
+        // A missing `restaurant_id` column (migration 0017 unapplied) surfaces
+        // here as a PostgREST error; say so instead of rendering "no branches".
+        console.error("[branch-manager] load failed:", error.message);
+        setBranchError(
+          error.code === "42703"
+            ? "This listing's branches need the listing_id column. Run migration 0017_restaurant_listing_branches.sql against your Supabase project."
+            : "Could not load branches. Refresh the page and try again.",
+        );
+        setLoading(false);
+        return;
+      }
+      setBranchError(null);
       setBranches(
         (branchRows ?? []).map((b: any) => ({
           id: b.id,
@@ -154,7 +169,12 @@ export function BranchManager({
       </section>
 
       <section className="space-y-3">
-        {loading ? (
+        {branchError ? (
+          <div className={cn(CONSOLE_CARD, "border-danger/30 p-6 text-center")}>
+            <p className="font-semibold text-danger">Could not load branches</p>
+            <p className="mt-1 text-sm text-app-muted">{branchError}</p>
+          </div>
+        ) : loading ? (
           <ConsoleSkeletonRow count={2} />
         ) : branches.length ? (
           <div className="space-y-4">
@@ -166,7 +186,7 @@ export function BranchManager({
           <div className={cn(CONSOLE_CARD, "border-dashed p-8 text-center")}>
             <p className="font-semibold">No branches yet</p>
             <p className="mt-1 text-sm text-app-muted">
-              Add your first branch above to configure availability.
+              Add your first branch above to configure availability and add its menu.
             </p>
           </div>
         )}
@@ -530,6 +550,8 @@ function BranchConfigCard({ branch }: { branch: Branch }) {
           </p>
         )}
       </div>
+
+      <BranchMenu branchId={branch.id} branchName={branch.branch_name} />
     </div>
   );
 }

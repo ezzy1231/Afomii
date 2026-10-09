@@ -672,7 +672,7 @@ export async function importMenuItems(
   }
 
   revalidatePath(`/dashboard/restaurant/listings/${branch.restaurant_id}`)
-  revalidatePath(`/dashboard/restaurant/listings/${branch.restaurant_id}/menu`)
+  revalidatePath(`/dashboard/restaurant/listings/${branch.restaurant_id}/branches`)
   revalidatePath('/restaurants')
   return { ok: true, message: `Imported ${cleanItems.length} menu items. Review availability in your menu.` }
 }
@@ -909,6 +909,16 @@ export async function addBranch(
 
   if (error || !branch) {
     logActionError('addBranch', error ?? new Error('Branch insert returned no row'))
+    // `42703` means the 0017 migration never landed on this project, so
+    // `restaurant_id` does not exist. A generic "something went wrong" left the
+    // partner with no way to act on it.
+    if ((error as { code?: string } | null)?.code === '42703') {
+      return {
+        ok: false,
+        message:
+          'This project is missing the listing_id column on branches. Apply migration 0017_restaurant_listing_branches.sql, then try again.',
+      }
+    }
     return defaultErrorState
   }
 
@@ -925,7 +935,6 @@ export async function addBranch(
   revalidatePath('/dashboard/restaurant/listings')
   revalidatePath(`/dashboard/restaurant/listings/${restaurant.id}`)
   revalidatePath(`/dashboard/restaurant/listings/${restaurant.id}/branches`)
-  revalidatePath(`/dashboard/restaurant/listings/${restaurant.id}/menu`)
   revalidatePath('/restaurants')
   return { ok: true, message: `Branch "${branchName}" added.` }
 }
@@ -983,7 +992,6 @@ export async function assignBranchToListing(
   revalidatePath('/dashboard/restaurant/listings')
   revalidatePath(`/dashboard/restaurant/listings/${restaurant.id}`)
   revalidatePath(`/dashboard/restaurant/listings/${restaurant.id}/branches`)
-  revalidatePath(`/dashboard/restaurant/listings/${restaurant.id}/menu`)
   revalidatePath('/restaurants')
   return { ok: true, message: 'Branch assigned to listing.' }
 }

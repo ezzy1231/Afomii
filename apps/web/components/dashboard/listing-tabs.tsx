@@ -19,10 +19,10 @@ export function ListingTabs({
   const pathname = usePathname()
   const root = `/dashboard/restaurant/listings/${listingId}`
 
+  // Menu lives inside each branch card, so there is no separate Menu tab.
   const tabs = [
     { label: 'Details', href: root },
-    { label: 'Branches', href: `${root}/branches` },
-    { label: 'Menu', href: `${root}/menu` },
+    { label: 'Branches & menu', href: `${root}/branches` },
   ]
 
   return (
@@ -36,7 +36,7 @@ export function ListingTabs({
       <div>
         <h1 className="truncate text-2xl font-bold tracking-tight">{listingName}</h1>
         <p className="mt-1 text-sm text-app-muted">
-          Branches and menu belong to this listing only.
+          Add a location, then give it its own menu. Everything here belongs to this listing only.
         </p>
       </div>
       <nav
