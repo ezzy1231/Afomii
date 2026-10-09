@@ -125,8 +125,8 @@ export function MenuImporter({
   branchName,
   onImported,
 }: {
-  branchId: string
-  branchName: string
+  branchId: string | null
+  branchName?: string
   onImported: () => Promise<void>
 }) {
   const [items, setItems] = useState<DraftItem[]>([])
@@ -207,7 +207,10 @@ export function MenuImporter({
         <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-ember/12 text-ember"><FileText className="size-5" /></span>
         <div>
           <h2 className="text-lg font-bold text-app-fg">Import from PDF or photo</h2>
-          <p className="mt-1 text-sm text-app-muted">Adding menu items to <span className="font-semibold text-app-fg">{branchName}</span>. We extract likely item names and prices into a draft you can correct before adding.</p>
+          <p className="mt-1 text-sm text-app-muted">
+            {branchId ? <>Adding menu items to <span className="font-semibold text-app-fg">{branchName ?? 'selected branch'}</span>.</> : 'You can scan and review a menu now. Create a branch before adding the items.'}{' '}
+            We extract likely item names and prices into a draft you can correct before adding.
+          </p>
         </div>
       </div>
 
@@ -240,8 +243,9 @@ export function MenuImporter({
             </div>
           ))}
           <button type="button" onClick={() => void save()} disabled={!branchId || saving || items.some((item) => item.name.trim().length < 2 || !item.price || Number(item.price) < 0)} className="min-h-11 w-full rounded-xl bg-ember px-5 text-sm font-semibold text-on-accent disabled:opacity-50">
-            {saving ? 'Adding items…' : `Add ${items.length} item${items.length === 1 ? '' : 's'} to this branch`}
+            {saving ? 'Adding items…' : branchId ? `Add ${items.length} item${items.length === 1 ? '' : 's'} to this branch` : 'Create a branch to add items'}
           </button>
+          {!branchId && <a href="/dashboard/restaurant/branches" className="block text-center text-sm font-semibold text-ember hover:underline">Open branch settings</a>}
         </div>
       )}
 
