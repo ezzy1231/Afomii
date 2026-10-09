@@ -120,7 +120,15 @@ async function readImage(file: File, languages: string[], onProgress: (message: 
   }
 }
 
-export function MenuImporter({ branchId, onImported }: { branchId: string | null; onImported: () => Promise<void> }) {
+export function MenuImporter({
+  branchId,
+  branchName,
+  onImported,
+}: {
+  branchId: string
+  branchName: string
+  onImported: () => Promise<void>
+}) {
   const [items, setItems] = useState<DraftItem[]>([])
   const [working, setWorking] = useState(false)
   const [saving, setSaving] = useState(false)
@@ -165,13 +173,32 @@ export function MenuImporter({ branchId, onImported }: { branchId: string | null
     if (!branchId || !items.length || saving) return
     setSaving(true)
     setMessage(null)
-    const result = await importMenuItems(branchId, items.map(({ name, price, category }) => ({ name, price: Number(price), category })))
-    setMessage({ ok: result.ok, text: result.message })
-    if (result.ok) {
-      setItems([])
-      await onImported()
+    try {
+      const result = await importMenuItems(
+        branchId,
+        items.map(({ name, price, category }) => ({ name, price: Number(price), category })),
+      )
+      setMessage({ ok: result.ok, text: result.message })
+      if (result.ok) {
+        setItems([])
+        try {
+          await onImported()
+        } catch {
+          setMessage({
+            ok: true,
+            text: `${result.message} Reload the page if the new items do not appear yet.`,
+          })
+        }
+      }
+    } catch (error) {
+      console.error('[menu-importer] save failed:', error)
+      setMessage({
+        ok: false,
+        text: 'Could not add these items to the selected branch. Your review is still here; please try again.',
+      })
+    } finally {
+      setSaving(false)
     }
-    setSaving(false)
   }
 
   return (
@@ -180,7 +207,7 @@ export function MenuImporter({ branchId, onImported }: { branchId: string | null
         <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-ember/12 text-ember"><FileText className="size-5" /></span>
         <div>
           <h2 className="text-lg font-bold text-app-fg">Import from PDF or photo</h2>
-          <p className="mt-1 text-sm text-app-muted">We extract likely item names and prices into a draft you can correct before adding.</p>
+          <p className="mt-1 text-sm text-app-muted">Adding menu items to <span className="font-semibold text-app-fg">{branchName}</span>. We extract likely item names and prices into a draft you can correct before adding.</p>
         </div>
       </div>
 

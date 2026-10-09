@@ -254,10 +254,13 @@ export default function MenuPage() {
         </div>
       )}
 
-      <MenuImporter
-        branchId={branchId}
-        onImported={async () => { if (branchId) await loadItems(branchId) }}
-      />
+      {!loading && branchId && (
+        <MenuImporter
+          branchId={branchId}
+          branchName={branches.find((branch) => branch.id === branchId)?.name ?? 'selected branch'}
+          onImported={async () => { await loadItems(branchId) }}
+        />
+      )}
 
       {/* Search */}
       <div className={cn(CONSOLE_CARD, 'flex items-center gap-3 px-4 py-3')}>
