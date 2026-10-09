@@ -104,6 +104,27 @@ function Stepper({
   );
 }
 
+/**
+ * Names the migration that is actually missing. Postgres reports an undefined
+ * column as 42703 regardless of which one it is, and this query touches both
+ * `restaurant_id` (0017) and `is_active` (0018) — so read the column name out
+ * of the message instead of assuming 0017, which sent partners re-running a
+ * migration they had already applied.
+ */
+function describeBranchLoadError(error: {
+  code?: string;
+  message?: string;
+}): string {
+  if (error.code !== "42703") {
+    return "Could not load branches. Refresh the page and try again.";
+  }
+  const column = error.message?.match(/column "?([\w.]+)"? does not exist/)?.[1];
+  if (column?.includes("is_active")) {
+    return "Pausing a location needs the is_active column. Run migration 0018_branch_lifecycle.sql against your Supabase project.";
+  }
+  return "This listing's branches need the listing_id column. Run migration 0017_restaurant_listing_branches.sql against your Supabase project.";
+}
+
 export function BranchManager({
   restaurantId,
   listingName,
@@ -132,14 +153,8 @@ export function BranchManager({
         .order("created_at", { ascending: true });
       if (!active) return;
       if (error) {
-        // A missing `restaurant_id` column (migration 0017 unapplied) surfaces
-        // here as a PostgREST error; say so instead of rendering "no branches".
         console.error("[branch-manager] load failed:", error.message);
-        setBranchError(
-          error.code === "42703"
-            ? "This listing's branches need the listing_id column. Run migration 0017_restaurant_listing_branches.sql against your Supabase project."
-            : "Could not load branches. Refresh the page and try again.",
-        );
+        setBranchError(describeBranchLoadError(error));
         setLoading(false);
         return;
       }
