@@ -808,7 +808,64 @@ export async function setListingActive(
   revalidatePath('/dashboard/restaurant')
   revalidatePath(`/restaurants/${idCheck.data}`)
   revalidatePath('/restaurants')
-  return { ok: true, message: active ? 'Listing published.' : 'Listing unpublished.' }
+  return { ok: true, message: active ? 'Listing is live.' : 'Listing paused.' }
+}
+
+/**
+ * Deletes a listing. Destructive and irreversible: the FK cascade takes its
+ * branches, their booking configs, and their menu items with it, so the caller
+ * must confirm and the button states the consequence before it is pressed.
+ */
+export async function removeListing(
+  listingId: string
+): Promise<DashboardActionState> {
+  const idCheck = uuidSchema.safeParse(listingId)
+  if (!idCheck.success) return { ok: false, message: 'Invalid listing identifier.' }
+
+  const { supabase, user, role } = await getCurrentUserRole()
+  if (!user) return { ok: false, message: 'Please sign in again to continue.' }
+  if (role !== 'food_business') {
+    return { ok: false, message: 'Only restaurant partners can remove listings.' }
+  }
+
+  const { data: business } = await supabase
+    .from('businesses')
+    .select('id')
+    .eq('owner_id', user.id)
+    .maybeSingle()
+  if (!business) return { ok: false, message: 'No linked business profile found.' }
+
+  const listing = await getOwnedRestaurant(supabase, business.id, idCheck.data)
+  if (!listing) return { ok: false, message: 'Listing not found or not authorized.' }
+
+  const { data: branches } = await supabase
+    .from('branches')
+    .select('id')
+    .eq('business_id', business.id)
+    .eq('restaurant_id', idCheck.data)
+  const branchCount = (branches ?? []).length
+
+  const { error } = await supabase
+    .from('restaurants')
+    .delete()
+    .eq('id', idCheck.data)
+    .eq('business_id', business.id)
+
+  if (error) {
+    logActionError('removeListing', error)
+    return defaultErrorState
+  }
+
+  revalidatePath('/dashboard/restaurant/listings')
+  revalidatePath('/dashboard/restaurant')
+  revalidatePath(`/restaurants/${idCheck.data}`)
+  revalidatePath('/restaurants')
+  return {
+    ok: true,
+    message: branchCount
+      ? `Listing removed, along with ${branchCount} branch${branchCount === 1 ? '' : 'es'} and their menus.`
+      : 'Listing removed.',
+  }
 }
 
 export async function toggleEventActive(
