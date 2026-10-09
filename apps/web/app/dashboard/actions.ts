@@ -1,6 +1,6 @@
 'use server'
 
-import { revalidatePath } from 'next/cache'
+import { revalidatePath, revalidateTag } from 'next/cache'
 import { z } from 'zod'
 import { createClient } from '@/lib/supabase/server'
 import {
@@ -907,6 +907,7 @@ export async function setBusinessVerification(
   if (auditError) logActionError('setBusinessVerification.audit', auditError)
 
   revalidatePath('/dashboard/admin')
+  revalidateTag('restaurant-catalogue')
   return { ok: true, message: approve ? 'Business verified.' : 'Business rejected.' }
 }
 
@@ -996,6 +997,8 @@ export async function adminSetUserSuspended(
   if (auditError) logActionError('adminSetUserSuspended.audit', auditError)
 
   revalidatePath('/dashboard/admin/users')
+  revalidateTag('restaurant-catalogue')
+  revalidateTag('event-catalogue')
   return { ok: true, message: suspended ? 'Account suspended.' : 'Account reinstated.' }
 }
 
@@ -1029,6 +1032,7 @@ export async function adminVerifyOrganizer(
   if (auditError) logActionError('adminVerifyOrganizer.audit', auditError)
 
   revalidatePath('/dashboard/admin/organizers')
+  revalidateTag('event-catalogue')
   return { ok: true, message: approve ? 'Organizer verified.' : 'Organizer rejected.' }
 }
 
@@ -1069,6 +1073,7 @@ export async function adminModerateEvent(
 
   revalidatePath('/dashboard/admin/events')
   revalidatePath('/events')
+  revalidateTag('event-catalogue')
   return { ok: true, message: `Event ${actionCheck.data === 'publish' ? 'published' : actionCheck.data + 'ed'}.` }
 }
 
@@ -1145,5 +1150,6 @@ export async function adminSetBusinessActive(
 
   revalidatePath('/dashboard/admin/businesses')
   revalidatePath(`/dashboard/admin/businesses/${businessId}`)
+  revalidateTag('restaurant-catalogue')
   return { ok: true, message: active ? 'Business reactivated.' : 'Business suspended.' }
 }

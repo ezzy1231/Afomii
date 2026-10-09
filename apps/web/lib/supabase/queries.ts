@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
+import { createAnonClient } from '@/lib/supabase/anon'
 import { fallbackRestaurants, fallbackEvents, type CatalogueItem } from '@/lib/catalogue'
 
 // Sample-detail builders must never serve fake menus/prices in production.
@@ -70,7 +71,7 @@ export type EventDetail = {
 }
 
 export async function getRestaurantDetail(id: string): Promise<RestaurantDetail | null> {
-  const supabase = await createClient()
+  const supabase = createAnonClient()
 
   const { data: restaurant, error } = await supabase
     .from('restaurants')
@@ -140,7 +141,7 @@ export async function getRestaurantDetail(id: string): Promise<RestaurantDetail 
 }
 
 export async function getEventDetail(id: string): Promise<EventDetail | null> {
-  const supabase = await createClient()
+  const supabase = createAnonClient()
 
   const { data: event, error } = await supabase
     .from('events')
@@ -431,8 +432,9 @@ export type OrganizerDetail = {
 
 export async function getOrganizerDetail(id: string): Promise<OrganizerDetail | null> {
   const supabase = await createClient()
+  const publicSupabase = createAnonClient()
 
-  const { data: org, error } = await supabase
+  const { data: org, error } = await publicSupabase
     .from('organizers')
     .select('id, name, description, is_verified, logo_url, cover_url, city')
     .eq('id', id)
@@ -448,7 +450,7 @@ export async function getOrganizerDetail(id: string): Promise<OrganizerDetail | 
   }
 
   const [{ data: events }, { count: followers }] = await Promise.all([
-    supabase
+    publicSupabase
       .from('events')
       .select(
         'id, title, category, venue_name, starts_at, end_date_time, cover_image_url, status, ticket_types(price)'

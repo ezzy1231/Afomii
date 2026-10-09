@@ -119,7 +119,7 @@ const fetchRestaurantCatalogue = unstable_cache(
     }
   },
   ['restaurant-catalogue'],
-  { revalidate: CATALOGUE_TTL_SECONDS }
+  { revalidate: CATALOGUE_TTL_SECONDS, tags: ['restaurant-catalogue'] }
 )
 
 export async function getRestaurantCatalogue() {
@@ -171,7 +171,7 @@ const fetchEventCatalogue = unstable_cache(
     }
   },
   ['event-catalogue'],
-  { revalidate: CATALOGUE_TTL_SECONDS }
+  { revalidate: CATALOGUE_TTL_SECONDS, tags: ['event-catalogue'] }
 )
 
 export async function getEventCatalogue() {
