@@ -11,6 +11,8 @@ import {
 } from "@/app/restaurants/actions";
 import type { DetailBranch, RestaurantDetail } from "@/lib/supabase/queries";
 import Link from "next/link";
+import { BookingCodeQR } from "@/components/dashboard/booking-code-qr";
+import { AcceptSuggestedTime } from "@/components/dashboard/accept-suggested-time";
 
 const WEEKDAYS = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
 
@@ -20,6 +22,8 @@ type MyBooking = {
   reservation_date: string;
   time_slot: string | null;
   guest_count: number | null;
+  booking_code: string;
+  suggested_time: string | null;
 };
 
 function toMinutes(t: string) {
@@ -116,7 +120,7 @@ export function ReservationForm({
     const today = todayString();
     const { data } = await supabase
       .from("reservations")
-      .select("id, status, reservation_date, time_slot, guest_count")
+      .select("id, status, reservation_date, time_slot, guest_count, booking_code, suggested_time")
       .eq("branch_id", branch.id)
       .eq("user_id", profile.id)
       .gte("reservation_date", today)
@@ -159,6 +163,14 @@ export function ReservationForm({
     await cancelReservation(id);
     await loadMyBookings();
     setCancellingId(null);
+  }
+
+  if (config?.bookingMode === 'closed') {
+    return (
+      <div className="rounded-xl border border-app-border bg-app-card p-4 text-sm text-app-muted">
+        This branch is walk-in only and does not take reservations.
+      </div>
+    );
   }
 
   if (!config || totalTables === 0) {
@@ -248,6 +260,21 @@ export function ReservationForm({
                   >
                     {b.status === "confirmed" ? "Confirmed" : "Requested"}
                   </span>
+                  {b.status === "confirmed" && (
+                    <div className="mt-2 flex items-center gap-3 rounded-lg bg-app-input p-2">
+                      <BookingCodeQR code={b.booking_code} size={72} />
+                      <div>
+                        <p className="text-[10px] font-semibold uppercase tracking-wider text-app-muted">Check-in code</p>
+                        <p className="mt-1 font-mono text-xs font-bold tracking-widest text-ember">{b.booking_code}</p>
+                      </div>
+                    </div>
+                  )}
+                  {b.status === "pending" && b.suggested_time && (
+                    <div className="mt-2 flex flex-wrap items-center gap-3 rounded-lg bg-ember/10 p-2">
+                      <p className="text-xs font-semibold text-ember">Restaurant suggested {b.suggested_time}</p>
+                      <AcceptSuggestedTime reservationId={b.id} />
+                    </div>
+                  )}
                 </div>
                 <button
                   type="button"
@@ -402,11 +429,11 @@ export function ReservationForm({
               disabled={submitting || signedIn === false}
               className="w-full rounded-xl bg-gradient-to-br from-ember to-ember-deep py-3 text-sm font-semibold text-on-accent shadow-[0_2px_8px_rgb(var(--ember-rgb)/0.3)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_4px_12px_rgb(var(--ember-rgb)/0.4)] active:translate-y-0 active:scale-[0.98] disabled:opacity-40"
             >
-              {submitting ? "Reserving…" : "Confirm Reservation"}
+              {submitting ? "Reserving…" : config.bookingMode === "request" ? "Request Reservation" : "Confirm Reservation"}
             </button>
 
             <div className="space-y-1.5">
-              {["Instant Confirmation", "No Prepayment Required"].map(
+              {[config.bookingMode === "request" ? "Restaurant Approval Required" : "Instant Confirmation", "No Prepayment Required"].map(
                 (note) => (
                   <p
                     key={note}

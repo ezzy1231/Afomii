@@ -7,6 +7,8 @@ import Navbar from '@/components/Navbar'
 import PageFooter from '@/components/PageFooter'
 import { StatusBadge } from '@/components/ui/badge'
 import SignOutButton from './SignOutButton'
+import { BookingCodeQR } from '@/components/dashboard/booking-code-qr'
+import { AcceptSuggestedTime } from '@/components/dashboard/accept-suggested-time'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = { title: 'Settings' }
@@ -87,7 +89,7 @@ export default async function SettingsPage() {
           {reservations.length ? (
             <div className="space-y-3">
               {reservations.map((r) => (
-                <div key={r.id} className="flex items-center justify-between gap-4 rounded-xl border border-[var(--border)] bg-[var(--bg-primary)] p-3">
+                <div key={r.id} className="flex flex-col justify-between gap-4 rounded-xl border border-[var(--border)] bg-[var(--bg-primary)] p-3 sm:flex-row sm:items-center">
                   <div>
                     <p className="font-medium text-app-fg">{r.restaurantName || 'Restaurant'}</p>
                     <p className="text-sm text-app-muted">
@@ -97,8 +99,20 @@ export default async function SettingsPage() {
                       {formatDate(r.reservationDate)}
                       {r.timeSlot ? ` · ${r.timeSlot}` : ''} · {r.guestCount} guests
                     </p>
+                    {r.suggestedTime && r.status === 'pending' && (
+                      <div className="mt-2 flex flex-wrap items-center gap-3">
+                        <p className="text-xs font-semibold text-ember">Restaurant suggested {r.suggestedTime}</p>
+                        <AcceptSuggestedTime reservationId={r.id} />
+                      </div>
+                    )}
+                    {r.status === 'confirmed' && (
+                      <p className="mt-2 font-mono text-xs font-semibold tracking-[0.14em] text-ember">Check-in code: {r.bookingCode}</p>
+                    )}
                   </div>
-                  <StatusBadge status={r.status} />
+                  <div className="flex items-center justify-between gap-3 sm:justify-end">
+                    <StatusBadge status={r.status} />
+                    {r.status === 'confirmed' && <BookingCodeQR code={r.bookingCode} size={88} />}
+                  </div>
                 </div>
               ))}
             </div>

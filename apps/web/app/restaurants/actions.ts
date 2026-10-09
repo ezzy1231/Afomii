@@ -89,6 +89,9 @@ export async function createReservation(input: {
     if (msg.includes('BRANCH_NOT_CONFIGURED')) {
       return { ok: false, message: 'This branch is not accepting reservations yet.' }
     }
+    if (msg.includes('BRANCH_NOT_ACCEPTING')) {
+      return { ok: false, message: 'This branch is walk-in only and does not take reservations.' }
+    }
     return { ok: false, message: 'Could not complete your reservation. Please try again.' }
   }
 

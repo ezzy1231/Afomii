@@ -32,6 +32,7 @@ export type RestaurantDetail = {
   id: string
   name: string
   category: string
+  description: string | null
   logoUrl: string | null
   coverUrl: string | null
   isVerified: boolean
@@ -72,7 +73,7 @@ export async function getRestaurantDetail(id: string): Promise<RestaurantDetail 
 
   const { data: restaurant, error } = await supabase
     .from('restaurants')
-    .select('id, name, cuisine, logo_url, cover_url, is_verified, rating, opening_hours, business_id')
+    .select('id, name, cuisine, description, logo_url, cover_url, is_verified, rating, opening_hours, business_id')
     .eq('id', id)
     .maybeSingle()
 
@@ -126,6 +127,7 @@ export async function getRestaurantDetail(id: string): Promise<RestaurantDetail 
     id: restaurant.id,
     name: restaurant.name,
     category: restaurant.cuisine ?? '',
+    description: restaurant.description ?? null,
     logoUrl: restaurant.logo_url,
     coverUrl: restaurant.cover_url,
     isVerified: restaurant.is_verified,
@@ -199,6 +201,8 @@ export type ConsumerReservation = {
   timeSlot: string | null
   guestCount: number
   status: string
+  bookingCode: string
+  suggestedTime: string | null
   branchName: string
   address: string
   restaurantName: string
@@ -211,7 +215,7 @@ export async function getConsumerReservations(userId: string): Promise<ConsumerR
   const { data: reservations, error } = await supabase
     .from('reservations')
     .select(
-      'id, reservation_date, time_slot, guest_count, status, branch:branches(branch_name, address, business_id)'
+      'id, reservation_date, time_slot, guest_count, status, booking_code, suggested_time, branch:branches(branch_name, address, business_id)'
     )
     .eq('user_id', userId)
     .order('reservation_date', { ascending: false })
@@ -256,6 +260,8 @@ export async function getConsumerReservations(userId: string): Promise<ConsumerR
       timeSlot: r.time_slot,
       guestCount: r.guest_count,
       status: r.status,
+      bookingCode: r.booking_code,
+      suggestedTime: r.suggested_time,
       branchName: branch?.branch_name ?? '',
       address: branch?.address ?? '',
       restaurantName: branch?.business_id ? (restaurantMap.get(branch.business_id) ?? '') : '',
@@ -336,6 +342,7 @@ function buildSampleRestaurantDetail(item: CatalogueItem): RestaurantDetail {
     id: item.id,
     name: item.name,
     category: item.category,
+    description: null,
     logoUrl: null,
     coverUrl: item.imageUrl ?? null,
     isVerified: true,
@@ -425,7 +432,7 @@ export async function getOrganizerDetail(id: string): Promise<OrganizerDetail | 
 
   const { data: org, error } = await supabase
     .from('organizers')
-    .select('id, name, description, is_verified')
+    .select('id, name, description, is_verified, logo_url, cover_url, city')
     .eq('id', id)
     .maybeSingle()
 
@@ -473,10 +480,10 @@ export async function getOrganizerDetail(id: string): Promise<OrganizerDetail | 
     id: org.id,
     name: org.name,
     bio: org.description ?? null,
-    logoUrl: null,
-    coverUrl: null,
+    logoUrl: org.logo_url ?? null,
+    coverUrl: org.cover_url ?? null,
     isVerified: org.is_verified ?? false,
-    city: 'Addis Ababa',
+    city: org.city ?? 'Addis Ababa',
     followerCount: followers ?? 0,
     rating: null,
     events: mappedEvents,

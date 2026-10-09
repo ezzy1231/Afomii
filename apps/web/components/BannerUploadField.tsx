@@ -31,11 +31,13 @@ type Status = 'idle' | 'processing' | 'preview' | 'uploading' | 'done' | 'error'
 
 export default function BannerUploadField({
   fieldName,
+  initialUrl,
   label = 'Banner image',
   hint = 'jpg, png or webp · up to 5 MB · shows on the listing and detail pages',
   onReady,
 }: {
   fieldName: string
+  initialUrl?: string | null
   label?: string
   hint?: string
   onReady?: (ready: boolean) => void
@@ -59,9 +61,9 @@ export default function BannerUploadField({
       }
     })
   }, [])
-  const [status, setStatus] = useState<Status>('idle')
+  const [status, setStatus] = useState<Status>(initialUrl ? 'done' : 'idle')
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
-  const [publicUrl, setPublicUrl] = useState<string>('')
+  const [publicUrl, setPublicUrl] = useState<string>(initialUrl ?? '')
   const [error, setError] = useState<string | null>(null)
 
   // Surface readiness to the parent form.

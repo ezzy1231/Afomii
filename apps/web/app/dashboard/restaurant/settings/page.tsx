@@ -6,6 +6,7 @@ import { getBusinessAccount } from '@/lib/dashboard/restaurant-data'
 import { ConsoleStack } from '@/components/dashboard/console-primitives'
 import { CONSOLE_CARD } from '@/components/dashboard/console-tokens'
 import { cn } from '@/lib/utils'
+import { PartnerProfileEditor } from '@/components/dashboard/partner-profile-editor'
 
 export const metadata: Metadata = { title: 'Restaurant Settings' }
 
@@ -20,12 +21,17 @@ export default async function RestaurantSettingsPage() {
   } = await supabase.auth.getUser()
   if (!user) redirect('/auth/signin?next=/dashboard/restaurant/settings')
 
-  const [business, { data: profile }] = await Promise.all([
+  const [business, { data: profile }, { data: profileAssets }] = await Promise.all([
     getBusinessAccount(supabase, user),
     supabase
       .from('profiles')
       .select('id, full_name, email, phone, city')
       .eq('id', user.id)
+      .maybeSingle(),
+    supabase
+      .from('businesses')
+      .select('website, logo_url, cover_url')
+      .eq('owner_id', user.id)
       .maybeSingle(),
   ])
 
@@ -42,15 +48,15 @@ export default async function RestaurantSettingsPage() {
     )
   }
 
-  const fields: Array<{ label: string; value: string | null }> = [
-    { label: 'Business name', value: business.name },
-    { label: 'Category', value: business.category },
-    { label: 'Contact email', value: business.email ?? profile?.email ?? null },
-    { label: 'Phone', value: business.phone ?? profile?.phone ?? null },
-    { label: 'City', value: business.city ?? profile?.city ?? null },
-    { label: 'Address', value: business.address },
-    { label: 'Your name', value: profile?.full_name ?? null },
-  ]
+  const [{ data: listing }] = await Promise.all([
+    supabase
+      .from('restaurants')
+      .select('id, name, cuisine, area_label')
+      .eq('business_id', business.id)
+      .order('created_at', { ascending: true })
+      .limit(1)
+      .maybeSingle(),
+  ])
 
   return (
     <ConsoleStack
@@ -58,24 +64,33 @@ export default async function RestaurantSettingsPage() {
       title="Settings"
       subtitle="How your venue appears across UrbanExplore."
     >
-      <section className={CONSOLE_CARD}>
-        <div className="border-b border-console-border px-5 py-4">
-          <h2 className="text-[15px] font-bold text-console-ink">Business profile</h2>
-        </div>
-        <dl className="divide-y divide-console-border">
-          {fields.map((field) => (
-            <div
-              key={field.label}
-              className="flex flex-wrap items-center justify-between gap-3 px-5 py-3.5"
-            >
-              <dt className="text-sm text-console-muted">{field.label}</dt>
-              <dd className="text-sm font-semibold text-console-ink">
-                {field.value || <span className="font-normal text-console-muted">Not set</span>}
-              </dd>
-            </div>
-          ))}
-        </dl>
-      </section>
+      <PartnerProfileEditor
+        kind="restaurant"
+        profile={{
+          fullName: profile?.full_name ?? '',
+          email: profile?.email ?? '',
+          phone: profile?.phone ?? '',
+          city: profile?.city ?? '',
+        }}
+        account={{
+          name: business.name,
+          email: business.email ?? '',
+          phone: business.phone ?? '',
+          city: business.city ?? '',
+          address: business.address ?? '',
+          category: business.category ?? '',
+          website: profileAssets?.website ?? '',
+          description: business.description ?? '',
+          logoUrl: profileAssets?.logo_url ?? '',
+          coverUrl: profileAssets?.cover_url ?? '',
+        }}
+        listing={listing ? {
+          id: listing.id,
+          name: listing.name,
+          cuisine: listing.cuisine ?? '',
+          neighborhood: listing.area_label ?? '',
+        } : undefined}
+      />
 
       <section id="boost" className={CONSOLE_CARD}>
         <div className="border-b border-console-border px-5 py-4">

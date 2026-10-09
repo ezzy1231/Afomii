@@ -1,9 +1,9 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
+import { z } from 'zod'
 import { createClient } from '@/lib/supabase/server'
 import {
-  bannerUrlSchema,
   branchInputSchema,
   bookingConfigInputSchema,
   eventListingInputSchema,
@@ -13,7 +13,6 @@ import {
   firstTicketTierSchema,
   logActionError,
   openingHoursSchema,
-  restaurantListingInputSchema,
   restaurantListingWithBannerSchema,
   reservationStatusSchema,
   userRoleSchema,
@@ -30,6 +29,29 @@ const defaultErrorState: DashboardActionState = {
   ok: false,
   message: 'Something went wrong. Please try again.',
 }
+
+const profileField = z.string().trim().max(2000)
+const imageUrlField = z.string().trim().max(500).refine(
+  (value) => !value || (value.startsWith('https://') && value.includes('/storage/v1/object/public/banners/')),
+  'Choose an image uploaded to your UrbanExplore banner storage.',
+)
+const partnerProfileSchema = z.object({
+  fullName: z.string().trim().min(2).max(120),
+  contactEmail: z.string().trim().email().or(z.literal('')),
+  phone: z.string().trim().max(40),
+  city: z.string().trim().max(100),
+  accountName: z.string().trim().min(2).max(160),
+  category: z.string().trim().max(120),
+  address: z.string().trim().max(240),
+  website: z.string().trim().max(300).refine((value) => !value || /^https:\/\//i.test(value), 'Website must start with https://.'),
+  description: profileField,
+  logoUrl: imageUrlField,
+  coverUrl: imageUrlField,
+  listingId: z.string().uuid().or(z.literal('')),
+  listingName: z.string().trim().max(160),
+  cuisine: z.string().trim().max(120),
+  neighborhood: z.string().trim().max(120),
+})
 
 function readText(formData: FormData, key: string) {
   const value = formData.get(key)
@@ -145,10 +167,16 @@ export async function createEventListing(
   // The first ticket tier is optional, but offering it here is what makes a
   // new event buyable without a second visit to the ticket manager.
   const wantsTier = readText(formData, 'addTicketTier') === 'on'
+  const requestedTier = readText(formData, 'tierType') || 'early_bird'
+  const databaseTier = requestedTier === 'general_admission'
+    ? 'standard'
+    : requestedTier === 'vvip'
+      ? 'vip'
+      : requestedTier
   const rawTier = wantsTier
     ? {
         name: readText(formData, 'tierName'),
-        tier: readText(formData, 'tierType') || 'early_bird',
+        tier: databaseTier,
         price: readText(formData, 'tierPrice'),
         totalQuantity: readText(formData, 'tierQuantity'),
       }
@@ -161,7 +189,8 @@ export async function createEventListing(
   }
   const firstTier = tierParsed?.success ? tierParsed.data : null
 
-  const parsed = eventListingWithBannerSchema.safeParse({
+  const publishNow = readText(formData, 'publishMode') !== 'draft'
+  const eventInput = {
     title: readText(formData, 'title'),
     // Blank select maps to undefined so the optional enum accepts it.
     category: readText(formData, 'category') || undefined,
@@ -170,12 +199,15 @@ export async function createEventListing(
     startsAt: readText(formData, 'startsAt'),
     endDateTime: readText(formData, 'endDateTime'),
     priceLabel: readText(formData, 'priceLabel'),
-    coverImageUrl: readText(formData, 'coverImageUrl'),
     // Same blank-to-null treatment as addBranch: z.coerce.number() would turn
     // an empty field into 0,0 in the Gulf of Guinea.
     latitude: blankToNull(formData.get('latitude')),
     longitude: blankToNull(formData.get('longitude')),
-  })
+  }
+  const coverImageUrl = readText(formData, 'coverImageUrl')
+  const parsed = publishNow
+    ? eventListingWithBannerSchema.safeParse({ ...eventInput, coverImageUrl })
+    : eventListingInputSchema.safeParse(eventInput)
   if (!parsed.success) return { ok: false, message: firstIssue(parsed.error) }
 
   const {
@@ -186,7 +218,6 @@ export async function createEventListing(
     startsAt,
     endDateTime,
     priceLabel,
-    coverImageUrl,
     latitude,
     longitude,
   } = parsed.data
@@ -220,8 +251,9 @@ export async function createEventListing(
       starts_at: startsAtDate ? startsAtDate.toISOString() : null,
       end_date_time: endDateTimeDate ? endDateTimeDate.toISOString() : null,
       price_label: priceLabel || null,
-      cover_image_url: coverImageUrl,
-      is_active: true,
+      cover_image_url: publishNow ? coverImageUrl : coverImageUrl || null,
+      is_active: publishNow,
+      status: publishNow ? 'published' : 'draft',
     })
     .select('id')
     .single()
@@ -257,7 +289,12 @@ export async function createEventListing(
   revalidatePath('/dashboard/organizer/tickets')
   revalidatePath('/events')
 
-  return { ok: true, message: `Event created: ${title}.${tierNote}` }
+  return {
+    ok: true,
+    message: publishNow
+      ? `Event published: ${title}.${tierNote}`
+      : `Draft saved: ${title}.${tierNote}`,
+  }
 }
 
 export async function updateReservationStatus(
@@ -316,6 +353,320 @@ export async function updateReservationStatus(
 
   revalidatePath('/dashboard/restaurant/reservations')
   return { ok: true, message: `Reservation marked ${status}.` }
+}
+
+/** Check in by the opaque booking code printed on the guest's reservation QR. */
+export async function checkInReservation(code: string): Promise<DashboardActionState> {
+  const normalized = code.trim().toUpperCase()
+  if (!/^[A-F0-9]{12}$/.test(normalized)) {
+    return { ok: false, message: 'Enter a valid 12-character booking code.' }
+  }
+
+  const { supabase, user, role } = await getCurrentUserRole()
+  if (!user) return { ok: false, message: 'Please sign in again to continue.' }
+  if (role !== 'food_business') {
+    return { ok: false, message: 'Only restaurant partners can check in reservations.' }
+  }
+
+  const { data: business } = await supabase
+    .from('businesses')
+    .select('id')
+    .eq('owner_id', user.id)
+    .maybeSingle()
+  if (!business) return { ok: false, message: 'No linked business profile found.' }
+
+  const { data: branches } = await supabase
+    .from('branches')
+    .select('id')
+    .eq('business_id', business.id)
+  const branchIds = (branches ?? []).map((branch) => branch.id)
+  if (!branchIds.length) return { ok: false, message: 'No branches found.' }
+
+  const { data: booking } = await supabase
+    .from('reservations')
+    .select('id, branch_id, status, checked_in_at')
+    .eq('booking_code', normalized)
+    .in('branch_id', branchIds)
+    .maybeSingle()
+
+  if (!booking) return { ok: false, message: 'No reservation matches that code for your business.' }
+  if (booking.checked_in_at) return { ok: true, message: 'This guest was already checked in.' }
+  if (booking.status !== 'confirmed') {
+    return { ok: false, message: 'Only confirmed reservations can be checked in.' }
+  }
+
+  const checkedInAt = new Date().toISOString()
+  const { data: updated, error } = await supabase
+    .from('reservations')
+    .update({ checked_in_at: checkedInAt, status: 'completed' })
+    .eq('id', booking.id)
+    .eq('status', 'confirmed')
+    .is('checked_in_at', null)
+    .select('id')
+    .maybeSingle()
+
+  if (error || !updated) {
+    logActionError('checkInReservation', error ?? new Error('Reservation was already checked in'))
+    return { ok: false, message: 'This reservation could not be checked in. Refresh and try again.' }
+  }
+
+  revalidatePath('/dashboard/restaurant/reservations')
+  revalidatePath('/settings')
+  return { ok: true, message: 'Guest checked in.' }
+}
+
+export async function suggestReservationTime(id: string, suggestedTime: string): Promise<DashboardActionState> {
+  const idCheck = uuidSchema.safeParse(id)
+  if (!idCheck.success || !/^(?:[01]\d|2[0-3]):[0-5]\d$/.test(suggestedTime)) {
+    return { ok: false, message: 'Choose a valid time.' }
+  }
+  const { supabase, user, role } = await getCurrentUserRole()
+  if (!user) return { ok: false, message: 'Please sign in again to continue.' }
+  if (role !== 'food_business') return { ok: false, message: 'Only restaurant partners can suggest a new time.' }
+
+  const { data: business } = await supabase.from('businesses').select('id').eq('owner_id', user.id).maybeSingle()
+  if (!business) return { ok: false, message: 'No linked business profile found.' }
+  const { data: branches } = await supabase.from('branches').select('id').eq('business_id', business.id)
+  const branchIds = (branches ?? []).map((branch) => branch.id)
+  const { data: booking } = await supabase
+    .from('reservations')
+    .select('id, branch_id, status, time_slot')
+    .eq('id', idCheck.data)
+    .maybeSingle()
+  if (!booking || !branchIds.includes(booking.branch_id)) {
+    return { ok: false, message: 'Reservation not found or not authorized.' }
+  }
+  if (booking.status !== 'pending') return { ok: false, message: 'Only pending requests can receive a time suggestion.' }
+  if (booking.time_slot === suggestedTime) return { ok: false, message: 'Choose a different time from the current request.' }
+
+  const { error } = await supabase
+    .from('reservations')
+    .update({ suggested_time: suggestedTime })
+    .eq('id', idCheck.data)
+    .eq('status', 'pending')
+  if (error) {
+    logActionError('suggestReservationTime', error)
+    return defaultErrorState
+  }
+  revalidatePath('/dashboard/restaurant/reservations')
+  revalidatePath('/settings')
+  return { ok: true, message: `Suggested ${suggestedTime} to the guest.` }
+}
+
+export async function acceptSuggestedReservationTime(id: string): Promise<DashboardActionState> {
+  const idCheck = uuidSchema.safeParse(id)
+  if (!idCheck.success) return { ok: false, message: 'Invalid reservation identifier.' }
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { ok: false, message: 'Please sign in to accept the suggested time.' }
+
+  const { data: booking } = await supabase
+    .from('reservations')
+    .select('id')
+    .eq('id', idCheck.data)
+    .eq('user_id', user.id)
+    .maybeSingle()
+  if (!booking) return { ok: false, message: 'Reservation not found.' }
+
+  const { data: acceptedTime, error } = await supabase.rpc('accept_reservation_suggestion', {
+    p_reservation_id: idCheck.data,
+  })
+  if (error) {
+    const message = error.message
+    if (message.includes('RESERVATION_SLOT_FULL')) return { ok: false, message: 'That time is now full. Contact the restaurant for another option.' }
+    if (message.includes('SUGGESTION_NOT_FOUND')) return { ok: false, message: 'This time suggestion is no longer available.' }
+    logActionError('acceptSuggestedReservationTime', error)
+    return defaultErrorState
+  }
+
+  revalidatePath('/settings')
+  revalidatePath('/dashboard/restaurant/reservations')
+  return { ok: true, message: `Reservation confirmed for ${acceptedTime}.` }
+}
+
+export async function updatePartnerProfile(formData: FormData): Promise<DashboardActionState> {
+  const parsed = partnerProfileSchema.safeParse({
+    fullName: readText(formData, 'fullName'),
+    contactEmail: readText(formData, 'contactEmail'),
+    phone: readText(formData, 'phone'),
+    city: readText(formData, 'city'),
+    accountName: readText(formData, 'accountName'),
+    category: readText(formData, 'category'),
+    address: readText(formData, 'address'),
+    website: readText(formData, 'website'),
+    description: readText(formData, 'description'),
+    logoUrl: readText(formData, 'logoUrl'),
+    coverUrl: readText(formData, 'coverUrl'),
+    listingId: readText(formData, 'listingId'),
+    listingName: readText(formData, 'listingName'),
+    cuisine: readText(formData, 'cuisine'),
+    neighborhood: readText(formData, 'neighborhood'),
+  })
+  if (!parsed.success) return { ok: false, message: firstIssue(parsed.error) }
+
+  const { supabase, user, role } = await getCurrentUserRole()
+  if (!user) return { ok: false, message: 'Please sign in again to continue.' }
+  if (role !== 'food_business' && role !== 'event_organizer') {
+    return { ok: false, message: 'Only business partners can edit this profile.' }
+  }
+
+  const values = parsed.data
+  const { error: profileError } = await supabase
+    .from('profiles')
+    .update({
+      full_name: values.fullName,
+      email: values.contactEmail || null,
+      phone: values.phone || null,
+      city: values.city || null,
+    })
+    .eq('id', user.id)
+  if (profileError) {
+    logActionError('updatePartnerProfile.profile', profileError)
+    return defaultErrorState
+  }
+
+  if (role === 'food_business') {
+    const { data: business } = await supabase
+      .from('businesses')
+      .select('id')
+      .eq('owner_id', user.id)
+      .maybeSingle()
+    if (!business) return { ok: false, message: 'No linked business profile found.' }
+
+    const { error } = await supabase.from('businesses').update({
+      name: values.accountName,
+      email: values.contactEmail || null,
+      phone: values.phone || null,
+      city: values.city || null,
+      address: values.address || null,
+      category: values.category || null,
+      website: values.website || null,
+      description: values.description || null,
+      logo_url: values.logoUrl || null,
+      cover_url: values.coverUrl || null,
+    }).eq('id', business.id)
+    if (error) {
+      logActionError('updatePartnerProfile.business', error)
+      return defaultErrorState
+    }
+
+    if (values.listingId) {
+      if (values.listingName.trim().length < 2) {
+        return { ok: false, message: 'Restaurant name must be at least 2 characters.' }
+      }
+      const { data: listing } = await supabase
+        .from('restaurants')
+        .select('id')
+        .eq('id', values.listingId)
+        .eq('business_id', business.id)
+        .maybeSingle()
+      if (!listing) return { ok: false, message: 'Restaurant listing not found or not authorized.' }
+      const { error: listingError } = await supabase.from('restaurants').update({
+        name: values.listingName,
+        cuisine: values.cuisine || null,
+        area_label: values.neighborhood || null,
+        city: values.city || null,
+        description: values.description || null,
+        logo_url: values.logoUrl || null,
+        cover_url: values.coverUrl || null,
+      }).eq('id', listing.id)
+      if (listingError) {
+        logActionError('updatePartnerProfile.listing', listingError)
+        return defaultErrorState
+      }
+      revalidatePath(`/restaurants/${listing.id}`)
+    }
+    revalidatePath('/dashboard/restaurant')
+    revalidatePath('/dashboard/restaurant/settings')
+    revalidatePath('/dashboard/restaurant/listings')
+    revalidatePath('/restaurants')
+  } else {
+    const { data: organizer } = await supabase
+      .from('organizers')
+      .select('id')
+      .eq('owner_id', user.id)
+      .maybeSingle()
+    if (!organizer) return { ok: false, message: 'No linked organizer profile found.' }
+
+    const { error } = await supabase.from('organizers').update({
+      name: values.accountName,
+      email: values.contactEmail || null,
+      phone: values.phone || null,
+      city: values.city || null,
+      address: values.address || null,
+      category: values.category || null,
+      website: values.website || null,
+      description: values.description || null,
+      logo_url: values.logoUrl || null,
+      cover_url: values.coverUrl || null,
+    }).eq('id', organizer.id)
+    if (error) {
+      logActionError('updatePartnerProfile.organizer', error)
+      return defaultErrorState
+    }
+    revalidatePath('/dashboard/organizer')
+    revalidatePath('/dashboard/organizer/settings')
+    revalidatePath(`/organizers/${organizer.id}`)
+  }
+
+  return { ok: true, message: 'Profile updated.' }
+}
+
+export async function importMenuItems(
+  branchId: string,
+  items: Array<{ name: string; description?: string; price: number; category: string }>,
+): Promise<DashboardActionState> {
+  const idCheck = uuidSchema.safeParse(branchId)
+  if (!idCheck.success || !Array.isArray(items) || items.length < 1 || items.length > 100) {
+    return { ok: false, message: 'Choose between 1 and 100 valid menu items.' }
+  }
+  const cleanItems: Array<{ name: string; description: string | null; price: number; category: string }> = []
+  for (const item of items) {
+    if (
+      !item || typeof item.name !== 'string' || item.name.trim().length < 2 || item.name.trim().length > 120 ||
+      typeof item.category !== 'string' || item.category.trim().length > 80 ||
+      !Number.isFinite(item.price) || item.price < 0 || item.price > 1_000_000
+    ) {
+      return { ok: false, message: 'One or more menu items have an invalid name, category, or price.' }
+    }
+    cleanItems.push({
+      name: item.name.trim(),
+      description: typeof item.description === 'string' ? item.description.trim().slice(0, 500) || null : null,
+      price: Math.round(item.price * 100) / 100,
+      category: item.category.trim() || 'General',
+    })
+  }
+
+  const { supabase, user, role } = await getCurrentUserRole()
+  if (!user) return { ok: false, message: 'Please sign in again to continue.' }
+  if (role !== 'food_business') return { ok: false, message: 'Only restaurant partners can import menu items.' }
+
+  const { data: branch } = await supabase
+    .from('branches')
+    .select('id, business_id')
+    .eq('id', idCheck.data)
+    .maybeSingle()
+  if (!branch) return { ok: false, message: 'Branch not found or not authorized.' }
+
+  const { data: business } = await supabase
+    .from('businesses')
+    .select('id')
+    .eq('id', branch.business_id)
+    .eq('owner_id', user.id)
+    .maybeSingle()
+  if (!business) return { ok: false, message: 'Branch not found or not authorized.' }
+
+  const { error } = await supabase.from('menu_items').insert(
+    cleanItems.map((item) => ({ ...item, branch_id: branch.id, is_available: true })),
+  )
+  if (error) {
+    logActionError('importMenuItems', error)
+    return defaultErrorState
+  }
+
+  revalidatePath('/dashboard/restaurant/menu')
+  revalidatePath('/restaurants')
+  return { ok: true, message: `Imported ${cleanItems.length} menu items. Review availability in your menu.` }
 }
 
 export async function toggleEventActive(

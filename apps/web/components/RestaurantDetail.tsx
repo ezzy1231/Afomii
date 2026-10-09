@@ -254,9 +254,7 @@ export default function RestaurantDetail({ restaurant }: { restaurant: Restauran
             <div className="rounded-2xl border border-app-border bg-app-card p-5 shadow-card">
               <h3 className="text-lg font-bold text-app-fg">About {restaurant.name}</h3>
               <p className="mt-2 text-sm leading-6 text-app-muted">
-                {restaurant.name} offers a curated {restaurant.category ?? 'signature'} dining
-                experience in {branch?.address ?? 'Addis Ababa'}. Reservations, menus and
-                directions — all in one place.
+                {restaurant.description || `${restaurant.name} offers a curated ${restaurant.category || 'signature'} dining experience in ${branch?.address ?? 'Addis Ababa'}. Reservations, menus and directions — all in one place.`}
               </p>
               <div className="mt-3 flex flex-wrap gap-2">
                 <span className="sticker sticker-ember !rotate-0 !py-1 !text-[10px]">

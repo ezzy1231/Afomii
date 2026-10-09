@@ -289,7 +289,7 @@ export async function getOrganizerDashboard(
   }))
 
   const dated = events
-    .filter((event) => event.starts_at)
+    .filter((event) => event.starts_at && event.status === 'published' && event.is_active !== false)
     .map((event) => ({
       event,
       console: toConsoleEvent(event, tierRollup.get(event.id) ?? { sold: 0, capacity: 0 }),
@@ -381,7 +381,7 @@ export async function getOrganizerCalendar(
   return {
     organizer: organizerRow,
     events: events
-      .filter((event) => event.starts_at)
+      .filter((event) => event.starts_at && event.status === 'published' && event.is_active !== false)
       .map((event) => toConsoleEvent(event, rollup.get(event.id) ?? { sold: 0, capacity: 0 }))
       .sort((a, b) => a.date.localeCompare(b.date)),
   }

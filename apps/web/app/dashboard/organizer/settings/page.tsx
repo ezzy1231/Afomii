@@ -6,6 +6,7 @@ import { getOrganizerAccount } from '@/lib/dashboard/organizer-data'
 import { ConsoleStack } from '@/components/dashboard/console-primitives'
 import { CONSOLE_CARD } from '@/components/dashboard/console-tokens'
 import { cn } from '@/lib/utils'
+import { PartnerProfileEditor } from '@/components/dashboard/partner-profile-editor'
 
 export const metadata: Metadata = { title: 'Organizer Settings' }
 
@@ -23,12 +24,17 @@ export default async function OrganizerSettingsPage() {
   } = await supabase.auth.getUser()
   if (!user) redirect('/auth/signin?next=/dashboard/organizer/settings')
 
-  const [organizer, { data: profile }] = await Promise.all([
+  const [organizer, { data: profile }, { data: profileAssets }] = await Promise.all([
     getOrganizerAccount(supabase, user),
     supabase
       .from('profiles')
       .select('id, full_name, email, phone, city')
       .eq('id', user.id)
+      .maybeSingle(),
+    supabase
+      .from('organizers')
+      .select('website, logo_url, cover_url')
+      .eq('owner_id', user.id)
       .maybeSingle(),
   ])
 
@@ -45,39 +51,33 @@ export default async function OrganizerSettingsPage() {
     )
   }
 
-  const fields: Array<{ label: string; value: string | null }> = [
-    { label: 'Organizer name', value: organizer.name },
-    { label: 'Category', value: organizer.category },
-    { label: 'Contact email', value: organizerEmail(organizer.email, profile?.email) },
-    { label: 'Phone', value: profile?.phone ?? null },
-    { label: 'City', value: profile?.city ?? null },
-    { label: 'Your name', value: profile?.full_name ?? null },
-  ]
-
   return (
     <ConsoleStack
       eyebrow="Organizer"
       title="Settings"
       subtitle="How your organizer appears across UrbanExplore."
     >
-      <section className={CONSOLE_CARD}>
-        <div className="border-b border-console-border px-5 py-4">
-          <h2 className="text-[15px] font-bold text-console-ink">Organizer profile</h2>
-        </div>
-        <dl className="divide-y divide-console-border">
-          {fields.map((field) => (
-            <div
-              key={field.label}
-              className="flex flex-wrap items-center justify-between gap-3 px-5 py-3.5"
-            >
-              <dt className="text-sm text-console-muted">{field.label}</dt>
-              <dd className="text-sm font-semibold text-console-ink">
-                {field.value || <span className="font-normal text-console-muted">Not set</span>}
-              </dd>
-            </div>
-          ))}
-        </dl>
-      </section>
+      <PartnerProfileEditor
+        kind="organizer"
+        profile={{
+          fullName: profile?.full_name ?? '',
+          email: profile?.email ?? '',
+          phone: profile?.phone ?? '',
+          city: profile?.city ?? '',
+        }}
+        account={{
+          name: organizer.name,
+          email: organizer.email ?? profile?.email ?? '',
+          phone: organizer.phone ?? profile?.phone ?? '',
+          city: organizer.city ?? profile?.city ?? '',
+          address: organizer.address ?? '',
+          category: organizer.category ?? '',
+          website: profileAssets?.website ?? '',
+          description: organizer.description ?? '',
+          logoUrl: profileAssets?.logo_url ?? '',
+          coverUrl: profileAssets?.cover_url ?? '',
+        }}
+      />
 
       <section id="boost" className={CONSOLE_CARD}>
         <div className="border-b border-console-border px-5 py-4">
@@ -131,11 +131,4 @@ export default async function OrganizerSettingsPage() {
       </section>
     </ConsoleStack>
   )
-}
-
-function organizerEmail(
-  organizerEmailValue: string | null | undefined,
-  fallback: string | null | undefined,
-) {
-  return organizerEmailValue ?? fallback ?? null
 }

@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { ReservationQuickActions } from '@/components/dashboard/reservation-quick-actions'
+import { BookingCheckIn } from '@/components/dashboard/booking-check-in'
 import { cn } from '@/lib/utils'
 
 type InboxReservation = {
@@ -12,6 +13,9 @@ type InboxReservation = {
   guestCount: number
   status: string
   guestName: string
+  bookingCode: string
+  checkedInAt: string | null
+  suggestedTime: string | null
 }
 
 type Range = 'day' | 'week' | 'month'
@@ -106,7 +110,7 @@ export default function ReservationsPage() {
       // Next 31 days covers Day / Week / Month views.
       const { data } = await supabase
         .from('reservations')
-        .select('id, reservation_date, time_slot, guest_count, status, user_id')
+        .select('id, reservation_date, time_slot, guest_count, status, user_id, booking_code, checked_in_at, suggested_time')
         .in('branch_id', branchIds)
         .gte('reservation_date', isoDay(0))
         .lte('reservation_date', isoDay(30))
@@ -132,6 +136,9 @@ export default function ReservationsPage() {
           timeSlot: r.time_slot,
           guestCount: r.guest_count,
           status: r.status,
+          bookingCode: r.booking_code,
+          checkedInAt: r.checked_in_at,
+          suggestedTime: r.suggested_time,
           guestName: (() => {
             const email = contacts.get(r.user_id ?? '') ?? ''
             const cleaned = email.split('@')[0]?.replace(/[._-]+/g, ' ').trim()
@@ -190,6 +197,10 @@ export default function ReservationsPage() {
 
   return (
     <div className="space-y-6">
+        <BookingCheckIn
+          reservations={rows.map((row) => ({ bookingCode: row.bookingCode, checkedInAt: row.checkedInAt, status: row.status }))}
+          onCheckedIn={(code) => setRows((current) => current.map((row) => row.bookingCode === code ? { ...row, checkedInAt: new Date().toISOString(), status: 'completed' } : row))}
+        />
         <header className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <p className="text-[11px] font-semibold uppercase tracking-[0.15em] text-app-muted">
@@ -265,6 +276,9 @@ export default function ReservationsPage() {
                           {row.reservationDate}
                           {row.timeSlot ? ` · ${row.timeSlot}` : ''} · Party of {row.guestCount}
                         </p>
+                        <p className="mt-1 font-mono text-[11px] tracking-wider text-app-muted">
+                          Code {row.bookingCode}{row.checkedInAt ? ' · Checked in' : ''}
+                        </p>
                       </div>
                       <div className="flex shrink-0 items-center gap-3">
                         <span
@@ -275,7 +289,7 @@ export default function ReservationsPage() {
                         >
                           {row.status}
                         </span>
-                        <ReservationQuickActions reservationId={row.id} status={row.status} />
+                        <ReservationQuickActions reservationId={row.id} status={row.status} suggestedTime={row.suggestedTime} />
                       </div>
                     </div>
                   )

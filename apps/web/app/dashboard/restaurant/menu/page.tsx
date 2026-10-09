@@ -12,6 +12,7 @@ import {
 import { ConsoleStack } from '@/components/dashboard/console-primitives'
 import { CONSOLE_CARD } from '@/components/dashboard/console-shared'
 import { cn } from '@/lib/utils'
+import { MenuImporter } from '@/components/dashboard/menu-importer'
 
 type MenuItem = {
   id: string
@@ -252,6 +253,11 @@ export default function MenuPage() {
           ))}
         </div>
       )}
+
+      <MenuImporter
+        branchId={branchId}
+        onImported={async () => { if (branchId) await loadItems(branchId) }}
+      />
 
       {/* Search */}
       <div className={cn(CONSOLE_CARD, 'flex items-center gap-3 px-4 py-3')}>

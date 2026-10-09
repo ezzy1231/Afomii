@@ -9,12 +9,12 @@ import {
 import BannerUploadField from "@/components/BannerUploadField";
 import { EVENT_CATEGORIES } from "@/lib/categories";
 
-/** Mirrors the `ticket_tier` enum in packages/supabase/migrations/0001. */
+/** Custom display tiers map onto the shared ticket_tier enum in the server action. */
 const TIER_TYPES = [
+  { value: "general_admission", label: "General Admission" },
   { value: "early_bird", label: "Early Bird" },
-  { value: "standard", label: "Standard" },
   { value: "vip", label: "VIP" },
-  { value: "group", label: "Group" },
+  { value: "vvip", label: "VVIP" },
 ] as const;
 
 export default function EventListingForm({
@@ -30,6 +30,11 @@ export default function EventListingForm({
   const [pending, startTransition] = useTransition();
   const [bannerReady, setBannerReady] = useState(false);
   const [showTier, setShowTier] = useState(true);
+  const [publishMode, setPublishMode] = useState<'draft' | 'publish'>('publish');
+  const [tierType, setTierType] = useState<string>('early_bird');
+  const [tierName, setTierName] = useState('Early Bird');
+  const [freeTier, setFreeTier] = useState(false);
+  const [tierPrice, setTierPrice] = useState('500');
   // Creation is rate limited, so a stale form invites a guaranteed rejection.
   // Bumping the key remounts the form and its banner uploader from scratch.
   const [formKey, setFormKey] = useState(0);
@@ -42,6 +47,11 @@ export default function EventListingForm({
         setFormKey((k) => k + 1);
         setBannerReady(false);
         setShowTier(true);
+        setPublishMode('publish');
+        setTierType('early_bird');
+        setTierName('Early Bird');
+        setFreeTier(false);
+        setTierPrice('500');
       }
     });
   }
@@ -50,7 +60,7 @@ export default function EventListingForm({
     <section className="card-elevated p-6 sm:p-8">
       <h2 className="text-xl font-bold text-app-fg">Create event</h2>
       <p className="mt-2 text-sm text-app-muted">
-        Publish upcoming events to the discover feed.
+        Save unfinished details as a draft, or publish a complete event to the discover feed.
       </p>
 
       <form key={formKey} action={handleSubmit} className="mt-6 grid gap-5 sm:grid-cols-2">
@@ -181,15 +191,25 @@ export default function EventListingForm({
                 <input
                   name="tierName"
                   className="input-premium"
-                  defaultValue="Early Bird"
+                  value={tierName}
+                  onChange={(event) => setTierName(event.target.value)}
                   placeholder="Early Bird"
                 />
               </label>
               <label className="block">
                 <span className="field-label">Tier type</span>
-                <select name="tierType" className="input-premium" defaultValue="early_bird">
+                <select
+                  name="tierType"
+                  className="input-premium"
+                  value={tierType}
+                  onChange={(event) => {
+                    const next = event.target.value;
+                    setTierType(next);
+                    setTierName(TIER_TYPES.find((tier) => tier.value === next)?.label ?? 'Ticket');
+                  }}
+                >
                   {TIER_TYPES.map((t) => (
-                    <option key={t.value} value={t.value}>
+                    <option key={t.label} value={t.value}>
                       {t.label}
                     </option>
                   ))}
@@ -197,16 +217,25 @@ export default function EventListingForm({
               </label>
               <label className="block">
                 <span className="field-label">Price (ETB)</span>
-                <input
-                  name="tierPrice"
-                  type="number"
-                  min={0}
-                  step="1"
-                  inputMode="numeric"
-                  className="input-premium tabular-nums"
-                  defaultValue="500"
-                  placeholder="500"
-                />
+                {freeTier ? (
+                  <input type="hidden" name="tierPrice" value="0" />
+                ) : (
+                  <input
+                    name="tierPrice"
+                    type="number"
+                    min={0}
+                    step="1"
+                    inputMode="numeric"
+                    className="input-premium tabular-nums"
+                    value={tierPrice}
+                    onChange={(event) => setTierPrice(event.target.value)}
+                    placeholder="500"
+                  />
+                )}
+                <label className="mt-2 flex items-center gap-2 text-xs font-medium text-app-muted">
+                  <input type="checkbox" checked={freeTier} onChange={(event) => setFreeTier(event.target.checked)} className="size-4 accent-ember" />
+                  Free ticket
+                </label>
               </label>
               <label className="block">
                 <span className="field-label">Quantity</span>
@@ -225,12 +254,40 @@ export default function EventListingForm({
           )}
         </fieldset>
 
+        <fieldset className="sm:col-span-2 rounded-xl border border-app-border p-4 sm:p-5">
+          <legend className="px-2 text-sm font-semibold text-app-fg">When should this go live?</legend>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <label className="flex cursor-pointer items-start gap-3 rounded-lg border border-app-border p-3">
+              <input
+                type="radio"
+                name="publishMode"
+                value="draft"
+                checked={publishMode === 'draft'}
+                onChange={() => setPublishMode('draft')}
+                className="mt-1 accent-ember"
+              />
+              <span><span className="block text-sm font-semibold">Save as draft</span><span className="mt-1 block text-xs text-app-muted">Only you can see it. Add a cover later.</span></span>
+            </label>
+            <label className="flex cursor-pointer items-start gap-3 rounded-lg border border-app-border p-3">
+              <input
+                type="radio"
+                name="publishMode"
+                value="publish"
+                checked={publishMode === 'publish'}
+                onChange={() => setPublishMode('publish')}
+                className="mt-1 accent-ember"
+              />
+              <span><span className="block text-sm font-semibold">Publish now</span><span className="mt-1 block text-xs text-app-muted">A cover image is required for the public listing.</span></span>
+            </label>
+          </div>
+        </fieldset>
+
         <button
           type="submit"
-          disabled={pending || !bannerReady}
+          disabled={pending || (publishMode === 'publish' && !bannerReady)}
           className="btn-primary sm:col-span-2 mt-2 !py-3"
         >
-          {pending ? "Creating event..." : "Create event"}
+          {pending ? "Saving event..." : publishMode === 'draft' ? "Save draft" : "Publish event"}
         </button>
       </form>
 
