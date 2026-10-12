@@ -195,3 +195,75 @@ export const userRoleSchema = z.enum([
 ]);
 
 export const eventModerationActionSchema = z.enum(["publish", "unpublish", "cancel"]);
+
+// -- Verification requests ------------------------------------------------
+
+export const verificationEntityTypeSchema = z.enum(["business", "organizer"]);
+
+/** Mirrors the verification_request_status enum (0021_verification_requests). */
+export const verificationRequestStatusSchema = z.enum([
+  "pending",
+  "in_review",
+  "approved",
+  "rejected",
+  "needs_info",
+]);
+
+/** What an admin can do to a queued request. */
+export const verificationDecisionSchema = z.enum([
+  "start_review",
+  "approve",
+  "reject",
+  "needs_info",
+]);
+
+/**
+ * One uploaded licence or ID.
+ *
+ * `path` is a storage object path in the private `verification-docs` bucket,
+ * never a URL. An admin review renders a signed URL from this path, so a
+ * crafted path would otherwise be a way to have the server sign an arbitrary
+ * object in the bucket; the shape check here plus an owner check in the
+ * submit action close that off.
+ */
+export const verificationDocumentSchema = z.object({
+  label: z.string().trim().min(1).max(80),
+  path: z
+    .string()
+    .trim()
+    .min(1, "A document is missing its storage path.")
+    .max(400)
+    .refine(
+      (v) => /^[0-9a-f-]{36}\/[A-Za-z0-9._-]+$/.test(v),
+      "Document path is not a valid upload location.",
+    ),
+  contentType: z.string().trim().max(100),
+  sizeBytes: z.coerce.number().int().min(0).max(10_485_760),
+});
+
+export const verificationRequestSchema = z.object({
+  entityType: verificationEntityTypeSchema,
+  legalName: z
+    .string()
+    .trim()
+    .min(2, "Legal name is required.")
+    .max(160),
+  registrationNumber: trimmed(80).optional(),
+  taxId: trimmed(80).optional(),
+  phone: trimmed(40).optional(),
+  address: trimmed(240).optional(),
+  city: trimmed(100).optional(),
+  website: z
+    .string()
+    .trim()
+    .max(300)
+    .refine(
+      (v) => !v || /^https:\/\//i.test(v),
+      "Website must start with https://.",
+    ),
+  note: trimmed(2000).optional(),
+  documents: z
+    .array(verificationDocumentSchema)
+    .min(1, "Attach at least one document so we can verify you.")
+    .max(5, "Attach at most 5 documents."),
+});

@@ -18,6 +18,8 @@ import {
   restaurantListingInputSchema,
   userRoleSchema,
   uuidSchema,
+  verificationDecisionSchema,
+  verificationRequestSchema,
 } from '@/lib/validation'
 import { ACTION_LIMITS, RATE_LIMIT_MESSAGE, guardActionLimit } from '@/lib/rate-limit'
 import { organizerIsPublic } from '@/lib/dashboard/organizer-data'
@@ -1647,4 +1649,275 @@ export async function adminSetBusinessActive(
   revalidatePath(`/dashboard/admin/businesses/${businessId}`)
   revalidateTag('restaurant-catalogue')
   return { ok: true, message: active ? 'Business reactivated.' : 'Business suspended.' }
+}
+
+// ── Verification workflow ───────────────────────────────────────────────
+
+/**
+ * Resolve the partner record a verification request applies to.
+ *
+ * Ordered + limited rather than `.maybeSingle()` for the same reason
+ * getOrganizerAccount does it: a layout and a page can self-heal concurrently
+ * and create duplicates, which would make `maybeSingle()` error and look like a
+ * missing profile. Oldest wins, matching the 0015 dedupe.
+ */
+async function resolvePartnerEntity(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  userId: string,
+  entityType: 'business' | 'organizer',
+) {
+  const table = entityType === 'business' ? 'businesses' : 'organizers'
+  const { data } = await supabase
+    .from(table)
+    .select('id, name, status, is_verified')
+    .eq('owner_id', userId)
+    .order('created_at', { ascending: true })
+    .limit(1)
+  return (data?.[0] ?? null) as
+    | { id: string; name: string; status: string | null; is_verified: boolean | null }
+    | null
+}
+
+/**
+ * A partner asks to be verified.
+ *
+ * This is the step that was missing: before, the only way out of the
+ * pending/unverified defaults was an admin happening to spot the row in a list.
+ * `ensureBusiness` / `ensureOrganizer` insert neither `status` nor
+ * `is_verified`, so without this a partner's listings are invisible on every
+ * public surface and they have no way to ask or to find out they are waiting.
+ */
+export async function submitVerificationRequest(
+  formData: FormData
+): Promise<DashboardActionState> {
+  const { supabase, user, role } = await getCurrentUserRole()
+  if (!user) return { ok: false, message: 'Please sign in again to continue.' }
+
+  const entityType = readText(formData, 'entityType')
+  const expectedRole = entityType === 'business' ? 'food_business' : 'event_organizer'
+  if (role !== expectedRole) {
+    return { ok: false, message: 'Only partner accounts can request verification.' }
+  }
+
+  const parsed = verificationRequestSchema.safeParse({
+    entityType,
+    legalName: readText(formData, 'legalName'),
+    registrationNumber: readText(formData, 'registrationNumber'),
+    taxId: readText(formData, 'taxId'),
+    phone: readText(formData, 'phone'),
+    address: readText(formData, 'address'),
+    city: readText(formData, 'city'),
+    website: readText(formData, 'website'),
+    note: readText(formData, 'note'),
+    documents: parseDocumentJson(readText(formData, 'documents')),
+  })
+  if (!parsed.success) return { ok: false, message: firstIssue(parsed.error) }
+
+  const entity = await resolvePartnerEntity(supabase, user.id, parsed.data.entityType)
+  if (!entity) {
+    return { ok: false, message: 'No linked partner profile found. Complete your profile first.' }
+  }
+
+  if (entity.is_verified === true) {
+    return { ok: true, message: 'Your account is already verified.' }
+  }
+
+  // An open request already exists (ux_verification_requests_open). Updating it
+  // keeps one row per attempt instead of filling the queue with duplicates.
+  const { data: openRows } = await supabase
+    .from('verification_requests')
+    .select('id')
+    .eq('entity_type', parsed.data.entityType)
+    .eq('entity_id', entity.id)
+    .in('status', ['pending', 'in_review', 'needs_info'])
+    .order('submitted_at', { ascending: true })
+    .limit(1)
+
+  const openId = (openRows?.[0] as { id?: string } | undefined)?.id
+
+  // The storage path is a bare object path, and the admin review screen turns it
+  // into a signed URL. Without this check a crafted request could make the
+  // server sign any object in the bucket, not just the uploader's own folder.
+  const ownPrefix = `${user.id}/`
+  const foreignDoc = parsed.data.documents.find((d) => !d.path.startsWith(ownPrefix))
+  if (foreignDoc) {
+    return { ok: false, message: 'One of the documents was not uploaded from your account.' }
+  }
+
+  const payload = {
+    entity_type: parsed.data.entityType,
+    entity_id: entity.id,
+    owner_id: user.id,
+    legal_name: parsed.data.legalName,
+    registration_number: parsed.data.registrationNumber || null,
+    tax_id: parsed.data.taxId || null,
+    phone: parsed.data.phone || null,
+    address: parsed.data.address || null,
+    city: parsed.data.city || null,
+    website: parsed.data.website || null,
+    note: parsed.data.note || null,
+    documents: parsed.data.documents,
+    status: 'pending' as const,
+    // A resubmission goes back to the front of the queue rather than inheriting
+    // a stale 'in_review' nobody is working.
+    reviewer_id: null,
+    reviewer_note: null,
+    decided_at: null,
+    submitted_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  }
+
+  const { error } = openId
+    ? await supabase.from('verification_requests').update(payload).eq('id', openId)
+    : await supabase.from('verification_requests').insert(payload)
+
+  if (error) {
+    logActionError('submitVerificationRequest', error)
+    return defaultErrorState
+  }
+
+  revalidatePath('/dashboard/organizer/settings')
+  revalidatePath('/dashboard/restaurant/settings')
+  revalidatePath('/dashboard/admin/verification')
+  return {
+    ok: true,
+    message: 'Verification request submitted. We will review it and notify you either way.',
+  }
+}
+
+/**
+ * An admin works one queued request.
+ *
+ * Approving is what makes a partner public: private.business_is_public /
+ * private.organizer_is_public require status = 'active' AND is_verified = true
+ * together, so setting only one leaves the partner invisible with no way to
+ * tell why. The read-back mirrors setBusinessVerification, which checks the
+ * database actually took the update rather than trusting a silent no-op.
+ */
+export async function reviewVerificationRequest(
+  requestId: string,
+  decision: string,
+  reviewerNote: string
+): Promise<DashboardActionState> {
+  const idCheck = uuidSchema.safeParse(requestId)
+  const decisionCheck = verificationDecisionSchema.safeParse(decision)
+  if (!idCheck.success || !decisionCheck.success) {
+    return { ok: false, message: 'Invalid request or decision.' }
+  }
+
+  const { supabase, user, error: guardError } = await requireSystemAdmin()
+  if (guardError || !user) return { ok: false, message: guardError ?? 'Not allowed.' }
+
+  const note = reviewerNote.trim()
+  if (decisionCheck.data !== 'start_review' && !note) {
+    return { ok: false, message: 'Add a short note so the partner knows what happened.' }
+  }
+
+  const { data: existing } = await supabase
+    .from('verification_requests')
+    .select('id, entity_type, entity_id, status')
+    .eq('id', idCheck.data)
+    .maybeSingle()
+
+  const current = existing as
+    | { id: string; entity_type: 'business' | 'organizer'; entity_id: string; status: string }
+    | null
+  if (!current) return { ok: false, message: 'That request no longer exists.' }
+
+  if (
+    decisionCheck.data !== 'start_review' &&
+    !['pending', 'in_review', 'needs_info'].includes(current.status)
+  ) {
+    return { ok: false, message: `This request was already ${current.status}.` }
+  }
+
+  const nextStatus =
+    decisionCheck.data === 'start_review'
+      ? 'in_review'
+      : decisionCheck.data === 'approve'
+        ? 'approved'
+        : decisionCheck.data === 'reject'
+          ? 'rejected'
+          : 'needs_info'
+
+  const { data: updated, error } = await supabase
+    .from('verification_requests')
+    .update({
+      status: nextStatus,
+      reviewer_id: user.id,
+      reviewer_note: note || null,
+      decided_at: nextStatus === 'in_review' ? null : new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    })
+    .eq('id', idCheck.data)
+    .select('status')
+    .maybeSingle()
+
+  if (error) {
+    logActionError('reviewVerificationRequest', error)
+    return defaultErrorState
+  }
+  if (!updated || (updated as { status?: string }).status !== nextStatus) {
+    return {
+      ok: false,
+      message: `The database kept this request at “${(updated as { status?: string } | null)?.status ?? 'unknown'}”.`,
+    }
+  }
+
+  // Approval is what flips the partner to public. Both columns, together.
+  if (nextStatus === 'approved') {
+    const table = current.entity_type === 'business' ? 'businesses' : 'organizers'
+    const { data: entity, error: entityError } = await supabase
+      .from(table)
+      .update({ status: 'active', is_verified: true, updated_at: new Date().toISOString() })
+      .eq('id', current.entity_id)
+      .select('id, status, is_verified')
+      .maybeSingle()
+
+    if (entityError || !entity) {
+      logActionError('reviewVerificationRequest.entity', entityError ?? new Error('entity not updated'))
+      return {
+        ok: false,
+        message: 'The request was approved but the partner record could not be updated. Reopen and retry.',
+      }
+    }
+  }
+
+  const { error: auditError } = await supabase.from('audit_logs').insert({
+    actor_id: user.id,
+    action: `verification_${nextStatus}`,
+    entity_type: current.entity_type,
+    entity_id: current.entity_id,
+    metadata: { request_id: idCheck.data, note: note || null },
+  })
+  if (auditError) logActionError('reviewVerificationRequest.audit', auditError)
+
+  revalidatePath('/dashboard/admin/verification')
+  revalidatePath(`/dashboard/admin/verification/${idCheck.data}`)
+  revalidatePath('/dashboard/admin')
+  revalidatePath('/dashboard/admin/organizers')
+  revalidatePath('/dashboard/admin/businesses')
+  revalidatePath('/dashboard/organizer/settings')
+  revalidatePath('/dashboard/restaurant/settings')
+  // Approval changes what the public catalogue can see, so both caches must go.
+  revalidateTag('restaurant-catalogue')
+  revalidateTag('event-catalogue')
+
+  const messages: Record<string, string> = {
+    in_review: 'Marked as in review. The partner has been notified.',
+    approved: 'Approved. Their listings are now visible on UrbanExplore.',
+    rejected: 'Declined. The partner has been notified with your note.',
+    needs_info: 'Marked as needing more information. The partner has been notified.',
+  }
+  return { ok: true, message: messages[nextStatus] ?? 'Request updated.' }
+}
+
+/** Parse the hidden documents field, which arrives as a JSON string. */
+function parseDocumentJson(raw: string): unknown {
+  if (!raw) return []
+  try {
+    return JSON.parse(raw)
+  } catch {
+    return []
+  }
 }

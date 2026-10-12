@@ -105,11 +105,12 @@ export default async function AdminOrganizersPage({
           total={count ?? 0}
           error={Boolean(error)}
           emptyText="No organizers match this filter."
-          columns={[{ key: 'name', label: 'Organizer', sortable: true }, { key: 'email', label: 'Email', sortable: true }, { key: 'status', label: 'Status', sortable: true }, { key: 'created_at', label: 'Joined', sortable: true }, { key: 'actions', label: 'Actions', align: 'right' }]}
+          columns={[{ key: 'name', label: 'Organizer', sortable: true }, { key: 'email', label: 'Email', sortable: true }, { key: 'status', label: 'Status', sortable: true }, { key: 'verified', label: 'Verified' }, { key: 'created_at', label: 'Joined', sortable: true }, { key: 'actions', label: 'Actions', align: 'right' }]}
           rows={rows.map((row) => ({ key: row.id, cells: [
             <Link key="organizer" href={`/dashboard/admin/organizers/${row.id}`} className="font-semibold underline-offset-2 hover:underline">{row.name}</Link>,
             <span key="email" className="text-app-muted">{row.email ?? 'No public email'}</span>,
             <StatusPill key="status" status={row.status} tone={statusTone(row.status)} />,
+            <span key="verified" aria-label={row.is_verified ? 'Verified' : 'Not verified'}>{row.is_verified ? '✓' : '—'}</span>,
             <span key="joined" className="whitespace-nowrap tabular-nums text-app-muted">{new Date(row.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</span>,
             <OrganizerVerificationActions key="actions" organizerId={row.id} status={row.status} />,
           ] }))}

@@ -55,6 +55,23 @@ const ACCOUNT_COLUMNS =
   'id,name,plan,status,is_verified,email,phone,city,address,category,description'
 
 /**
+ * Is this business publicly listable?
+ *
+ * Mirrors `private.business_is_public()` from migration
+ * 20261009115229_restaurant_event_public_visibility.sql, which
+ * `restaurants_select_anon` calls. The SQL version also checks
+ * `profiles.is_suspended`, which a public read cannot: `profiles_select_own` is
+ * own-row only. That check is redundant for anon callers though — a suspended
+ * owner's rows are filtered out by RLS before they ever reach here, so a row
+ * that was successfully read is by definition not suspended.
+ */
+export function businessIsPublic(
+  row: { status: string | null; is_verified: boolean | null } | null | undefined,
+): boolean {
+  return !!row && row.status === 'active' && row.is_verified === true
+}
+
+/**
  * The business's own record, for the console chrome (rail, settings).
  *
  * `heal: false` is what the layout passes — see the organizer twin for why

@@ -3,10 +3,12 @@ import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { getOrganizerAccount } from '@/lib/dashboard/organizer-data'
+import { getVerificationState } from '@/lib/dashboard/verification-data'
 import { ConsoleStack } from '@/components/dashboard/console-primitives'
 import { CONSOLE_CARD } from '@/components/dashboard/console-tokens'
 import { cn } from '@/lib/utils'
 import { PartnerProfileEditor } from '@/components/dashboard/partner-profile-editor'
+import VerificationRequestPanel from '@/components/dashboard/verification-request-panel'
 
 export const metadata: Metadata = { title: 'Organizer Settings' }
 
@@ -24,7 +26,7 @@ export default async function OrganizerSettingsPage() {
   } = await supabase.auth.getUser()
   if (!user) redirect('/auth/signin?next=/dashboard/organizer/settings')
 
-  const [organizer, { data: profile }, { data: profileAssets }] = await Promise.all([
+  const [organizer, { data: profile }, { data: profileAssets }, verification] = await Promise.all([
     getOrganizerAccount(supabase, user),
     supabase
       .from('profiles')
@@ -36,6 +38,7 @@ export default async function OrganizerSettingsPage() {
       .select('website, logo_url, cover_url')
       .eq('owner_id', user.id)
       .maybeSingle(),
+    getVerificationState(supabase, user, 'organizer'),
   ])
 
   if (!organizer) {
@@ -76,6 +79,21 @@ export default async function OrganizerSettingsPage() {
           description: organizer.description ?? '',
           logoUrl: profileAssets?.logo_url ?? '',
           coverUrl: profileAssets?.cover_url ?? '',
+        }}
+      />
+
+      <VerificationRequestPanel
+        entityType="organizer"
+        entityName={organizer.name}
+        isVerified={organizer.is_verified === true}
+        status={organizer.status}
+        request={verification.request}
+        defaults={{
+          legalName: organizer.name,
+          phone: organizer.phone ?? profile?.phone ?? '',
+          address: organizer.address ?? '',
+          city: organizer.city ?? profile?.city ?? '',
+          website: profileAssets?.website ?? '',
         }}
       />
 

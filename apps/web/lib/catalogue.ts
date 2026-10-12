@@ -1,5 +1,7 @@
 import { unstable_cache } from 'next/cache'
 import { createAnonClient } from '@/lib/supabase/anon'
+import { businessIsPublic } from '@/lib/dashboard/restaurant-data'
+import { organizerIsPublic } from '@/lib/dashboard/organizer-data'
 
 export type CatalogueItem = {
   id: string
@@ -12,6 +14,24 @@ export type CatalogueItem = {
   imageUrl?: string | null
   description?: string | null
   startsAt?: string | null
+  /**
+   * Whether the owning business/organizer passed moderation.
+   *
+   * Every consumer page reads through the anon client, and both
+   * restaurants_select_anon and events_select_anon gate on the *parent* being
+   * active + verified — so anything in this list is verified by construction.
+   * Kept explicit so cards can say so rather than implying it.
+   */
+  isVerified?: boolean
+}
+
+/**
+ * PostgREST returns a to-one embed as an object, but as an array when the
+ * relationship cannot be proven unique. Normalise both.
+ */
+function firstOf<T>(value: T | T[] | null | undefined): T | null {
+  if (value == null) return null
+  return Array.isArray(value) ? (value[0] ?? null) : value
 }
 
 const restaurantColors = [
@@ -84,7 +104,7 @@ const fetchRestaurantCatalogue = unstable_cache(
     try {
       const { data, error } = await supabase
         .from('restaurants')
-        .select('id, name, cuisine, city, area_label, rating, cover_url, closing_label')
+        .select('id, name, cuisine, city, area_label, rating, cover_url, closing_label, businesses!inner(status, is_verified)')
         .eq('is_active', true)
         .order('created_at', { ascending: false })
         .limit(60)
@@ -108,6 +128,7 @@ const fetchRestaurantCatalogue = unstable_cache(
         rating: r.rating != null ? String(r.rating) : 'New',
         color: chooseColor(r.name, restaurantColors),
         imageUrl: r.cover_url ?? null,
+        isVerified: businessIsPublic(firstOf(r.businesses)),
       }))
 
       return { items, source: 'live' }
@@ -133,7 +154,7 @@ const fetchEventCatalogue = unstable_cache(
     try {
       const { data, error } = await supabase
         .from('events')
-        .select('id, title, description, category, venue_name, starts_at, cover_image_url, ticket_types(price)')
+        .select('id, title, description, category, venue_name, starts_at, cover_image_url, ticket_types(price), organizer:organizers!inner(status, is_verified)')
         .eq('status', 'published')
         .eq('is_active', true)
         .order('starts_at', { ascending: true })
@@ -160,6 +181,7 @@ const fetchEventCatalogue = unstable_cache(
         imageUrl: event.cover_image_url ?? null,
         description: event.description ?? null,
         startsAt: event.starts_at ?? null,
+        isVerified: organizerIsPublic(firstOf(event.organizer)),
       }))
 
       return { items, source: 'live' }

@@ -8,6 +8,7 @@ import { CalendarDays, Clock3, Heart, MapPin, Star } from "lucide-react";
 import { cn } from "../../lib/utils";
 import { loadSavedIds, toggleSavedId } from "../../lib/saved";
 import { DateBadge, dateBadgeParts } from "./DateBadge";
+import { VerifiedBadge } from "./Badges";
 
 export type ListingCardItem = {
   id: string;
@@ -18,6 +19,7 @@ export type ListingCardItem = {
   rating: string;
   imageUrl?: string | null;
   startsAt?: string | null;
+  isVerified?: boolean;
 };
 
 type ListingCardProps = {
@@ -155,6 +157,7 @@ export function ListingCard({
             <h3 className="truncate text-base font-semibold text-app-fg transition-colors group-hover:text-ember">
               {item.name}
             </h3>
+            {item.isVerified && <VerifiedBadge className="size-4" />}
             {!isEvent && (
               <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-ember/10 px-2 py-0.5 text-xs font-semibold text-ember">
                 <Star className="size-3 fill-current" />

@@ -42,7 +42,7 @@ type Event = {
   coverImageUrl: string | null
   status: string
   ticketTypes: TicketType[]
-  organizer: { id: string; email: string }
+  organizer: { id: string; email: string; isVerified: boolean }
 }
 
 function formatDate(dateStr: string) {
@@ -244,7 +244,13 @@ export default function EventDetail({ event }: { event: Event }) {
               </h1>
               <p className="mt-1 flex items-center gap-1.5 text-sm font-medium text-white/80">
                 Hosted by {organizerName}
-                <BadgeCheck className="size-4 text-ember" strokeWidth={2.5} />
+                {event.organizer.isVerified && (
+                  <BadgeCheck
+                    className="size-4 text-ember"
+                    strokeWidth={2.5}
+                    aria-label="Verified organizer"
+                  />
+                )}
               </p>
             </span>
           </div>
@@ -290,7 +296,13 @@ export default function EventDetail({ event }: { event: Event }) {
               <span className="min-w-0">
                 <span className="flex items-center gap-1.5 font-semibold text-app-fg">
                   <span className="truncate">{organizerName}</span>
-                  <BadgeCheck className="size-4 shrink-0 text-ember" strokeWidth={2.5} />
+                  {event.organizer.isVerified && (
+                    <BadgeCheck
+                      className="size-4 shrink-0 text-ember"
+                      strokeWidth={2.5}
+                      aria-label="Verified organizer"
+                    />
+                  )}
                 </span>
                 <span className="block truncate text-xs font-medium text-app-muted">
                   Creating unforgettable experiences in Addis Ababa.

@@ -10,7 +10,7 @@ insert into public.businesses (id, owner_id, name, email, is_verified, status)
 values ('11111111-1111-1111-1111-111111111111', null, 'Sky Garden', 'hello@skygarden.example', true, 'active')
 on conflict (id) do nothing;
 
-insert into public.restaurants (id, business_id, name, cuisine, category, city, area_label, closing_label, is_verified, opening_hours, rating, is_active)
+insert into public.restaurants (id, business_id, name, cuisine, category, city, area_label, closing_label, opening_hours, rating, is_active)
 values (
   '22222222-2222-2222-2222-222222222222',
   '11111111-1111-1111-1111-111111111111',
@@ -20,7 +20,6 @@ values (
   'Addis Ababa',
   'Bole',
   'Open until 11:00 PM',
-  true,
   '{"mon":[{"open":"08:00","close":"23:00"}],"tue":[{"open":"08:00","close":"23:00"}],"wed":[{"open":"08:00","close":"23:00"}],"thu":[{"open":"08:00","close":"23:00"}],"fri":[{"open":"08:00","close":"23:00"}],"sat":[{"open":"08:00","close":"23:00"}],"sun":[{"open":"08:00","close":"23:00"}]}'::jsonb,
   4.7,
   true

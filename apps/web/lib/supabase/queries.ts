@@ -1,6 +1,8 @@
 import { createClient } from '@/lib/supabase/server'
 import { createAnonClient } from '@/lib/supabase/anon'
 import { fallbackEvents, type CatalogueItem } from '@/lib/catalogue'
+import { businessIsPublic } from '@/lib/dashboard/restaurant-data'
+import { organizerIsPublic } from '@/lib/dashboard/organizer-data'
 
 // Sample-detail builders must never serve fake menus/prices in production.
 const SAMPLE_DETAIL_DATA = process.env.NODE_ENV !== 'production'
@@ -67,15 +69,22 @@ export type EventDetail = {
   coverImageUrl: string | null
   status: string
   ticketTypes: DetailTicketType[]
-  organizer: { id: string; email: string }
+  organizer: { id: string; email: string; isVerified: boolean }
 }
 
 export async function getRestaurantDetail(id: string): Promise<RestaurantDetail | null> {
   const supabase = createAnonClient()
 
+  // A restaurant listing is verified when its *business* is, never on a column
+  // of its own. restaurants.is_verified was dropped in 0023 because nothing
+  // wrote it (only the seed files did) while restaurants_select_anon gates on
+  // private.business_is_public(business_id) — so the badge and the gate read
+  // different sources and disagreed. businessIsPublic mirrors that function.
   const { data: restaurant, error } = await supabase
     .from('restaurants')
-    .select('id, name, cuisine, description, logo_url, cover_url, is_verified, rating, opening_hours, business_id')
+    .select(
+      'id, name, cuisine, description, logo_url, cover_url, rating, opening_hours, business_id, businesses!inner(id, status, is_verified)'
+    )
     .eq('id', id)
     .maybeSingle()
 
@@ -83,6 +92,10 @@ export async function getRestaurantDetail(id: string): Promise<RestaurantDetail 
     console.error('[queries] restaurant detail unavailable:', error?.message ?? 'not found')
     return null
   }
+
+  const business = Array.isArray(restaurant.businesses)
+    ? (restaurant.businesses[0] as { id: string; status: string | null; is_verified: boolean | null } | undefined) ?? null
+    : (restaurant.businesses as { id: string; status: string | null; is_verified: boolean | null } | null)
 
   const { data: branches } = await supabase
     .from('branches')
@@ -133,7 +146,7 @@ export async function getRestaurantDetail(id: string): Promise<RestaurantDetail 
     description: restaurant.description ?? null,
     logoUrl: restaurant.logo_url,
     coverUrl: restaurant.cover_url,
-    isVerified: restaurant.is_verified,
+    isVerified: businessIsPublic(business),
     rating: restaurant.rating,
     openingHours: restaurant.opening_hours,
     branches: mappedBranches,
@@ -146,7 +159,7 @@ export async function getEventDetail(id: string): Promise<EventDetail | null> {
   const { data: event, error } = await supabase
     .from('events')
     .select(
-      'id, title, description, category, venue_name, latitude, longitude, starts_at, end_date_time, cover_image_url, status, organizer:organizers(id, email)'
+      'id, title, description, category, venue_name, latitude, longitude, starts_at, end_date_time, cover_image_url, status, organizer:organizers(id, email, is_verified, status)'
     )
     .eq('id', id)
     .maybeSingle()
@@ -193,6 +206,9 @@ export async function getEventDetail(id: string): Promise<EventDetail | null> {
       return {
         id: org?.id ?? '',
         email: org?.email ?? '',
+        isVerified: organizerIsPublic(
+          org ? { status: org.status, is_verified: org.is_verified } : null,
+        ),
       }
     })(),
   }
@@ -540,7 +556,11 @@ function buildSampleEventDetail(item: CatalogueItem): EventDetail {
         salesEnd: null,
       },
     ],
-    organizer: { id: 'sample-organizer', email: 'events@urbanexplore.example' },
+    organizer: {
+      id: 'sample-organizer',
+      email: 'events@urbanexplore.example',
+      isVerified: true,
+    },
   }
 }
 // ── Consumer "My Plans" ────────────────────────────────────────────────────

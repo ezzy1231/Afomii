@@ -3,10 +3,12 @@ import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { getBusinessAccount } from '@/lib/dashboard/restaurant-data'
+import { getVerificationState } from '@/lib/dashboard/verification-data'
 import { ConsoleStack } from '@/components/dashboard/console-primitives'
 import { CONSOLE_CARD } from '@/components/dashboard/console-tokens'
 import { cn } from '@/lib/utils'
 import { PartnerProfileEditor } from '@/components/dashboard/partner-profile-editor'
+import VerificationRequestPanel from '@/components/dashboard/verification-request-panel'
 
 export const metadata: Metadata = { title: 'Restaurant Settings' }
 
@@ -21,7 +23,7 @@ export default async function RestaurantSettingsPage() {
   } = await supabase.auth.getUser()
   if (!user) redirect('/auth/signin?next=/dashboard/restaurant/settings')
 
-  const [business, { data: profile }, { data: profileAssets }] = await Promise.all([
+  const [business, { data: profile }, { data: profileAssets }, verification] = await Promise.all([
     getBusinessAccount(supabase, user),
     supabase
       .from('profiles')
@@ -33,6 +35,7 @@ export default async function RestaurantSettingsPage() {
       .select('website, logo_url, cover_url')
       .eq('owner_id', user.id)
       .maybeSingle(),
+    getVerificationState(supabase, user, 'business'),
   ])
 
   if (!business) {
@@ -90,6 +93,21 @@ export default async function RestaurantSettingsPage() {
           cuisine: listing.cuisine ?? '',
           neighborhood: listing.area_label ?? '',
         } : undefined}
+      />
+
+      <VerificationRequestPanel
+        entityType="business"
+        entityName={business.name}
+        isVerified={business.is_verified === true}
+        status={business.status}
+        request={verification.request}
+        defaults={{
+          legalName: business.name,
+          phone: business.phone ?? profile?.phone ?? '',
+          address: business.address ?? '',
+          city: business.city ?? profile?.city ?? '',
+          website: profileAssets?.website ?? '',
+        }}
       />
 
       <section id="boost" className={CONSOLE_CARD}>

@@ -13,23 +13,26 @@ export const CONSOLE_CARD =
 export type StatusTone = 'ok' | 'bad' | 'gold' | 'info'
 
 export function statusTone(status: string): StatusTone {
+  // `approved` / `in_review` / `needs_info` are verification_request_status
+  // values; they share colours with the older moderation_status ones.
   switch (status) {
     case 'confirmed':
     case 'active':
     case 'paid':
+    case 'approved':
       return 'ok'
     case 'rejected':
     case 'cancelled':
     case 'suspended':
     case 'failed':
-      return 'bad'
-    case 'completed':
-      return 'gold'
-    case 'pending':
-    case 'draft':
-      return 'gold'
     case 'inactive':
       return 'bad'
+    case 'completed':
+    case 'pending':
+    case 'draft':
+    case 'in_review':
+    case 'needs_info':
+      return 'gold'
     default:
       return 'info'
   }

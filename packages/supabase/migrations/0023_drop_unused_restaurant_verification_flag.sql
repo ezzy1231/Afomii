@@ -1,0 +1,24 @@
+-- 0023_drop_unused_restaurant_verification_flag.sql
+-- `restaurants.is_verified` was a dead column: nothing in the app ever wrote
+-- it. createRestaurantListing, updatePartnerProfile, saveListingDetails,
+-- updateRestaurantHours and setListingActive all omit it, and
+-- setBusinessVerification updates only the parent business — so every
+-- app-created restaurant kept the `default false` forever. Only seed.sql and
+-- seed-places.sql set it, which is why the badge looked correct in a fresh dev
+-- database and never appeared in production.
+--
+-- Worse, it disagreed with the thing that actually gates visibility:
+-- restaurants_select_anon calls private.business_is_public(business_id), which
+-- reads businesses.status / businesses.is_verified / profiles.is_suspended.
+-- RestaurantDetail rendered its "Verified" badge from this column while the
+-- gate read the parent, so the two could and did disagree.
+--
+-- Public visibility of a restaurant listing is inherited from the business that
+-- owns it. Drop the redundant flag so there is exactly one source of truth and
+-- no way to re-introduce the disagreement. apps/web now derives isVerified
+-- from the joined business, which is already in RestaurantDetail's query.
+--
+-- Safe to run on a live project: the only writers were the seed files, which
+-- this migration also updates for fresh setups.
+
+alter table public.restaurants drop column if exists is_verified;

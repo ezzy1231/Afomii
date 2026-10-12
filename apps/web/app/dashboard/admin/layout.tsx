@@ -6,6 +6,7 @@ import { getUnreadNotificationCount } from '@/lib/supabase/queries'
 const navItems = [
   { label: 'Overview', href: '/dashboard/admin' },
   { label: 'Users', href: '/dashboard/admin/users' },
+  { label: 'Verification', href: '/dashboard/admin/verification' },
   { label: 'Businesses', href: '/dashboard/admin/businesses' },
   { label: 'Organizers', href: '/dashboard/admin/organizers' },
   { label: 'Events', href: '/dashboard/admin/events' },
