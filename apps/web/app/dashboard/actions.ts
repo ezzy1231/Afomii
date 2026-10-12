@@ -263,6 +263,18 @@ export async function createEventListing(
 
   if (error || !created) {
     logActionError('createEventListing', error ?? new Error('Event insert returned no row'))
+    // `42501` here means `events_select_owner` is still the row-lookup form
+    // (`event_organizer_is_self(id)`), which cannot see the row being inserted,
+    // so every draft — and every event for an organizer awaiting verification —
+    // is rejected while the insert itself actually succeeded. A generic
+    // "something went wrong" left the organizer with nothing to act on.
+    if ((error as { code?: string } | null)?.code === '42501') {
+      return {
+        ok: false,
+        message:
+          'The database rejected this event. Apply migration 0020_event_insert_ownership_policy.sql, then try again.',
+      }
+    }
     return defaultErrorState
   }
 
