@@ -62,7 +62,7 @@ export default async function EventDetailPage({ params }: Props) {
   return (
     <>
       <Navbar />
-      <main className="flex-1">
+      <main id="main" className="flex-1">
         <EventDetail event={event} />
       </main>
       <PageFooter />

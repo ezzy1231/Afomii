@@ -26,7 +26,7 @@ export default async function HomePage() {
     <>
       <Navbar />
 
-      <main className="flex-1 bg-app-bg text-app-fg">
+      <main id="main" className="flex-1 bg-app-bg text-app-fg">
         {/* ═══════════ HERO — confident copy + collage ═══════════ */}
         <section className="hero-warm relative overflow-hidden">
           <div className="relative mx-auto max-w-7xl px-4 pb-12 pt-14 sm:px-6 sm:pb-16 sm:pt-20 lg:px-8">

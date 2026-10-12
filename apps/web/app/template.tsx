@@ -1,23 +1,8 @@
-"use client";
-
-import { motion, useReducedMotion } from "framer-motion";
-
 /**
  * Route transition wrapper — subtle fade-in on every page navigation.
- * Respects prefers-reduced-motion.
+ * Replaces a framer-motion fade that shipped ~40 KB gzipped on every route.
+ * Respects prefers-reduced-motion via the global rule in globals.css.
  */
 export default function Template({ children }: { children: React.ReactNode }) {
-  const reduce = useReducedMotion();
-
-  if (reduce) return <>{children}</>;
-
-  return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
-    >
-      {children}
-    </motion.div>
-  );
+  return <div className="route-fade">{children}</div>;
 }

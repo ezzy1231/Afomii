@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import { X } from "lucide-react";
 import { cn } from "../../lib/utils";
 
@@ -25,6 +26,54 @@ export function FilterSheet({
   onClose,
   resultCount,
 }: FilterSheetProps) {
+  const sheetRef = useRef<HTMLDivElement | null>(null);
+  const returnFocusRef = useRef<HTMLElement | null>(null);
+
+  // The mobile sheet declares aria-modal, so it owes the keyboard a real
+  // dialog: move focus in, trap Tab inside it, Escape to close, then put
+  // focus back on the trigger that opened it.
+  useEffect(() => {
+    if (!open) return;
+    const sheet = sheetRef.current;
+    if (!sheet) return;
+
+    returnFocusRef.current = document.activeElement as HTMLElement | null;
+    const first = sheet.querySelector<HTMLElement>("button, [href], input, select, textarea");
+    first?.focus();
+
+    function onKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        onClose();
+        return;
+      }
+      if (event.key !== "Tab" || !sheet) return;
+
+      const focusable = Array.from(
+        sheet.querySelectorAll<HTMLElement>(
+          'a[href], button:not([disabled]), input:not([disabled]), select, textarea, [tabindex]:not([tabindex="-1"])'
+        )
+      );
+      if (!focusable.length) return;
+      const firstEl = focusable[0];
+      const lastEl = focusable[focusable.length - 1];
+
+      if (event.shiftKey && document.activeElement === firstEl) {
+        event.preventDefault();
+        lastEl.focus();
+      } else if (!event.shiftKey && document.activeElement === lastEl) {
+        event.preventDefault();
+        firstEl.focus();
+      }
+    }
+
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("keydown", onKeyDown);
+      returnFocusRef.current?.focus();
+    };
+  }, [open, onClose]);
+
   const body = (
     <div className="flex flex-col gap-6">
       {groups.map((group) => (
@@ -39,15 +88,16 @@ export function FilterSheet({
                 <button
                   key={option.label}
                   type="button"
+                  aria-pressed={active}
                   onClick={() => onToggle(group.key, option.label)}
                   className={cn(
-                    "flex items-center gap-2 rounded-xl border px-3 py-2.5 text-left text-sm font-medium transition-all duration-200 active:scale-[0.97]",
+                    "flex min-h-11 items-center gap-2 rounded-xl border px-3 py-2.5 text-left text-sm font-medium transition-all duration-200 active:scale-[0.97]",
                     active
                       ? "border-ember/40 bg-ember/10 text-ember"
                       : "border-app-border bg-app-input/60 text-app-muted hover:border-ember/25 hover:text-app-fg"
                   )}
                 >
-                  {option.icon && <span className="shrink-0 text-ember">{option.icon}</span>}
+                  {option.icon && <span aria-hidden="true" className="shrink-0 text-ember">{option.icon}</span>}
                   <span className="truncate">{option.label}</span>
                 </button>
               );
@@ -95,23 +145,24 @@ export function FilterSheet({
           onClick={onClose}
         />
         <div
+          ref={sheetRef}
           className={cn(
-            "absolute inset-x-0 bottom-0 max-h-[82vh] overflow-y-auto rounded-t-[28px] border-t border-white/50 bg-white/80 p-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] shadow-glass-strong backdrop-blur-2xl backdrop-saturate-150 transition-transform duration-300 ease-out dark:border-white/10 dark:bg-[#1E1E24]/85",
+            "absolute inset-x-0 bottom-0 max-h-[82vh] overflow-y-auto overscroll-contain rounded-t-[28px] border-t border-white/50 bg-white/80 p-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] shadow-glass-strong backdrop-blur-2xl backdrop-saturate-150 transition-transform duration-300 ease-out dark:border-white/10 dark:bg-[#1E1E24]/85",
             open ? "translate-y-0" : "translate-y-full"
           )}
           role="dialog"
           aria-modal="true"
-          aria-label="Filters"
+          aria-labelledby="filter-sheet-title"
         >
           <div className="mb-5 flex items-center justify-between">
-            <h2 className="text-xl font-bold text-app-fg">Filters</h2>
+            <h2 id="filter-sheet-title" className="text-xl font-bold text-app-fg">Filters</h2>
             <button
               type="button"
               onClick={onClose}
               aria-label="Close filters"
-              className="flex size-9 items-center justify-center rounded-full bg-app-elevated/70 text-app-muted transition-colors hover:text-app-fg"
+              className="flex size-11 items-center justify-center rounded-full bg-app-elevated/70 text-app-muted transition-colors hover:text-app-fg"
             >
-              <X className="size-4" />
+              <X aria-hidden="true" className="size-4" />
             </button>
           </div>
           {body}
@@ -128,9 +179,9 @@ export function FilterSheet({
               type="button"
               onClick={onClose}
               aria-label="Close filters"
-              className="flex size-9 items-center justify-center rounded-full bg-app-elevated/70 text-app-muted transition-colors hover:text-app-fg"
+              className="flex size-11 items-center justify-center rounded-full bg-app-elevated/70 text-app-muted transition-colors hover:text-app-fg"
             >
-              <X className="size-4" />
+              <X aria-hidden="true" className="size-4" />
             </button>
           </div>
           {body}

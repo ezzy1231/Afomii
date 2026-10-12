@@ -16,7 +16,7 @@ export default async function RestaurantMenuPage({ params }: Props) {
   return (
     <>
       <Navbar />
-      <main className="mx-auto min-h-screen w-full max-w-4xl flex-1 px-4 py-8 sm:px-6 lg:px-8">
+      <main id="main" className="mx-auto min-h-screen w-full max-w-4xl flex-1 px-4 py-8 sm:px-6 lg:px-8">
         <Link
           href={`/restaurants/${restaurant.id}`}
           className="mb-6 inline-flex items-center gap-2 rounded-xl border border-app-border bg-app-card px-3.5 py-2 text-sm font-semibold text-app-fg transition-colors hover:bg-app-input"

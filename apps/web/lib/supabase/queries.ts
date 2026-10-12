@@ -1,11 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { createAnonClient } from '@/lib/supabase/anon'
-import { fallbackEvents, type CatalogueItem } from '@/lib/catalogue'
 import { businessIsPublic } from '@/lib/dashboard/restaurant-data'
 import { organizerIsPublic } from '@/lib/dashboard/organizer-data'
-
-// Sample-detail builders must never serve fake menus/prices in production.
-const SAMPLE_DETAIL_DATA = process.env.NODE_ENV !== 'production'
 
 export type DetailBranch = {
   id: string
@@ -166,10 +162,6 @@ export async function getEventDetail(id: string): Promise<EventDetail | null> {
 
   if (error || !event) {
     console.error('[queries] event detail unavailable:', error?.message ?? 'not found')
-    if (SAMPLE_DETAIL_DATA) {
-      const sample = fallbackEvents.find((e) => e.id === id)
-      return sample ? buildSampleEventDetail(sample) : null
-    }
     return null
   }
 
@@ -338,33 +330,6 @@ export async function getConsumerTickets(userId: string): Promise<ConsumerTicket
   })
 }
 
-function nextOccurrence(detail: string): Date {
-  const timeMatch = detail.match(/(\d{1,2}):(\d{2})\s*(AM|PM)/i)
-  let hour = 19
-  let minute = 0
-  if (timeMatch) {
-    hour = parseInt(timeMatch[1], 10) % 12
-    if (timeMatch[3].toUpperCase() === 'PM') hour += 12
-    minute = parseInt(timeMatch[2], 10)
-  }
-
-  const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
-  const lowered = detail.toLowerCase()
-  const now = new Date()
-  const result = new Date()
-  result.setHours(hour, minute, 0, 0)
-
-  const dayIndex = dayNames.findIndex((d) => lowered.includes(d))
-  if (dayIndex >= 0) {
-    const diff = (dayIndex - now.getDay() + 7) % 7
-    result.setDate(now.getDate() + (diff === 0 && result <= now ? 7 : diff))
-  } else if (result <= now) {
-    result.setDate(now.getDate() + 2)
-  }
-
-  return result
-}
-
 export type OrganizerEvent = {
   id: string
   title: string
@@ -401,10 +366,6 @@ export async function getOrganizerDetail(id: string): Promise<OrganizerDetail | 
 
   if (error || !org) {
     console.error('[queries] organizer detail unavailable:', error?.message ?? 'not found')
-    if (SAMPLE_DETAIL_DATA) {
-      const sample = fallbackOrganizers.find((o) => o.id === id)
-      return sample ?? null
-    }
     return null
   }
 
@@ -453,116 +414,6 @@ export async function getOrganizerDetail(id: string): Promise<OrganizerDetail | 
   }
 }
 
-const fallbackOrganizers: OrganizerDetail[] = [
-  {
-    id: 'sample-organizer',
-    name: 'UrbanExplore Presents',
-    bio: 'Addis Ababa’s resident curators of food, music and after-dark culture. We stage the city’s most-talked-about nights — and the quiet ones worth leaving the house for.',
-    logoUrl: null,
-    coverUrl: null,
-    isVerified: true,
-    city: 'Addis Ababa',
-    followerCount: 12400,
-    rating: '4.8',
-    events: fallbackEvents.map((e) => {
-      const detail = buildSampleEventDetail(e)
-      const prices = detail.ticketTypes.map((t) => t.price)
-      return {
-        id: detail.id,
-        title: detail.title,
-        category: detail.category,
-        venueName: detail.venueName,
-        startDateTime: detail.startDateTime,
-        coverImageUrl: detail.coverImageUrl,
-        status: detail.status,
-        priceFrom: prices.length ? Math.min(...prices) : null,
-      }
-    }),
-  },
-  {
-    id: 'addis-nightlife-collective',
-    name: 'Addis Nightlife Collective',
-    bio: 'A roaming collective of DJs, chefs and makers. No fixed venue — we turn warehouses, rooftops and galleries into one night only.',
-    logoUrl: null,
-    coverUrl: null,
-    isVerified: true,
-    city: 'Addis Ababa',
-    followerCount: 8120,
-    rating: '4.7',
-    events: fallbackEvents
-      .filter((e) => ['1', '3', '4'].includes(e.id))
-      .map((e) => {
-        const detail = buildSampleEventDetail(e)
-        const prices = detail.ticketTypes.map((t) => t.price)
-        return {
-          id: detail.id,
-          title: detail.title,
-          category: detail.category,
-          venueName: detail.venueName,
-          startDateTime: detail.startDateTime,
-          coverImageUrl: detail.coverImageUrl,
-          status: detail.status,
-          priceFrom: prices.length ? Math.min(...prices) : null,
-        }
-      }),
-  },
-]
-
-function buildSampleEventDetail(item: CatalogueItem): EventDetail {
-  const start = nextOccurrence(item.detail)
-  const end = new Date(start.getTime() + 3 * 60 * 60 * 1000)
-
-  return {
-    id: item.id,
-    title: item.name,
-    description: `${item.name} — ${item.category}. Join us for a memorable experience at ${item.location}. Doors open 30 minutes before start.`,
-    category: item.category,
-    venueName: item.location,
-    latitude: null,
-    longitude: null,
-    startDateTime: start.toISOString(),
-    endDateTime: end.toISOString(),
-    coverImageUrl: null,
-    status: 'published',
-    ticketTypes: [
-      {
-        id: `${item.id}-tt-early`,
-        name: 'Early Bird',
-        tier: 'early_bird',
-        price: 350,
-        totalQuantity: 50,
-        remainingQuantity: 40,
-        salesStart: null,
-        salesEnd: null,
-      },
-      {
-        id: `${item.id}-tt-general`,
-        name: 'General Admission',
-        tier: 'general',
-        price: 500,
-        totalQuantity: 200,
-        remainingQuantity: 120,
-        salesStart: null,
-        salesEnd: null,
-      },
-      {
-        id: `${item.id}-tt-vip`,
-        name: 'VIP',
-        tier: 'vip',
-        price: 1200,
-        totalQuantity: 30,
-        remainingQuantity: 25,
-        salesStart: null,
-        salesEnd: null,
-      },
-    ],
-    organizer: {
-      id: 'sample-organizer',
-      email: 'events@urbanexplore.example',
-      isVerified: true,
-    },
-  }
-}
 // ── Consumer "My Plans" ────────────────────────────────────────────────────
 // Unified view of confirmed reservations + paid ticket purchases for a user.
 
@@ -581,15 +432,31 @@ export type ConsumerPlan = {
 export async function getConsumerPlans(userId: string): Promise<ConsumerPlan[]> {
   const supabase = await createClient()
 
-  // ── Reservations (pending/confirmed) ──────────────────────────────────────
-  const { data: reservations, error: resErr } = await supabase
+  /* Reservations and ticket purchases share no dependency — they were
+     awaited back-to-back, costing an extra round-trip. Issue both, then do
+     the dependent restaurant-name lookup once businessIds are known. */
+  const reservationsPromise = supabase
     .from('reservations')
     .select('id, reservation_date, time_slot, status, branch:branches!inner(business_id, address, latitude, longitude)')
     .eq('user_id', userId)
     .in('status', ['pending', 'confirmed'])
 
+  const purchasesPromise = supabase
+    .from('ticket_purchases')
+    .select('id, payment_status, event:events!inner(title, cover_image_url, starts_at, venue_name, latitude, longitude)')
+    .eq('user_id', userId)
+    .eq('payment_status', 'paid')
+
+  const [
+    { data: reservations, error: resErr },
+    { data: purchases, error: purchErr },
+  ] = await Promise.all([reservationsPromise, purchasesPromise])
+
   if (resErr) {
     console.error('[queries] getConsumerPlans (reservations):', resErr.message)
+  }
+  if (purchErr) {
+    console.error('[queries] getConsumerPlans (ticket_purchases):', purchErr.message)
   }
 
   // ── Restaurant names/cover for each reservation branch ────────────────────
@@ -605,17 +472,6 @@ export async function getConsumerPlans(userId: string): Promise<ConsumerPlan[]> 
         restaurantMap[r.business_id] = { name: r.name, cover_url: r.cover_url }
       }
     }
-  }
-
-  // ── Event ticket purchases (paid) ─────────────────────────────────────────
-  const { data: purchases, error: purchErr } = await supabase
-    .from('ticket_purchases')
-    .select('id, payment_status, event:events!inner(title, cover_image_url, starts_at, venue_name, latitude, longitude)')
-    .eq('user_id', userId)
-    .eq('payment_status', 'paid')
-
-  if (purchErr) {
-    console.error('[queries] getConsumerPlans (ticket_purchases):', purchErr.message)
   }
 
   // ── Build plans ───────────────────────────────────────────────────────────

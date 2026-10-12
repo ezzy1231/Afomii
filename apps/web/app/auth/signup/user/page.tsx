@@ -228,15 +228,15 @@ export default function UserSignupPage() {
             <p className="text-sm text-app-muted mb-6">Step 1 of {STEPS} — Your basics</p>
 
             {error && (
-              <div className="mb-4 rounded-lg bg-danger/10 border border-danger/30 text-danger text-sm px-4 py-3">
+              <div role="alert" className="mb-4 rounded-lg bg-danger/10 border border-danger/30 text-danger text-sm px-4 py-3">
                 {error}
               </div>
             )}
 
             <div className="space-y-4">
               <div>
-                <label className="field-label">Full name</label>
-                <input
+                <label className="field-label" htmlFor="full-name">Full name</label>
+                <input id="full-name"
                   type="text"
                   autoComplete="name"
                   value={form.fullName}
@@ -246,8 +246,8 @@ export default function UserSignupPage() {
                 />
               </div>
               <div>
-                <label className="field-label">Email address</label>
-                <input
+                <label className="field-label" htmlFor="email-address">Email address</label>
+                <input id="email-address"
                   type="email"
                   autoComplete="email"
                   value={form.email}
@@ -257,8 +257,8 @@ export default function UserSignupPage() {
                 />
               </div>
               <div>
-                <label className="field-label">Password</label>
-                <input
+                <label className="field-label" htmlFor="password">Password</label>
+                <input id="password"
                   type="password"
                   autoComplete="new-password"
                   value={form.password}
@@ -268,8 +268,8 @@ export default function UserSignupPage() {
                 />
               </div>
               <div>
-                <label className="field-label">Confirm password</label>
-                <input
+                <label className="field-label" htmlFor="confirm-password">Confirm password</label>
+                <input id="confirm-password"
                   type="password"
                   autoComplete="new-password"
                   value={form.confirmPassword}
@@ -295,8 +295,8 @@ export default function UserSignupPage() {
             <div className="space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="field-label">Language</label>
-                  <select
+                  <label className="field-label" htmlFor="language">Language</label>
+                  <select id="language"
                     value={form.language}
                     onChange={(e) => set('language', e.target.value)}
                     className="input-premium"
@@ -308,8 +308,12 @@ export default function UserSignupPage() {
                   </select>
                 </div>
                 <div>
-                  <label className="field-label">Birth date</label>
-                  <div className="mb-1.5 inline-flex rounded-md border border-app-border p-0.5">
+                  <span id="birth-date-label" className="field-label">Birth date</span>
+                  <div
+                    role="group"
+                    aria-labelledby="birth-date-label"
+                    className="mb-1.5 inline-flex rounded-md border border-app-border p-0.5"
+                  >
                     {([
                       { key: 'gc', label: 'Gregorian (GC)' },
                       { key: 'ec', label: 'Ethiopian (EC)' },
@@ -317,8 +321,9 @@ export default function UserSignupPage() {
                       <button
                         key={cal.key}
                         type="button"
+                        aria-pressed={form.birthCalendar === cal.key}
                         onClick={() => set('birthCalendar', cal.key)}
-                        className={`rounded px-2.5 py-1 text-[11px] font-semibold transition-colors ${
+                        className={`min-h-9 rounded px-2.5 py-1 text-[11px] font-semibold transition-colors ${
                           form.birthCalendar === cal.key
                             ? 'bg-ink text-white'
                             : 'text-app-muted hover:text-app-fg'
@@ -328,7 +333,9 @@ export default function UserSignupPage() {
                       </button>
                     ))}
                   </div>
+                  <label htmlFor="birth-date" className="sr-only">Birth date</label>
                   <input
+                    id="birth-date"
                     type="date"
                     value={form.birthDate}
                     onChange={(e) => set('birthDate', e.target.value)}
@@ -337,8 +344,8 @@ export default function UserSignupPage() {
                 </div>
               </div>
               <div>
-                <label className="field-label">Gender</label>
-                <select
+                <label className="field-label" htmlFor="gender">Gender</label>
+                <select id="gender"
                   value={form.gender}
                   onChange={(e) => set('gender', e.target.value)}
                   className="input-premium"
@@ -351,10 +358,10 @@ export default function UserSignupPage() {
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="field-label">
+                  <label className="field-label" htmlFor="country">
                     Country
                   </label>
-                  <select
+                  <select id="country"
                     value={form.country}
                     onChange={(e) => set('country', e.target.value)}
                     className="input-premium"
@@ -365,10 +372,11 @@ export default function UserSignupPage() {
                   </select>
                 </div>
                 <div>
-                  <label className="field-label">
+                  <label className="field-label" htmlFor="city">
                     City <span className="ml-1 font-medium text-app-muted">(optional)</span>
                   </label>
                   <input
+                    id="city"
                     type="text"
                     value={form.city}
                     onChange={(e) => set('city', e.target.value)}
@@ -378,10 +386,11 @@ export default function UserSignupPage() {
                 </div>
               </div>
               <div>
-                <label className="field-label">
+                <label className="field-label" htmlFor="phone">
                   Phone number <span className="ml-1 font-medium text-app-muted">(optional)</span>
                 </label>
                 <input
+                  id="phone"
                   type="tel"
                   autoComplete="tel"
                   value={form.phone}
@@ -400,6 +409,9 @@ export default function UserSignupPage() {
                 </div>
                 <button
                   type="button"
+                  role="switch"
+                  aria-checked={form.calendarSync}
+                  aria-label="Sync bookings to my calendar"
                   onClick={() => set('calendarSync', !form.calendarSync)}
                   className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
                     form.calendarSync ? 'bg-ink' : 'bg-[var(--border)]'
@@ -414,10 +426,19 @@ export default function UserSignupPage() {
               </div>
             </div>
 
+            {error && (
+              <div
+                role="alert"
+                className="mb-4 rounded-lg bg-danger/10 border border-danger/30 text-danger text-sm px-4 py-3"
+              >
+                {error}
+              </div>
+            )}
+
             <StickyActionBar
               className="mt-6"
               secondary={{ label: 'Back', onClick: () => { setError(null); setStep(1) } }}
-              primary={{ label: 'Continue', onClick: () => { setError(null); setStep(3) }, tone: 'navy' }}
+              primary={{ label: 'Continue', onClick: handleNext, tone: 'navy' }}
             />
           </>
         )}
@@ -430,7 +451,7 @@ export default function UserSignupPage() {
             </p>
 
             {error && (
-              <div className="mb-4 rounded-lg bg-danger/10 border border-danger/30 text-danger text-sm px-4 py-3">
+              <div role="alert" className="mb-4 rounded-lg bg-danger/10 border border-danger/30 text-danger text-sm px-4 py-3">
                 {error}
               </div>
             )}

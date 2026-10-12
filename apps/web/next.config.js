@@ -6,6 +6,13 @@
 // Each instance gets its own .next build dir so they can run concurrently.
 const isAdminPortal = process.env.ADMIN_PORTAL === "1";
 
+// Opt-in bundle visualiser: `ANALYZE=true npm run build`. Dev and
+// normal production builds are unaffected.
+const withBundleAnalyzer = require("@next/bundle-analyzer")({
+  enabled: process.env.ANALYZE === "true",
+  openAnalyzer: false,
+});
+
 const nextConfig = {
   transpilePackages: ["@urbanexplore/shared", "@urbanexplore/database"],
   output: "standalone",
@@ -39,4 +46,4 @@ const nextConfig = {
   },
 };
 
-module.exports = nextConfig;
+module.exports = withBundleAnalyzer(nextConfig);

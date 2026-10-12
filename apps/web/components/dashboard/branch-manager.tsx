@@ -9,7 +9,7 @@ import {
 } from "@/app/dashboard/actions";
 import { Plus } from "lucide-react";
 import { ConsoleSkeletonRow, SectionTitle } from "./console";
-import { CONSOLE_CARD } from "@/components/dashboard/console-shared";
+import { CONSOLE_SURFACE } from "@/components/dashboard/console-shared";
 import { BranchMenu } from "@/components/dashboard/branch-menu";
 import { BranchActions } from "@/components/dashboard/branch-actions";
 import { cn } from "@/lib/utils";
@@ -214,14 +214,14 @@ export function BranchManager({
       </section>
 
       {branchError ? (
-        <div className={cn(CONSOLE_CARD, "border-danger/30 p-6 text-center")}>
+        <div className={cn(CONSOLE_SURFACE, "border-danger/30 p-6 text-center")}>
           <p className="font-semibold text-danger">Could not load branches</p>
           <p className="mt-1 text-sm text-app-muted">{branchError}</p>
         </div>
       ) : loading ? (
         <ConsoleSkeletonRow count={2} />
       ) : branches.length === 0 ? (
-        <div className={cn(CONSOLE_CARD, "border-dashed p-8 text-center")}>
+        <div className={cn(CONSOLE_SURFACE, "border-dashed p-8 text-center")}>
           <p className="font-semibold text-console-ink">No locations yet</p>
           <p className="mx-auto mt-1 max-w-sm text-sm text-app-muted">
             A location is one place guests can book or order from. Add one to set its hours and
@@ -242,7 +242,7 @@ export function BranchManager({
           {/* Branch list — the entry point to each location's settings and menu. */}
           <nav
             aria-label="Locations"
-            className={cn(CONSOLE_CARD, "overflow-hidden lg:sticky lg:top-6")}
+            className={cn(CONSOLE_SURFACE, "overflow-hidden lg:sticky lg:top-6")}
           >
             <ul className="divide-y divide-app-border">
               {branches.map((branch) => {
@@ -376,7 +376,7 @@ function AddBranchForm({
           onCreated(res.id);
         }
       }}
-      className={cn(CONSOLE_CARD, "border-dashed p-6")}
+      className={cn(CONSOLE_SURFACE, "border-dashed p-6")}
     >
       <input type="hidden" name="restaurantId" value={restaurantId} />
       <div className="mb-4 flex items-center justify-between gap-3">
@@ -509,7 +509,7 @@ function BranchConfigCard({ branch }: { branch: Branch }) {
         ].join(" · ");
 
   return (
-    <div className={cn(CONSOLE_CARD, "overflow-hidden")}>
+    <div className={cn(CONSOLE_SURFACE, "overflow-hidden")}>
       {/* Repeats the selected branch from the list — this pane becomes its own
           context when stacked below the list on narrow screens. */}
       <div className="border-b border-app-border px-5 py-4">
@@ -745,7 +745,7 @@ export function RestaurantHoursCard({
   }
 
   return (
-    <div className={cn(CONSOLE_CARD, "p-5")}>
+    <div className={cn(CONSOLE_SURFACE, "p-5")}>
       <p className="mb-4 text-lg font-bold">{restaurant.name}</p>
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {DAYS.map((day) => {

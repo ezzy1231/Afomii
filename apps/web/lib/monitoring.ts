@@ -8,8 +8,6 @@
  *
  * Client-side: reportErrorClient mirrors this for error boundaries.
  */
-import * as Sentry from '@sentry/nextjs'
-
 let sentryChecked = false
 let sentryEnabled = false
 
@@ -27,6 +25,27 @@ function isSentryEnabled(): boolean {
 }
 
 /**
+ * Lazy server-side SDK handle. A *static* `import * as Sentry` would pull
+ * @sentry/nextjs and its OpenTelemetry instrumentation into every route's
+ * module graph — which drags require-in-the-middle into the build and makes
+ * dev compilation noticeably heavier, all for an SDK that is inert without a
+ * DSN. Loading it on first real report keeps it out of that graph.
+ */
+type SentryModule = typeof import('@sentry/nextjs')
+let sentryModule: SentryModule | null = null
+
+async function loadSentry(): Promise<SentryModule | null> {
+  if (sentryModule) return sentryModule
+  try {
+    sentryModule = await import('@sentry/nextjs')
+  } catch {
+    // Monitoring must never take the app down.
+    sentryModule = null
+  }
+  return sentryModule
+}
+
+/**
  * Report a server-side error to monitoring. Never throws — reporting
  * failures must not break the action that is already handling an error.
  */
@@ -35,14 +54,16 @@ export function reportError(scope: string, err: unknown, context?: Record<string
   console.error(`[${scope}] ${message}`)
 
   if (!isSentryEnabled()) return
-  try {
-    Sentry.captureException(err, {
-      tags: { scope },
-      extra: context,
-    })
-  } catch {
-    // Monitoring must never take the app down.
-  }
+  void loadSentry().then((Sentry) => {
+    try {
+      Sentry?.captureException(err, {
+        tags: { scope },
+        extra: context,
+      })
+    } catch {
+      // Monitoring must never take the app that is already handling an error.
+    }
+  })
 }
 
 /**

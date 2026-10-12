@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { CONSOLE_CARD } from './console-shared'
+import { CONSOLE_SURFACE } from './console-shared'
 import { cn } from '@/lib/utils'
 
 export type AdminTableColumn = { key: string; label: string; sortable?: boolean; align?: 'left' | 'right' }
@@ -44,11 +44,11 @@ export function AdminTable({
   }
 
   if (error) {
-    return <div role="alert" className={cn(CONSOLE_CARD, 'p-5 text-sm text-danger')}>Could not load {caption.toLowerCase()}. <Link href={basePath} className="underline">Retry</Link></div>
+    return <div role="alert" className={cn(CONSOLE_SURFACE, 'p-5 text-sm text-danger')}>Could not load {caption.toLowerCase()}. <Link href={basePath} className="underline">Retry</Link></div>
   }
 
   return (
-    <section className={cn(CONSOLE_CARD, 'overflow-hidden')}>
+    <section className={cn(CONSOLE_SURFACE, 'overflow-hidden')}>
       <div className="overflow-x-auto">
         <table className="w-full text-left text-sm">
           <caption className="sr-only">{caption}</caption>

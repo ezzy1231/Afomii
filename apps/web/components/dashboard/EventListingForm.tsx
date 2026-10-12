@@ -87,7 +87,7 @@ export default function EventListingForm({
             name="title"
             required
             className="input-premium"
-            placeholder="Night Market Sessions"
+            placeholder="e.g. Sunday Jazz Night…"
           />
         </label>
         <label className="block text-sm font-medium text-app-fg">

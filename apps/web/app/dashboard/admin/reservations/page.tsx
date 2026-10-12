@@ -2,7 +2,7 @@ import Link from 'next/link'
 import type { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
 import { ConsolePageShell, ConsoleHeader, FilterChip, StatusPill } from '@/components/dashboard/console'
-import { CONSOLE_CARD, statusTone } from '@/components/dashboard/console-shared'
+import { CONSOLE_SURFACE, statusTone } from '@/components/dashboard/console-shared'
 import { AdminTable } from '@/components/dashboard/admin-table'
 import { ReservationCancelAction } from '@/components/dashboard/admin-actions'
 import { cn } from '@/lib/utils'
@@ -56,7 +56,7 @@ export default async function AdminReservationsPage({
         <div className="flex flex-wrap gap-2">
           {STATUS_FILTERS.map((status) => <FilterChip key={status} href={`/dashboard/admin/reservations?status=${status}${q ? `&q=${encodeURIComponent(q)}` : ''}`} active={statusFilter === status}>{status}</FilterChip>)}
         </div>
-        <form method="get" className={cn(CONSOLE_CARD, 'flex items-center gap-3 px-3 py-2')}>
+        <form method="get" className={cn(CONSOLE_SURFACE, 'flex items-center gap-3 px-3 py-2')}>
           <label htmlFor="reservation-search" className="sr-only">Search guest email or phone</label>
           <input id="reservation-search" name="q" type="search" defaultValue={q} placeholder="Search guest email or phone…" className="min-h-10 w-full bg-transparent text-sm text-app-fg outline-none placeholder:text-app-muted" />
           {statusFilter !== 'all' && <input type="hidden" name="status" value={statusFilter} />}

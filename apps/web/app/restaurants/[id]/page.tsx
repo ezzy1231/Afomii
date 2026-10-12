@@ -50,7 +50,7 @@ export default async function RestaurantDetailPage({ params }: Props) {
   return (
     <>
       <Navbar />
-      <main className="flex-1">
+      <main id="main" className="flex-1">
         <RestaurantDetail restaurant={restaurant} />
       </main>
       <PageFooter />

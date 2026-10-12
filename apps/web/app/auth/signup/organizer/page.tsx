@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useId, cloneElement, isValidElement } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
@@ -52,14 +52,27 @@ interface FormData {
 
 const inputCls = 'input-premium'
 
-const Field = ({ label, optional, children }: { label: string; optional?: boolean; children: React.ReactNode }) => (
-  <div>
-    <label className="field-label">
-      {label}{optional && <span className="ml-1 font-medium text-app-muted">(optional)</span>}
-    </label>
-    {children}
-  </div>
-)
+/* The control is a SIBLING of the label, so implicit association does not
+   apply — it needs an explicit id/htmlFor pair. `id` handles native inputs;
+   `aria-labelledby` covers composite widgets. */
+const Field = ({ label, optional, children }: { label: string; optional?: boolean; children: React.ReactNode }) => {
+  const id = useId()
+  const control = isValidElement(children)
+    ? cloneElement(children as React.ReactElement<Record<string, unknown>>, {
+        id,
+        'aria-labelledby': id,
+      })
+    : children
+
+  return (
+    <div>
+      <label className="field-label" id={id} htmlFor={id}>
+        {label}{optional && <span className="ml-1 font-medium text-app-muted">(optional)</span>}
+      </label>
+      {control}
+    </div>
+  )
+}
 
 export default function OrganizerSignupPage() {
   const [step, setStep] = useState(1)
@@ -198,7 +211,7 @@ export default function OrganizerSignupPage() {
         <SignupStepper steps={['Account', 'Organisation', 'Contact & Payout', 'Plan']} current={step} />
 
         {error && (
-          <div className="mb-5 rounded-lg bg-danger/10 border border-danger/30 text-danger text-sm px-4 py-3">{error}</div>
+          <div role="alert" className="mb-5 rounded-lg bg-danger/10 border border-danger/30 text-danger text-sm px-4 py-3">{error}</div>
         )}
 
         {step === 1 && (

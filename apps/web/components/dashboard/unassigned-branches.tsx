@@ -3,7 +3,7 @@
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { assignBranchToListing } from '@/app/dashboard/actions'
-import { CONSOLE_CARD } from '@/components/dashboard/console-shared'
+import { CONSOLE_SURFACE } from '@/components/dashboard/console-shared'
 import { cn } from '@/lib/utils'
 
 type Branch = { id: string; branch_name: string; address: string | null }
@@ -47,7 +47,7 @@ export function UnassignedBranches({
   }
 
   return (
-    <section className={cn(CONSOLE_CARD, 'space-y-4 p-5')}>
+    <section className={cn(CONSOLE_SURFACE, 'space-y-4 p-5')}>
       <div>
         <h2 className="text-[15px] font-bold text-console-ink">Branches waiting to be assigned</h2>
         <p className="mt-1 text-sm leading-relaxed text-console-muted">

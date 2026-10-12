@@ -8,7 +8,7 @@ import {
   type DashboardActionState,
 } from '@/app/dashboard/actions'
 import { StatusPill } from '@/components/dashboard/console'
-import { CONSOLE_CARD } from '@/components/dashboard/console-shared'
+import { CONSOLE_SURFACE } from '@/components/dashboard/console-shared'
 import { RestaurantHoursCard } from '@/components/dashboard/branch-manager'
 import type { OwnedListing } from '@/lib/dashboard/listing-data'
 import { cn } from '@/lib/utils'
@@ -39,7 +39,7 @@ export function ListingDetails({ listing }: { listing: OwnedListing }) {
 
   return (
     <div className="space-y-6">
-      <section className={CONSOLE_CARD}>
+      <section className={CONSOLE_SURFACE}>
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-app-border px-5 py-4">
           <div className="flex items-center gap-3">
             <h2 className="text-lg font-bold">Listing details</h2>

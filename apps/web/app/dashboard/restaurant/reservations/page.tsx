@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { ReservationQuickActions } from '@/components/dashboard/reservation-quick-actions'
 import { BookingCheckIn } from '@/components/dashboard/booking-check-in'
+import { CONSOLE_SURFACE } from '@/components/dashboard/console-shared'
 import { cn } from '@/lib/utils'
 
 type InboxReservation = {
@@ -20,8 +21,6 @@ type InboxReservation = {
 
 type Range = 'day' | 'week' | 'month'
 type StatusFilter = 'all' | 'pending' | 'confirmed' | 'completed'
-
-const CONSOLE_CARD = 'glass rounded-2xl'
 
 function statusPill(status: string) {
   switch (status) {
@@ -206,7 +205,7 @@ export default function ReservationsPage() {
             <p className="text-[11px] font-semibold uppercase tracking-[0.15em] text-app-muted">
               Partner console
             </p>
-            <h1 className="mt-1  text-3xl font-bold">Reservations</h1>
+            <h2 className="mt-1  text-3xl font-bold">Reservations</h2>
           </div>
 
           {/* Range segmented control */}
@@ -268,7 +267,7 @@ export default function ReservationsPage() {
                   return (
                     <div
                       key={row.id}
-                      className={cn(CONSOLE_CARD, 'flex items-center justify-between gap-3 p-4', terminal && 'opacity-70')}
+                      className={cn(CONSOLE_SURFACE, 'flex items-center justify-between gap-3 p-4', terminal && 'opacity-70')}
                     >
                       <div className="min-w-0">
                         <p className={cn('truncate font-semibold', terminal && 'line-through')}>{row.guestName}</p>
@@ -298,7 +297,7 @@ export default function ReservationsPage() {
             ))}
           </div>
         ) : (
-          <div className={cn(CONSOLE_CARD, 'border-dashed p-10 text-center')}>
+          <div className={cn(CONSOLE_SURFACE, 'border-dashed p-10 text-center')}>
             <p className="font-semibold">Nothing here for this view</p>
             <p className="mt-1 text-sm text-app-muted">
               Try a wider date range or a different status filter.

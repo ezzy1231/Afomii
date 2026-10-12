@@ -362,6 +362,43 @@
   }
 }
 
+/* Interaction + typography defaults that were previously absent app-wide.
+   These are behavioural only — no token, palette or spacing changes. */
+@layer base {
+  /* Kills the ~300ms double-tap zoom delay on touch. `manipulation` keeps
+     panning and pinch-zoom intact, so it is safe on interactive controls. */
+  a,
+  button,
+  summary,
+  label,
+  input,
+  select,
+  textarea,
+  [role='button'],
+  [role='tab'],
+  [role='switch'] {
+    touch-action: manipulation;
+  }
+
+  /* Prevent headings ending in a single orphan word, and body copy ending on
+     a widow line. */
+  h1,
+  h2,
+  h3,
+  h4 {
+    text-wrap: balance;
+  }
+  p,
+  li {
+    text-wrap: pretty;
+  }
+
+  /* Anchored headings must not land under the sticky header. */
+  :is(h1, h2, h3, h4)[id] {
+    scroll-margin-top: 6rem;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
@@ -911,6 +948,20 @@
 @keyframes pop-in {
   from { opacity: 0; transform: scale(0.96); }
   to { opacity: 1; transform: scale(1); }
+}
+
+/* Route-transition fade used by app/template.tsx. Pure opacity so it matches
+   the previous framer-motion fade exactly. The global prefers-reduced-motion
+   block above collapses animation-duration, so this is covered automatically. */
+@keyframes route-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@layer components {
+  .route-fade {
+    animation: route-fade 250ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
 }
 /* ------------------------------------------------------------
    PARTNER CONSOLE glass overrides

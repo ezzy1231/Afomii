@@ -38,7 +38,7 @@ export default async function SettingsPage() {
   return (
     <>
       <Navbar />
-      <main className="flex-1 max-w-2xl mx-auto w-full px-4 sm:px-6 py-12">
+      <main id="main" className="flex-1 max-w-2xl mx-auto w-full px-4 sm:px-6 pt-12 pb-28">
         <h1 className="text-4xl font-bold text-app-fg mb-10">Account Settings</h1>
 
         <section className="card-elevated p-6 sm:p-8 mb-6">

@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
 import { ConsolePageShell, ConsoleHeader, FilterChip } from '@/components/dashboard/console'
-import { CONSOLE_CARD } from '@/components/dashboard/console-shared'
+import { CONSOLE_SURFACE } from '@/components/dashboard/console-shared'
 import { AdminTable } from '@/components/dashboard/admin-table'
 import { cn } from '@/lib/utils'
 
@@ -47,7 +47,7 @@ export default async function AdminAuditPage({
     <ConsolePageShell maxWidth="max-w-7xl">
       <ConsoleHeader eyebrow="Admin console" title="Audit log" subtitle="Administrative and partner activity with actor and entity details." />
       <div className="space-y-3">
-        <form method="get" className={cn(CONSOLE_CARD, 'flex items-center gap-3 px-3 py-2')}>
+        <form method="get" className={cn(CONSOLE_SURFACE, 'flex items-center gap-3 px-3 py-2')}>
           <label htmlFor="audit-search" className="sr-only">Filter audit actions</label>
           <input id="audit-search" type="search" name="q" defaultValue={q} placeholder="Filter by action…" className="min-h-10 w-full bg-transparent text-sm text-app-fg outline-none placeholder:text-app-muted" />
           {entityFilter !== 'all' && <input type="hidden" name="entity" value={entityFilter} />}

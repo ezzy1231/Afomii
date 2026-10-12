@@ -1,6 +1,6 @@
 export default function GlobalLoading() {
   return (
-    <main className="mx-auto w-full max-w-6xl px-4 pb-24 pt-8 sm:px-6 lg:px-8">
+    <main id="main" className="mx-auto w-full max-w-6xl px-4 pb-24 pt-8 sm:px-6 lg:px-8">
       <div className="mb-6 h-6 w-40 animate-pulse rounded bg-app-elevated" />
       <div className="mb-8 h-10 w-72 animate-pulse rounded bg-app-elevated" />
 

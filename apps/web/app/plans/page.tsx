@@ -16,7 +16,7 @@ export default async function PlansPage() {
   return (
     <>
       <Navbar />
-      <main className="flex-1 w-full px-4 py-10 sm:px-6">
+      <main id="main" className="flex-1 w-full px-4 pt-10 pb-28 sm:px-6 sm:pb-28">
         <div className="mx-auto mb-8 max-w-4xl">
           <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-ember">Your calendar</p>
           <h1 className="mt-1 text-3xl font-bold tracking-tight text-app-fg sm:text-4xl">

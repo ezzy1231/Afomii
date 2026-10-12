@@ -7,7 +7,7 @@ import {
   FilterChip,
   StatusPill,
 } from '@/components/dashboard/console'
-import { CONSOLE_CARD, statusTone } from '@/components/dashboard/console-shared'
+import { CONSOLE_SURFACE, statusTone } from '@/components/dashboard/console-shared'
 import { OrganizerVerificationActions } from '@/components/dashboard/admin-actions'
 import { AdminTable } from '@/components/dashboard/admin-table'
 import { cn } from '@/lib/utils'
@@ -62,15 +62,17 @@ export default async function AdminOrganizersPage({
       />
 
       <div className="flex flex-col gap-3">
-        <form method="get" className={cn(CONSOLE_CARD, 'flex items-center gap-3 px-4 py-3')}>
+        <form method="get" className={cn(CONSOLE_SURFACE, 'flex items-center gap-3 px-4 py-3')}>
           <svg viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4 shrink-0 text-app-muted">
             <path fillRule="evenodd" d="M9 3.5a5.5 5.5 0 1 0 0 11 5.5 5.5 0 0 0 0-11ZM2 9a7 7 0 1 1 12.452 4.391l3.328 3.329a.75.75 0 1 1-1.06 1.06l-3.329-3.328A7 7 0 0 1 2 9Z" clipRule="evenodd" />
           </svg>
+          <label htmlFor="directory-search" className="sr-only">Search organizers</label>
           <input
+            id="directory-search"
             type="search"
             name="q"
             defaultValue={q}
-            placeholder="Search organizers..."
+            placeholder="Search organizers…"
             className="w-full bg-transparent text-sm text-app-fg outline-none placeholder:text-app-muted"
           />
           {statusFilter !== 'all' && <input type="hidden" name="status" value={statusFilter} />}

@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { ConsolePageShell, ConsoleHeader, FilterChip, StatusPill } from '@/components/dashboard/console'
-import { CONSOLE_CARD, statusTone } from '@/components/dashboard/console-shared'
+import { CONSOLE_SURFACE, statusTone } from '@/components/dashboard/console-shared'
 import { AdminTable } from '@/components/dashboard/admin-table'
 import { UserRoleSelect, UserSuspensionActions } from '@/components/dashboard/admin-actions'
 import { cn } from '@/lib/utils'
@@ -41,7 +41,7 @@ export default async function AdminUsersPage({
     <ConsolePageShell maxWidth="max-w-7xl">
       <ConsoleHeader eyebrow="Admin console" title="Users" subtitle="Roles, suspension, and account search. Role changes are recorded in the audit log." />
       <div className="space-y-3">
-        <form method="get" className={cn(CONSOLE_CARD, 'flex items-center gap-3 px-3 py-2')}>
+        <form method="get" className={cn(CONSOLE_SURFACE, 'flex items-center gap-3 px-3 py-2')}>
           <label htmlFor="user-search" className="sr-only">Search by name or email</label>
           <input id="user-search" type="search" name="q" defaultValue={q} placeholder="Search by name or email…" className="min-h-10 w-full bg-transparent text-sm text-app-fg outline-none placeholder:text-app-muted" />
           {roleFilter !== 'all' && <input type="hidden" name="role" value={roleFilter} />}

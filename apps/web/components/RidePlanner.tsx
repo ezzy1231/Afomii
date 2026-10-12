@@ -279,7 +279,7 @@ export default function RidePlanner() {
   }
 
   return (
-    <main className="mx-auto max-w-7xl px-4 pb-40 pt-6 sm:px-6 lg:px-8">
+    <main id="main" className="mx-auto max-w-7xl px-4 pb-40 pt-6 sm:px-6 lg:px-8">
       {/* Header */}
       <div className="mb-5 flex flex-wrap items-center justify-between gap-4">
         <div className="flex items-center gap-3">

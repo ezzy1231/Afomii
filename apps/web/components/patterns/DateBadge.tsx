@@ -16,8 +16,12 @@ export function DateBadge({
   className?: string;
 }) {
   return (
+    // Announced as a single "March 15" rather than two fragments, and no
+    // longer hidden — on event cards this badge is the ONLY date shown, so
+    // aria-hidden left screen-reader users with no date at all.
     <span
-      aria-hidden
+      role="img"
+      aria-label={`${month} ${day}`}
       className={cn(
         "date-badge",
         size === "sm" && "px-2 py-1",
@@ -26,6 +30,7 @@ export function DateBadge({
       )}
     >
       <span
+        aria-hidden
         className={cn(
           "date-badge-month",
           size === "sm" && "text-[9px]",
@@ -35,6 +40,7 @@ export function DateBadge({
         {month}
       </span>
       <span
+        aria-hidden
         className={cn(
           "date-badge-day",
           size === "sm" && "text-sm",

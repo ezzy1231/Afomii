@@ -291,7 +291,10 @@ export function ReservationForm({
       )}
 
       {result?.ok ? (
-        <div className="rounded-xl border border-app-border bg-app-card p-5">
+        <div
+          role="status"
+          className="rounded-xl border border-app-border bg-app-card p-5"
+        >
           <div className="flex items-center gap-2 text-sm font-semibold text-success">
             <Check className="size-4" />
             Reservation{" "}
@@ -332,23 +335,28 @@ export function ReservationForm({
 
           <div className="mt-4 space-y-4">
             <div>
-              <label className="mb-1.5 block text-xs font-semibold text-app-fg">
+              <label htmlFor="reservation-date" className="mb-1.5 block text-xs font-semibold text-app-fg">
                 Date
               </label>
               <input
+                id="reservation-date"
                 type="date"
                 min={todayString()}
                 value={date}
                 onChange={(e) => setDate(e.target.value)}
-                className="w-full rounded-md border border-app-border bg-app-bg px-3 py-2.5 text-sm text-app-fg outline-none focus:border-ember/40"
+                className="w-full rounded-md border border-app-border bg-app-bg px-3 py-2.5 text-sm text-app-fg outline-none focus:border-ember/60"
               />
             </div>
 
             <div>
-              <label className="mb-1.5 block text-xs font-semibold text-app-fg">
+              <span className="mb-1.5 block text-xs font-semibold text-app-fg">
                 Time
-              </label>
-              <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
+              </span>
+              <div
+                role="group"
+                aria-label="Available time slots"
+                className="grid grid-cols-3 gap-2 sm:grid-cols-4"
+              >
                 {slots.map((slot) => {
                   const full = isFull(slot);
                   const past = isPast(slot);
@@ -359,14 +367,15 @@ export function ReservationForm({
                       key={slot}
                       type="button"
                       disabled={disabled}
+                      aria-pressed={selected}
                       onClick={() => setTimeSlot(slot)}
                       className={cn(
-                        "rounded-md border px-2 py-2 text-xs font-medium transition-all active:scale-[0.97]",
+                        "min-h-11 rounded-md border px-2 py-2 text-xs font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember focus-visible:ring-offset-2 focus-visible:ring-offset-app-bg active:scale-[0.97]",
                         selected
                           ? "border-ink bg-ink font-semibold text-on-accent dark:border-ember/40 dark:bg-ember/12 dark:text-ember"
                           : disabled
                             ? "cursor-not-allowed border-app-border bg-app-input text-app-muted/50 line-through"
-                            : "border-app-border bg-app-bg text-app-fg hover:border-ember/40/60",
+                            : "border-app-border bg-app-bg text-app-fg hover:border-ember/60",
                       )}
                     >
                       {slot}
@@ -419,7 +428,7 @@ export function ReservationForm({
             </div>
 
             {result && !result.ok && (
-              <p className="rounded-md bg-danger/10 px-3 py-2 text-xs text-danger">
+              <p role="alert" className="rounded-md bg-danger/10 px-3 py-2 text-xs text-danger">
                 {result.message}
               </p>
             )}

@@ -7,7 +7,15 @@
  * code lives here instead.
  */
 
-export const CONSOLE_CARD =
+/* The translucent base surface used across the console AND the consumer
+   pages (it is the same `glass rounded-2xl` idiom as components/ui/card.tsx).
+
+   This was previously exported as `CONSOLE_CARD`, which collided with the
+   *elevated* card token of the same name in console-tokens.ts — the same
+   import identifier produced two different-looking cards depending on which
+   module a file happened to import from. Renamed to say what it is.
+   For the bordered/shadowed console card use CONSOLE_CARD from console-tokens. */
+export const CONSOLE_SURFACE =
   'glass rounded-2xl'
 
 export type StatusTone = 'ok' | 'bad' | 'gold' | 'info'

@@ -130,12 +130,10 @@ const PAGE_SIZE = 6
 export default function ExploreCatalogue({
   type,
   items,
-  source,
   initialQuery = '',
 }: {
   type: 'restaurants' | 'events'
   items: CatalogueItem[]
-  source: 'live' | 'sample'
   initialQuery?: string
 }) {
   const [query, setQuery] = useState(initialQuery)
@@ -370,12 +368,6 @@ export default function ExploreCatalogue({
           onClose={() => setFiltersOpen(false)}
           resultCount={visibleItems.length}
         />
-
-        {source === 'sample' && (
-          <p className="sticker sticker-cream mt-5 !rotate-0">
-            Showing sample listings while live data is being set up.
-          </p>
-        )}
 
         {/* Lead card — the top-rated result, not an editorially "featured" one */}
         {featured && (

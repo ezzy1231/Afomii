@@ -9,7 +9,7 @@ import {
   StatusPill,
   ConsoleKpiCard,
 } from '@/components/dashboard/console'
-import { CONSOLE_CARD, statusTone } from '@/components/dashboard/console-shared'
+import { CONSOLE_SURFACE, statusTone } from '@/components/dashboard/console-shared'
 import { BusinessLifecycleActions, BusinessSuspendAction } from '@/components/dashboard/admin-actions'
 import { cn } from '@/lib/utils'
 
@@ -125,7 +125,7 @@ export default async function AdminBusinessDetailPage({
 
       {/* Contact + meta */}
       <section className="grid gap-3 sm:grid-cols-2">
-        <div className={cn(CONSOLE_CARD, 'space-y-2 p-5 text-sm')}>
+        <div className={cn(CONSOLE_SURFACE, 'space-y-2 p-5 text-sm')}>
           <h2 className="mb-1 text-[11px] font-semibold uppercase tracking-[0.15em] text-app-muted">
             Contact
           </h2>
@@ -147,7 +147,7 @@ export default async function AdminBusinessDetailPage({
             </a>
           )}
         </div>
-        <div className={cn(CONSOLE_CARD, 'space-y-2 p-5 text-sm')}>
+        <div className={cn(CONSOLE_SURFACE, 'space-y-2 p-5 text-sm')}>
           <h2 className="mb-1 text-[11px] font-semibold uppercase tracking-[0.15em] text-app-muted">
             About
           </h2>
@@ -174,13 +174,13 @@ export default async function AdminBusinessDetailPage({
         <SectionTitle>Listings</SectionTitle>
         <p className="text-xs text-app-muted">Showing up to 100 listings.</p>
         {restaurants.length === 0 ? (
-          <div className={cn(CONSOLE_CARD, 'border-dashed p-8 text-center')}>
+          <div className={cn(CONSOLE_SURFACE, 'border-dashed p-8 text-center')}>
             <p className="text-sm text-app-muted">This partner has no published listings yet.</p>
           </div>
         ) : (
           <div className="space-y-2">
             {restaurants.map((r) => (
-              <div key={r.id} className={cn(CONSOLE_CARD, 'flex items-center justify-between p-4')}>
+              <div key={r.id} className={cn(CONSOLE_SURFACE, 'flex items-center justify-between p-4')}>
                 <div className="min-w-0">
                   <p className="truncate text-sm font-semibold">{r.name}</p>
                   <p className="text-xs capitalize text-app-muted">
@@ -203,13 +203,13 @@ export default async function AdminBusinessDetailPage({
         <SectionTitle>Branches</SectionTitle>
         <p className="text-xs text-app-muted">Showing up to 100 branches.</p>
         {branches.length === 0 ? (
-          <div className={cn(CONSOLE_CARD, 'border-dashed p-8 text-center')}>
+          <div className={cn(CONSOLE_SURFACE, 'border-dashed p-8 text-center')}>
             <p className="text-sm text-app-muted">No branches created yet.</p>
           </div>
         ) : (
           <div className="space-y-2">
             {branches.map((br) => (
-              <div key={br.id} className={cn(CONSOLE_CARD, 'flex items-center justify-between p-4')}>
+              <div key={br.id} className={cn(CONSOLE_SURFACE, 'flex items-center justify-between p-4')}>
                 <div className="min-w-0">
                   <p className="truncate text-sm font-semibold">{br.branch_name}</p>
                   <p className="truncate text-xs text-app-muted">{br.address ?? '—'}</p>

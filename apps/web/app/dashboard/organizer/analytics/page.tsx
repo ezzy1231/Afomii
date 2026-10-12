@@ -9,7 +9,7 @@ import {
   Sparkline,
 } from '@/components/dashboard/console'
 import { ConsoleStack } from '@/components/dashboard/console-primitives'
-import { CONSOLE_CARD } from '@/components/dashboard/console-shared'
+import { CONSOLE_SURFACE } from '@/components/dashboard/console-shared'
 import { cn } from '@/lib/utils'
 
 export const metadata: Metadata = { title: 'Analytics · Organizer' }
@@ -162,7 +162,7 @@ export default async function OrganizerAnalyticsPage({
       {/* Tickets over time */}
       <section className="space-y-3">
         <SectionTitle>Tickets over time</SectionTitle>
-        <div className={cn(CONSOLE_CARD, 'p-5')}>
+        <div className={cn(CONSOLE_SURFACE, 'p-5')}>
           {hasData ? (
             <>
               <p className="mb-4 text-xs uppercase tracking-widest text-app-muted">
@@ -183,7 +183,7 @@ export default async function OrganizerAnalyticsPage({
       <section className="space-y-3">
         <SectionTitle>Top events · paid revenue</SectionTitle>
         {topEvents.length > 0 ? (
-          <ol className={cn(CONSOLE_CARD, 'divide-y divide-app-border')}>
+          <ol className={cn(CONSOLE_SURFACE, 'divide-y divide-app-border')}>
             {topEvents.map((event, i) => (
               <li key={event.title} className="flex items-center gap-4 px-5 py-3.5">
                 <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-app-border   text-xs font-bold tabular-nums text-ember">
@@ -200,7 +200,7 @@ export default async function OrganizerAnalyticsPage({
             ))}
           </ol>
         ) : (
-          <div className={cn(CONSOLE_CARD, 'border-dashed p-8 text-center')}>
+          <div className={cn(CONSOLE_SURFACE, 'border-dashed p-8 text-center')}>
             <p className="text-sm text-app-muted">No paid ticket sales in this period yet.</p>
           </div>
         )}

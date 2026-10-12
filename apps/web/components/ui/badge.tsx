@@ -7,6 +7,9 @@ const badgeVariants = cva(
     variants: {
       variant: {
         default: "bg-ink text-white",
+        /* Unmapped status — deliberately reads as "unrecognised" rather
+           than as a normal state. Never fall through to `default`. */
+        unknown: "border border-dashed border-app-border text-app-muted",
         gold: "bg-ember/10 text-ember",
         success: "bg-success/15 text-success",
         warning: "bg-warning/15 text-warning",
@@ -26,9 +29,10 @@ export function Badge({
   className,
   variant,
   ...props
-}: React.HTMLAttributes<HTMLDivElement> & VariantProps<typeof badgeVariants>) {
+}: React.HTMLAttributes<HTMLSpanElement> & VariantProps<typeof badgeVariants>) {
+  /* span, not div — badges are inline pills and land inside <p>/<span>. */
   return (
-    <div className={cn(badgeVariants({ variant }), className)} {...props} />
+    <span className={cn(badgeVariants({ variant }), className)} {...props} />
   );
 }
 
@@ -59,8 +63,8 @@ export function StatusBadge({ status }: { status: string }) {
   };
 
   return (
-    <Badge variant={variantMap[status] ?? "default"}>
-      {status.replace("_", " ")}
+    <Badge variant={variantMap[status] ?? "unknown"}>
+      {status.replace(/_/g, " ")}
     </Badge>
   );
 }

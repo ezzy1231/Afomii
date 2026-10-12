@@ -11,15 +11,23 @@ type CategoryPickerProps = {
   options: CategoryOption[];
   value: string;
   onChange: (value: string) => void;
+  /** Forwarded so the wrapping <label> can name this radiogroup — htmlFor
+      cannot name a composite widget, so aria-labelledby is required. */
+  id?: string;
+  "aria-labelledby"?: string;
 };
 
 export function CategoryPicker({
   options,
   value,
   onChange,
+  id,
+  ...aria
 }: CategoryPickerProps) {
   return (
     <div
+      {...aria}
+      id={id}
       className="max-h-72 space-y-1.5 overflow-y-auto rounded-lg border border-app-border bg-app-card p-2"
       role="radiogroup"
     >

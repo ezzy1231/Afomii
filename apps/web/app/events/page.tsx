@@ -16,16 +16,15 @@ export default async function EventsPage({
 }: {
   searchParams?: { q?: string }
 }) {
-  const { items, source } = await getEventCatalogue()
+  const { items } = await getEventCatalogue()
 
   return (
     <>
       <Navbar />
-      <main className="flex-1">
+      <main id="main" className="flex-1">
         <ExploreCatalogue
           type="events"
           items={items}
-          source={source}
           initialQuery={searchParams?.q ?? ''}
         />
       </main>

@@ -65,8 +65,16 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col font-sans bg-app-bg text-app-fg">
+        {/* Every public page has a sticky header plus a fixed bottom nav, so
+            keyboard users otherwise tab through 2-3 stops before content. */}
+        <a
+          href="#main"
+          className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[100] focus:rounded-xl focus:bg-ember focus:px-4 focus:py-3 focus:text-sm focus:font-semibold focus:text-on-accent focus:shadow-elevate"
+        >
+          Skip to content
+        </a>
         <Script id="theme-init" strategy="beforeInteractive">
-        {`try{var t=localStorage.getItem('urbanexplore-theme');document.documentElement.dataset.theme=t==='dark'?'dark':'light';}catch(e){document.documentElement.dataset.theme='light';}`}
+        {`try{var t=localStorage.getItem('urbanexplore-theme');document.documentElement.dataset.theme=(t==='dark'||t==='light')?t:(window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');}catch(e){document.documentElement.dataset.theme='light';}`}
         </Script>
         <Providers>
         <OAuthCodeCatcher />

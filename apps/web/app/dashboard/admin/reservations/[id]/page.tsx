@@ -7,7 +7,7 @@ import {
   ConsoleHeader,
   StatusPill,
 } from '@/components/dashboard/console'
-import { CONSOLE_CARD, statusTone } from '@/components/dashboard/console-shared'
+import { CONSOLE_SURFACE, statusTone } from '@/components/dashboard/console-shared'
 import { ReservationCancelAction } from '@/components/dashboard/admin-actions'
 import { cn } from '@/lib/utils'
 
@@ -73,7 +73,7 @@ export default async function AdminReservationDetailPage({
         action={<StatusPill status={r.status} tone={statusTone(r.status)} />}
       />
 
-      <section className={cn(CONSOLE_CARD, 'space-y-3 p-5 text-sm')}>
+      <section className={cn(CONSOLE_SURFACE, 'space-y-3 p-5 text-sm')}>
         <div className="flex items-center justify-between gap-3">
           <span className="text-app-muted">Venue</span>
           <span className="truncate text-right font-semibold">

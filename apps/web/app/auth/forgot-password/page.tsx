@@ -44,7 +44,7 @@ export default function ForgotPasswordPage() {
           </p>
         )}
         {error && (
-          <p className="animate-pop-in mt-5 rounded-lg bg-danger/10 border border-danger/30 px-4 py-3 text-sm text-danger">
+          <p role="alert" className="animate-pop-in mt-5 rounded-lg bg-danger/10 border border-danger/30 px-4 py-3 text-sm text-danger">
             {error}
           </p>
         )}

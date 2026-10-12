@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { useId } from 'react'
-import { CONSOLE_CARD } from './console-shared'
+import { CONSOLE_SURFACE } from './console-shared'
 import { cn } from '@/lib/utils'
 
 /**
@@ -44,7 +44,9 @@ export function ConsoleHeader({
     <header className="flex flex-wrap items-end justify-between gap-3">
       <div>
         <p className="text-[11px] font-semibold uppercase tracking-[0.15em] text-app-muted">{eyebrow}</p>
-        <h1 className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">{title}</h1>
+        {/* h2 — ConsoleShell already renders the page <h1> in its header.
+            Tailwind preflight resets heading styles, so this is visually identical. */}
+        <h2 className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">{title}</h2>
         {subtitle && <p className="mt-1.5 text-sm text-app-muted">{subtitle}</p>}
       </div>
       {action}
@@ -91,7 +93,7 @@ export function ConsoleKpiCard({
   accent?: boolean
 }) {
   return (
-    <div className={cn(CONSOLE_CARD, 'glass-hover flex min-h-32 flex-col justify-between p-4')}>
+    <div className={cn(CONSOLE_SURFACE, 'glass-hover flex min-h-32 flex-col justify-between p-4')}>
       <span className="text-[11px] font-semibold uppercase tracking-[0.15em] text-app-muted">
         {label}
       </span>
@@ -262,16 +264,18 @@ export function ConsoleRangeLinks({
 }) {
   const options: Array<'7d' | '30d' | '90d'> = ['7d', '30d', '90d']
   return (
-    <div className="glass flex w-fit rounded-xl p-1" role="tablist" aria-label="Date range">
+    /* These are links that navigate, not tabs — there is no tabpanel anywhere in
+       this app and no arrow-key roving focus, so role="tab"/aria-selected on an
+       <a> is invalid. Plain navigation with aria-current is the honest markup. */
+    <nav className="glass flex w-fit rounded-xl p-1" aria-label="Date range">
       {options.map((range) => (
         <Link
           key={range}
           href={`?range=${range}`}
           scroll={false}
-          role="tab"
-          aria-selected={current === range}
+          aria-current={current === range ? 'page' : undefined}
           className={cn(
-            'min-h-9 rounded-lg px-4 py-2 text-sm font-semibold transition-all duration-200',
+            'flex min-h-11 items-center rounded-lg px-4 py-2 text-sm font-semibold transition-all duration-200',
             current === range
               ? 'bg-gradient-to-br from-ember to-ember-deep text-on-accent shadow-[0_2px_8px_rgb(var(--ember-rgb)/0.3)]'
               : 'text-app-muted hover:text-app-fg'
@@ -280,7 +284,7 @@ export function ConsoleRangeLinks({
           {range}
         </Link>
       ))}
-    </div>
+    </nav>
   )
 }
 

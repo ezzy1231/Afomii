@@ -236,7 +236,11 @@ export async function getRestaurantDashboard(
   const branchIds = branches.map((b) => b.id)
   const branchNameById = new Map(branches.map((b) => [b.id, b.name]))
 
-  const [listingsRes, menuRes] = await Promise.all([
+  const today = todayKey()
+
+  /* Reservations only depend on branchIds, which are known above — they were
+     awaited separately, adding a round-trip to the heaviest dashboard route. */
+  const [listingsRes, menuRes, reservationsRes] = await Promise.all([
     supabase
       .from('restaurants')
       .select('id,cover_url,logo_url')
@@ -248,6 +252,15 @@ export async function getRestaurantDashboard(
           .select('id', { count: 'exact', head: true })
           .in('branch_id', branchIds)
       : Promise.resolve({ count: 0 }),
+    branchIds.length
+      ? supabase
+          .from('reservations')
+          .select('id,branch_id,user_id,reservation_date,time_slot,guest_count,status')
+          .in('branch_id', branchIds)
+          .gte('reservation_date', today)
+          .order('reservation_date', { ascending: true })
+          .limit(RESERVATION_LIMIT)
+      : Promise.resolve({ data: [] as ReservationRow[] }),
   ])
 
   // One row per listing, so counting client-side beats a second round trip.
@@ -261,18 +274,6 @@ export async function getRestaurantDashboard(
     listings.find((c) => c.cover_url)?.cover_url ??
     listings.find((c) => c.logo_url)?.logo_url ??
     null
-
-  const today = todayKey()
-
-  const reservationsRes = branchIds.length
-    ? await supabase
-        .from('reservations')
-        .select('id,branch_id,user_id,reservation_date,time_slot,guest_count,status')
-        .in('branch_id', branchIds)
-        .gte('reservation_date', today)
-        .order('reservation_date', { ascending: true })
-        .limit(RESERVATION_LIMIT)
-    : { data: [] as ReservationRow[] }
 
   const reservations = (reservationsRes.data ?? []) as ReservationRow[]
 

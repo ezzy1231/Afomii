@@ -54,22 +54,6 @@ function chooseColor(name: string, palette: string[]) {
   return palette[Math.abs(hash) % palette.length]
 }
 
-export const fallbackRestaurants: CatalogueItem[] = [
-  { id: '1', name: 'Yod Abyssinia Kitchen', category: 'Traditional Ethiopian', location: 'Bole', detail: 'Open until 11:00 PM', rating: '4.9', color: 'bg-blue-100 text-blue-800', imageUrl: '/places/food-1.jpg' },
-  { id: '2', name: 'Sishu Noodle House', category: 'Japanese', location: 'Kazanchis', detail: 'Open until 10:30 PM', rating: '4.8', color: 'bg-rose-100 text-rose-800', imageUrl: '/places/food-2.jpg' },
-  { id: '3', name: 'Olive & Grain', category: 'Mediterranean', location: 'Sarbet', detail: 'Open until 10:00 PM', rating: '4.7', color: 'bg-emerald-100 text-emerald-800', imageUrl: '/places/food-3.jpg' },
-  { id: '4', name: 'Kudu Coffee & Roastery', category: 'Cafe', location: 'Piassa', detail: 'Open until 8:00 PM', rating: '4.8', color: 'bg-sky-100 text-sky-800', imageUrl: '/places/cafe-1.jpg' },
-  { id: '5', name: 'Mama Diner', category: 'Modern African', location: 'Gerji', detail: 'Open until 9:30 PM', rating: '4.6', color: 'bg-blue-100 text-blue-800', imageUrl: '/places/food-5.jpg' },
-  { id: '6', name: 'Garden Brunch House', category: 'Brunch', location: 'CMC', detail: 'Open until 4:00 PM', rating: '4.7', color: 'bg-emerald-100 text-emerald-800', imageUrl: '/places/food-6.jpg' },
-]
-
-export const fallbackEvents: CatalogueItem[] = [
-  { id: '1', name: 'Night Market Sessions', category: 'Food and music', location: 'Meskel Square', detail: 'Tonight, 7:00 PM', rating: 'From ETB 900', color: 'bg-fuchsia-100 text-fuchsia-800', imageUrl: '/places/event-1.jpg' },
-  { id: '2', name: 'Design After Dark', category: 'Exhibition', location: 'Addis Fine Arts', detail: 'Friday, 6:30 PM', rating: 'Free', color: 'bg-stone-100 text-stone-800', imageUrl: '/places/event-3.jpg' },
-  { id: '3', name: 'City Lights Run', category: 'Wellness', location: 'Entoto Park', detail: 'Saturday, 5:30 AM', rating: 'From ETB 500', color: 'bg-lime-100 text-lime-800', imageUrl: '/places/event-5.jpg' },
-  { id: '4', name: 'The Open Table', category: 'Community', location: 'Friendship Park', detail: 'Sunday, 1:00 PM', rating: 'From ETB 1,200', color: 'bg-violet-100 text-violet-800', imageUrl: '/places/event-6.jpg' },
-]
-
 function formatEventTime(value: string | null) {
   if (!value) return 'Date TBA'
   const date = new Date(value)
@@ -83,9 +67,7 @@ function formatEventTime(value: string | null) {
   }).format(date)
 }
 
-// Sample listings must never ship to production (see PRODUCTION_READINESS_PLAN
-// M0): they exist only so local development has content before seeding Supabase.
-const SAMPLE_DATA_ENABLED = process.env.NODE_ENV !== 'production'
+
 
 /**
  * Cached public catalogue reads (60s TTL). The navbar's session check still
@@ -96,7 +78,7 @@ const SAMPLE_DATA_ENABLED = process.env.NODE_ENV !== 'production'
 const CATALOGUE_TTL_SECONDS = 60
 
 const fetchRestaurantCatalogue = unstable_cache(
-  async (): Promise<{ items: CatalogueItem[]; source: 'live' | 'sample' }> => {
+  async (): Promise<{ items: CatalogueItem[] }> => {
     // Anonymous client: public catalogue reads must not depend on request
     // cookies, so the result is cacheable across users. RLS exposes only
     // published rows to this role.
@@ -112,9 +94,7 @@ const fetchRestaurantCatalogue = unstable_cache(
       if (error || !data?.length) {
         if (!error) console.warn('[catalogue] no active restaurants found')
         else console.error('[catalogue] restaurants query failed:', error.message)
-        return SAMPLE_DATA_ENABLED
-          ? { items: fallbackRestaurants, source: 'sample' }
-          : { items: [], source: 'live' }
+        return { items: [] }
       }
 
       const items: CatalogueItem[] = data.map((r: any) => ({
@@ -131,12 +111,10 @@ const fetchRestaurantCatalogue = unstable_cache(
         isVerified: businessIsPublic(firstOf(r.businesses)),
       }))
 
-      return { items, source: 'live' }
+      return { items }
     } catch (err) {
       console.error('[catalogue] restaurants catalogue crashed:', err)
-      return SAMPLE_DATA_ENABLED
-        ? { items: fallbackRestaurants, source: 'sample' }
-        : { items: [], source: 'live' }
+      return { items: [] }
     }
   },
   ['restaurant-catalogue'],
@@ -148,7 +126,7 @@ export async function getRestaurantCatalogue() {
 }
 
 const fetchEventCatalogue = unstable_cache(
-  async (): Promise<{ items: CatalogueItem[]; source: 'live' | 'sample' }> => {
+  async (): Promise<{ items: CatalogueItem[] }> => {
     // See fetchRestaurantCatalogue: anon client keeps public reads cacheable.
     const supabase = createAnonClient()
     try {
@@ -163,9 +141,7 @@ const fetchEventCatalogue = unstable_cache(
       if (error || !data?.length) {
         if (!error) console.warn('[catalogue] no published events found')
         else console.error('[catalogue] events query failed:', error.message)
-        return SAMPLE_DATA_ENABLED
-          ? { items: fallbackEvents, source: 'sample' }
-          : { items: [], source: 'live' }
+        return { items: [] }
       }
 
       const items: CatalogueItem[] = data.map((event: any) => ({
@@ -184,12 +160,10 @@ const fetchEventCatalogue = unstable_cache(
         isVerified: organizerIsPublic(firstOf(event.organizer)),
       }))
 
-      return { items, source: 'live' }
+      return { items }
     } catch (err) {
       console.error('[catalogue] events catalogue crashed:', err)
-      return SAMPLE_DATA_ENABLED
-        ? { items: fallbackEvents, source: 'sample' }
-        : { items: [], source: 'live' }
+      return { items: [] }
     }
   },
   ['event-catalogue'],

@@ -16,16 +16,15 @@ export default async function RestaurantsPage({
 }: {
   searchParams?: { q?: string }
 }) {
-  const { items, source } = await getRestaurantCatalogue()
+  const { items } = await getRestaurantCatalogue()
 
   return (
     <>
       <Navbar />
-      <main className="flex-1">
+      <main id="main" className="flex-1">
         <ExploreCatalogue
           type="restaurants"
           items={items}
-          source={source}
           initialQuery={searchParams?.q ?? ''}
         />
       </main>

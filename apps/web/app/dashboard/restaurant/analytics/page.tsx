@@ -9,7 +9,7 @@ import {
   Sparkline,
 } from '@/components/dashboard/console'
 import { ConsoleStack } from '@/components/dashboard/console-primitives'
-import { CONSOLE_CARD } from '@/components/dashboard/console-shared'
+import { CONSOLE_SURFACE } from '@/components/dashboard/console-shared'
 import { cn } from '@/lib/utils'
 
 export const metadata: Metadata = { title: 'Analytics · Restaurant' }
@@ -182,7 +182,7 @@ export default async function RestaurantAnalyticsPage({
       {/* Bookings over time */}
       <section className="space-y-3">
         <SectionTitle>Bookings over time</SectionTitle>
-        <div className={cn(CONSOLE_CARD, 'p-5')}>
+        <div className={cn(CONSOLE_SURFACE, 'p-5')}>
           {hasData ? (
             <>
               <p className="mb-4 text-xs uppercase tracking-widest text-app-muted">
@@ -203,7 +203,7 @@ export default async function RestaurantAnalyticsPage({
       <section className="space-y-3">
         <SectionTitle>Covers by daypart</SectionTitle>
         {parts ? (
-          <div className={cn(CONSOLE_CARD, 'space-y-4 p-5')}>
+          <div className={cn(CONSOLE_SURFACE, 'space-y-4 p-5')}>
             {parts.map((part) => (
               <div key={part.label}>
                 <div className="mb-1.5 flex items-center justify-between text-sm">
@@ -217,7 +217,7 @@ export default async function RestaurantAnalyticsPage({
             ))}
           </div>
         ) : (
-          <div className={cn(CONSOLE_CARD, 'border-dashed p-8 text-center')}>
+          <div className={cn(CONSOLE_SURFACE, 'border-dashed p-8 text-center')}>
             <p className="text-sm text-app-muted">Daypart mix appears once reservations carry time slots.</p>
           </div>
         )}
@@ -227,7 +227,7 @@ export default async function RestaurantAnalyticsPage({
       <section className="space-y-3">
         <SectionTitle>Most requested slots</SectionTitle>
         {topSlots.length > 0 ? (
-          <ol className={cn(CONSOLE_CARD, 'divide-y divide-app-border')}>
+          <ol className={cn(CONSOLE_SURFACE, 'divide-y divide-app-border')}>
             {topSlots.map(([slot, count], i) => (
               <li key={slot} className="flex items-center gap-4 px-5 py-3.5">
                 <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-app-border   text-xs font-bold tabular-nums text-ember">
@@ -242,7 +242,7 @@ export default async function RestaurantAnalyticsPage({
             ))}
           </ol>
         ) : (
-          <div className={cn(CONSOLE_CARD, 'border-dashed p-8 text-center')}>
+          <div className={cn(CONSOLE_SURFACE, 'border-dashed p-8 text-center')}>
             <p className="text-sm text-app-muted">No reservations in this period yet.</p>
           </div>
         )}

@@ -243,36 +243,22 @@ function ConsoleNav({
 
       {primaryAction && (
         <div className="px-3 pt-4">
-          <Link
-            href={primaryAction.href}
-            onClick={onNavigate}
-            className="flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-white px-4 py-2.5 text-sm font-bold text-console-indigo-deep shadow-[0_8px_20px_rgb(0_0_0/0.28)] transition-transform duration-200 hover:scale-[1.02] active:scale-[0.99]"
-          >
-            <Sparkles className="size-4" strokeWidth={2.4} />
-            {primaryAction.label}
+          <Link href={primaryAction.href} onClick={onNavigate} className="flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-white px-4 text-sm font-bold text-console-indigo-deep">
+            <Sparkles className="size-4" />{primaryAction.label}
           </Link>
         </div>
       )}
       {showPromo && (
         <div className="p-3">
           <div className="rounded-2xl bg-gradient-to-br from-console-indigo to-[#7C4DFF] p-4 shadow-[0_10px_28px_rgb(0_0_0/0.3)]">
-            <span className="flex size-9 items-center justify-center rounded-xl bg-white/20">
-              <Rocket className="size-[18px] text-white" strokeWidth={2.2} />
-            </span>
+            <span className="flex size-9 items-center justify-center rounded-xl bg-white/20"><Rocket className="size-[18px] text-white" /></span>
             <p className="mt-3 text-sm font-bold leading-snug text-white">Boost Your Event</p>
-            <p className="mt-1 text-[11px] leading-relaxed text-white/75">
-              Featured placement in Explore and priority email drops.
-            </p>
-            <Link
-              href={`${settingsHref}#boost`}
-              onClick={onNavigate}
-              className="mt-3 flex min-h-9 w-full items-center justify-center rounded-lg bg-white px-3 py-2 text-xs font-bold text-console-indigo-deep transition-colors hover:bg-white/90"
-            >
-              Boost Now
-            </Link>
+            <p className="mt-1 text-[11px] leading-relaxed text-white/75">Featured placement in Explore and priority email drops.</p>
+            <Link href={`${settingsHref}#boost`} onClick={onNavigate} className="mt-3 flex min-h-9 w-full items-center justify-center rounded-lg bg-white px-3 py-2 text-xs font-bold text-console-indigo-deep">Boost Now</Link>
           </div>
         </div>
       )}
+
     </div>
   )
 }
@@ -330,6 +316,7 @@ function ConsoleProfile({
 }) {
   const [open, setOpen] = useState(false)
   const [signingOut, setSigningOut] = useState(false)
+  const [signOutError, setSignOutError] = useState<string | null>(null)
   const ref = useDismissOnOutside(open, () => setOpen(false))
   const id = useId()
 
@@ -338,10 +325,19 @@ function ConsoleProfile({
   // (empty) session instead of serving a cached one.
   async function signOut() {
     setSigningOut(true)
-    setOpen(false)
+    setSignOutError(null)
     const supabase = createClient()
-    await supabase.auth.signOut()
-    window.location.assign('/auth/signin')
+    try {
+      const { error } = await supabase.auth.signOut()
+      if (error) throw error
+      window.location.assign('/auth/signin')
+    } catch {
+      // Never leave the button permanently disabled: a failed sign-out has to
+      // be retryable, or the partner is stuck signed in with no way out.
+      setSigningOut(false)
+      setOpen(true)
+      setSignOutError('Sign out failed. Please try again.')
+    }
   }
 
   return (
@@ -351,8 +347,7 @@ function ConsoleProfile({
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
         aria-controls={id}
-        aria-haspopup="menu"
-        className="flex min-h-10 items-center gap-2.5 rounded-xl py-1 pl-1 pr-2 transition-colors hover:bg-console-bg"
+        className="flex min-h-11 items-center gap-2.5 rounded-xl py-1 pl-1 pr-2 transition-colors hover:bg-console-bg"
       >
         <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-console-indigo to-[#8A6BFF] text-xs font-bold text-white">
           {initialsFor(account)}
@@ -369,10 +364,12 @@ function ConsoleProfile({
         />
       </button>
 
+      {/* Disclosure panel, not role="menu". The menu keyboard model (arrow-key
+            roving focus) is not implemented, and a menu may not contain the
+            identity header below. Plain buttons/links are the honest markup. */}
       <div
         id={id}
         hidden={!open}
-        role="menu"
         className="absolute right-0 top-full z-50 mt-2 w-60 overflow-hidden rounded-2xl border border-console-border bg-console-card py-1.5 shadow-elevate"
       >
         <div className="border-b border-console-border px-4 pb-3 pt-2">
@@ -381,23 +378,26 @@ function ConsoleProfile({
         </div>
         <Link
           href={settingsHref}
-          role="menuitem"
           onClick={() => setOpen(false)}
-          className="flex min-h-10 items-center gap-2.5 px-4 py-2 text-sm text-console-ink transition-colors hover:bg-console-bg"
+          className="flex min-h-11 items-center gap-2.5 px-4 py-2 text-sm text-console-ink transition-colors hover:bg-console-bg"
         >
           <Settings className="size-4 text-console-muted" strokeWidth={2} />
           Settings
         </Link>
         <button
           type="button"
-          role="menuitem"
           onClick={signOut}
           disabled={signingOut}
-          className="flex min-h-10 w-full items-center gap-2.5 px-4 py-2 text-left text-sm text-console-ink transition-colors hover:bg-console-bg disabled:opacity-50"
+          className="flex min-h-11 w-full items-center gap-2.5 px-4 py-2 text-left text-sm text-console-ink transition-colors hover:bg-console-bg disabled:opacity-50"
         >
           <LogOut className="size-4 text-console-muted" strokeWidth={2} />
           {signingOut ? 'Signing out…' : 'Sign out'}
         </button>
+        {signOutError && (
+          <p role="alert" className="px-4 pb-2 pt-1.5 text-[11px] font-medium text-danger">
+            {signOutError}
+          </p>
+        )}
       </div>
     </div>
   )
@@ -433,12 +433,8 @@ export function ConsoleShell({
 
   return (
     <div className="shell-console min-h-screen bg-console-bg">
-      <a
-        href="#console-main"
-        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[60] focus:rounded-lg focus:bg-console-card focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-console-ink focus:shadow-elevate"
-      >
-        Skip to content
-      </a>
+      {/* Skip link comes from the root layout (targets #main). The console
+          shell no longer renders its own, which would be a duplicate tab stop. */}
 
       {/* Desktop rail — fixed, always navy, never scrolls away. */}
       <aside className="fixed inset-y-0 left-0 z-40 hidden w-[268px] bg-console-nav lg:block">
@@ -455,9 +451,11 @@ export function ConsoleShell({
       {/* Mobile drawer */}
       {drawerOpen && (
         <div className="fixed inset-0 z-50 lg:hidden">
-          <button
-            type="button"
-            aria-label="Close navigation"
+          {/* Mouse-only dismiss layer. The dialog has its own labelled close
+              button and Escape, so this must not be a duplicate tab stop or a
+              second "Close navigation" node in the accessibility tree. */}
+          <div
+            aria-hidden="true"
             onClick={closeDrawer}
             className="absolute inset-0 h-full w-full cursor-default bg-[rgb(10_14_26/0.55)] backdrop-blur-sm"
           />
@@ -472,7 +470,7 @@ export function ConsoleShell({
               type="button"
               onClick={closeDrawer}
               aria-label="Close navigation"
-              className="absolute right-3 top-4 flex size-9 items-center justify-center rounded-lg text-console-nav-muted transition-colors hover:bg-console-nav-soft hover:text-white"
+              className="absolute right-3 top-4 flex size-11 items-center justify-center rounded-lg text-console-nav-muted transition-colors hover:bg-console-nav-soft hover:text-white"
             >
               <X className="size-5" strokeWidth={2.2} />
             </button>
@@ -503,16 +501,16 @@ export function ConsoleShell({
               <MenuIcon className="size-5" strokeWidth={2.2} />
             </button>
 
-            <p className="min-w-0 flex-1 truncate text-lg font-bold tracking-tight text-console-ink">
+            <h1 className="min-w-0 flex-1 truncate text-lg font-bold tracking-tight text-console-ink">
               {title}
-            </p>
+            </h1>
 
             <ConsoleBell count={notificationCount} settingsHref={settingsHref} />
             <ConsoleProfile account={account} settingsHref={settingsHref} />
           </div>
         </header>
 
-        <main id="console-main" className="px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
+        <main id="main" className="px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
           {children}
         </main>
       </div>

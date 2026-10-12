@@ -66,7 +66,7 @@ export default function VisionPage() {
     <>
       <Navbar />
 
-      <main className="flex-1 bg-app-bg text-app-fg">
+      <main id="main" className="flex-1 bg-app-bg text-app-fg">
         <section className="mx-auto max-w-7xl px-4 pt-8 sm:px-6 lg:px-8">
           <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-ember">
             Where we&apos;re headed

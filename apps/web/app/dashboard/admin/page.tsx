@@ -4,7 +4,7 @@ import { ArrowUpRight, Building2, Store, Users, UserRoundCheck } from 'lucide-re
 import { createClient } from '@/lib/supabase/server'
 import { ConsoleAreaChart } from '@/components/dashboard/console-area-chart'
 import { ConsolePageShell, ConsoleHeader, SectionTitle, StatusPill } from '@/components/dashboard/console'
-import { CONSOLE_CARD, statusTone } from '@/components/dashboard/console-shared'
+import { CONSOLE_SURFACE, statusTone } from '@/components/dashboard/console-shared'
 import { BusinessVerificationActions } from '@/components/dashboard/business-verification-actions'
 import { cn } from '@/lib/utils'
 
@@ -113,7 +113,7 @@ export default async function AdminDashboardPage({
 
       <section aria-label="Platform totals" className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
         {kpis.map(({ label, value, added, Icon, tone }) => (
-          <div key={label} className={cn(CONSOLE_CARD, 'flex min-h-28 items-center gap-3 p-4')}>
+          <div key={label} className={cn(CONSOLE_SURFACE, 'flex min-h-28 items-center gap-3 p-4')}>
             <span className={cn('flex size-10 shrink-0 items-center justify-center rounded-full', tone)}><Icon size={18} aria-hidden="true" /></span>
             <div className="min-w-0">
               <p className="text-xs font-medium text-app-muted">{label}</p>
@@ -136,7 +136,7 @@ export default async function AdminDashboardPage({
           <span className="text-xs font-semibold tabular-nums text-app-muted">{pendingRes.count ?? '—'} awaiting review</span>
         </div>
         {pendingRes.error ? (
-          <div role="alert" className={cn(CONSOLE_CARD, 'p-4 text-sm text-danger')}>Could not load verification requests. <Link href="/dashboard/admin/businesses" className="underline">Retry</Link></div>
+          <div role="alert" className={cn(CONSOLE_SURFACE, 'p-4 text-sm text-danger')}>Could not load verification requests. <Link href="/dashboard/admin/businesses" className="underline">Retry</Link></div>
         ) : pendingRows.length > 0 ? (
           <div className="divide-y divide-app-border rounded-xl border border-app-border bg-app-card">
             {pendingRows.map((row) => (
@@ -151,22 +151,22 @@ export default async function AdminDashboardPage({
             {(pendingRes.count ?? 0) > pendingRows.length && <Link href="/dashboard/admin/businesses?status=pending" className="flex min-h-11 items-center justify-center text-sm font-semibold text-ember hover:underline">View all {pendingRes.count} requests <ArrowUpRight className="ml-1 size-4" /></Link>}
           </div>
         ) : (
-          <div className={cn(CONSOLE_CARD, 'p-5 text-sm text-app-muted')}>No businesses are waiting for verification.</div>
+          <div className={cn(CONSOLE_SURFACE, 'p-5 text-sm text-app-muted')}>No businesses are waiting for verification.</div>
         )}
       </section>
 
       <section className="space-y-3">
         <div className="flex items-center justify-between gap-3"><SectionTitle>Directory</SectionTitle><div className="flex gap-3 text-xs font-semibold text-ember"><Link href="/dashboard/admin/businesses" className="hover:underline">All businesses</Link><Link href="/dashboard/admin/organizers" className="hover:underline">All organizers</Link></div></div>
         <p className="text-xs text-app-muted">Showing the latest 10 matching businesses and organizers.</p>
-        <form method="get" className={cn(CONSOLE_CARD, 'flex items-center gap-3 px-3 py-2')}>
+        <form method="get" className={cn(CONSOLE_SURFACE, 'flex items-center gap-3 px-3 py-2')}>
           <label htmlFor="directory-search" className="sr-only">Search entities</label>
           <input id="directory-search" type="search" name="q" defaultValue={q} placeholder="Search entities…" className="min-h-10 w-full bg-transparent text-sm text-app-fg outline-none placeholder:text-app-muted" />
           <button className="min-h-10 rounded-lg bg-ember px-4 text-xs font-semibold text-on-accent">Search</button>
         </form>
         {bizDirRes.error || orgDirRes.error ? (
-          <div role="alert" className={cn(CONSOLE_CARD, 'p-4 text-sm text-danger')}>Could not load the directory. <Link href="/dashboard/admin" className="underline">Retry</Link></div>
+          <div role="alert" className={cn(CONSOLE_SURFACE, 'p-4 text-sm text-danger')}>Could not load the directory. <Link href="/dashboard/admin" className="underline">Retry</Link></div>
         ) : (
-          <div className={cn(CONSOLE_CARD, 'overflow-x-auto')}>
+          <div className={cn(CONSOLE_SURFACE, 'overflow-x-auto')}>
             <table className="w-full text-left text-sm">
               <caption className="sr-only">Recent businesses and organizers</caption>
               <thead><tr className="border-b border-app-border text-xs text-app-muted"><th scope="col" className="px-3 py-2.5 font-semibold">Name</th><th scope="col" className="px-3 py-2.5 font-semibold">Type</th><th scope="col" className="px-3 py-2.5 font-semibold">Status</th></tr></thead>
@@ -178,8 +178,8 @@ export default async function AdminDashboardPage({
 
       <section className="space-y-3">
         <div className="flex items-center justify-between gap-3"><SectionTitle>Audit activity</SectionTitle><Link href="/dashboard/admin/audit" className="text-xs font-semibold text-ember hover:underline">Full audit log</Link></div>
-        {auditRes.error || actorsRes.data === null ? <div role="alert" className={cn(CONSOLE_CARD, 'p-4 text-sm text-danger')}>Could not load audit activity. <Link href="/dashboard/admin/audit" className="underline">Retry</Link></div> : (
-          <div className={cn(CONSOLE_CARD, 'overflow-x-auto')}>
+        {auditRes.error || actorsRes.data === null ? <div role="alert" className={cn(CONSOLE_SURFACE, 'p-4 text-sm text-danger')}>Could not load audit activity. <Link href="/dashboard/admin/audit" className="underline">Retry</Link></div> : (
+          <div className={cn(CONSOLE_SURFACE, 'overflow-x-auto')}>
             <table className="w-full text-left text-xs">
               <caption className="sr-only">Latest administrative activity</caption>
               <thead><tr className="border-b border-app-border text-app-muted"><th scope="col" className="px-3 py-2 font-semibold">Action</th><th scope="col" className="px-3 py-2 font-semibold">Actor</th><th scope="col" className="px-3 py-2 font-semibold">Entity</th><th scope="col" className="px-3 py-2 font-semibold">Time</th></tr></thead>

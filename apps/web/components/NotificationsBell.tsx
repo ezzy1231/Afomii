@@ -87,19 +87,29 @@ export default function NotificationsBell({ initialCount }: { initialCount: numb
       <button
         type="button"
         onClick={handleOpen}
-        aria-label="Notifications"
+        aria-label={
+          unread > 0 ? `Notifications, ${unread} unread` : 'Notifications'
+        }
+        aria-expanded={open}
+        aria-controls="notifications-panel"
         className="relative flex size-11 items-center justify-center rounded-xl text-app-muted transition-all hover:bg-app-elevated/70 hover:text-app-fg active:scale-95"
       >
         <Bell className="size-4" strokeWidth={2.5} />
         {unread > 0 && (
-          <span className="absolute -right-0.5 -top-0.5 flex size-4 items-center justify-center rounded-full bg-ember text-[9px] font-bold text-on-accent">
+          <span
+            aria-hidden="true"
+            className="absolute -right-0.5 -top-0.5 flex size-4 items-center justify-center rounded-full bg-ember text-[9px] font-bold text-on-accent"
+          >
             {unread > 9 ? '9+' : unread}
           </span>
         )}
       </button>
 
       {open && (
-        <div className="animate-pop-in absolute right-0 top-full z-50 mt-2 w-72 overflow-hidden rounded-2xl border border-white/50 bg-white/75 shadow-glass-strong backdrop-blur-2xl backdrop-saturate-150 dark:border-white/10 dark:bg-white/8">
+        <div
+          id="notifications-panel"
+          className="animate-pop-in absolute right-0 top-full z-50 mt-2 w-72 overflow-hidden rounded-2xl border border-white/50 bg-white/75 shadow-glass-strong backdrop-blur-2xl backdrop-saturate-150 dark:border-white/10 dark:bg-white/8"
+        >
           <div className="flex items-center justify-between border-b border-app-border px-4 py-3">
             <h3 className="text-xs font-extrabold uppercase tracking-wider text-app-fg">Notifications</h3>
             {unread > 0 && (
@@ -116,8 +126,9 @@ export default function NotificationsBell({ initialCount }: { initialCount: numb
 
           <div className="max-h-80 overflow-y-auto">
             {loading && !loadedOnce ? (
-              <div className="flex items-center justify-center py-8">
-                <Loader2 className="size-5 animate-spin text-ember" strokeWidth={2.5} />
+              <div className="flex items-center justify-center py-8" role="status">
+                <span className="sr-only">Loading notifications…</span>
+                <Loader2 aria-hidden="true" className="size-5 animate-spin text-ember" strokeWidth={2.5} />
               </div>
             ) : notifications.length === 0 ? (
               <p className="px-4 py-8 text-center text-xs font-medium text-app-muted">
@@ -132,11 +143,21 @@ export default function NotificationsBell({ initialCount }: { initialCount: numb
                   disabled={!!n.readAt}
                   className={cn(
                     'flex w-full gap-3 border-b border-app-border px-4 py-3 text-left transition-colors',
-                    n.readAt ? 'opacity-50' : 'hover:bg-app-input/60',
+                    // Read state uses a real muted token, not opacity — opacity-50
+                    // dropped the title below 4.5:1 and conveyed state by alpha alone.
+                    n.readAt ? 'bg-app-elevated/25' : 'hover:bg-app-input/60',
                   )}
                 >
                   <div className="min-w-0 flex-1">
-                    <p className="text-xs font-bold text-app-fg">{n.title}</p>
+                    <p
+                      className={cn(
+                        'text-xs font-bold',
+                        n.readAt ? 'text-app-muted' : 'text-app-fg',
+                      )}
+                    >
+                      {n.title}
+                      {n.readAt && <span className="sr-only"> (read)</span>}
+                    </p>
                     {n.body && <p className="mt-0.5 text-[11px] leading-tight text-app-muted">{n.body}</p>}
                     <p className="mt-1 text-[10px] font-medium text-app-muted">{ago(n.createdAt)}</p>
                   </div>

@@ -54,7 +54,7 @@ export function ReservationCalendarGrid({
 
       <div className="grid gap-4">
         {Object.entries(groupedByDate).map(([date, bookings]) => (
-          <div key={date} className="card">
+          <div key={date} className="card-elevated">
             <p className="text-sm font-semibold text-app-fg mb-3">
               {formatDate(date)}
             </p>
@@ -62,8 +62,12 @@ export function ReservationCalendarGrid({
               {bookings.map((booking) => (
                 <div
                   key={booking.id}
+                  role="button"
+                  tabIndex={0}
+                  aria-expanded={selected === booking.id}
                   className={cn(
                     "flex items-center justify-between p-3 rounded-lg border cursor-pointer transition-all",
+                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember focus-visible:ring-offset-2 focus-visible:ring-offset-app-bg",
                     selected === booking.id
                       ? "border-ember/40 bg-ember/5"
                       : "border-app-border hover:border-ember/40",
@@ -71,6 +75,14 @@ export function ReservationCalendarGrid({
                   onClick={() =>
                     setSelected(selected === booking.id ? null : booking.id)
                   }
+                  onKeyDown={(e) => {
+                    // Without this the Confirm/Reject/Complete/Cancel actions
+                    // below are mouse-only — they only render once selected.
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      setSelected(selected === booking.id ? null : booking.id);
+                    }
+                  }}
                 >
                   <div className="flex items-center gap-4">
                     <div className="text-center">

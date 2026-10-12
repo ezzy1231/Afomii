@@ -9,7 +9,7 @@ import {
   StatusPill,
   ConsoleKpiCard,
 } from '@/components/dashboard/console'
-import { CONSOLE_CARD, statusTone } from '@/components/dashboard/console-shared'
+import { CONSOLE_SURFACE, statusTone } from '@/components/dashboard/console-shared'
 import { EventModerationActions } from '@/components/dashboard/admin-actions'
 import { cn } from '@/lib/utils'
 
@@ -140,7 +140,7 @@ export default async function AdminEventDetailPage({
 
       {/* Details */}
       <section className="grid gap-3 sm:grid-cols-2">
-        <div className={cn(CONSOLE_CARD, 'space-y-2 p-5 text-sm')}>
+        <div className={cn(CONSOLE_SURFACE, 'space-y-2 p-5 text-sm')}>
           <h2 className="mb-1 text-[11px] font-semibold uppercase tracking-[0.15em] text-app-muted">When &amp; where</h2>
           <p>Starts: {formatDateTime(e.starts_at)}</p>
           {e.end_date_time && <p className="text-app-muted">Ends: {formatDateTime(e.end_date_time)}</p>}
@@ -150,7 +150,7 @@ export default async function AdminEventDetailPage({
             <p className=" font-bold tabular-nums text-ember">{e.price_label}</p>
           )}
         </div>
-        <div className={cn(CONSOLE_CARD, 'space-y-2 p-5 text-sm')}>
+        <div className={cn(CONSOLE_SURFACE, 'space-y-2 p-5 text-sm')}>
           <h2 className="mb-1 text-[11px] font-semibold uppercase tracking-[0.15em] text-app-muted">About</h2>
           <p className="leading-relaxed text-app-muted">{e.description ?? 'No description provided.'}</p>
         </div>
@@ -167,7 +167,7 @@ export default async function AdminEventDetailPage({
         <SectionTitle>Ticket tiers</SectionTitle>
         <p className="text-xs text-app-muted">Showing up to 100 ticket tiers.</p>
         {tiers.length === 0 ? (
-          <div className={cn(CONSOLE_CARD, 'border-dashed p-8 text-center')}>
+          <div className={cn(CONSOLE_SURFACE, 'border-dashed p-8 text-center')}>
             <p className="text-sm text-app-muted">No ticket tiers configured for this event.</p>
           </div>
         ) : (
@@ -178,7 +178,7 @@ export default async function AdminEventDetailPage({
                   ? Math.round(((t.total_quantity - t.remaining_quantity) / t.total_quantity) * 100)
                   : 0
               return (
-                <div key={t.id} className={cn(CONSOLE_CARD, 'p-4')}>
+                <div key={t.id} className={cn(CONSOLE_SURFACE, 'p-4')}>
                   <div className="flex items-center justify-between gap-3">
                     <div className="min-w-0">
                       <p className="truncate text-sm font-semibold">{t.name}</p>
@@ -207,12 +207,12 @@ export default async function AdminEventDetailPage({
         {/* Mobile — stacked cards */}
         <div className="space-y-2 md:hidden">
           {recentPurchases.length === 0 ? (
-            <div className={cn(CONSOLE_CARD, 'p-6 text-center text-sm text-app-muted')}>
+            <div className={cn(CONSOLE_SURFACE, 'p-6 text-center text-sm text-app-muted')}>
               No ticket sales yet.
             </div>
           ) : (
             recentPurchases.map((p) => (
-              <div key={p.id} className={cn(CONSOLE_CARD, 'space-y-2.5 p-4')}>
+              <div key={p.id} className={cn(CONSOLE_SURFACE, 'space-y-2.5 p-4')}>
                 <p className="font-bold tabular-nums text-ember">
                   ETB {Number(p.amount ?? 0).toLocaleString('en-US')}
                 </p>
@@ -242,7 +242,7 @@ export default async function AdminEventDetailPage({
         </div>
 
         {/* Desktop */}
-        <div className={cn(CONSOLE_CARD, 'hidden overflow-x-auto md:block')}>
+        <div className={cn(CONSOLE_SURFACE, 'hidden overflow-x-auto md:block')}>
           <table className="w-full text-left text-sm">
             <thead>
               <tr className="border-b border-app-border text-[11px] uppercase tracking-[0.14em] text-app-muted">

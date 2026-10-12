@@ -34,7 +34,7 @@ export function ListingTabs({
         ← All listings
       </Link>
       <div>
-        <h1 className="truncate text-2xl font-bold tracking-tight">{listingName}</h1>
+        <h2 className="truncate text-2xl font-bold tracking-tight">{listingName}</h2>
         <p className="mt-1 text-sm text-app-muted">
           Add a location, then give it its own menu. Everything here belongs to this listing only.
         </p>

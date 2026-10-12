@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { ConsolePageShell, ConsoleHeader, StatusPill } from '@/components/dashboard/console'
-import { CONSOLE_CARD } from '@/components/dashboard/console-shared'
+import { CONSOLE_SURFACE } from '@/components/dashboard/console-shared'
 import { cn } from '@/lib/utils'
 import SignOutButton from '@/app/settings/SignOutButton'
 
@@ -27,7 +27,7 @@ export default async function AdminSettingsPage() {
     <ConsolePageShell maxWidth="max-w-2xl">
       <ConsoleHeader eyebrow="Admin console" title="Settings" subtitle="Your admin session." />
 
-      <section className={cn(CONSOLE_CARD, 'space-y-4 p-5 text-sm')}>
+      <section className={cn(CONSOLE_SURFACE, 'space-y-4 p-5 text-sm')}>
         <div className="flex items-center justify-between gap-3">
           <span className="text-app-muted">Signed in as</span>
           <span className="font-semibold">{email ?? '—'}</span>

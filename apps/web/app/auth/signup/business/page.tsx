@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useId, cloneElement, isValidElement } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
@@ -46,6 +46,10 @@ interface FormData {
    yet — there is no billing wired up — so the form states that plainly instead
    of showing prices for plans nothing implements. */
 
+/* The control is a SIBLING of the label, so implicit association does not
+   apply — it needs an explicit id/htmlFor pair. `id` handles native inputs;
+   `aria-labelledby` covers composite widgets (CategoryPicker is a radiogroup,
+   which htmlFor cannot name). */
 const Field = ({
   label,
   optional,
@@ -54,15 +58,25 @@ const Field = ({
   label: string
   optional?: boolean
   children: React.ReactNode
-}) => (
-  <div>
-    <label className="field-label">
-      {label}
-      {optional && <span className="ml-1 font-medium text-app-muted">(optional)</span>}
-    </label>
-    {children}
-  </div>
-)
+}) => {
+  const id = useId()
+  const control = isValidElement(children)
+    ? cloneElement(children as React.ReactElement<Record<string, unknown>>, {
+        id,
+        'aria-labelledby': id,
+      })
+    : children
+
+  return (
+    <div>
+      <label className="field-label" id={id} htmlFor={id}>
+        {label}
+        {optional && <span className="ml-1 font-medium text-app-muted">(optional)</span>}
+      </label>
+      {control}
+    </div>
+  )
+}
 
 const inputCls = 'input-premium'
 
@@ -202,7 +216,7 @@ export default function BusinessSignupPage() {
         <SignupStepper steps={['Account', 'Business', 'Contact', 'Listing']} current={step} />
 
         {error && (
-          <div className="mb-5 rounded-lg bg-danger/10 border border-danger/30 text-danger text-sm px-4 py-3">
+          <div role="alert" className="mb-5 rounded-lg bg-danger/10 border border-danger/30 text-danger text-sm px-4 py-3">
             {error}
           </div>
         )}
@@ -237,7 +251,7 @@ export default function BusinessSignupPage() {
               </Field>
               <div>
                 <div className="mb-1.5 flex items-baseline justify-between">
-                  <label className="field-label">
+                  <label className="field-label" htmlFor="editorial-description">
                     Editorial description
                     <span className="ml-1 font-medium text-app-muted">(optional)</span>
                   </label>
@@ -246,6 +260,7 @@ export default function BusinessSignupPage() {
                   </span>
                 </div>
                 <textarea
+                  id="editorial-description"
                   value={form.description}
                   onChange={(e) => set('description', e.target.value.slice(0, 500))}
                   placeholder="Describe your atmosphere, culinary philosophy, and what makes your establishment a premier destination…"
