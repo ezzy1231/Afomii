@@ -19,9 +19,16 @@ const TIER_TYPES = [
 
 export default function EventListingForm({
   successHref,
+  visibilityWarning,
 }: {
   /** When set, a success message links onward instead of leaving the organizer stranded. */
   successHref?: string;
+  /**
+   * Set when the organizer profile would keep a published event out of the
+   * public feed. Passed in from the server rather than fetched here: the gate is
+   * an RLS check the anon client used by every consumer page enforces.
+   */
+  visibilityWarning?: string | null;
 }) {
   const [state, setState] = useState<DashboardActionState>({
     ok: false,
@@ -62,6 +69,16 @@ export default function EventListingForm({
       <p className="mt-2 text-sm text-app-muted">
         Save unfinished details as a draft, or publish a complete event to the discover feed.
       </p>
+
+      {visibilityWarning && (
+        <div
+          role="status"
+          className="mt-4 rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900"
+        >
+          <p className="font-semibold">Heads up — published events stay hidden for now</p>
+          <p className="mt-1">{visibilityWarning}</p>
+        </div>
+      )}
 
       <form key={formKey} action={handleSubmit} className="mt-6 grid gap-5 sm:grid-cols-2">
         <label className="block text-sm font-medium text-app-fg sm:col-span-2">

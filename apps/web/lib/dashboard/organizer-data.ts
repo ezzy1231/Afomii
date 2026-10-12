@@ -81,6 +81,25 @@ const ACCOUNT_COLUMNS =
   'id,name,plan,status,is_verified,email,phone,city,address,category,description'
 
 /**
+ * Does the public feed get to see this organizer's events?
+ *
+ * Mirrors `private.organizer_is_public()` from migration
+ * 20261009115229_restaurant_event_public_visibility.sql, which `events_select_anon`
+ * calls. Every consumer surface (home, /events, /events/[id], the organizer page,
+ * the sitemap) reads through the anon client, so a row that fails this test is
+ * invisible there no matter that it is `status = 'published'` and active.
+ *
+ * Used to tell an organizer *why* their published event is not showing instead
+ * of leaving them to guess.
+ */
+export function organizerIsPublic(
+  row: { status: string | null; is_verified: boolean | null } | null | undefined,
+  isSuspended = false,
+): boolean {
+  return !!row && row.status === 'active' && row.is_verified === true && !isSuspended
+}
+
+/**
  * The organizer's own record, for the console chrome (rail, settings).
  *
  * `heal: false` is what the layout passes: a layout and its page render

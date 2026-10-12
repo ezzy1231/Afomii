@@ -20,6 +20,7 @@ import {
   uuidSchema,
 } from '@/lib/validation'
 import { ACTION_LIMITS, RATE_LIMIT_MESSAGE, guardActionLimit } from '@/lib/rate-limit'
+import { organizerIsPublic } from '@/lib/dashboard/organizer-data'
 
 export type DashboardActionState = {
   ok: boolean
@@ -75,17 +76,22 @@ function blankToNull(value: FormDataEntryValue | null): string | null {
 async function getCurrentUserRole() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return { supabase, user: null, role: null as string | null }
+  if (!user) return { supabase, user: null, role: null as string | null, isSuspended: false }
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('id, role')
+    .select('id, role, is_suspended')
     .eq('id', user.id)
     .maybeSingle()
 
-  if (!profile) return { supabase, user: null, role: null as string | null }
+  if (!profile) return { supabase, user: null, role: null as string | null, isSuspended: false }
 
-  return { supabase, user, role: (profile.role as string | undefined) ?? null }
+  return {
+    supabase,
+    user,
+    role: (profile.role as string | undefined) ?? null,
+    isSuspended: profile.is_suspended === true,
+  }
 }
 
 export async function createRestaurantListing(
@@ -156,7 +162,7 @@ export async function createEventListing(
   _prevState: DashboardActionState,
   formData: FormData
 ): Promise<DashboardActionState> {
-  const { supabase, user, role } = await getCurrentUserRole()
+  const { supabase, user, role, isSuspended } = await getCurrentUserRole()
   if (!user) return { ok: false, message: 'Please sign in again to continue.' }
 
   // Rate limit creation before validation (authed organizers).
@@ -227,11 +233,15 @@ export async function createEventListing(
   const startsAtDate = startsAt ? new Date(startsAt) : null
   const endDateTimeDate = endDateTime ? new Date(endDateTime) : null
 
-  const { data: organizer } = await supabase
+  const { data: organizerRow } = await supabase
     .from('organizers')
-    .select('id')
+    .select('id, status, is_verified')
     .eq('owner_id', user.id)
     .maybeSingle()
+
+  const organizer = organizerRow as
+    | { id: string; status: string | null; is_verified: boolean | null }
+    | null
 
   if (!organizer) {
     return {
@@ -303,11 +313,22 @@ export async function createEventListing(
   revalidatePath('/dashboard/organizer/events')
   revalidatePath('/dashboard/organizer/tickets')
   revalidatePath('/events')
+  // revalidatePath does not evict lib/catalogue.ts's unstable_cache entry, so
+  // the home page and /events kept serving the previous list for up to a minute.
+  revalidateTag('event-catalogue')
+
+  // `published` only means "public" when the organizer profile clears
+  // private.organizer_is_public(). If it does not, the row is invisible on every
+  // consumer surface, so say so rather than reporting an unqualified success.
+  const isPublic = organizerIsPublic(organizer, isSuspended)
+  const visibilityNote = publishNow && !isPublic
+    ? ' It is live in your dashboard but hidden from the public feed until your organizer profile is verified.'
+    : ''
 
   return {
     ok: true,
     message: publishNow
-      ? `Event published: ${title}.${tierNote}`
+      ? `Event published: ${title}.${tierNote}${visibilityNote}`
       : `Draft saved: ${title}.${tierNote}`,
   }
 }
@@ -920,6 +941,7 @@ export async function toggleEventActive(
 
   revalidatePath('/dashboard/organizer/events')
   revalidatePath('/events')
+  revalidateTag('event-catalogue')
   return { ok: true, message: active ? 'Event published.' : 'Event unpublished.' }
 }
 
