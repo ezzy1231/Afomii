@@ -1,6 +1,5 @@
 import { unstable_cache } from 'next/cache'
 import { createAnonClient } from '@/lib/supabase/anon'
-import { businessIsPublic } from '@/lib/dashboard/restaurant-data'
 import { organizerIsPublic } from '@/lib/dashboard/organizer-data'
 
 export type CatalogueItem = {
@@ -82,11 +81,19 @@ const fetchRestaurantCatalogue = unstable_cache(
     // Anonymous client: public catalogue reads must not depend on request
     // cookies, so the result is cacheable across users. RLS exposes only
     // published rows to this role.
+    //
+    // No `businesses!inner(...)` here. businesses_select is `to authenticated`
+    // only, so PostgREST cannot read the parent row as anon and the join made
+    // this query return [] for every restaurant — the catalogue rendered empty
+    // even with a verified, active business in the database. restaurants_select_anon
+    // already applies private.business_is_public, which requires status active
+    // AND is_verified AND owner not suspended, so any row that reaches here is
+    // public and isVerified is necessarily true.
     const supabase = createAnonClient()
     try {
       const { data, error } = await supabase
         .from('restaurants')
-        .select('id, name, cuisine, city, area_label, rating, cover_url, closing_label, businesses!inner(status, is_verified)')
+        .select('id, name, cuisine, city, area_label, rating, cover_url, closing_label')
         .eq('is_active', true)
         .order('created_at', { ascending: false })
         .limit(60)
@@ -108,7 +115,8 @@ const fetchRestaurantCatalogue = unstable_cache(
         rating: r.rating != null ? String(r.rating) : 'New',
         color: chooseColor(r.name, restaurantColors),
         imageUrl: r.cover_url ?? null,
-        isVerified: businessIsPublic(firstOf(r.businesses)),
+        // Implied by restaurants_select_anon — see the note above the query.
+        isVerified: true,
       }))
 
       return { items }

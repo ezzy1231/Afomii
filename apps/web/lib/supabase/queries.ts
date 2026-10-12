@@ -71,15 +71,25 @@ export type EventDetail = {
 export async function getRestaurantDetail(id: string): Promise<RestaurantDetail | null> {
   const supabase = createAnonClient()
 
-  // A restaurant listing is verified when its *business* is, never on a column
+// A restaurant listing is verified when its *business* is, never on a column
   // of its own. restaurants.is_verified was dropped in 0023 because nothing
   // wrote it (only the seed files did) while restaurants_select_anon gates on
-  // private.business_is_public(business_id) — so the badge and the gate read
+  // private.business_is_public(business_id) - so the badge and the gate read
   // different sources and disagreed. businessIsPublic mirrors that function.
+  //
+  // Do NOT re-add a `businesses!inner(...)` join here. businesses_select is
+  // `to authenticated` only, so PostgREST cannot read the parent row as the
+  // anon role and the join silently returns nothing - the whole detail page
+  // 404s even though the restaurant passes restaurants_select_anon. The join
+  // was only ever feeding isVerified, and RLS already guarantees it: any row
+  // that survives this select has an active, verified, non-suspended business,
+  // because private.business_is_public requires exactly that. Verified against
+  // the live project - the inner join returned [] while the unjoined select
+  // returned the row.
   const { data: restaurant, error } = await supabase
     .from('restaurants')
     .select(
-      'id, name, cuisine, description, logo_url, cover_url, rating, opening_hours, business_id, businesses!inner(id, status, is_verified)'
+      'id, name, cuisine, description, logo_url, cover_url, rating, opening_hours, business_id'
     )
     .eq('id', id)
     .maybeSingle()
@@ -88,10 +98,6 @@ export async function getRestaurantDetail(id: string): Promise<RestaurantDetail 
     console.error('[queries] restaurant detail unavailable:', error?.message ?? 'not found')
     return null
   }
-
-  const business = Array.isArray(restaurant.businesses)
-    ? (restaurant.businesses[0] as { id: string; status: string | null; is_verified: boolean | null } | undefined) ?? null
-    : (restaurant.businesses as { id: string; status: string | null; is_verified: boolean | null } | null)
 
   const { data: branches } = await supabase
     .from('branches')
@@ -142,7 +148,8 @@ export async function getRestaurantDetail(id: string): Promise<RestaurantDetail 
     description: restaurant.description ?? null,
     logoUrl: restaurant.logo_url,
     coverUrl: restaurant.cover_url,
-    isVerified: businessIsPublic(business),
+    // Always true for rows this select can return — see the note above.
+    isVerified: true,
     rating: restaurant.rating,
     openingHours: restaurant.opening_hours,
     branches: mappedBranches,
