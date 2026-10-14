@@ -2,6 +2,10 @@ import { createClient } from '@/lib/supabase/server'
 import { createAnonClient } from '@/lib/supabase/anon'
 import { businessIsPublic } from '@/lib/dashboard/restaurant-data'
 import { organizerIsPublic } from '@/lib/dashboard/organizer-data'
+import { ticketTierEnum } from '@/lib/validation'
+
+/** Mirrors the `ticket_tier` Postgres enum via the same zod schema the organizer form writes. */
+export type TicketTier = (typeof ticketTierEnum.options)[number]
 
 export type DetailBranch = {
   id: string
@@ -44,7 +48,7 @@ export type RestaurantDetail = {
 export type DetailTicketType = {
   id: string
   name: string
-  tier: string
+  tier: TicketTier
   price: number
   totalQuantity: number
   remainingQuantity: number
@@ -65,7 +69,7 @@ export type EventDetail = {
   coverImageUrl: string | null
   status: string
   ticketTypes: DetailTicketType[]
-  organizer: { id: string; email: string; isVerified: boolean }
+  organizer: { id: string; name: string; email: string; isVerified: boolean }
 }
 
 export async function getRestaurantDetail(id: string): Promise<RestaurantDetail | null> {
@@ -162,7 +166,7 @@ export async function getEventDetail(id: string): Promise<EventDetail | null> {
   const { data: event, error } = await supabase
     .from('events')
     .select(
-      'id, title, description, category, venue_name, latitude, longitude, starts_at, end_date_time, cover_image_url, status, organizer:organizers(id, email, is_verified, status)'
+      'id, title, description, category, venue_name, latitude, longitude, starts_at, end_date_time, cover_image_url, status, organizer:organizers(id, name, email, is_verified, status)'
     )
     .eq('id', id)
     .maybeSingle()
@@ -204,6 +208,12 @@ export async function getEventDetail(id: string): Promise<EventDetail | null> {
       const org = Array.isArray(event.organizer) ? event.organizer[0] : event.organizer
       return {
         id: org?.id ?? '',
+        // organizers.name is not null and is covered by the same
+        // organizer_is_public gate as the rest of the row. The detail page used
+        // to render the email local part instead ("sky.garden" for
+        // "Sky Garden"), so an organizer was credited with their own email
+        // handle on their own event page.
+        name: org?.name ?? '',
         email: org?.email ?? '',
         isVerified: organizerIsPublic(
           org ? { status: org.status, is_verified: org.is_verified } : null,

@@ -45,7 +45,12 @@ export function TierRow({
           <span className={cn("font-semibold text-app-fg", disabled && "text-app-muted")}>
             {tier.name}
           </span>
-          {tier.premium && !disabled && (
+          {tier.badge && !disabled && (
+            <span className="rounded-md bg-ember/10 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-ember">
+              {tier.badge}
+            </span>
+          )}
+          {tier.premium && !tier.badge && !disabled && (
             <span className="rounded-md bg-ember/10 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-ember">
               Premium
             </span>
@@ -64,17 +69,23 @@ export function TierRow({
         </div>
       </div>
 
-      <div className="flex shrink-0 items-center gap-1 rounded-md border border-app-border px-1 py-1">
+      {/* Quantity stepper. The buttons were size-7 (28px) — under half the 44px
+          minimum target, on the control that decides how many tickets someone is
+          charged for. */}
+      <div className="flex shrink-0 items-center rounded-md border border-app-border">
         <button
           type="button"
           aria-label={`Decrease ${tier.name} quantity`}
           disabled={disabled}
           onClick={() => onQuantityChange(tier.id, Math.max(0, quantity - 1))}
-          className="flex size-7 items-center justify-center rounded text-app-muted transition-colors hover:text-app-fg disabled:opacity-40"
+          className="flex size-11 items-center justify-center rounded-l-md text-app-muted transition-colors hover:text-app-fg disabled:opacity-40"
         >
-          <Minus className="size-3.5" />
+          <Minus className="size-4" />
         </button>
-        <span className="w-6 text-center text-sm font-semibold tabular-nums text-app-fg">
+        <span
+          aria-live="polite"
+          className="w-7 text-center text-sm font-semibold tabular-nums text-app-fg"
+        >
           {quantity}
         </span>
         <button
@@ -82,9 +93,9 @@ export function TierRow({
           aria-label={`Increase ${tier.name} quantity`}
           disabled={disabled || quantity >= tier.remaining}
           onClick={() => onQuantityChange(tier.id, Math.min(tier.remaining, quantity + 1))}
-          className="flex size-7 items-center justify-center rounded text-app-muted transition-colors hover:text-app-fg disabled:opacity-40"
+          className="flex size-11 items-center justify-center rounded-r-md text-app-muted transition-colors hover:text-app-fg disabled:opacity-40"
         >
-          <Plus className="size-3.5" />
+          <Plus className="size-4" />
         </button>
       </div>
     </div>

@@ -11,6 +11,7 @@ import {
   Clock3,
   MapPin,
   Navigation,
+  Phone,
   Share2,
   Star,
   Utensils,
@@ -140,10 +141,23 @@ export default function RestaurantDetail({ restaurant }: { restaurant: Restauran
           </div>
 
           <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-app-border pt-4">
-            <p className="flex min-w-0 items-center gap-2 text-sm font-medium text-app-muted">
-              <MapPin className="size-4 shrink-0 text-ember" strokeWidth={2.5} />
-              <span className="truncate">{branch?.address || 'Location not provided'}</span>
-            </p>
+            <div className="flex min-w-0 flex-wrap items-center gap-x-4 gap-y-2 text-sm font-medium text-app-muted">
+              <p className="flex min-w-0 items-center gap-2">
+                <MapPin className="size-4 shrink-0 text-ember" strokeWidth={2.5} />
+                <span className="truncate">{branch?.address || 'Location not provided'}</span>
+              </p>
+              {/* branches.phone has been selected in every restaurant detail
+                  query since it was written and rendered nowhere. */}
+              {branch?.phone && (
+                <a
+                  href={`tel:${branch.phone.replace(/[^\d+]/g, '')}`}
+                  className="flex items-center gap-2 transition-colors hover:text-ember focus-visible:text-ember"
+                >
+                  <Phone className="size-4 shrink-0 text-ember" strokeWidth={2.5} />
+                  <span className="tabular-nums">{branch.phone}</span>
+                </a>
+              )}
+            </div>
             <Link
               href={`/ride?to=${encodeURIComponent(restaurant.name)}${branch?.latitude != null && branch?.longitude != null ? `&lat=${branch.latitude}&lng=${branch.longitude}` : ''}`}
               className="inline-flex items-center gap-1.5 glass-subtle rounded-xl px-4 py-2 text-sm font-semibold text-app-fg transition-all duration-200 hover:-translate-y-0.5 hover:shadow-glass active:translate-y-0 active:scale-[0.98]"
@@ -193,23 +207,59 @@ export default function RestaurantDetail({ restaurant }: { restaurant: Restauran
 
       {/* Branches strip */}
       {restaurant.branches.length > 1 && (
-        <div className="mx-auto mt-5 flex max-w-3xl gap-3 overflow-x-auto px-4 pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:px-0">
-          {restaurant.branches.map((b) => (
-            <button
-              key={b.id}
-              type="button"
-              onClick={() => setSelectedBranch(b.id)}
-              className={cn(
-                'glass glass-hover flex w-56 shrink-0 items-center justify-between gap-2 rounded-2xl p-3 text-left transition-all duration-200',
-                selectedBranch === b.id ? 'bg-ember text-on-accent' : 'text-app-fg'
-              )}
-            >
-              <span className="min-w-0">
-                <span className={cn('block truncate text-sm font-semibold', selectedBranch === b.id ? 'text-white' : 'text-app-fg')}>{b.branchName}</span>
-                <span className={cn('block truncate text-xs font-medium', selectedBranch === b.id ? 'text-white/80' : 'text-app-muted')}>{b.address}</span>
-              </span>
-            </button>
-          ))}
+        <div
+          className="mx-auto mt-5 flex max-w-3xl gap-3 overflow-x-auto px-4 pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:px-0"
+          role="group"
+          aria-label="Choose a location"
+        >
+          {restaurant.branches.map((b) => {
+            const isSelected = selectedBranch === b.id
+            // Two branches of the same venue often share a name ("Bole"), and
+            // the strip used to show name + address only — so the cards came out
+            // identical and the only difference was which one was orange.
+            // Number them in listing order and say what selecting does.
+            const position = restaurant.branches.findIndex((x) => x.id === b.id) + 1
+            return (
+              <button
+                key={b.id}
+                type="button"
+                aria-pressed={isSelected}
+                onClick={() => setSelectedBranch(b.id)}
+                className={cn(
+                  'glass glass-hover flex w-60 shrink-0 items-center gap-3 rounded-2xl p-3 text-left transition-all duration-200',
+                  isSelected && 'border-ember bg-ember text-on-accent shadow-[0_2px_8px_rgb(var(--ember-rgb)/0.3)]'
+                )}
+              >
+                <span
+                  aria-hidden
+                  className={cn(
+                    'flex size-7 shrink-0 items-center justify-center rounded-full text-xs font-bold',
+                    isSelected ? 'bg-white/20 text-white' : 'bg-ember/12 text-ember'
+                  )}
+                >
+                  {isSelected ? <Check className="size-3.5" strokeWidth={3} /> : position}
+                </span>
+                <span className="min-w-0">
+                  <span
+                    className={cn(
+                      'block truncate text-sm font-semibold',
+                      isSelected ? 'text-white' : 'text-app-fg'
+                    )}
+                  >
+                    {b.branchName}
+                  </span>
+                  <span
+                    className={cn(
+                      'block truncate text-xs font-medium',
+                      isSelected ? 'text-white/80' : 'text-app-muted'
+                    )}
+                  >
+                    {b.address || 'Address not provided'}
+                  </span>
+                </span>
+              </button>
+            )
+          })}
         </div>
       )}
 

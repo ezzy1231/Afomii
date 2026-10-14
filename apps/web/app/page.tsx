@@ -19,8 +19,26 @@ export default async function HomePage() {
     getEventCatalogue(),
   ])
 
-  const trending = restaurants.items.slice(0, 6)
-  const [featured, ...upcoming] = events.items
+  // The catalogue arrives newest-first, so slicing the head of it produced a row
+  // headed "Trending Restaurants" that was in fact the six most recently added
+  // listings. Rank by rating instead, which is the claim the heading makes — and
+  // pull unrated listings to the back rather than treating them as 0.
+  const topRated = [...restaurants.items]
+    .sort((a, b) => (Number(b.rating) || 0) - (Number(a.rating) || 0))
+    .slice(0, 6)
+
+  // Likewise the events section claimed "This Week's Events" while rendering
+  // whatever came next in a starts_at ordering — possibly next month. Scope it
+  // to the next seven days, and fall back to the next few events so the section
+  // is never empty just because this happens to be a quiet week.
+  const inSevenDays = new Date()
+  inSevenDays.setDate(inSevenDays.getDate() + 7)
+  const thisWeek = events.items.filter((item) => {
+    if (!item.startsAt) return false
+    const at = new Date(item.startsAt).getTime()
+    return at >= Date.now() && at <= inSevenDays.getTime()
+  })
+  const [featured, ...upcoming] = thisWeek.length ? thisWeek : events.items.slice(0, 3)
 
   return (
     <>
@@ -136,17 +154,17 @@ export default async function HomePage() {
           <CategoryRow />
         </section>
 
-        {/* ═══════════ Trending restaurants ═══════════ */}
+        {/* ═══════════ Top-rated restaurants ═══════════ */}
         <section className="mx-auto mt-14 max-w-7xl px-4 sm:px-6 lg:px-8">
           <Reveal>
             <SectionHeader
-              title="Trending Restaurants"
+              title="Top Rated Restaurants"
               href="/restaurants"
             />
           </Reveal>
-          {trending.length > 0 ? (
+          {topRated.length > 0 ? (
             <StaggerGroup className="snap-row !py-1">
-              {trending.map((item) => (
+              {topRated.map((item) => (
                 <StaggerItem key={item.id} className="h-full">
                   <ListingCardLarge
                     item={item}
@@ -167,7 +185,9 @@ export default async function HomePage() {
         <section className="mx-auto mt-16 max-w-7xl px-4 sm:px-6 lg:px-8">
           <Reveal>
             <SectionHeader
-              title="This Week’s Events"
+              // The fallback list is not scoped to the week, so it must not
+              // claim to be.
+              title={thisWeek.length ? 'This Week’s Events' : 'Coming Up'}
               href="/events"
             />
           </Reveal>
@@ -206,8 +226,8 @@ export default async function HomePage() {
                     Book it. Then ride.
                   </h3>
                   <p className="mt-1.5 max-w-[260px] text-sm leading-6 text-white/85">
-                    Compare meter-taxi fares across providers and get to your
-                    reservation on time.
+                    Estimate your meter-taxi fare across three vehicle tiers
+                    and get to your reservation on time.
                   </p>
                   <Link
                     href="/ride"

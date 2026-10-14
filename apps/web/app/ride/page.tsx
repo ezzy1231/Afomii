@@ -6,7 +6,7 @@ import RidePlanner from '@/components/RidePlanner'
 export const metadata: Metadata = {
   title: 'Ride — Meter-taxi fare estimates in ETB',
   description:
-    'Compare upfront meter-taxi fare estimates across providers and get to your table or event on time.',
+    'Estimate your meter-taxi fare upfront across three vehicle tiers, and get to your table or event on time.',
 }
 
 export default function RidePage() {

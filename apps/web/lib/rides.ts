@@ -3,9 +3,17 @@
  * the My Plans ride-book flow. Local ETB estimates — no external pricing API.
  */
 
+/**
+ * One fare row.
+ *
+ * There is deliberately no `provider` field. An earlier version carried
+ * `providerName`/`providerLogo`, every row said "Meter Taxi", and nothing ever
+ * rendered them — while the ride page's metadata and the home page both
+ * promised fares "across providers". One operator, three vehicle tiers is what
+ * the product does; the field that invited the lie is gone rather than left
+ * lying around for the next person to use.
+ */
 export type RideOption = {
-  providerName: string
-  providerLogo?: string
   tier: string
   estimatedPrice: { amount: number; currency: string }
   etaMinutes: number
@@ -46,21 +54,18 @@ export function buildMeterTaxiEstimates(distanceKm: number): RideOption[] {
 
   return [
     {
-      providerName: 'Meter Taxi',
       tier: 'Standard',
       estimatedPrice: { amount: roundBirr(90 + normalizedDistance * 18), currency: 'ETB' },
       etaMinutes: Math.max(5, Math.round(normalizedDistance * 3 + 4)),
       badge: 'Best Value',
     },
     {
-      providerName: 'Meter Taxi',
       tier: 'Comfort',
       estimatedPrice: { amount: roundBirr(110 + normalizedDistance * 22), currency: 'ETB' },
       etaMinutes: Math.max(4, Math.round(normalizedDistance * 2.5 + 4)),
       badge: undefined,
     },
     {
-      providerName: 'Meter Taxi',
       tier: 'Minivan',
       estimatedPrice: { amount: roundBirr(140 + normalizedDistance * 28), currency: 'ETB' },
       etaMinutes: Math.max(4, Math.round(normalizedDistance * 2.2 + 3)),

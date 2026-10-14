@@ -15,13 +15,27 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { purchaseTickets, type TicketActionState } from '@/app/events/actions'
+import type { TicketTier } from '@/lib/supabase/queries'
 import { TierRow, StickyActionBar, type Tier } from '@/components/patterns'
 import { DateBadge } from '@/components/patterns/DateBadge'
+
+/**
+ * Display vocabulary for ticket tiers, derived from the same enum the organizer
+ * form writes (`ticketTierEnum`) rather than re-listed here — the previous copy
+ * tested against a 'vvip' value that has never existed in the database.
+ */
+const tierLabels: Record<TicketTier, string> = {
+  standard: 'Standard',
+  vip: 'VIP',
+  early_bird: 'Early Bird',
+  group: 'Group',
+}
+const PREMIUM_TIERS: readonly TicketTier[] = ['vip']
 
 type TicketType = {
   id: string
   name: string
-  tier: string
+  tier: TicketTier
   price: number
   totalQuantity: number
   remainingQuantity: number
@@ -42,7 +56,7 @@ type Event = {
   coverImageUrl: string | null
   status: string
   ticketTypes: TicketType[]
-  organizer: { id: string; email: string; isVerified: boolean }
+  organizer: { id: string; name: string; email: string; isVerified: boolean }
 }
 
 function formatDate(dateStr: string) {
@@ -200,11 +214,28 @@ export default function EventDetail({ event }: { event: Event }) {
     name: t.name,
     price: t.price,
     remaining: t.remainingQuantity,
-    premium: t.tier === 'vip' || t.tier === 'vvip',
+    // ticket_tier is ('standard','vip','early_bird','group') — there is no
+    // 'vvip', so that arm of this test never fired. early_bird and group carry
+    // no pill at all, which is why the Early Bird tier in the ticket mockup had
+    // nothing to label it.
+    premium: PREMIUM_TIERS.includes(t.tier),
+    // vip is already labelled by the Premium pill, so it doesn't also carry a
+    // badge — early_bird and group are the tiers that were silently unlabelled.
+    badge: t.tier === 'vip' || t.tier === 'standard' ? undefined : tierLabels[t.tier],
     salesOpen: isOnSale(t),
   }))
 
-  const organizerName = event.organizer.email.split('@')[0]
+  // organizers.name, falling back to the email local part only when an
+  // organizer row somehow has no name.
+  const organizerName = event.organizer.name || event.organizer.email.split('@')[0]
+
+  // "Go" is labelled Navigate, so it has to navigate. Both cards used to point
+  // at the in-app fare planner, which is what "Book Ride" is for.
+  const mapsHref =
+    event.latitude != null && event.longitude != null
+      ? `https://www.google.com/maps/dir/?api=1&destination=${event.latitude},${event.longitude}`
+      : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(event.venueName)}`
+  const rideHref = `/ride?to=${encodeURIComponent(event.venueName)}${event.latitude != null && event.longitude != null ? `&lat=${event.latitude}&lng=${event.longitude}` : ''}`
 
   return (
     <div className="mx-auto max-w-7xl px-4 pb-28 pt-6 sm:px-6 lg:px-8">
@@ -268,13 +299,23 @@ export default function EventDetail({ event }: { event: Event }) {
               <MapPin className="size-5 shrink-0 text-ember" strokeWidth={2.5} />
               <span className="min-w-0">
                 <span className="block truncate font-bold text-app-fg">{event.venueName}</span>
-                <span className="block text-xs font-medium text-app-muted">Addis Ababa</span>
+                {/* events has no city column — this used to be a hardcoded
+                    "Addis Ababa" on every listing regardless of venue. The
+                    category is real data already on the object. */}
+                {event.category && (
+                  <span className="block truncate text-xs font-medium capitalize text-app-muted">
+                    {event.category}
+                  </span>
+                )}
               </span>
             </span>
             <Link
-              href={`/ride?to=${encodeURIComponent(event.venueName)}${event.latitude && event.longitude ? `&lat=${event.latitude}&lng=${event.longitude}` : ''}`}
-              className="glass-subtle shrink-0 rounded-xl px-3.5 py-2 text-xs font-semibold uppercase tracking-wider text-app-fg transition-all duration-200 hover:-translate-y-0.5 hover:shadow-glass active:translate-y-0 active:scale-[0.98]"
+              href={mapsHref}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="glass-subtle inline-flex shrink-0 items-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-semibold uppercase tracking-wider text-app-fg transition-all duration-200 hover:-translate-y-0.5 hover:shadow-glass active:translate-y-0 active:scale-[0.98]"
             >
+              <Navigation className="size-3.5" strokeWidth={2.5} />
               View Map
             </Link>
           </div>
@@ -305,7 +346,16 @@ export default function EventDetail({ event }: { event: Event }) {
                   )}
                 </span>
                 <span className="block truncate text-xs font-medium text-app-muted">
-                  Creating unforgettable experiences in Addis Ababa.
+                  {event.organizer.id ? (
+                    <Link
+                      href={`/organizers/${event.organizer.id}`}
+                      className="underline decoration-app-border underline-offset-2 transition-colors hover:text-ember"
+                    >
+                      View organizer profile
+                    </Link>
+                  ) : (
+                    'Event organizer'
+                  )}
                 </span>
               </span>
             </div>
@@ -379,18 +429,20 @@ export default function EventDetail({ event }: { event: Event }) {
               </div>
             </div>
 
-            {/* Ride actions */}
+            {/* Ride actions — "Go" navigates, "Book Ride" prices a fare */}
             <div className="mt-4 grid grid-cols-2 gap-3">
-              <Link
-                href={`/ride?to=${encodeURIComponent(event.venueName)}${event.latitude && event.longitude ? `&lat=${event.latitude}&lng=${event.longitude}` : ''}`}
+              <a
+                href={mapsHref}
+                target="_blank"
+                rel="noopener noreferrer"
                 className="glass glass-hover flex flex-col items-center gap-1 rounded-2xl px-4 py-4 text-center"
               >
                 <Navigation className="size-5 text-ember" strokeWidth={2.5} />
                 <span className="text-xs font-semibold uppercase tracking-widest text-app-fg">Go</span>
                 <span className="text-[10px] font-medium uppercase tracking-wider text-app-muted">Navigate</span>
-              </Link>
+              </a>
               <Link
-                href={`/ride?to=${encodeURIComponent(event.venueName)}${event.latitude && event.longitude ? `&lat=${event.latitude}&lng=${event.longitude}` : ''}`}
+                href={rideHref}
                 className="glass glass-hover flex flex-col items-center gap-1 rounded-2xl px-4 py-4 text-center"
               >
                 <CarFront className="size-5 text-ember" strokeWidth={2.5} />
@@ -411,7 +463,7 @@ export default function EventDetail({ event }: { event: Event }) {
           onClick: () =>
             document.getElementById('select-tickets')?.scrollIntoView({ behavior: 'smooth' }),
         }}
-        secondary={{ label: 'Get a Ride', href: `/ride?to=${encodeURIComponent(event.venueName)}${event.latitude && event.longitude ? `&lat=${event.latitude}&lng=${event.longitude}` : ''}` }}
+        secondary={{ label: 'Get a Ride', href: rideHref }}
       />
     </div>
   )

@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState, type ReactNode } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import {
@@ -8,14 +8,16 @@ import {
   CalendarDays,
   Globe2,
   Heart,
+  HeartPulse,
   Music2,
   MapPin,
-  PartyPopper,
   Search,
   SearchX,
   SlidersHorizontal,
+  Sparkles,
   Star,
   Ticket,
+  Users,
   Utensils,
   Wine,
   X,
@@ -74,7 +76,23 @@ function matchesDateRange(item: CatalogueItem, range: (typeof dateChips)[number]
  * name, category, location and detail (see `matchesFilters`), so a facet is
  * only worth offering when those fields can actually carry it. "Rooftop" or
  * "Kids friendly" were listed here before and silently matched nothing.
+ *
+ * The event group used to list Concerts / Brunch / Parties. None of those are
+ * in EVENT_CATEGORIES, so the create-event form cannot write them and the
+ * listing query cannot return them — selecting any of the three emptied the
+ * grid while the sheet still reported "Show N results". Both the chip row and
+ * this group now read the one canonical list.
  */
+const EVENT_CATEGORY_ICONS: Record<(typeof EVENT_CATEGORIES)[number], ReactNode> = {
+  Music: <Music2 className="size-4" />,
+  'Food & Drink': <Wine className="size-4" />,
+  Theatre: <Ticket className="size-4" />,
+  Exhibition: <Sparkles className="size-4" />,
+  Networking: <Globe2 className="size-4" />,
+  Wellness: <HeartPulse className="size-4" />,
+  Community: <Users className="size-4" />,
+}
+
 const filterGroups = {
   restaurants: [
     {
@@ -95,14 +113,10 @@ const filterGroups = {
     {
       key: 'type',
       title: 'Event type',
-      options: [
-        { label: 'Concerts', icon: <Music2 className="size-4" /> },
-        { label: 'Brunch', icon: <Utensils className="size-4" /> },
-        { label: 'Parties', icon: <PartyPopper className="size-4" /> },
-        { label: 'Networking', icon: <Globe2 className="size-4" /> },
-        { label: 'Theatre', icon: <Ticket className="size-4" /> },
-        { label: 'Food & Drink', icon: <Wine className="size-4" /> },
-      ],
+      options: EVENT_CATEGORIES.map((label) => ({
+        label,
+        icon: EVENT_CATEGORY_ICONS[label],
+      })),
     },
   ],
 } as const
@@ -112,8 +126,13 @@ function matchesFilters(item: CatalogueItem, selected: Record<string, string[]>)
   const active = Object.values(selected).flat()
   if (!active.length) return true
   return active.some((label) => {
-    const words = label.toLowerCase().split(/\s+/)
-    return words.some((word) => haystack.includes(word))
+    const needle = label.toLowerCase().trim()
+    if (!needle) return false
+    // A multi-word facet has to match as a phrase. Splitting the label into
+    // words and accepting any of them let "Middle Eastern" match every listing
+    // containing "eastern" — which is how a cafe called Eastern Star ended up
+    // in Middle Eastern results.
+    return haystack.includes(needle)
   })
 }
 
