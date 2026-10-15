@@ -7,7 +7,13 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
   return (
     <div className="flex min-h-[100dvh] bg-app-bg">
       {/* Editorial panel — atmosphere only, never presented as a listing. */}
-      <aside className="relative hidden w-[42%] max-w-[620px] shrink-0 overflow-hidden bg-[rgb(14_24_41)] lg:block">
+      {/*
+        The editorial panel only earns its 40% of the viewport from `xl` up.
+        Below that it was stealing width from pages that need it — /auth/role
+        lays out three role cards and was being squeezed into ~176px columns,
+        wrapping its copy every two words.
+      */}
+      <aside className="relative hidden w-[34%] max-w-[480px] shrink-0 overflow-hidden bg-[rgb(14_24_41)] xl:block">
         <Image src="/places/food-4.jpg" alt="" fill sizes="42vw" className="object-cover opacity-55" />
         <div className="absolute inset-0 bg-[linear-gradient(180deg,rgb(14_24_41/0.35),rgb(14_24_41/0.92))]" />
         <div className="relative flex h-full flex-col justify-between p-10 text-[rgb(250_248_243)]">
@@ -32,14 +38,21 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
 
       <div className="flex min-w-0 flex-1 flex-col">
         <header className="flex items-center justify-between border-b border-app-border px-4 py-3 sm:px-8">
-          <Link href="/" className="inline-flex rounded-lg lg:invisible" aria-label="UrbanExplore home">
+          <Link href="/" className="inline-flex rounded-lg xl:invisible" aria-label="UrbanExplore home">
             <BrandWordmark />
           </Link>
           <ThemeToggle />
         </header>
 
         <main id="main" className="flex flex-1 items-start justify-center px-4 py-10 sm:items-center sm:py-14">
-          <div className="animate-fade-in-up w-full max-w-xl">{children}</div>
+          {/*
+            Pages own their own width: the sign-in and sign-up forms declare
+            `max-w-md`, while /auth/role declares `max-w-5xl` for its three
+            cards. A blanket `max-w-xl` here clamped the role grid to 576px and
+            broke it. `items-center` keeps the narrow forms centred without each
+            page needing `mx-auto`.
+          */}
+          <div className="animate-fade-in-up flex w-full max-w-5xl flex-col items-center">{children}</div>
         </main>
 
         <footer className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 px-4 py-6 text-xs text-app-muted">

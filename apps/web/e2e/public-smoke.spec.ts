@@ -81,6 +81,34 @@ test.describe('Auth surface', () => {
       await expect(page.locator('input[type="email"]')).toBeVisible()
     }
   })
+
+  /**
+   * Regression guard. The role picker declares `max-w-5xl` and lays its three
+   * cards out in `md:grid-cols-3`, but app/auth/layout.tsx wrapped every auth
+   * page in `max-w-xl`. That clamped the grid to 576px, giving ~176px cards
+   * that wrapped their copy every two or three words. A width assertion catches
+   * it; the existing "does it render" checks could not.
+   */
+  test('role picker lays its three cards out side by side, wide enough to read', async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 })
+    await page.goto('/auth/role')
+
+    const cards = page.locator('main .card-elevated')
+    await expect(cards).toHaveCount(3)
+
+    const boxes = await cards.evaluateAll((els) =>
+      els.map((el) => {
+        const r = el.getBoundingClientRect()
+        return { top: Math.round(r.top), width: Math.round(r.width) }
+      })
+    )
+
+    // All three on one row...
+    expect(new Set(boxes.map((b) => b.top)).size).toBe(1)
+    // ...and no narrower than a readable column. 176px was the broken value;
+    // 229px is the worst case at the 768px breakpoint.
+    for (const box of boxes) expect(box.width).toBeGreaterThan(220)
+  })
 })
 
 test.describe('SEO surface (rehearsal §5)', () => {
