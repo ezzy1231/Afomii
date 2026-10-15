@@ -226,23 +226,21 @@ export default function ExploreCatalogue({
   return (
     <section className="pb-24">
       {type === 'restaurants' ? (
-        <div className="mx-auto max-w-7xl px-4 pt-10 sm:px-6 sm:pt-14 lg:px-8">
-          <p className="eyebrow">Dining guide</p>
-          <div className="mt-3 flex flex-wrap items-center justify-between gap-4">
-            <h1 className="max-w-3xl text-4xl font-extrabold leading-[1.0] tracking-[-0.04em] text-app-fg sm:text-6xl">
+        <div className="mx-auto max-w-7xl px-4 pt-6 sm:px-6 sm:pt-14 lg:px-8">
+          {/*
+            Phones: the eyebrow and the intro copy are hidden and the heading is
+            smaller, because together they were pushing the first result 460px
+            down the page — 47% of a 390x844 viewport before anything bookable
+            appeared. The copy stays in the HTML (hidden, not removed), so
+            crawlers and screen readers on wider layouts still get it.
+          */}
+          <p className="eyebrow hidden sm:inline-flex">Dining guide</p>
+          <div className="mt-0 sm:mt-3">
+            <h1 className="max-w-3xl text-3xl font-extrabold leading-[1.05] tracking-[-0.035em] text-app-fg sm:text-6xl sm:leading-[1.0]">
               Find a table worth remembering.
             </h1>
-            <button
-              type="button"
-              onClick={() => setSearchOpen((open) => !open)}
-              className="glass-subtle inline-flex min-h-11 items-center gap-2 rounded-xl px-4 text-sm font-semibold text-app-fg transition-all duration-200 hover:-translate-y-0.5 hover:shadow-glass active:translate-y-0 active:scale-[0.98]"
-              aria-expanded={searchOpen}
-            >
-              <Search className="size-4 text-ember" strokeWidth={2.5} />
-              Search restaurants
-            </button>
           </div>
-          <p className="mt-3 max-w-xl text-base leading-7 text-app-muted">
+          <p className="mt-3 hidden max-w-xl text-base leading-7 text-app-muted sm:block">
             Discover trusted places for every kind of gathering, from quick lunches to special evenings.
           </p>
           {searchOpen && (
@@ -272,27 +270,20 @@ export default function ExploreCatalogue({
         </div>
       ) : (
         <div className="mx-auto max-w-7xl px-4 pt-10 sm:px-6 sm:pt-14 lg:px-8">
-          <p className="eyebrow">What’s on</p>
-          <div className="mt-3 flex flex-wrap items-center justify-between gap-4">
-            <h1 className="max-w-3xl text-4xl font-extrabold leading-[1.0] tracking-[-0.04em] text-app-fg sm:text-6xl">
+          <p className="eyebrow hidden sm:inline-flex">What’s on</p>
+          <div className="mt-0 sm:mt-3">
+            <h1 className="max-w-3xl text-3xl font-extrabold leading-[1.05] tracking-[-0.035em] text-app-fg sm:text-6xl sm:leading-[1.0]">
               Your next great night out.
             </h1>
-            <button
-              type="button"
-              onClick={() => setSearchOpen((open) => !open)}
-              className="glass-subtle inline-flex min-h-11 items-center gap-2 rounded-xl px-4 text-sm font-semibold text-app-fg transition-all duration-200 hover:-translate-y-0.5 hover:shadow-glass active:translate-y-0 active:scale-[0.98]"
-              aria-expanded={searchOpen}
-            >
-              <Search className="size-4 text-ember" strokeWidth={2.5} />
-              Search
-            </button>
           </div>
-          <p className="mt-3 max-w-xl text-base leading-7 text-app-muted">
+          <p className="mt-3 hidden max-w-xl text-base leading-7 text-app-muted sm:block">
             Published events from verified organizers, with dates, venues and ticket prices.
             Book, then plan the ride from My Plans.
           </p>
 
-          <div className="mt-7 flex flex-wrap items-center gap-2">
+          {/* Phones keep only the date filter row here: it is the one that
+              changes what you see most, and the category chips follow directly. */}
+          <div className="mt-4 flex flex-wrap items-center gap-2 sm:mt-7">
             {searchOpen && (
               <div className="glass animate-pop-in flex min-h-11 min-w-[min(100%,22rem)] flex-1 items-center gap-2.5 rounded-2xl px-3">
               <Search className="size-[18px] shrink-0 text-app-muted" strokeWidth={2.5} />
@@ -342,9 +333,24 @@ export default function ExploreCatalogue({
         <div
           className={cn(
             'flex flex-wrap items-center gap-2',
-            type === 'restaurants' ? 'mt-6' : 'mt-5'
+            type === 'restaurants' ? 'mt-4 sm:mt-6' : 'mt-4 sm:mt-5'
           )}
         >
+          {/*
+            Search leads the row. It is an action, not a filter, so grouping it
+            with the chips read as clutter — and placed mid-row it clipped a chip
+            label right where it started.
+          */}
+          <button
+            type="button"
+            onClick={() => setSearchOpen((open) => !open)}
+            className="glass-subtle inline-flex size-11 shrink-0 items-center justify-center gap-2 rounded-xl px-0 text-xs font-semibold text-app-fg transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] sm:w-auto sm:px-3.5"
+            aria-expanded={searchOpen}
+            aria-label={type === 'restaurants' ? 'Search restaurants' : 'Search events'}
+          >
+            <Search className="size-4 text-ember" strokeWidth={2.5} />
+            <span className="hidden sm:inline">Search</span>
+          </button>
           <CategoryChips
             items={quickChips[type].map((label) => ({ label }))}
             active={activeFilter}
