@@ -20,7 +20,7 @@ import {
 } from 'recharts'
 
 const CHART = {
-  accent: '#5B3FF0',
+  accent: '#1C3A64',
   grid: '#E8EAF2',
   tick: '#7A8296',
 } as const

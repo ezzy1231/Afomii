@@ -4,7 +4,6 @@ import { cn } from "@/lib/utils";
 
 export type CategoryOption = {
   label: string;
-  icon: string;
 };
 
 type CategoryPickerProps = {
@@ -41,19 +40,20 @@ export function CategoryPicker({
             aria-checked={active}
             onClick={() => onChange(opt.label)}
             className={cn(
-              "flex w-full items-center gap-3 rounded-lg border px-3.5 py-2.5 text-left text-sm transition-all active:scale-[0.99]",
+              "flex min-h-11 w-full items-center gap-3 rounded-lg border px-3.5 py-2 text-left text-sm transition-all active:scale-[0.99]",
               active
                 ? "border-ember/40 bg-ember/10 font-semibold text-app-fg"
                 : "border-transparent text-app-muted hover:bg-app-input hover:text-app-fg",
             )}
           >
             <span
+              aria-hidden="true"
               className={cn(
-                "flex size-8 shrink-0 items-center justify-center rounded-md text-base",
-                active ? "bg-ember/20" : "bg-app-input",
+                "flex size-8 shrink-0 items-center justify-center rounded-md font-display text-sm font-bold",
+                active ? "bg-ember text-on-accent" : "bg-app-input text-app-muted",
               )}
             >
-              {opt.icon}
+              {opt.label.charAt(0).toUpperCase()}
             </span>
             <span className="min-w-0 flex-1 truncate">{opt.label}</span>
             <span

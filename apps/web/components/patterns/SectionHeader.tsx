@@ -18,22 +18,18 @@ export function SectionHeader({
   className,
 }: SectionHeaderProps) {
   return (
-    <div className={cn("mb-5 flex items-end justify-between gap-4", className)}>
+    <div className={cn("mb-6 flex items-end justify-between gap-4 border-b border-app-border pb-4", className)}>
       <div className="min-w-0">
-        {eyebrow && (
-          <p className="eyebrow">{eyebrow}</p>
-        )}
-        <h2 className="mt-2 text-2xl font-bold tracking-tight text-app-fg sm:text-3xl">
-          {title}
-        </h2>
+        {eyebrow && <p className="eyebrow mb-2">{eyebrow}</p>}
+        <h2 className="text-2xl font-bold text-app-fg sm:text-[2rem] sm:leading-tight">{title}</h2>
       </div>
       {href && (
         <Link
           href={href}
-          className="glass-subtle inline-flex min-h-10 shrink-0 items-center gap-1.5 rounded-full px-4 py-1.5 text-sm font-semibold text-app-fg transition-all duration-200 hover:-translate-y-0.5 hover:shadow-glass active:translate-y-0"
+          className="group inline-flex min-h-11 shrink-0 items-center gap-1.5 rounded-lg px-2 text-sm font-semibold text-ember underline-offset-4 hover:underline"
         >
           {actionLabel}
-          <ArrowRight className="size-4 text-ember" strokeWidth={2.5} />
+          <ArrowRight className="size-4 transition-transform duration-200 group-hover:translate-x-0.5" strokeWidth={2.4} aria-hidden />
         </Link>
       )}
     </div>

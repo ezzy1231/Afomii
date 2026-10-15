@@ -577,7 +577,7 @@ export default function RidePlanner() {
               className={cn(
                 'flex w-full items-center justify-center gap-2 rounded-xl px-6 py-3 text-sm font-semibold transition-all duration-200',
                 canNavigate
-                  ? 'bg-gradient-to-br from-ember to-ember-deep text-on-accent shadow-[0_4px_16px_rgb(var(--ember-rgb)/0.35)] hover:-translate-y-0.5 hover:shadow-[0_6px_20px_rgb(var(--ember-rgb)/0.45)] active:translate-y-0 active:scale-[0.98]'
+                  ? 'bg-ember hover:bg-ember-deep text-on-accent hover:-translate-y-0.5 hover: active:translate-y-0 active:scale-[0.98]'
                   : 'cursor-not-allowed bg-app-input text-app-muted/60'
               )}
             >

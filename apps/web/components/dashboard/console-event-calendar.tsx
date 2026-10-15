@@ -195,7 +195,7 @@ export function ConsoleEventCalendar({
 
         <Link
           href={createHref}
-          className="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl bg-console-indigo px-4 text-[13px] font-semibold text-white shadow-[0_6px_16px_rgb(91_63_240/0.26)] transition-colors duration-200 hover:bg-console-indigo-deep"
+          className="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl bg-console-indigo px-4 text-[13px] font-semibold text-white shadow-[0_6px_16px_rgb(28_58_100/0.26)] transition-colors duration-200 hover:bg-console-indigo-deep"
         >
           <Plus className="size-4" strokeWidth={2.6} />
           {createLabel}

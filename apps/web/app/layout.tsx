@@ -6,7 +6,42 @@ import { Providers } from "./providers";
 import OAuthCodeCatcher from "@/components/OAuthCodeCatcher";
 import { getSiteUrl } from "@/lib/site";
 
-/* Self-hosted variable font — no external requests, works offline */
+/* Self-hosted variable fonts — no external requests, works offline.
+   "Evening Ledger" pairs Bricolage Grotesque (display) with Instrument Sans
+   (body). Space Grotesk is still loaded as --font-dashboard: the partner and
+   admin console pins its own type back to it in globals.css, so the
+   dashboards keep the exact typography they shipped with. */
+const bricolage = localFont({
+  src: [
+    {
+      path: "../public/fonts/bricolage-grotesque-var.woff2",
+      weight: "500 800",
+      style: "normal",
+    },
+  ],
+  variable: "--font-display",
+  display: "swap",
+  fallback: ["system-ui", "sans-serif"],
+});
+
+const instrumentSans = localFont({
+  src: [
+    {
+      path: "../public/fonts/instrument-sans-var.woff2",
+      weight: "400 700",
+      style: "normal",
+    },
+    {
+      path: "../public/fonts/instrument-sans-var-ext.woff2",
+      weight: "400 700",
+      style: "normal",
+    },
+  ],
+  variable: "--font-space",
+  display: "swap",
+  fallback: ["system-ui", "sans-serif"],
+});
+
 const spaceGrotesk = localFont({
   src: [
     {
@@ -15,7 +50,7 @@ const spaceGrotesk = localFont({
       style: "normal",
     },
   ],
-  variable: "--font-space",
+  variable: "--font-dashboard",
   display: "swap",
   fallback: ["system-ui", "sans-serif"],
 });
@@ -48,8 +83,8 @@ export const metadata: Metadata = {
    media query, so both are listed. */
 export const viewport: Viewport = {
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#FBF5F0" },
-    { media: "(prefers-color-scheme: dark)", color: "#06152D" },
+    { media: "(prefers-color-scheme: light)", color: "#FAF8F3" },
+    { media: "(prefers-color-scheme: dark)", color: "#0C101A" },
   ],
 };
 
@@ -61,7 +96,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${spaceGrotesk.variable} h-full antialiased`}
+      className={`${instrumentSans.variable} ${bricolage.variable} ${spaceGrotesk.variable} h-full antialiased`}
       suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col font-sans bg-app-bg text-app-fg">

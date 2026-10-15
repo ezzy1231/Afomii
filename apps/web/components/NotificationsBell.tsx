@@ -108,7 +108,7 @@ export default function NotificationsBell({ initialCount }: { initialCount: numb
       {open && (
         <div
           id="notifications-panel"
-          className="animate-pop-in absolute right-0 top-full z-50 mt-2 w-72 overflow-hidden rounded-2xl border border-white/50 bg-white/75 shadow-glass-strong backdrop-blur-2xl backdrop-saturate-150 dark:border-white/10 dark:bg-white/8"
+          className="animate-pop-in absolute right-0 top-full z-50 mt-2 w-72 overflow-hidden rounded-2xl border border-app-border bg-app-card shadow-elevate"
         >
           <div className="flex items-center justify-between border-b border-app-border px-4 py-3">
             <h3 className="text-xs font-extrabold uppercase tracking-wider text-app-fg">Notifications</h3>

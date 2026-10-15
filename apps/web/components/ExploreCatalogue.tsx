@@ -201,9 +201,15 @@ export default function ExploreCatalogue({
     })
   }, [items, query, activeFilter, selected, dateRange, sortDesc, type])
 
-  const featured = visibleItems[0]
-  const rest = visibleItems.slice(1, visible + 1)
-  const hasMore = visibleItems.length > visible + 1
+  // Promote the lead result to a hero card only when something can follow it.
+  // `rest` used to be `slice(1)`, so a catalogue holding exactly ONE listing
+  // rendered the hero and then an empty grid with no card and no empty state —
+  // with today's data that is what /restaurants and /events actually showed.
+  // A lone result now renders as an ordinary grid card.
+  const hasLead = visibleItems.length > 1
+  const featured = hasLead ? visibleItems[0] : null
+  const rest = hasLead ? visibleItems.slice(1, visible + 1) : visibleItems.slice(0, visible)
+  const hasMore = visibleItems.length > visible + (hasLead ? 1 : 0)
 
   function toggleFilter(groupKey: string, label: string) {
     setSelected((current) => {
@@ -220,10 +226,10 @@ export default function ExploreCatalogue({
   return (
     <section className="pb-24">
       {type === 'restaurants' ? (
-        <div className="mx-auto max-w-7xl px-4 pt-14 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-7xl px-4 pt-10 sm:px-6 sm:pt-14 lg:px-8">
           <p className="eyebrow">Dining guide</p>
           <div className="mt-3 flex flex-wrap items-center justify-between gap-4">
-            <h1 className="text-4xl font-bold leading-[1.05] tracking-tight text-app-fg sm:text-6xl">
+            <h1 className="max-w-3xl text-4xl font-extrabold leading-[1.0] tracking-[-0.04em] text-app-fg sm:text-6xl">
               Find a table worth remembering.
             </h1>
             <button
@@ -265,10 +271,10 @@ export default function ExploreCatalogue({
           )}
         </div>
       ) : (
-        <div className="mx-auto max-w-7xl px-4 pt-14 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-7xl px-4 pt-10 sm:px-6 sm:pt-14 lg:px-8">
           <p className="eyebrow">What’s on</p>
           <div className="mt-3 flex flex-wrap items-center justify-between gap-4">
-            <h1 className="text-4xl font-bold leading-[1.05] tracking-tight text-app-fg sm:text-6xl">
+            <h1 className="max-w-3xl text-4xl font-extrabold leading-[1.0] tracking-[-0.04em] text-app-fg sm:text-6xl">
               Your next great night out.
             </h1>
             <button
@@ -282,8 +288,8 @@ export default function ExploreCatalogue({
             </button>
           </div>
           <p className="mt-3 max-w-xl text-base leading-7 text-app-muted">
-            Discover and book premium experiences, from intimate jazz nights to grand
-            galas. Arrive in style with UrbanExplore.
+            Published events from verified organizers, with dates, venues and ticket prices.
+            Book, then plan the ride from My Plans.
           </p>
 
           <div className="mt-7 flex flex-wrap items-center gap-2">
@@ -319,7 +325,7 @@ export default function ExploreCatalogue({
                   className={cn(
                     'min-h-10 rounded-xl border px-3.5 py-2 text-xs font-semibold transition-all duration-200 active:scale-[0.97]',
                     dateRange === chip
-                      ? 'border-transparent bg-gradient-to-br from-ember to-ember-deep text-on-accent shadow-[0_2px_8px_rgb(var(--ember-rgb)/0.3)]'
+                      ? 'border-transparent bg-ember text-on-accent'
                       : 'border-app-border bg-app-card/70 text-app-muted hover:border-ember/25 hover:text-app-fg'
                   )}
                 >
@@ -363,7 +369,7 @@ export default function ExploreCatalogue({
             className={cn(
               'relative inline-flex shrink-0 items-center gap-1.5 rounded-xl border px-3.5 py-2 text-xs font-semibold transition-all duration-200 active:scale-[0.98]',
               filtersOpen || activeCount
-                ? 'border-transparent bg-gradient-to-br from-ember to-ember-deep text-on-accent shadow-[0_2px_8px_rgb(var(--ember-rgb)/0.3)]'
+                ? 'border-transparent bg-ember text-on-accent'
                 : 'glass-subtle border-app-border text-app-muted hover:-translate-y-0.5 hover:text-app-fg'
             )}
             aria-label="Filters"
@@ -371,7 +377,7 @@ export default function ExploreCatalogue({
             <SlidersHorizontal className="size-3.5" />
             Filters
             {activeCount > 0 && (
-              <span className="flex size-4 items-center justify-center rounded-full bg-white text-[9px] font-bold text-ember">
+              <span className="flex size-4 items-center justify-center rounded-full bg-on-accent text-[9px] font-bold text-ember">
                 {activeCount}
               </span>
             )}
@@ -394,7 +400,8 @@ export default function ExploreCatalogue({
             {type === 'restaurants' ? (
               <Link
                 href={`/restaurants/${featured.id}`}
-                className="group relative block min-h-[300px] overflow-hidden rounded-3xl shadow-glass transition-shadow duration-300 hover:shadow-glass-strong"
+                data-testid="featured-listing"
+                className="group relative block min-h-[300px] overflow-hidden rounded-2xl shadow-glass transition-shadow duration-300 hover:shadow-glass-strong"
               >
                 {featured.imageUrl ? (
                   <Image
@@ -406,13 +413,13 @@ export default function ExploreCatalogue({
                     className="object-cover transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.03]"
                   />
                 ) : (
-                  <div className="absolute inset-0 bg-gradient-to-br from-ember/50 to-ember-deep/95" />
+                  <div className="absolute inset-0 bg-app-elevated dot-grid" />
                 )}
                 <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(10,10,12,0.05)_25%,rgba(10,10,12,0.85))]" />
                 <span className="sticker sticker-amber absolute left-5 top-5 !rotate-0">
                   Top rated
                 </span>
-                <span className="absolute right-5 top-5 flex items-center gap-1 rounded-full bg-white/75 px-2.5 py-1 text-xs font-semibold text-app-fg shadow-soft backdrop-blur-md dark:bg-white/15 dark:text-white">
+                <span className="absolute right-5 top-5 flex items-center gap-1 rounded-full bg-[rgb(9_14_24/0.72)] px-2.5 py-1 text-xs font-semibold text-white">
                   <Star className="size-3 fill-ember text-ember" />
                   {featured.rating}
                 </span>
@@ -423,7 +430,7 @@ export default function ExploreCatalogue({
                       {featured.category} · {featured.detail} · {featured.location}
                     </p>
                   </div>
-                  <span className="rounded-xl bg-ember px-5 py-2.5 text-sm font-semibold text-on-accent shadow-[0_2px_12px_rgb(var(--ember-rgb)/0.45)] transition-transform duration-200 hover:-translate-y-0.5 group-hover:scale-[1.03]">
+                  <span className="rounded-xl bg-ember px-5 py-2.5 text-sm font-semibold text-on-accent transition-transform duration-200 hover:-translate-y-0.5 group-hover:scale-[1.03]">
                     Reserve Table
                   </span>
                 </div>
@@ -431,7 +438,8 @@ export default function ExploreCatalogue({
             ) : (
               <Link
                 href={`/events/${featured.id}`}
-                className="group relative block min-h-[300px] overflow-hidden rounded-3xl shadow-glass transition-shadow duration-300 hover:shadow-glass-strong"
+                data-testid="featured-listing"
+                className="group relative block min-h-[300px] overflow-hidden rounded-2xl shadow-glass transition-shadow duration-300 hover:shadow-glass-strong"
               >
                 {featured.imageUrl ? (
                   <Image
@@ -443,7 +451,7 @@ export default function ExploreCatalogue({
                     className="object-cover transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.03]"
                   />
                 ) : (
-                  <div className="absolute inset-0 bg-gradient-to-br from-ember/50 to-ember-deep/95" />
+                  <div className="absolute inset-0 bg-app-elevated dot-grid" />
                 )}
                 <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(10,10,12,0.3),rgba(10,10,12,0.9))]" />
                 <span className="absolute left-5 top-5 flex items-center gap-2">
@@ -475,7 +483,7 @@ export default function ExploreCatalogue({
                       {featured.rating}
                     </span>
                   </div>
-                  <span className="mt-4 inline-flex items-center gap-2 rounded-xl bg-ember px-5 py-2.5 text-sm font-semibold text-on-accent shadow-[0_2px_12px_rgb(var(--ember-rgb)/0.45)] transition-transform duration-200 group-hover:scale-[1.03]">
+                  <span className="mt-4 inline-flex items-center gap-2 rounded-xl bg-ember px-5 py-2.5 text-sm font-semibold text-on-accent transition-transform duration-200 group-hover:scale-[1.03]">
                     Book Experience
                     <ArrowRight className="size-4" strokeWidth={2.5} />
                   </span>
@@ -487,7 +495,7 @@ export default function ExploreCatalogue({
 
         {/* Grid */}
         {type === 'events' && rest.length > 0 && (
-          <h2 className="mb-5 mt-10 text-2xl font-bold text-app-fg">Upcoming Experiences</h2>
+          <h2 className="mb-5 mt-10 text-2xl font-bold text-app-fg">Upcoming Events</h2>
         )}
 
         <StaggerGroup
@@ -505,7 +513,7 @@ export default function ExploreCatalogue({
             if (type === 'events') {
               return (
                 <StaggerItem key={item.id} className="h-full">
-                  <article data-testid="listing-card" className="glass glass-hover group flex h-full flex-col overflow-hidden rounded-3xl">
+                  <article data-testid="listing-card" className="glass glass-hover group flex h-full flex-col overflow-hidden rounded-2xl">
                     <Link href={detailHref} className="relative block h-40">
                       {item.imageUrl ? (
                         <Image
@@ -516,8 +524,8 @@ export default function ExploreCatalogue({
                           className="object-cover transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.05]"
                         />
                       ) : (
-                        <div className="flex h-full items-center justify-center bg-gradient-to-br from-ember/50 to-ember-deep/90">
-                          <span className="text-4xl font-bold text-white">
+                        <div className="flex h-full items-center justify-center bg-app-elevated dot-grid">
+                          <span className="text-4xl font-bold font-display text-app-muted/60">
                             {item.name.charAt(0).toUpperCase()}
                           </span>
                         </div>
@@ -547,7 +555,7 @@ export default function ExploreCatalogue({
                         <span className="price-pill">{item.rating}</span>
                         <Link
                           href={detailHref}
-                          className="rounded-xl bg-ember px-4 py-2 text-xs font-semibold text-on-accent shadow-[0_2px_8px_rgb(var(--ember-rgb)/0.3)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_4px_12px_rgb(var(--ember-rgb)/0.4)] active:translate-y-0"
+                          className="rounded-xl bg-ember px-4 py-2 text-xs font-semibold text-on-accent transition-all duration-200 hover:-translate-y-0.5 hover: active:translate-y-0"
                         >
                           Book Tickets
                         </Link>
@@ -560,7 +568,7 @@ export default function ExploreCatalogue({
 
             return (
               <StaggerItem key={item.id} className="h-full">
-                <article data-testid="listing-card" className="glass glass-hover group flex h-full flex-col overflow-hidden rounded-3xl">
+                <article data-testid="listing-card" className="glass glass-hover group flex h-full flex-col overflow-hidden rounded-2xl">
                   <div className="relative h-40">
                     <Link href={detailHref} className="block h-full">
                       {item.imageUrl ? (
@@ -572,8 +580,8 @@ export default function ExploreCatalogue({
                           className="object-cover transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.05]"
                         />
                       ) : (
-                        <div className="flex h-full items-center justify-center bg-gradient-to-br from-ember/50 to-ember-deep/90">
-                          <span className="text-4xl font-bold text-white">
+                        <div className="flex h-full items-center justify-center bg-app-elevated dot-grid">
+                          <span className="text-4xl font-bold font-display text-app-muted/60">
                             {item.name.charAt(0).toUpperCase()}
                           </span>
                         </div>
@@ -586,10 +594,10 @@ export default function ExploreCatalogue({
                           isSaved ? current.filter((id) => id !== item.id) : [...current, item.id]
                         )
                       }
-                      className="absolute right-2 top-2 flex size-11 items-center justify-center rounded-full bg-white/70 text-app-fg shadow-soft backdrop-blur-md transition-transform hover:scale-105 active:scale-90 dark:bg-white/15"
+                      className="absolute right-2 top-2 flex size-11 items-center justify-center rounded-full border border-white/20 bg-[rgb(9_14_24/0.72)] text-white shadow-soft transition-transform hover:scale-105 active:scale-90"
                       aria-label={isSaved ? `Unsave ${item.name}` : `Save ${item.name}`}
                     >
-                      <Heart className={cn('size-4', isSaved && 'fill-danger text-danger')} />
+                      <Heart className={cn('size-4', isSaved && 'save-pop fill-signal text-signal')} />
                     </button>
                   </div>
                   <div className="flex flex-1 flex-col p-4">
@@ -630,7 +638,7 @@ export default function ExploreCatalogue({
               onClick={() => setVisible((v) => v + PAGE_SIZE)}
               className="glass glass-hover rounded-2xl px-8 py-3 text-xs font-semibold uppercase tracking-[0.14em] text-app-fg"
             >
-              Load More {type === 'restaurants' ? 'Experiences' : 'Events'}
+              Load More {type === 'restaurants' ? 'Restaurants' : 'Events'}
             </button>
           </div>
         )}

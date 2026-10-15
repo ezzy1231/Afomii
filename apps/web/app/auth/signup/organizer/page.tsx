@@ -16,17 +16,17 @@ import {
 import { ConsentCheckbox } from '@/components/auth/ConsentCheckbox'
 
 const CATEGORIES: CategoryOption[] = [
-  { label: 'Event Organizer', icon: '🎪' },
-  { label: 'Nightclub / Club', icon: '🪩' },
-  { label: 'Concert Organizer', icon: '🎤' },
-  { label: 'Festival Organizer', icon: '🎡' },
-  { label: 'Show Organizer', icon: '🎭' },
-  { label: 'Conference Organizer', icon: '🎙️' },
-  { label: 'Event Venue', icon: '🏟️' },
-  { label: 'Theater / Performing Arts', icon: '🎬' },
-  { label: 'Wedding Planner', icon: '💐' },
-  { label: 'Sports & Fitness', icon: '🏆' },
-  { label: 'Other', icon: '✨' },
+  { label: 'Event Organizer' },
+  { label: 'Nightclub / Club' },
+  { label: 'Concert Organizer' },
+  { label: 'Festival Organizer' },
+  { label: 'Show Organizer' },
+  { label: 'Conference Organizer' },
+  { label: 'Event Venue' },
+  { label: 'Theater / Performing Arts' },
+  { label: 'Wedding Planner' },
+  { label: 'Sports & Fitness' },
+  { label: 'Other' },
 ]
 
 interface FormData {

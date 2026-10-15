@@ -85,7 +85,7 @@ export default function OrganizerProfile({
             priority
           />
         ) : (
-          <div className="absolute inset-0 flex items-center justify-center bg-[linear-gradient(140deg,rgb(var(--ember-rgb)/0.35),rgb(var(--ink-rgb)/0.95))]">
+          <div className="absolute inset-0 flex items-center justify-center bg-[linear-gradient(140deg,rgb(var(--ember-rgb)/0.35),rgb(var(--ember-deep-rgb)/0.95))]">
             <span className="text-7xl font-bold text-white">
               {initials}
             </span>
@@ -111,7 +111,7 @@ export default function OrganizerProfile({
       <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_1.25fr]">
         {/* Identity */}
         <div className="lg:sticky lg:top-20 lg:self-start">
-          <div className="glass rounded-3xl p-5">
+          <div className="glass rounded-2xl p-5">
             <div className="flex items-center gap-4">
               <span className="flex size-16 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-app-border bg-app-input">
                 {organizer.logoUrl ? (
@@ -164,7 +164,7 @@ export default function OrganizerProfile({
         {nextEvent && (
           <Link
             href={`/events/${nextEvent.id}`}
-            className="group relative flex min-h-[16rem] flex-col justify-end overflow-hidden rounded-3xl border border-app-border shadow-glass-strong transition-all duration-200 hover:-translate-y-0.5"
+            className="group relative flex min-h-[16rem] flex-col justify-end overflow-hidden rounded-2xl border border-app-border shadow-glass-strong transition-all duration-200 hover:-translate-y-0.5"
           >
             {nextEvent.coverImageUrl ? (
               <Image
@@ -175,10 +175,10 @@ export default function OrganizerProfile({
                 className="object-cover"
               />
             ) : (
-              <div className="absolute inset-0 bg-[linear-gradient(140deg,rgba(215,183,120,0.3),rgba(11,29,49,0.95))]" />
+              <div className="absolute inset-0 bg-[linear-gradient(140deg,rgb(var(--ember-rgb)/0.35),rgb(15,44,33,0.95))]" />
             )}
             <div
-              className="absolute inset-0 bg-[linear-gradient(180deg,transparent_30%,rgba(11,31,58,0.82))]"
+              className="absolute inset-0 bg-[linear-gradient(180deg,transparent_30%,rgba(8,14,11,0.82))]"
               aria-hidden
             />
             <div className="relative p-5 sm:p-6">
@@ -198,7 +198,7 @@ export default function OrganizerProfile({
                   {nextEvent.venueName}
                 </span>
               </p>
-              <span className="mt-4 inline-flex items-center gap-2 rounded-2xl bg-gradient-to-br from-ember to-ember-deep px-5 py-3 text-sm font-semibold text-on-accent shadow-[0_2px_8px_rgb(var(--ember-rgb)/0.3)] transition-all duration-200 group-hover:scale-[1.02] group-active:scale-[0.98]">
+              <span className="mt-4 inline-flex items-center gap-2 rounded-2xl bg-ember hover:bg-ember-deep px-5 py-3 text-sm font-semibold text-on-accent transition-all duration-200 group-hover:scale-[1.02] group-active:scale-[0.98]">
                 {nextEvent.priceFrom != null
                   ? `Book from ETB ${nextEvent.priceFrom}`
                   : "Book now"}

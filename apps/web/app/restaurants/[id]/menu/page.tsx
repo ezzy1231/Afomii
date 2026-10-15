@@ -25,7 +25,7 @@ export default async function RestaurantMenuPage({ params }: Props) {
           Back to {restaurant.name}
         </Link>
 
-        <header className="mb-7 rounded-3xl border border-app-border bg-app-card p-6 shadow-card sm:p-8">
+        <header className="mb-7 rounded-2xl border border-app-border bg-app-card p-6 shadow-card sm:p-8">
           <div className="flex size-12 items-center justify-center rounded-2xl bg-ember/10 text-ember">
             <Utensils className="size-6" />
           </div>
@@ -38,7 +38,7 @@ export default async function RestaurantMenuPage({ params }: Props) {
             {branchesWithMenu.map((branch) => {
               const categories = [...new Set(branch.menuItems.map((item) => item.category))]
               return (
-                <section key={branch.id} className="rounded-3xl border border-app-border bg-app-card p-5 shadow-card sm:p-7">
+                <section key={branch.id} className="rounded-2xl border border-app-border bg-app-card p-5 shadow-card sm:p-7">
                   <div className="mb-5 border-b border-app-border pb-4">
                     <h2 className="text-xl font-bold text-app-fg">{branch.branchName}</h2>
                     {branch.address && (
@@ -72,7 +72,7 @@ export default async function RestaurantMenuPage({ params }: Props) {
             })}
           </div>
         ) : (
-          <div className="rounded-3xl border border-dashed border-app-border bg-app-card px-6 py-12 text-center">
+          <div className="rounded-2xl border border-dashed border-app-border bg-app-card px-6 py-12 text-center">
             <Utensils className="mx-auto size-8 text-app-muted" />
             <h2 className="mt-3 text-lg font-bold text-app-fg">Menu not available yet</h2>
             <p className="mt-1 text-sm text-app-muted">This restaurant has not added menu items for its branches.</p>

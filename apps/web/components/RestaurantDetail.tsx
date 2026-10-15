@@ -5,7 +5,6 @@ import {
   ArrowLeft,
   BadgeCheck,
   Bookmark,
-  CalendarPlus,
   CarFront,
   Check,
   Clock3,
@@ -15,6 +14,7 @@ import {
   Share2,
   Star,
   Utensils,
+  ChevronRight,
 } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -46,340 +46,213 @@ export default function RestaurantDetail({ restaurant }: { restaurant: Restauran
   const initial = restaurant.name.charAt(0).toUpperCase()
   // JS getDay(): 0=Sunday … 6=Saturday → our keys are 'mon'-first
   const todayKey = (['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'] as const)[new Date().getDay()]
+  const rideHref = `/ride?to=${encodeURIComponent(restaurant.name)}${branch?.latitude != null && branch?.longitude != null ? `&lat=${branch.latitude}&lng=${branch.longitude}` : ''}`
+  const todayRange = restaurant.openingHours?.[todayKey as (typeof WEEK_DAYS)[number]]?.[0]
+  const hasHours = Boolean(restaurant.openingHours && Object.keys(restaurant.openingHours).length > 0)
+  const ratingIsScore = restaurant.rating != null && !Number.isNaN(Number(restaurant.rating))
+  const share = () => {
+    sharePage(restaurant.name, `/restaurants/${restaurant.id}`).then((r) => {
+      if (r === 'copied') {
+        setShareStatus('copied')
+        window.setTimeout(() => setShareStatus('idle'), 2000)
+      }
+    })
+  }
 
   return (
-    <div className="mx-auto max-w-7xl px-4 pb-28 pt-5 sm:px-6 lg:px-8">
-      <Link
-        href="/restaurants"
-        className="mb-4 inline-flex items-center gap-2 glass-subtle rounded-xl px-3.5 py-2 text-xs font-semibold uppercase tracking-wider text-app-fg transition-all duration-200 hover:-translate-y-0.5 hover:shadow-glass active:translate-y-0 active:scale-[0.98]"
-      >
-        <ArrowLeft className="size-4 text-ember" strokeWidth={2.5} />
-        Back to restaurants
-      </Link>
+    <div className="mx-auto max-w-7xl px-4 pb-32 pt-5 sm:px-6 sm:pb-20 lg:px-8">
+      <nav aria-label="Breadcrumb" className="flex items-center gap-1 text-sm text-app-muted">
+        <Link href="/restaurants" className="inline-flex min-h-11 items-center gap-1.5 font-medium underline-offset-4 hover:text-app-fg hover:underline">
+          <ArrowLeft className="size-4" strokeWidth={2.2} aria-hidden />
+          Restaurants
+        </Link>
+        <ChevronRight className="size-3.5" aria-hidden />
+        <span className="truncate text-app-fg" aria-current="page">{restaurant.name}</span>
+      </nav>
 
-      {/* Hero */}
-      <div className="relative h-64 overflow-hidden rounded-3xl shadow-glass-strong sm:h-[380px]">
-        {restaurant.coverUrl ? (
-          <Image
-            src={restaurant.coverUrl}
-            alt={restaurant.name}
-            fill
-            sizes="(max-width: 1280px) 100vw, 1280px"
-            className="object-cover"
-            priority
-          />
-        ) : (
-          <div className="absolute inset-0 flex items-center justify-center bg-[linear-gradient(140deg,rgb(var(--amber-rgb)/0.5),rgb(var(--ember-deep-rgb)/0.95))]">
-            <span className="text-6xl font-bold text-white">{initial}</span>
-          </div>
-        )}
-        <div className="absolute inset-0 bg-[linear-gradient(180deg,transparent_55%,rgba(15,13,11,0.5))]" aria-hidden />
-        <div className="absolute right-4 top-4 flex gap-2">
-          <button
-            type="button"
-            aria-label="Share"
-            onClick={() => {
-              sharePage(restaurant.name, `/restaurants/${restaurant.id}`).then(
-                (r) => {
-                  if (r === 'copied') {
-                    setShareStatus('copied')
-                    window.setTimeout(() => setShareStatus('idle'), 2000)
-                  }
-                },
-              )
-            }}
-            className="flex size-11 items-center justify-center rounded-full border border-app-border bg-app-card text-app-fg transition-transform hover:-translate-y-0.5 hover:scale-105 active:scale-90"
-          >
-            {shareStatus === 'copied' ? <Check className="size-4" strokeWidth={2.5} /> : <Share2 className="size-4" strokeWidth={2.5} />}
-          </button>
-          <button
-            type="button"
-            aria-label="Save"
-            onClick={toggleSaved}
-              className={cn(
-                'flex size-11 items-center justify-center rounded-full border border-app-border transition-transform hover:-translate-y-0.5 hover:scale-105 active:scale-90',
-                saved ? 'bg-ember text-on-accent' : 'bg-app-card text-app-fg'
-              )}
-          >
-            <Bookmark className={cn('size-4', saved && 'fill-current')} strokeWidth={2.5} />
-          </button>
-        </div>
-      </div>
-
-      {/* Identity card overlapping hero */}
-      <div className="relative z-10 mx-auto -mt-14 max-w-3xl px-4 sm:px-0">
-        <div className="glass rounded-3xl p-5">
-          <div className="flex flex-wrap items-start justify-between gap-4">
-            <div className="flex items-center gap-4">
-              <span className="flex size-14 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-app-border bg-app-input">
-                {restaurant.logoUrl ? (
-                  <Image src={restaurant.logoUrl} alt={restaurant.name} width={56} height={56} className="size-full object-cover" />
-                ) : (
-                  <span className="text-2xl font-bold text-ember">{initial}</span>
-                )}
-              </span>
-              <div>
-                <h1 className="text-2xl font-bold tracking-tight text-app-fg sm:text-3xl">{restaurant.name}</h1>
-                <p className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-sm text-app-muted">
-                  <span className="flex items-center gap-1">
-                    <Star className="size-4 fill-ember text-ember" />
-                    <span className="font-bold text-app-fg">{restaurant.rating ?? 'New'}</span>
-                  </span>
-                  {restaurant.category && <>
-                    <span aria-hidden>·</span>
-                    <span className="font-medium capitalize">{restaurant.category}</span>
-                  </>}
-                </p>
-              </div>
-            </div>
-            {restaurant.isVerified && (
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-success/10 px-3 py-1.5 text-xs font-semibold text-success">
-                <BadgeCheck className="size-4" />
-                Verified
-              </span>
+      {/* Identity */}
+      <header className="mt-3 flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+        <div className="flex min-w-0 items-start gap-4">
+          <span className="flex size-16 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-app-border bg-app-card">
+            {restaurant.logoUrl ? (
+              <Image src={restaurant.logoUrl} alt="" width={64} height={64} className="size-full object-cover" />
+            ) : (
+              <span aria-hidden className="font-display text-2xl font-bold text-ember">{initial}</span>
             )}
-          </div>
-
-          <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-app-border pt-4">
-            <div className="flex min-w-0 flex-wrap items-center gap-x-4 gap-y-2 text-sm font-medium text-app-muted">
-              <p className="flex min-w-0 items-center gap-2">
-                <MapPin className="size-4 shrink-0 text-ember" strokeWidth={2.5} />
-                <span className="truncate">{branch?.address || 'Location not provided'}</span>
-              </p>
-              {/* branches.phone has been selected in every restaurant detail
-                  query since it was written and rendered nowhere. */}
-              {branch?.phone && (
-                <a
-                  href={`tel:${branch.phone.replace(/[^\d+]/g, '')}`}
-                  className="flex items-center gap-2 transition-colors hover:text-ember focus-visible:text-ember"
-                >
-                  <Phone className="size-4 shrink-0 text-ember" strokeWidth={2.5} />
-                  <span className="tabular-nums">{branch.phone}</span>
-                </a>
+          </span>
+          <div className="min-w-0">
+            {restaurant.category && <p className="text-xs font-semibold uppercase tracking-[0.08em] text-gold-text">{restaurant.category}</p>}
+            <h1 className="mt-1 text-4xl font-extrabold leading-[1.02] tracking-[-0.04em] text-app-fg sm:text-5xl">{restaurant.name}</h1>
+            <p className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-sm text-app-muted">
+              <span className="inline-flex items-center gap-1">
+                {ratingIsScore && <Star className="size-4 fill-signal text-signal" aria-hidden />}
+                <span className="font-semibold text-app-fg">{ratingIsScore ? `Rated ${restaurant.rating}` : 'New on UrbanExplore'}</span>
+              </span>
+              {restaurant.isVerified && (
+                <span className="trust-pill"><BadgeCheck className="size-3.5" aria-hidden />Verified partner</span>
               )}
-            </div>
-            <Link
-              href={`/ride?to=${encodeURIComponent(restaurant.name)}${branch?.latitude != null && branch?.longitude != null ? `&lat=${branch.latitude}&lng=${branch.longitude}` : ''}`}
-              className="inline-flex items-center gap-1.5 glass-subtle rounded-xl px-4 py-2 text-sm font-semibold text-app-fg transition-all duration-200 hover:-translate-y-0.5 hover:shadow-glass active:translate-y-0 active:scale-[0.98]"
-            >
-              <Navigation className="size-4 text-ember" strokeWidth={2.5} />
-              Directions
-            </Link>
+              {restaurant.branches.length > 1 && <span>{restaurant.branches.length} locations</span>}
+            </p>
           </div>
         </div>
-      </div>
+        <div className="flex flex-wrap gap-2">
+          <Link href={`/restaurants/${restaurant.id}/menu`} className="btn-primary">
+            <Utensils className="size-4" aria-hidden />View Menu
+          </Link>
+          <Link href={rideHref} className="btn-secondary">
+            <Navigation className="size-4" aria-hidden />Directions
+          </Link>
+          <button type="button" aria-label="Share" onClick={share} className="btn-secondary !px-3">
+            {shareStatus === 'copied' ? <Check className="size-4" aria-hidden /> : <Share2 className="size-4" aria-hidden />}
+            <span aria-live="polite" className="text-sm">{shareStatus === 'copied' ? 'Link copied' : ''}</span>
+          </button>
+          <button type="button" aria-label="Save" aria-pressed={saved} onClick={toggleSaved} className={cn('btn-secondary !px-3', saved && '!border-ember !bg-ember-soft')}>
+            <Bookmark className={cn('size-4', saved && 'save-pop fill-current text-ember')} aria-hidden />
+          </button>
+        </div>
+      </header>
 
-      {/* Quick actions */}
-      <div className="mx-auto mt-5 grid max-w-3xl grid-cols-3 gap-3 px-4 sm:px-0">
-        {[
-          { label: 'View Menu', icon: Utensils, href: `/restaurants/${restaurant.id}/menu` },
-          { label: 'Reserve', icon: CalendarPlus, href: '#reserve' },
-          { label: 'Save', icon: Bookmark, active: saved },
-        ].map(({ label, icon: Icon, href, active }) =>
-          href ? (
-            <Link
-              key={label}
-              href={href}
-              className={cn(
-                'glass glass-hover flex flex-col items-center gap-1.5 rounded-2xl py-4 text-xs font-semibold text-app-fg',
-                label === 'View Menu' && 'border-ember bg-ember text-on-accent shadow-[0_2px_8px_rgb(var(--ember-rgb)/0.3)]'
-              )}
-            >
-              <Icon className={cn('size-5', label === 'View Menu' ? 'text-on-accent' : 'text-ember')} strokeWidth={2.5} />
-              {label}
-            </Link>
-          ) : (
-            <button
-              key={label}
-              type="button"
-              onClick={toggleSaved}
-              className={cn(
-                'glass glass-hover flex flex-col items-center gap-1.5 rounded-2xl py-4 text-xs font-semibold',
-                active ? 'bg-ember text-on-accent' : 'text-app-fg'
-              )}
-            >
-              <Icon className={cn('size-5', active ? 'fill-current text-white' : 'text-ember')} strokeWidth={2.5} />
-              {label}
-            </button>
-          )
+      {/* Photo */}
+      <div className="relative mt-6 aspect-[16/10] overflow-hidden rounded-2xl border border-app-border bg-app-elevated sm:aspect-[21/9]">
+        {restaurant.coverUrl ? (
+          <Image src={restaurant.coverUrl} alt={restaurant.name} fill sizes="(max-width: 1280px) 100vw, 1280px" className="object-cover" priority />
+        ) : (
+          <div aria-hidden className="dot-grid absolute inset-0 flex items-center justify-center">
+            <span className="font-display text-8xl font-bold text-app-muted/40">{initial}</span>
+          </div>
         )}
       </div>
 
-      {/* Branches strip */}
-      {restaurant.branches.length > 1 && (
-        <div
-          className="mx-auto mt-5 flex max-w-3xl gap-3 overflow-x-auto px-4 pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:px-0"
-          role="group"
-          aria-label="Choose a location"
-        >
-          {restaurant.branches.map((b) => {
-            const isSelected = selectedBranch === b.id
-            // Two branches of the same venue often share a name ("Bole"), and
-            // the strip used to show name + address only — so the cards came out
-            // identical and the only difference was which one was orange.
-            // Number them in listing order and say what selecting does.
-            const position = restaurant.branches.findIndex((x) => x.id === b.id) + 1
-            return (
-              <button
-                key={b.id}
-                type="button"
-                aria-pressed={isSelected}
-                onClick={() => setSelectedBranch(b.id)}
-                className={cn(
-                  'glass glass-hover flex w-60 shrink-0 items-center gap-3 rounded-2xl p-3 text-left transition-all duration-200',
-                  isSelected && 'border-ember bg-ember text-on-accent shadow-[0_2px_8px_rgb(var(--ember-rgb)/0.3)]'
-                )}
-              >
-                <span
-                  aria-hidden
-                  className={cn(
-                    'flex size-7 shrink-0 items-center justify-center rounded-full text-xs font-bold',
-                    isSelected ? 'bg-white/20 text-white' : 'bg-ember/12 text-ember'
-                  )}
-                >
-                  {isSelected ? <Check className="size-3.5" strokeWidth={3} /> : position}
-                </span>
-                <span className="min-w-0">
-                  <span
-                    className={cn(
-                      'block truncate text-sm font-semibold',
-                      isSelected ? 'text-white' : 'text-app-fg'
-                    )}
-                  >
-                    {b.branchName}
-                  </span>
-                  <span
-                    className={cn(
-                      'block truncate text-xs font-medium',
-                      isSelected ? 'text-white/80' : 'text-app-muted'
-                    )}
-                  >
-                    {b.address || 'Address not provided'}
-                  </span>
-                </span>
-              </button>
-            )
-          })}
-        </div>
-      )}
-
-      {/* Main grid */}
-      <div className="mx-auto mt-6 grid max-w-5xl gap-6 lg:grid-cols-[1.6fr_1fr]">
-        {/* Left */}
-        <div>
-          {/* Restaurant supplied details */}
-          <div className="grid gap-4">
-            <div className="rounded-2xl border border-app-border bg-app-card p-5 shadow-card">
-              <h3 className="text-lg font-bold text-app-fg">About {restaurant.name}</h3>
-              <p className="mt-2 text-sm leading-6 text-app-muted">
-                {restaurant.description || 'Restaurant details have not been added yet.'}
-              </p>
-              {restaurant.category && <div className="mt-3 flex flex-wrap gap-2">
-                <span className="sticker sticker-ember !rotate-0 !py-1 !text-[10px]">
-                  {restaurant.category}
-                </span>
-              </div>}
-
-              {/* Per-day opening hours with today highlighted (Stitch artboard pattern) */}
-              <div className="mt-5 flex gap-3">
-                <Clock3 className="mt-0.5 size-4 shrink-0 text-ember" strokeWidth={2.5} />
-                <div className="min-w-0 flex-1">
-                  <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-app-fg">
-                    OPENING HOURS
-                  </p>
-                  {restaurant.openingHours && Object.keys(restaurant.openingHours).length > 0 ? (
-                    <table className="mt-1.5 w-full max-w-[260px] text-sm">
-                      <tbody>
-                        {WEEK_DAYS.map((day) => {
-                          const range = restaurant.openingHours?.[day]?.[0]
-                          const isToday = day === todayKey
-                          return (
-                            <tr
-                              key={day}
-                              className={cn(isToday && '-mx-2 rounded-lg border border-app-border bg-ember/12')}
-                            >
-                              <td
-                                className={cn(
-                                  'py-1 pl-2 pr-3 text-left',
-                                  isToday ? 'font-bold text-app-fg' : 'text-app-muted'
-                                )}
-                              >
-                                {DAY_SHORT[day]}
-                                {isToday && <span className="sr-only"> (today)</span>}
-                              </td>
-                              <td
-                                className={cn(
-                                  'py-1 pr-2 text-right tabular-nums',
-                                  isToday ? 'font-bold text-app-fg' : 'text-app-muted'
-                                )}
-                              >
-                                {range ? `${range.open} – ${range.close}` : 'Closed'}
-                              </td>
-                            </tr>
-                          )
-                        })}
-                      </tbody>
-                    </table>
-                  ) : (
-                    <p className="mt-0.5 text-sm text-app-muted">Opening hours not provided.</p>
-                  )}
-                </div>
+      <div className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,1fr)_400px] lg:gap-12">
+        <div className="min-w-0 space-y-8">
+          {/* Branch chooser */}
+          {restaurant.branches.length > 1 && (
+            <section aria-labelledby="branches-h">
+              <h2 id="branches-h" className="text-lg font-bold text-app-fg">Choose a location</h2>
+              <p className="mt-0.5 text-sm text-app-muted">Your reservation and directions follow the selected location.</p>
+              <div className="mt-3 grid gap-2 sm:grid-cols-2" role="group" aria-label="Choose a location">
+                {restaurant.branches.map((b, idx) => {
+                  const isSelected = selectedBranch === b.id
+                  return (
+                    <button
+                      key={b.id}
+                      type="button"
+                      aria-pressed={isSelected}
+                      onClick={() => setSelectedBranch(b.id)}
+                      className={cn(
+                        'flex min-h-11 items-center gap-3 rounded-xl border p-3 text-left transition-colors',
+                        isSelected ? 'border-ember bg-ember-soft' : 'border-app-border bg-app-card hover:border-app-muted/50'
+                      )}
+                    >
+                      <span aria-hidden className={cn('flex size-7 shrink-0 items-center justify-center rounded-full text-xs font-bold', isSelected ? 'bg-ember text-on-accent' : 'bg-app-alt text-app-muted')}>
+                        {isSelected ? <Check className="size-3.5" strokeWidth={3} /> : idx + 1}
+                      </span>
+                      <span className="min-w-0">
+                        <span className="block truncate text-sm font-semibold text-app-fg">{b.branchName}</span>
+                        <span className="block truncate text-xs text-app-muted">{b.address || 'Address not provided'}</span>
+                      </span>
+                    </button>
+                  )
+                })}
               </div>
-            </div>
-          </div>
+            </section>
+          )}
 
+          {/* At a glance */}
+          <section aria-labelledby="glance-h" className="overflow-hidden rounded-2xl border border-app-border bg-app-card">
+            <h2 id="glance-h" className="sr-only">At a glance</h2>
+            <dl className="grid divide-y divide-app-border sm:grid-cols-3 sm:divide-x sm:divide-y-0">
+              <div className="p-4 sm:p-5">
+                <dt className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-[0.08em] text-app-muted"><MapPin className="size-3.5" aria-hidden />Address</dt>
+                <dd className="mt-1.5 text-sm font-medium text-app-fg">{branch?.address || 'Location not provided'}</dd>
+              </div>
+              <div className="p-4 sm:p-5">
+                <dt className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-[0.08em] text-app-muted"><Clock3 className="size-3.5" aria-hidden />Today</dt>
+                <dd className="mt-1.5 text-sm font-medium tabular-nums text-app-fg">{!hasHours ? 'Hours not provided' : todayRange ? `${todayRange.open} – ${todayRange.close}` : 'Closed today'}</dd>
+              </div>
+              <div className="p-4 sm:p-5">
+                <dt className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-[0.08em] text-app-muted"><Phone className="size-3.5" aria-hidden />Phone</dt>
+                <dd className="mt-1.5 text-sm font-medium text-app-fg">
+                  {branch?.phone ? (
+                    <a href={`tel:${branch.phone.replace(/[^\d+]/g, '')}`} className="tabular-nums text-ember underline-offset-4 hover:underline">{branch.phone}</a>
+                  ) : 'Not provided'}
+                </dd>
+              </div>
+            </dl>
+          </section>
+
+          <section aria-labelledby="about-h">
+            <h2 id="about-h" className="text-2xl font-bold text-app-fg">About {restaurant.name}</h2>
+            <p className="mt-3 max-w-2xl text-base leading-7 text-app-muted">
+              {restaurant.description || 'Restaurant details have not been added yet.'}
+            </p>
+          </section>
+
+          <section aria-labelledby="hours-h">
+            <h2 id="hours-h" className="text-2xl font-bold text-app-fg">Opening hours</h2>
+            {hasHours ? (
+              <table className="mt-3 w-full max-w-md text-sm">
+                <tbody className="divide-y divide-app-border border-y border-app-border">
+                  {WEEK_DAYS.map((day) => {
+                    const range = restaurant.openingHours?.[day]?.[0]
+                    const isToday = day === todayKey
+                    return (
+                      <tr key={day} className={cn(isToday && 'bg-ember-soft')}>
+                        <th scope="row" className={cn('py-2.5 pl-3 text-left font-medium', isToday ? 'font-bold text-app-fg' : 'text-app-muted')}>
+                          {DAY_SHORT[day]}
+                          {isToday && <span className="ml-2 text-xs font-semibold text-ember">Today</span>}
+                        </th>
+                        <td className={cn('py-2.5 pr-3 text-right tabular-nums', isToday ? 'font-bold text-app-fg' : 'text-app-muted')}>
+                          {range ? `${range.open} – ${range.close}` : 'Closed'}
+                        </td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            ) : (
+              <p className="mt-2 text-sm text-app-muted">Opening hours not provided.</p>
+            )}
+          </section>
+
+          <Link href={`/restaurants/${restaurant.id}/menu`} className="glass glass-hover group flex items-center gap-4 rounded-2xl p-5">
+            <span className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-ember-soft text-ember"><Utensils className="size-5" aria-hidden /></span>
+            <span className="min-w-0 flex-1">
+              <span className="block font-semibold text-app-fg">See the full menu</span>
+              <span className="block text-sm text-app-muted">Dishes and prices published by the restaurant.</span>
+            </span>
+            <ChevronRight className="size-5 text-app-muted transition-transform group-hover:translate-x-0.5" aria-hidden />
+          </Link>
         </div>
 
-        {/* Right — reserve + ride */}
-        <div>
-          <div className="lg:sticky lg:top-20">
+        {/* Booking column */}
+        <aside aria-label="Reserve and get there">
+          <div className="space-y-4 lg:sticky lg:top-24">
             <div id="reserve" className="scroll-mt-24">
               {branch ? (
                 <ReservationForm restaurant={restaurant} branch={branch} key={branch.id} />
               ) : (
-                <div className="rounded-2xl border border-app-border bg-app-card p-5 text-sm text-app-muted shadow-card">
+                <div className="rounded-2xl border border-dashed border-app-border bg-app-alt p-5 text-sm text-app-muted">
                   This venue hasn&apos;t added booking locations yet — check back soon.
                 </div>
               )}
             </div>
 
-            {/* Ride card */}
-            <div className="mt-4 overflow-hidden glass rounded-2xl">
-              <div className="dot-grid flex h-32 items-center justify-center border-b-[1.5px] border-app-border bg-app-input">
-                <span className="flex items-center gap-2 text-sm font-bold text-app-muted">
-                  <MapPin className="size-5 text-ember" strokeWidth={2.5} />
-                  {branch?.address || 'Location not provided'}
-                </span>
-              </div>
-              <div className="p-4">
-                <p className="text-base font-bold text-app-fg">Getting there</p>
-                <p className="mt-0.5 text-xs font-medium text-app-muted">
-                  Compare rides and arrive on time.
-                </p>
-                <div className="mt-3 grid grid-cols-2 gap-2">
-                  <Link
-                    href={`/ride?to=${encodeURIComponent(restaurant.name)}${branch?.latitude != null && branch?.longitude != null ? `&lat=${branch.latitude}&lng=${branch.longitude}` : ''}`}
-                    className="flex items-center justify-center gap-1.5 rounded-xl bg-gradient-to-br from-ember to-ember-deep py-2.5 text-xs font-semibold uppercase tracking-wider text-on-accent shadow-[0_2px_8px_rgb(var(--ember-rgb)/0.3)] transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98]"
-                  >
-                    <Navigation className="size-3.5" strokeWidth={2.5} />
-                    Go
-                  </Link>
-                  <Link
-                    href={`/ride?to=${encodeURIComponent(restaurant.name)}${branch?.latitude != null && branch?.longitude != null ? `&lat=${branch.latitude}&lng=${branch.longitude}` : ''}`}
-                    className="glass-subtle flex items-center justify-center gap-1.5 rounded-xl py-2.5 text-xs font-semibold uppercase tracking-wider text-app-fg transition-all duration-200 hover:-translate-y-0.5 hover:shadow-glass active:translate-y-0 active:scale-[0.98]"
-                  >
-                    <CarFront className="size-3.5 text-ember" strokeWidth={2.5} />
-                    Book Ride
-                  </Link>
+            <div className="rounded-2xl border border-app-border bg-app-card p-5">
+              <div className="flex items-start gap-3">
+                <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-ember-soft text-ember"><CarFront className="size-5" aria-hidden /></span>
+                <div className="min-w-0">
+                  <p className="font-semibold text-app-fg">Getting there</p>
+                  <p className="mt-0.5 truncate text-sm text-app-muted">{branch?.address || 'Location not provided'}</p>
                 </div>
-                <p className="mt-3 flex items-center gap-1.5 text-xs font-medium text-app-muted">
-                  <Check className="size-3.5 text-success" strokeWidth={2.5} />
-                  Instant confirmation · No prepayment
-                </p>
               </div>
+              <Link href={rideHref} className="btn-secondary mt-4 w-full">
+                <Navigation className="size-4" aria-hidden />
+                Estimate a ride here
+              </Link>
             </div>
           </div>
-        </div>
+        </aside>
       </div>
 
       {/* Mobile thumb-zone CTA: reserve + ride (desktop has the sticky panel) */}
@@ -390,7 +263,7 @@ export default function RestaurantDetail({ restaurant }: { restaurant: Restauran
           onClick: () =>
             document.getElementById('reserve')?.scrollIntoView({ behavior: 'smooth' }),
         }}
-        secondary={{ label: 'Go by Ride', href: `/ride?to=${encodeURIComponent(restaurant.name)}${branch?.latitude != null && branch?.longitude != null ? `&lat=${branch.latitude}&lng=${branch.longitude}` : ''}` }}
+        secondary={{ label: 'Go by Ride', href: rideHref }}
       />
     </div>
   )

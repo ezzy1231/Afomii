@@ -10,26 +10,49 @@ import { expect, test } from '@playwright/test'
 test.describe('Public pages render', () => {
   test('home renders hero and catalogue sections', async ({ page }) => {
     await page.goto('/')
-    await expect(page.getByRole('heading', { level: 1 })).toContainText(/find a place/i)
+    // Assert the structural contract, not the hero wording: the headline is
+    // editorial copy that gets rewritten by design work (the "Evening Ledger"
+    // redesign replaced "Find a place you'll…" with "Dinner, a show, and the
+    // ride there."). Pinning prose here makes every reskin look like a failure.
+    const h1 = page.getByRole('heading', { level: 1 })
+    await expect(h1).toBeVisible()
+    await expect(h1).not.toHaveText(/^\s*$/)
     // No sample-data badge in production builds; page must not be empty.
     await expect(page.locator('main')).toBeVisible()
   })
 
-  test('restaurants catalogue renders listing cards or an empty state', async ({ page }) => {
+  test('restaurants catalogue renders a listing, the featured hero, or an empty state', async ({
+    page,
+  }) => {
     await page.goto('/restaurants')
-    // Exactly one of the two must be visible, so a blank catalogue cannot
+    // Exactly one of the three must be visible, so a blank catalogue cannot
     // pass by asserting nothing. Assert the hook, not the copy: the empty
     // title is dynamic ("Nothing matches these filters" vs "No results for
     // ..."), and a prose match rots silently whenever either is reworded.
+    //
+    // `featured-listing` is the hero card carrying the first result. It is a
+    // separate hook because the grid only maps items from index 1 onward, so a
+    // catalogue holding exactly ONE listing renders the hero and no grid row —
+    // a legitimate state that previously matched neither of the other hooks.
     await expect(
-      page.locator('[data-testid="listing-card"]').or(page.getByTestId('empty-state')).first(),
+      page
+        .locator(
+          '[data-testid="listing-card"], [data-testid="featured-listing"], [data-testid="empty-state"]',
+        )
+        .first(),
     ).toBeVisible()
   })
 
-  test('events catalogue renders listing cards or an empty state', async ({ page }) => {
+  test('events catalogue renders a listing, the featured hero, or an empty state', async ({
+    page,
+  }) => {
     await page.goto('/events')
     await expect(
-      page.locator('[data-testid="listing-card"]').or(page.getByTestId('empty-state')).first(),
+      page
+        .locator(
+          '[data-testid="listing-card"], [data-testid="featured-listing"], [data-testid="empty-state"]',
+        )
+        .first(),
     ).toBeVisible()
   })
 

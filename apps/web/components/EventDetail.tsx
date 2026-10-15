@@ -163,9 +163,9 @@ export default function EventDetail({ event }: { event: Event }) {
         </Link>
 
         <div className="mx-auto max-w-sm">
-          <div className="relative overflow-hidden rounded-2xl border border-app-border bg-ink p-8 text-center shadow-elevate animate-pop-in">
-            <div className="absolute inset-x-0 top-0 h-2 bg-ember" aria-hidden />
-            <div className="mx-auto mb-4 flex size-14 items-center justify-center rounded-full border border-app-border bg-ember text-on-accent">
+          <div className="relative overflow-hidden rounded-2xl border border-app-border bg-[rgb(14_24_41)] p-8 text-center shadow-elevate animate-pop-in">
+            <div className="absolute inset-x-0 top-0 h-1.5 bg-signal" aria-hidden />
+            <div className="mx-auto mb-4 flex size-14 items-center justify-center rounded-full bg-[rgb(250_248_243)] text-[rgb(14_24_41)]">
               <Check className="size-7" strokeWidth={2.5} />
             </div>
             <h1 className="text-3xl font-bold text-white">You&apos;re going!</h1>
@@ -178,7 +178,7 @@ export default function EventDetail({ event }: { event: Event }) {
               <span className="absolute -right-4 top-1/2 size-6 -translate-y-1/2 rounded-full border border-app-border bg-app-bg" aria-hidden />
             </div>
 
-            <div className="text-xs font-semibold uppercase tracking-[0.22em] text-ember">
+            <div className="text-xs font-semibold uppercase tracking-[0.16em] text-[rgb(250_248_243/0.75)]">
               Ticket code — show at the door
             </div>
             <div className="mt-2 rounded-xl border border-white/25 bg-white/10 p-4 font-mono text-xl font-bold tracking-wider text-white">
@@ -192,13 +192,13 @@ export default function EventDetail({ event }: { event: Event }) {
             <div className="mt-6 flex flex-col gap-3">
               <Link
                 href="/settings"
-                className="rounded-xl bg-gradient-to-br from-ember to-ember-deep px-5 py-3 text-sm font-semibold text-on-accent shadow-[0_2px_8px_rgb(var(--ember-rgb)/0.3)] transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98]"
+                className="rounded-xl bg-[rgb(250_248_243)] text-[rgb(14_24_41)] px-5 py-3 text-sm font-semibold transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98]"
               >
                 View my tickets
               </Link>
               <Link
                 href="/events"
-                className="rounded-xl border border-white/30 bg-white/10 px-5 py-3 text-sm font-semibold text-white backdrop-blur-md transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98]"
+                className="rounded-xl border border-white/30 bg-white/10 px-5 py-3 text-sm font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98]"
               >
                 Browse more events
               </Link>
@@ -250,7 +250,7 @@ export default function EventDetail({ event }: { event: Event }) {
       <div className="grid gap-6 lg:grid-cols-[1.55fr_1fr]">
         {/* Left column */}
         <div>
-          <div className="relative h-72 overflow-hidden rounded-3xl shadow-glass-strong sm:h-[420px]">
+          <div className="relative h-72 overflow-hidden rounded-2xl shadow-glass-strong sm:h-[420px]">
             {event.coverImageUrl ? (
               <Image
                 src={event.coverImageUrl}
@@ -261,7 +261,7 @@ export default function EventDetail({ event }: { event: Event }) {
                 priority
               />
             ) : (
-              <div className="absolute inset-0 flex items-center justify-center bg-[linear-gradient(140deg,rgb(var(--amber-rgb)/0.5),rgb(var(--ember-deep-rgb)/0.95))]">
+              <div className="absolute inset-0 flex items-center justify-center bg-[linear-gradient(140deg,rgb(var(--ember-rgb)/0.4),rgb(var(--ember-deep-rgb)/0.95))]">
                 <span className="text-6xl font-bold text-white">
                   {event.title.charAt(0).toUpperCase()}
                 </span>
@@ -418,7 +418,7 @@ export default function EventDetail({ event }: { event: Event }) {
                   type="button"
                   onClick={handleBook}
                   disabled={totalQty === 0 || submitting || signedIn === false}
-                  className="mt-4 w-full rounded-xl bg-gradient-to-br from-ember to-ember-deep py-3 text-sm font-semibold text-on-accent shadow-[0_4px_16px_rgb(var(--ember-rgb)/0.35)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_6px_20px_rgb(var(--ember-rgb)/0.45)] active:translate-y-0 active:scale-[0.98] disabled:pointer-events-none disabled:opacity-40"
+                  className="mt-4 w-full rounded-xl bg-ember hover:bg-ember-deep py-3 text-sm font-semibold text-on-accent transition-all duration-200 hover:-translate-y-0.5 hover: active:translate-y-0 active:scale-[0.98] disabled:pointer-events-none disabled:opacity-40"
                 >
                   {submitting
                     ? 'Processing…'

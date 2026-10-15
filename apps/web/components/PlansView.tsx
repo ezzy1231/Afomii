@@ -175,7 +175,7 @@ export default function PlansView({ userId }: { userId: string }) {
             className={cn(
               "flex-1 rounded-xl px-4 py-2.5 text-sm font-semibold capitalize transition-all duration-200",
               tab === t
-                ? "bg-gradient-to-br from-ember to-ember-deep text-on-accent shadow-[0_2px_8px_rgb(var(--ember-rgb)/0.3)]"
+                ? "bg-ember hover:bg-ember-deep text-on-accent"
                 : "text-app-muted hover:bg-app-elevated/60 hover:text-app-fg",
             )}
           >
@@ -203,7 +203,7 @@ export default function PlansView({ userId }: { userId: string }) {
             action={
               <Link
                 href="/restaurants"
-                className="inline-flex min-h-[44px] items-center gap-2 rounded-full bg-gradient-to-br from-ember to-ember-deep px-6 text-sm font-semibold text-on-accent shadow-[0_2px_8px_rgb(var(--ember-rgb)/0.3)] transition-all duration-200 hover:-translate-y-0.5"
+                className="inline-flex min-h-[44px] items-center gap-2 rounded-full bg-ember hover:bg-ember-deep px-6 text-sm font-semibold text-on-accent transition-all duration-200 hover:-translate-y-0.5"
               >
                 Explore restaurants
               </Link>
@@ -226,8 +226,8 @@ export default function PlansView({ userId }: { userId: string }) {
                           className="object-cover"
                         />
                       ) : (
-                        <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-ember/25 to-ember/60">
-                          <span className="text-4xl font-bold text-white">
+                        <div className="flex h-full w-full items-center justify-center bg-app-elevated dot-grid">
+                          <span className="text-4xl font-bold font-display text-app-muted/60">
                             {place.name.charAt(0).toUpperCase()}
                           </span>
                         </div>
@@ -339,8 +339,8 @@ export default function PlansView({ userId }: { userId: string }) {
                           className="object-cover"
                         />
                       ) : (
-                        <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-ember/25 to-ember/60">
-                          <span className="text-4xl font-bold text-white">
+                        <div className="flex h-full w-full items-center justify-center bg-app-elevated dot-grid">
+                          <span className="text-4xl font-bold font-display text-app-muted/60">
                             {plan.title.charAt(0).toUpperCase()}
                           </span>
                         </div>
@@ -424,7 +424,7 @@ export default function PlansView({ userId }: { userId: string }) {
                         className={cn(
                           "inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-xs font-semibold uppercase tracking-wider transition-all duration-200",
                           bookable
-                            ? "bg-gradient-to-br from-ember to-ember-deep text-on-accent shadow-[0_2px_8px_rgb(var(--ember-rgb)/0.3)] hover:-translate-y-0.5 hover:shadow-[0_4px_12px_rgb(var(--ember-rgb)/0.4)] active:translate-y-0 active:scale-[0.98]"
+                            ? "bg-ember hover:bg-ember-deep text-on-accent hover:-translate-y-0.5 hover: active:translate-y-0 active:scale-[0.98]"
                             : "bg-app-input text-app-muted/50 cursor-not-allowed",
                         )}
                       >

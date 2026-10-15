@@ -120,7 +120,7 @@ export function FilterSheet({
       <button
         type="button"
         onClick={onClose}
-        className="flex-1 rounded-xl bg-gradient-to-br from-ember to-ember-deep px-4 py-2.5 text-sm font-semibold text-on-accent shadow-[0_2px_8px_rgb(var(--ember-rgb)/0.3)] transition-transform active:scale-[0.98]"
+        className="flex-1 rounded-xl bg-ember hover:bg-ember-deep px-4 py-2.5 text-sm font-semibold text-on-accent transition-transform active:scale-[0.98]"
       >
         Show {resultCount} result{resultCount === 1 ? "" : "s"}
       </button>
@@ -135,7 +135,7 @@ export function FilterSheet({
           "fixed inset-0 z-[60] lg:hidden",
           open ? "pointer-events-auto" : "pointer-events-none"
         )}
-        {...((!open ? { inert: "" } : {}) as React.HTMLAttributes<HTMLDivElement>)}
+        inert={!open}
       >
         <div
           className={cn(
@@ -147,7 +147,7 @@ export function FilterSheet({
         <div
           ref={sheetRef}
           className={cn(
-            "absolute inset-x-0 bottom-0 max-h-[82vh] overflow-y-auto overscroll-contain rounded-t-[28px] border-t border-white/50 bg-white/80 p-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] shadow-glass-strong backdrop-blur-2xl backdrop-saturate-150 transition-transform duration-300 ease-out dark:border-white/10 dark:bg-[#1E1E24]/85",
+            "absolute inset-x-0 bottom-0 max-h-[82vh] overflow-y-auto overscroll-contain rounded-t-[28px] border-t border-app-border bg-app-card p-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] shadow-elevate transition-transform duration-300 ease-out",
             open ? "translate-y-0" : "translate-y-full"
           )}
           role="dialog"
@@ -172,7 +172,7 @@ export function FilterSheet({
 
       {/* Desktop inline panel */}
       {open && (
-        <div className="glass animate-pop-in mb-6 hidden rounded-3xl p-6 lg:block">
+        <div className="glass animate-pop-in mb-6 hidden rounded-2xl p-6 lg:block">
           <div className="mb-5 flex items-center justify-between">
             <h2 className="text-xl font-bold text-app-fg">Filters</h2>
             <button

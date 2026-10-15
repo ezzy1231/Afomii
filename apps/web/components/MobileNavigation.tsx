@@ -9,65 +9,53 @@ export default function MobileNavigation({ isAuthenticated }: { isAuthenticated:
   const pathname = usePathname()
   const items = [
     { href: '/', label: 'Home', icon: Home },
-    { href: '/restaurants', label: 'Eat', icon: MapPinned },
+    // "Dining" rather than "Eat": it matches the page's own "Dining guide"
+    // eyebrow, and "Eat" read as delivery rather than restaurants. The shorter
+    // form is deliberate — six tabs share a 390px bottom bar.
+    { href: '/restaurants', label: 'Dining', icon: MapPinned },
     { href: '/events', label: 'Events', icon: CalendarDays },
     { href: '/ride', label: 'Ride', icon: CarFront },
-    ...(isAuthenticated ? [{ href: '/plans', label: 'Plans', icon: CalendarCheck }] : []),
+    ...(isAuthenticated ? [{ href: '/plans', label: 'My Plans', icon: CalendarCheck }] : []),
   ]
   const accountHref = isAuthenticated ? '/settings' : '/auth/signin'
   const accountActive = pathname.startsWith('/settings') || pathname.startsWith('/auth')
+  const all = [...items, { href: accountHref, label: 'Account', icon: UserRound }]
 
-  function isActive(href: string) {
+  function isActive(href: string, label: string) {
+    if (label === 'Account') return accountActive
     return href === '/' ? pathname === '/' : pathname.startsWith(href)
   }
 
   return (
     <nav
-      className="fixed inset-x-3 bottom-[calc(0.75rem+env(safe-area-inset-bottom))] z-50 mx-auto flex max-w-md items-center justify-around rounded-[22px] border border-white/50 bg-white/60 px-1.5 py-1.5 shadow-glass backdrop-blur-2xl backdrop-saturate-150 md:hidden dark:border-white/10 dark:bg-white/8"
+      className="fixed inset-x-0 bottom-0 z-50 flex items-stretch justify-around border-t border-app-border bg-app-card px-1 pb-[env(safe-area-inset-bottom)] shadow-[0_-8px_24px_-16px_rgb(0_0_0/0.25)] md:hidden"
       aria-label="Primary"
     >
-      {items.map(({ href, label, icon: Icon }) => {
-        const active = isActive(href)
+      {all.map(({ href, label, icon: Icon }) => {
+        const active = isActive(href, label)
         return (
           <Link
-            key={href}
+            key={label}
             href={href}
             aria-current={active ? 'page' : undefined}
             className={cn(
-              'flex min-h-11 min-w-11 flex-col items-center justify-center gap-0.5 rounded-2xl px-2 py-1 text-[10px] transition-all duration-200 active:scale-90',
-              active
-                ? 'bg-ember text-on-accent shadow-[0_2px_8px_rgb(var(--ember-rgb)/0.35)]'
-                : 'text-app-muted'
+              'relative flex min-h-[60px] min-w-11 flex-1 flex-col items-center justify-center gap-1 text-[11px] font-medium transition-colors duration-200 active:scale-95',
+              active ? 'text-app-fg' : 'text-app-muted'
             )}
           >
-            <Icon
-              className={cn('size-[18px]', active ? 'text-white' : 'text-app-muted')}
-              strokeWidth={active ? 2.4 : 2}
-            />
-            <span className={cn(active ? 'font-semibold text-white' : 'text-app-muted')}>
-              {label}
+            <span
+              aria-hidden
+              className={cn(
+                'flex h-7 w-12 items-center justify-center rounded-full transition-colors duration-300',
+                active ? 'bg-ember-soft' : 'bg-transparent'
+              )}
+            >
+              <Icon className={cn('size-[19px]', active ? 'text-ember' : 'text-app-muted')} strokeWidth={active ? 2.4 : 1.9} />
             </span>
+            <span className={cn(active && 'font-semibold')}>{label}</span>
           </Link>
         )
       })}
-      <Link
-        href={accountHref}
-        aria-current={accountActive ? 'page' : undefined}
-        className={cn(
-          'flex min-h-11 min-w-11 flex-col items-center justify-center gap-0.5 rounded-2xl px-2 py-1 text-[10px] transition-all duration-200 active:scale-90',
-          accountActive
-            ? 'bg-ember text-on-accent shadow-[0_2px_8px_rgb(var(--ember-rgb)/0.35)]'
-            : 'text-app-muted'
-        )}
-      >
-        <UserRound
-          className={cn('size-[18px]', accountActive ? 'text-white' : 'text-app-muted')}
-          strokeWidth={accountActive ? 2.4 : 2}
-        />
-        <span className={cn(accountActive ? 'font-semibold text-white' : 'text-app-muted')}>
-          Account
-        </span>
-      </Link>
     </nav>
   )
 }

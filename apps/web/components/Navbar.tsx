@@ -5,6 +5,7 @@ import MobileNavigation from './MobileNavigation'
 import NavLinks from './NavLinks'
 import NotificationsBell from './NotificationsBell'
 import ThemeToggle from './ThemeToggle'
+import { BrandWordmark } from './BrandMark'
 
 type AuthedUser = {
   userId: string
@@ -46,21 +47,13 @@ export default async function Navbar() {
 
   return (
     <>
-      <header className="sticky top-0 z-50 border-b border-app-border nav-blur gold-stripe-b">
-        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-          <Link
-            href="/"
-            className="group flex items-center gap-2.5 transition-transform active:scale-[0.98]"
-          >
-            <span className="flex size-8 items-center justify-center rounded-xl bg-gradient-to-br from-ember to-ember-deep text-sm font-bold text-on-accent shadow-[0_2px_8px_rgb(var(--ember-rgb)/0.35)] transition-transform group-hover:scale-105">
-              U
-            </span>
-            <span className="text-lg font-bold tracking-tight text-app-fg">
-              UrbanExplore
-            </span>
+      <header className="sticky top-0 z-50 border-b border-app-border bg-app-bg">
+        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
+          <Link href="/" className="rounded-lg transition-transform active:scale-[0.98]" aria-label="UrbanExplore home">
+            <BrandWordmark />
           </Link>
 
-          <div className="absolute left-1/2 hidden -translate-x-1/2 md:block">
+          <div className="hidden min-w-0 flex-1 justify-center md:flex">
             <NavLinks isAuthenticated={Boolean(user)} />
           </div>
 
@@ -72,7 +65,7 @@ export default async function Navbar() {
             {user ? (
               <Link
                 href="/settings"
-                className="ml-1 flex size-11 items-center justify-center rounded-xl bg-gradient-to-br from-ember to-ember-deep text-sm font-bold text-on-accent shadow-[0_2px_8px_rgb(var(--ember-rgb)/0.3)] transition-transform hover:scale-105 active:scale-95"
+                className="ml-1 flex size-11 items-center justify-center rounded-full bg-ember font-display text-sm font-bold text-on-accent transition-transform hover:scale-105 active:scale-95"
                 aria-label="Your account"
               >
                 {initial ?? 'U'}
@@ -80,7 +73,7 @@ export default async function Navbar() {
             ) : (
               <Link
                 href="/auth/signin"
-                className="btn-primary ml-1 !rounded-xl !px-4 !py-2 text-sm"
+                className="btn-primary ml-1 !min-h-11 !px-4 text-sm"
               >
                 Sign in
               </Link>

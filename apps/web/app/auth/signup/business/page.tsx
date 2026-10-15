@@ -10,19 +10,19 @@ import { StickyActionBar } from '@/components/patterns/StickyActionBar'
 import { FileUploadTile, DocumentUploadRow } from '@/components/auth/FileUploadTile'
 
 const CATEGORIES: CategoryOption[] = [
-  { label: 'Restaurant', icon: '🍽️' },
-  { label: 'Café / Coffee Shop', icon: '☕' },
-  { label: 'Bakery', icon: '🥐' },
-  { label: 'Bar', icon: '🍸' },
-  { label: 'Lounge', icon: '🛋️' },
-  { label: 'Pub', icon: '🍺' },
-  { label: 'Food Truck', icon: '🚚' },
-  { label: 'Ice Cream & Dessert Shop', icon: '🍦' },
-  { label: 'Hotel Restaurant', icon: '🏨' },
-  { label: 'Juice / Smoothie Bar', icon: '🥤' },
-  { label: 'Cloud Kitchen', icon: '📦' },
-  { label: 'Catering', icon: '🍱' },
-  { label: 'Other', icon: '🏪' },
+  { label: 'Restaurant' },
+  { label: 'Café / Coffee Shop' },
+  { label: 'Bakery' },
+  { label: 'Bar' },
+  { label: 'Lounge' },
+  { label: 'Pub' },
+  { label: 'Food Truck' },
+  { label: 'Ice Cream & Dessert Shop' },
+  { label: 'Hotel Restaurant' },
+  { label: 'Juice / Smoothie Bar' },
+  { label: 'Cloud Kitchen' },
+  { label: 'Catering' },
+  { label: 'Other' },
 ]
 
 interface FormData {

@@ -26,7 +26,7 @@ export const CONSOLE_CARD =
   'rounded-2xl border border-console-border bg-console-card shadow-console-card'
 
 export const CONSOLE_PRIMARY_BUTTON =
-  'inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-console-indigo px-4 text-sm font-semibold text-white shadow-[0_6px_18px_rgb(91_63_240/0.28)] transition-colors duration-200 hover:bg-console-indigo-deep'
+  'inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-console-indigo px-4 text-sm font-semibold text-white shadow-[0_6px_18px_rgb(28_58_100/0.28)] transition-colors duration-200 hover:bg-console-indigo-deep'
 
 export const CONSOLE_SECONDARY_BUTTON =
   'inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-console-border bg-console-card px-4 text-sm font-semibold text-console-ink transition-colors duration-200 hover:bg-console-bg'

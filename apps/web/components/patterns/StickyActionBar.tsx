@@ -30,7 +30,7 @@ export function StickyActionBar({
   className,
 }: StickyActionBarProps) {
   const primaryCls =
-    "bg-gradient-to-br from-ember to-ember-deep text-on-accent shadow-[0_4px_16px_rgb(var(--ember-rgb)/0.35)]";
+    "bg-ember hover:bg-ember-deep text-on-accent";
 
   const primaryBtn = primary.href ? (
     <Link
@@ -73,7 +73,7 @@ export function StickyActionBar({
   return (
     <div
       className={cn(
-        "sticky bottom-[calc(5rem+env(safe-area-inset-bottom))] z-30 -mx-4 mt-8 border-t border-app-border bg-app-bg/80 px-4 py-3 backdrop-blur-xl sm:static sm:mx-0 sm:border-0 sm:bg-transparent sm:px-0 sm:backdrop-blur-none safe-bottom",
+        "sticky bottom-[calc(5rem+env(safe-area-inset-bottom))] z-30 -mx-4 mt-8 border-t border-app-border bg-app-bg px-4 py-3 sm:static sm:mx-0 sm:border-0 sm:bg-transparent sm:px-0 sm:-none safe-bottom",
         className
       )}
     >

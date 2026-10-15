@@ -62,7 +62,7 @@ const config: Config = {
           600: "#8E7444",
         },
         ink: {
-          DEFAULT: "#17171A",
+          DEFAULT: "#131B2A",
           50: "#F4F4F6",
           100: "#E4E4E8",
           200: "#C9C9D0",
@@ -75,12 +75,12 @@ const config: Config = {
           900: "#17171A",
         },
         ivory: {
-          DEFAULT: "#F8F8FA",
-          50: "#FDFDFE",
-          100: "#F8F8FA",
+          DEFAULT: "#FAF8F3",
+          50: "#FFFEFA",
+          100: "#FAF8F3",
         },
         charcoal: {
-          DEFAULT: "#17171A",
+          DEFAULT: "#131B2A",
         },
         "app-bg": "rgb(var(--bg-primary-rgb) / <alpha-value>)",
         "app-fg": "rgb(var(--text-primary-rgb) / <alpha-value>)",
@@ -90,6 +90,13 @@ const config: Config = {
         "app-elevated": "rgb(var(--bg-elevated-rgb) / <alpha-value>)",
         "app-footer": "rgb(var(--bg-card-rgb) / <alpha-value>)",
         "app-muted": "rgb(var(--text-secondary-rgb) / <alpha-value>)",
+        /* Secondary surface (section strips, skeleton base) and the faint
+           placeholder/meta ink. `signal` is the berbere accent used for date
+           markers, live dots and saved hearts — deliberately not the same
+           token as the primary `ember` navy. */
+        "app-alt": "rgb(var(--bg-alt-rgb) / <alpha-value>)",
+        "app-subtle": "rgb(var(--text-muted-rgb) / <alpha-value>)",
+        signal: "rgb(var(--gold-rgb) / <alpha-value>)",
         "app-border": "var(--border)",
         success: "rgb(var(--success-rgb) / <alpha-value>)",
         danger: "rgb(var(--danger-rgb) / <alpha-value>)",
@@ -113,6 +120,8 @@ const config: Config = {
           indigo: "rgb(var(--console-indigo-rgb) / <alpha-value>)",
           "indigo-deep": "rgb(var(--console-indigo-deep-rgb) / <alpha-value>)",
           "indigo-soft": "rgb(var(--console-indigo-soft-rgb) / <alpha-value>)",
+          /* On-dark variant of the accent, for the navy sidebar. */
+          "nav-accent": "rgb(var(--console-nav-accent-rgb) / <alpha-value>)",
           green: "rgb(var(--console-green-rgb) / <alpha-value>)",
           mint: "rgb(var(--console-mint-rgb) / <alpha-value>)",
           "mint-ink": "rgb(var(--console-mint-ink-rgb) / <alpha-value>)",
@@ -125,23 +134,28 @@ const config: Config = {
         },
       },
       fontFamily: {
-        /* One clean sans family everywhere — display = sans, bold */
-        display: ["var(--font-space)", "system-ui", "sans-serif"],
-        serif: ["var(--font-space)", "system-ui", "sans-serif"],
-        sans: ["var(--font-space)", "system-ui", "sans-serif"],
+        /* Display = Bricolage Grotesque (headings, prices, date numerals).
+           Body = Instrument Sans. Both are self-hosted via next/font/local
+           in app/layout.tsx; the literal names are the safety fallback. */
+        display: ["var(--font-display)", "Bricolage Grotesque", "system-ui", "sans-serif"],
+        heading: ["var(--font-display)", "Bricolage Grotesque", "system-ui", "sans-serif"],
+        serif: ["var(--font-display)", "Bricolage Grotesque", "system-ui", "sans-serif"],
+        body: ["var(--font-space)", "Instrument Sans", "system-ui", "sans-serif"],
+        sans: ["var(--font-space)", "Instrument Sans", "system-ui", "sans-serif"],
       },
       boxShadow: {
-        soft: "0 1px 2px rgb(16 18 27 / 0.04), 0 2px 8px rgb(16 18 27 / 0.04)",
-        card: "0 2px 4px rgb(16 18 27 / 0.04), 0 8px 24px rgb(16 18 27 / 0.07)",
-        elevate: "0 4px 8px rgb(16 18 27 / 0.05), 0 16px 48px rgb(16 18 27 / 0.1)",
+        /* Driven by the token layer so light/dark stay in step. */
+        soft: "var(--shadow-sm)",
+        card: "var(--shadow-md)",
+        elevate: "var(--shadow-lg)",
         glass: "var(--glass-shadow)",
         "glass-strong": "var(--glass-shadow-strong)",
         "dark-sm": "0 1px 3px rgb(0 0 0 / 0.2)",
         "dark-card": "0 2px 4px rgb(0 0 0 / 0.2), 0 8px 24px rgb(0 0 0 / 0.28)",
         "dark-elevate": "0 4px 8px rgb(0 0 0 / 0.2), 0 16px 48px rgb(0 0 0 / 0.4)",
-        /* legacy names → soft equivalents */
-        hard: "0 1px 2px rgb(16 18 27 / 0.05), 0 2px 8px rgb(16 18 27 / 0.05)",
-        "hard-lg": "0 2px 4px rgb(16 18 27 / 0.05), 0 8px 24px rgb(16 18 27 / 0.08)",
+        /* legacy names → same tokens */
+        hard: "var(--shadow-sm)",
+        "hard-lg": "var(--shadow-md)",
         "console-card": "var(--console-shadow)",
       },
       transitionTimingFunction: {

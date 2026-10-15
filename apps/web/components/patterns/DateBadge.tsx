@@ -24,8 +24,8 @@ export function DateBadge({
       aria-label={`${month} ${day}`}
       className={cn(
         "date-badge",
-        size === "sm" && "px-2 py-1",
-        size === "lg" && "px-3.5 py-2",
+        size === "sm" && "min-w-[2.75rem]",
+        size === "lg" && "min-w-[4rem]",
         className
       )}
     >

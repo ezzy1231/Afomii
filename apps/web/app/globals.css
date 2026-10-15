@@ -2,46 +2,74 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ═══════════════════════════════════════════════════════════════
-   URBANEXPLORE — GLASS design system
-   Clean neutral base · single warm ember accent · frosted glass
-   panels on elevated surfaces · soft layered depth · Space Grotesk
-   ═══════════════════════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════════════════════════
+   URBANEXPLORE — "Evening Ledger" (Navy)
+   Warm white paper · deep matte navy · berbere signal colour.
+   Photo-led, SOLID surfaces only (no glass, no grain, no glow).
+   Display: Bricolage Grotesque · Text: Instrument Sans.
+
+   One token set drives the public site and auth. The partner + admin
+   console keeps a separate, scoped palette on `.shell-console` (below),
+   so dashboards are insulated from anything changed here.
+   ═══════════════════════════════════════════════════════════════════════ */
 
 @layer base {
   :root {
-    /* ── Surfaces — LIGHT: warm cream paper ──────────────────── */
-    --bg-primary-rgb: 251 245 240;
-    --bg-alt-rgb: 246 240 233;
-    --bg-card-rgb: 255 253 248;
-    --bg-input-rgb: 250 245 238;
-    --bg-elevated-rgb: 255 255 255;
+    /* ── Fonts ──────────────────────────────────────────────────
+       The families themselves come from next/font/local in
+       app/layout.tsx (--font-display, --font-space, --font-dashboard).
+       Every rule below spells out a literal fallback so type still
+       resolves if a variable is ever missing. */
 
-    /* Ink text */
-    --text-primary-rgb: 31 31 31;
-    --text-secondary-rgb: 90 90 90;
-    --text-muted-rgb: 107 107 107;
+    /* ── Surfaces — warm white paper ──────────────────────────── */
+    --bg-primary-rgb: 250 248 243;
+    --bg-alt-rgb: 243 240 232;
+    --bg-card-rgb: 255 254 250;
+    --bg-input-rgb: 246 243 236;
+    --bg-elevated-rgb: 238 234 224;
 
-    /* ── Single accent — deep navy (light mode) ───────────────── */
-    --ember-rgb: 11 31 58;
-    --ember-deep-rgb: 7 22 43;
-    --ember-soft-rgb: 232 238 246;
-    /* Text/icon colour that sits ON the accent. Dark mode flips the accent
-       to gold, where white would measure 2.2:1 — this keeps it ~13:1. */
-    --on-accent-rgb: 251 245 240;
-    /* Gold — decorative only. --gold-text-rgb is the readable variant;
-       --gold-rgb on cream measures 2.8:1 and must not carry body text. */
-    --gold-rgb: 194 168 120;
-    --gold-text-rgb: 138 109 59;
-    --gold-soft-rgb: 243 235 218;
-    --amber-rgb: 183 121 31;
-    --amber-soft-rgb: 251 239 213;
-    --moss-rgb: 47 125 91;
+    /* ── Ink — blue-black ─────────────────────────────────────── */
+    --text-primary-rgb: 19 27 42;
+    --text-secondary-rgb: 71 82 99;
+    --text-muted-rgb: 95 105 122;
 
-    --success-rgb: 47 125 91;
-    --danger-rgb: 184 58 58;
-    --warning-rgb: 183 121 31;
+    /* ── Primary accent — matte navy (legacy name: ember) ─────── */
+    --ember-rgb: 28 58 100;
+    --ember-deep-rgb: 18 41 74;
+    --ember-soft-rgb: 226 234 246;
+    --on-accent-rgb: 250 248 243;
 
+    /* ── Signal — berbere. Used sparingly: date markers, live
+       dots, hearts, the eyebrow tick. ───────────────────────── */
+    --gold-rgb: 200 78 38;
+    --gold-text-rgb: 166 58 24;
+    --gold-soft-rgb: 250 230 220;
+    --amber-rgb: 166 104 18;
+    --amber-soft-rgb: 249 237 214;
+    --moss-rgb: 30 116 76;
+
+    --success-rgb: 30 116 76;
+    --danger-rgb: 178 46 40;
+    --warning-rgb: 156 96 12;
+
+    --border: rgb(19 27 42 / 0.12);
+    --border-soft: rgb(19 27 42 / 0.08);
+    --border-strong: rgb(19 27 42 / 0.2);
+    --nav-bg: rgb(250 248 243);
+
+    --shadow-sm: 0 1px 2px rgb(19 27 42 / 0.06);
+    --shadow-md: 0 1px 2px rgb(19 27 42 / 0.05), 0 6px 18px -8px rgb(19 27 42 / 0.16);
+    --shadow-lg: 0 2px 4px rgb(19 27 42 / 0.05), 0 22px 40px -18px rgb(19 27 42 / 0.28);
+
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --radius-xl: 22px;
+
+    /* ── Resolved aliases ───────────────────────────────────────
+       Some long-standing markup reads `var(--bg-card)` rather than the
+       rgb triplet. These recompute from the triplets above so both
+       forms stay in step. */
     --bg-primary: rgb(var(--bg-primary-rgb));
     --bg-alt: rgb(var(--bg-alt-rgb));
     --bg-card: rgb(var(--bg-card-rgb));
@@ -51,106 +79,128 @@
     --text-secondary: rgb(var(--text-secondary-rgb));
     --text-muted: rgb(var(--text-muted-rgb));
     --on-accent: rgb(var(--on-accent-rgb));
+    --hard-color: rgb(var(--text-primary-rgb));
 
-    /* ── Glass tokens ────────────────────────────────────────── */
-    --glass-bg: rgb(255 255 255 / 0.62);
-    --glass-bg-strong: rgb(255 255 255 / 0.78);
-    --glass-bg-subtle: rgb(255 255 255 / 0.42);
-    --glass-border: rgb(255 255 255 / 0.65);
-    --glass-border-soft: rgb(255 255 255 / 0.4);
-    --glass-highlight: rgb(255 255 255 / 0.85);
-    --glass-shadow: 0 8px 32px rgb(16 18 27 / 0.08);
-    --glass-shadow-strong: 0 12px 40px rgb(16 18 27 / 0.12);
-    --glass-blur: 20px;
-    --glass-blur-strong: 28px;
-
-    /* Hairlines — soft, neutral, never hard ink */
-    --border: rgb(23 23 26 / 0.08);
-    --border-soft: rgb(23 23 26 / 0.06);
-    --nav-bg: rgb(255 255 255 / 0.62);
-
-    /* ── Soft layered shadows ────────────────────────────────── */
-    --shadow-sm: 0 1px 2px rgb(16 18 27 / 0.04), 0 2px 8px rgb(16 18 27 / 0.04);
-    --shadow-md: 0 2px 4px rgb(16 18 27 / 0.04), 0 8px 24px rgb(16 18 27 / 0.07);
-    --shadow-lg: 0 4px 8px rgb(16 18 27 / 0.05), 0 16px 48px rgb(16 18 27 / 0.1);
-    --hard-color: rgb(16 18 27);
-
-    --radius-sm: 10px;
-    --radius-md: 14px;
-    --radius-lg: 18px;
-    --radius-xl: 24px;
-
-    /* ── Ambient background glow (subtle blurred shapes) ─────── */
-    --glow-a-rgb: 11 31 58;
-    --glow-b-rgb: 194 168 120;
-    --glow-opacity: 0.16;
+    /* ── Legacy glass names → solid values. The design language is
+       solid matte; these aliases exist so older markup that still
+       says `glass` renders a flat card instead of a blurred one. */
+    --glass-bg: rgb(var(--bg-card-rgb));
+    --glass-bg-strong: rgb(var(--bg-card-rgb));
+    --glass-bg-subtle: rgb(var(--bg-alt-rgb));
+    --glass-border: var(--border);
+    --glass-border-soft: var(--border-soft);
+    --glass-highlight: transparent;
+    --glass-shadow: var(--shadow-md);
+    --glass-shadow-strong: var(--shadow-lg);
+    --glass-blur: 0px;
+    --glass-blur-strong: 0px;
 
     color-scheme: light;
   }
 
   [data-theme='dark'] {
-    --bg-primary-rgb: 6 21 45;
-    --bg-alt-rgb: 11 31 58;
-    --bg-card-rgb: 16 39 68;
-    --bg-input-rgb: 11 31 58;
-    --bg-elevated-rgb: 24 54 83;
+    --bg-primary-rgb: 12 16 26;
+    --bg-alt-rgb: 16 21 33;
+    --bg-card-rgb: 21 27 41;
+    --bg-input-rgb: 16 21 33;
+    --bg-elevated-rgb: 30 38 55;
 
-    --text-primary-rgb: 215 224 237;
-    --text-secondary-rgb: 169 184 202;
-    --text-muted-rgb: 143 160 182;
+    --text-primary-rgb: 236 239 245;
+    --text-secondary-rgb: 181 189 202;
+    --text-muted-rgb: 150 159 175;
 
-    /* Accent flips to gold on the navy field — the bright blue that
-       carried the old near-black theme reads as a link, not as chrome. */
-    --ember-rgb: 226 194 138;
-    --ember-deep-rgb: 240 216 172;
-    --ember-soft-rgb: 34 58 90;
-    --on-accent-rgb: 11 31 58;
-    --amber-rgb: 224 178 92;
-    --amber-soft-rgb: 58 45 24;
-    --gold-rgb: 226 194 138;
-    --gold-text-rgb: 240 216 172;
-    --gold-soft-rgb: 56 46 30;
-    --moss-rgb: 95 191 148;
+    /* Accent lifts to a matte light blue on the navy field — the deep
+       navy that carries the light theme would read as a hole here. */
+    --ember-rgb: 137 178 233;
+    --ember-deep-rgb: 110 156 214;
+    --ember-soft-rgb: 24 36 54;
+    --on-accent-rgb: 10 15 25;
 
-    --success-rgb: 95 191 148;
-    --danger-rgb: 224 122 122;
-    --warning-rgb: 224 178 92;
+    --gold-rgb: 236 132 92;
+    --gold-text-rgb: 242 152 116;
+    --gold-soft-rgb: 58 32 22;
+    --amber-rgb: 232 178 92;
+    --amber-soft-rgb: 52 40 20;
+    --moss-rgb: 116 200 152;
 
-    --bg-primary: rgb(var(--bg-primary-rgb));
-    --bg-alt: rgb(var(--bg-alt-rgb));
-    --bg-card: rgb(var(--bg-card-rgb));
-    --bg-input: rgb(var(--bg-input-rgb));
-    --bg-hover: rgb(var(--bg-elevated-rgb));
-    --text-primary: rgb(var(--text-primary-rgb));
-    --text-secondary: rgb(var(--text-secondary-rgb));
-    --text-muted: rgb(var(--text-muted-rgb));
-    --on-accent: rgb(var(--on-accent-rgb));
+    --success-rgb: 116 200 152;
+    --danger-rgb: 240 128 116;
+    --warning-rgb: 232 178 92;
 
-    /* Glass on dark — smoky translucent panels over the deep base */
-    --glass-bg: rgb(30 30 36 / 0.55);
-    --glass-bg-strong: rgb(30 30 36 / 0.72);
-    --glass-bg-subtle: rgb(30 30 36 / 0.38);
-    --glass-border: rgb(255 255 255 / 0.1);
-    --glass-border-soft: rgb(255 255 255 / 0.07);
-    --glass-highlight: rgb(255 255 255 / 0.14);
-    --glass-shadow: 0 8px 32px rgb(0 0 0 / 0.32);
-    --glass-shadow-strong: 0 12px 40px rgb(0 0 0 / 0.45);
+    --border: rgb(236 239 245 / 0.12);
+    --border-soft: rgb(236 239 245 / 0.07);
+    --border-strong: rgb(236 239 245 / 0.22);
+    --nav-bg: rgb(12 16 26);
 
-    --border: rgb(255 255 255 / 0.09);
-    --border-soft: rgb(255 255 255 / 0.06);
-    --nav-bg: rgb(15 15 18 / 0.6);
-
-    --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.2), 0 2px 8px rgb(0 0 0 / 0.2);
-    --shadow-md: 0 2px 4px rgb(0 0 0 / 0.2), 0 8px 24px rgb(0 0 0 / 0.28);
-    --shadow-lg: 0 4px 8px rgb(0 0 0 / 0.2), 0 16px 48px rgb(0 0 0 / 0.4);
-    --hard-color: rgb(0 0 0);
-
-    --glow-a-rgb: 226 194 138;
-    --glow-b-rgb: 240 216 172;
-    --glow-opacity: 0.18;
+    --shadow-sm: 0 1px 0 rgb(0 0 0 / 0.4);
+    --shadow-md: 0 1px 0 rgb(0 0 0 / 0.4), 0 8px 20px -10px rgb(0 0 0 / 0.7);
+    --shadow-lg: 0 1px 0 rgb(0 0 0 / 0.4), 0 24px 44px -18px rgb(0 0 0 / 0.85);
 
     color-scheme: dark;
   }
+
+  .theme-icon-dark { display: none; }
+  [data-theme='dark'] .theme-icon-light { display: none; }
+  [data-theme='dark'] .theme-icon-dark { display: inline-flex; }
+
+  * { border-color: var(--border-soft); }
+
+  html { background: rgb(var(--bg-primary-rgb)); }
+
+  body {
+    background: rgb(var(--bg-primary-rgb));
+    color: rgb(var(--text-primary-rgb));
+    font-family: var(--font-space), 'Instrument Sans', system-ui, sans-serif;
+    font-size: 15.5px;
+    line-height: 1.6;
+    padding-bottom: env(safe-area-inset-bottom);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1, h2, h3 {
+    font-family: var(--font-display), var(--font-space), 'Bricolage Grotesque', system-ui, sans-serif;
+    font-optical-sizing: auto;
+    letter-spacing: -0.022em;
+  }
+  h1, h2, h3, h4 { text-wrap: balance; }
+  p, li { text-wrap: pretty; }
+  :is(h1, h2, h3, h4)[id] { scroll-margin-top: 6rem; }
+
+  /* Hardcoded bg-white surfaces follow the theme instead of glaring.
+     Inside `.shell-console` the triplets below are rebased onto the
+     console palette, so these resolve to console white and the fixed
+     light dashboards are unaffected. */
+  .bg-white { background-color: rgb(var(--bg-card-rgb)) !important; }
+  .bg-ivory { background-color: rgb(var(--bg-primary-rgb)) !important; }
+  [data-theme='dark'] .bg-app-panel { background-color: rgb(var(--bg-card-rgb)); }
+
+  input, select, textarea { min-height: 2.75rem; }
+  input[type='checkbox'], input[type='radio'], input[type='range'] { min-height: 0; }
+  input[type='checkbox'], input[type='radio'] { accent-color: rgb(var(--ember-rgb)); }
+
+  a, button, summary, label, input, select, textarea,
+  [role='button'], [role='tab'], [role='switch'] {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  :focus-visible {
+    outline: 2px solid rgb(var(--ember-rgb));
+    outline-offset: 2px;
+    border-radius: 6px;
+  }
+
+  ::selection { background: rgb(var(--ember-rgb)); color: rgb(var(--on-accent-rgb)); }
+
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb {
+    background: rgb(var(--text-muted-rgb) / 0.35);
+    border-radius: 999px;
+    border: 2px solid rgb(var(--bg-primary-rgb));
+  }
+  ::-webkit-scrollbar-thumb:hover { background: rgb(var(--text-muted-rgb) / 0.55); }
 
   /* ═══════════════════════════════════════════════════════════════
      PARTNER CONSOLE — scoped token set
@@ -164,6 +214,9 @@
      white cards, permanently dark navy sidebar). It ignores the
      `data-theme` attribute, so the in-app theme toggle does not
      apply inside the organizer + restaurant dashboards.
+
+     It also rebases the semantic tokens, which is what keeps the
+     dashboards visually unchanged when the public theme is re-skinned.
      ═══════════════════════════════════════════════════════════════ */
   .shell-console {
     /* Main field + chrome */
@@ -180,10 +233,17 @@
     --console-ink-rgb: 22 25 43;
     --console-muted-rgb: 122 130 150;
 
-    /* Accent — indigo pill, buttons, chart stroke */
-    --console-indigo-rgb: 91 63 240;
-    --console-indigo-deep-rgb: 71 45 205;
-    --console-indigo-soft-rgb: 238 235 254;
+    /* Accent — brand navy, so crossing from the public site into a console
+       no longer changes the brand colour. Mirrors the public `ember` token.
+       `--console-nav-accent-rgb` is the on-dark variant: the sidebar is
+       itself navy (#131A2E), so the brand navy would sit at 1.5:1 against it.
+       This mid matte blue measures 3.6:1 on the sidebar and carries white
+       text at 4.8:1 — same idea as the public dark theme lightening its
+       accent rather than reusing the light-theme value. */
+    --console-indigo-rgb: 28 58 100;
+    --console-indigo-deep-rgb: 18 41 74;
+    --console-indigo-soft-rgb: 226 234 246;
+    --console-nav-accent-rgb: 63 114 190;
 
     /* Positive data colour (sold counts, growth) */
     --console-green-rgb: 21 163 74;
@@ -209,19 +269,27 @@
        The organizer + restaurant sub-pages (events, tickets, menu,
        reservations, analytics…) are still written against the legacy
        `app-*` / `glass` vocabulary. Rebasing those semantic vars to
-       the console palette here adopts the new look across all of them
-       in one place, instead of rewriting ~90 utility strings. Because
-       this lives on `.shell-console` only, the public site and the
-       admin portal keep their cream/navy + gold theme untouched. */
+       the console palette here adopts the console look across all of
+       them in one place, instead of rewriting ~90 utility strings.
+       Because this lives on `.shell-console` only, the public site and
+       the admin portal keep their paper/navy theme untouched. */
     --bg-primary-rgb: var(--console-bg-rgb);
     --bg-alt-rgb: var(--console-bg-rgb);
     --bg-card-rgb: var(--console-card-rgb);
     --bg-input-rgb: var(--console-bg-rgb);
     --bg-elevated-rgb: var(--console-bg-rgb);
+    --bg-primary: rgb(var(--console-bg-rgb));
+    --bg-alt: rgb(var(--console-bg-rgb));
+    --bg-card: rgb(var(--console-card-rgb));
+    --bg-input: rgb(var(--console-bg-rgb));
+    --bg-hover: rgb(var(--console-bg-rgb));
 
     --text-primary-rgb: var(--console-ink-rgb);
     --text-secondary-rgb: var(--console-muted-rgb);
     --text-muted-rgb: var(--console-muted-rgb);
+    --text-primary: rgb(var(--console-ink-rgb));
+    --text-secondary: rgb(var(--console-muted-rgb));
+    --text-muted: rgb(var(--console-muted-rgb));
 
     /* `ember` is the legacy accent name — point it at indigo so existing
        `bg-ember` buttons and `text-ember` links read as console indigo. */
@@ -229,6 +297,7 @@
     --ember-deep-rgb: var(--console-indigo-deep-rgb);
     --ember-soft-rgb: var(--console-indigo-soft-rgb);
     --on-accent-rgb: 255 255 255;
+    --on-accent: rgb(255 255 255);
 
     --success-rgb: var(--console-green-rgb);
     --danger-rgb: 196 43 28;
@@ -249,28 +318,39 @@
 
     --border: rgb(var(--console-border-rgb));
     --border-soft: rgb(var(--console-border-rgb));
+    --border-strong: rgb(var(--console-border-rgb));
     --shadow-sm: var(--console-shadow);
     --shadow-md: var(--console-shadow);
     --shadow-lg: var(--console-shadow);
+
+    /* The public redesign swapped the body/display families and tightened
+       the radius scale. Pin both back to the console's own values so the
+       dashboards keep the exact type and corners they shipped with. */
+    --font-space: var(--font-dashboard), 'Space Grotesk', system-ui, sans-serif;
+    --font-display: var(--font-dashboard), 'Space Grotesk', system-ui, sans-serif;
+    --radius-sm: 10px;
+    --radius-md: 14px;
+    --radius-lg: 18px;
+    --radius-xl: 24px;
   }
 
   /* `.glass` itself is declared in `@layer components`, which outranks this
      base layer regardless of specificity — the console's glass overrides
      live at the bottom of the components layer. */
 
-  /* The console field is a flat light surface — drop the ambient glow
-     and the global cream/navy page background underneath it. */
+  /* The console field is a flat light surface — drop the global page
+     background underneath it. */
   .shell-console-shell {
     background: rgb(var(--console-bg-rgb));
   }
 
-  /* The global focus ring follows `data-theme` (gold in dark mode), which
-     measures ~2.8:1 on the console's white cards. Pin it to indigo. */
+  /* The global focus ring follows `data-theme`, which is tuned for the
+     paper/navy field. Pin it to console indigo instead. */
   .shell-console :focus-visible {
     outline: 2px solid rgb(var(--console-indigo-rgb));
   }
 
-  /* Global hairlines resolve to the cream/navy ramp; rebase them onto the
+  /* Global hairlines resolve to the paper/navy ramp; rebase them onto the
      console border so unstyled elements don't read as warm gray. */
   .shell-console,
   .shell-console * {
@@ -285,118 +365,6 @@
   .shell-console ::-webkit-scrollbar-thumb:hover {
     background: rgb(var(--console-muted-rgb) / 0.55);
   }
-
-  .theme-icon-dark { display: none; }
-  [data-theme='dark'] .theme-icon-light { display: none; }
-  [data-theme='dark'] .theme-icon-dark { display: inline-flex; }
-
-  * {
-    border-color: var(--border-soft);
-  }
-
-  body {
-    background: var(--bg-primary);
-    color: var(--text-primary);
-    font-family: var(--font-space), system-ui, sans-serif;
-    padding-bottom: env(safe-area-inset-bottom);
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    line-height: 1.6;
-  }
-
-  /* ── Ambient background: two soft blurred glows behind the layout.
-     Fixed, subtle, never busy — the glass panels float above it. */
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    z-index: -2;
-    pointer-events: none;
-    background:
-      radial-gradient(52rem 34rem at 85% -12%, rgb(var(--glow-a-rgb) / var(--glow-opacity)), transparent 60%),
-      radial-gradient(46rem 30rem at -10% 30%, rgb(var(--glow-b-rgb) / calc(var(--glow-opacity) * 0.75)), transparent 62%);
-  }
-
-  /* These repaint hardcoded-`bg-white` surfaces for the dark theme. The
-     partner console is fixed-light and carries its own palette, so the
-     overrides must stop at its boundary — otherwise a partner with dark mode
-     enabled gets navy form fields with console-dark ink on top: unreadable.
-     `:where()` keeps the exclusion at zero specificity. */
-  [data-theme='dark'] .bg-white:not(:where(.shell-console *)),
-  [data-theme='dark'] .bg-app-panel:not(:where(.shell-console *)) {
-    background-color: var(--bg-card) !important;
-  }
-
-  [data-theme='dark'] .bg-ivory:not(:where(.shell-console *)) {
-    background-color: var(--bg-primary) !important;
-  }
-
-  input, select, textarea {
-    min-height: 3rem;
-  }
-
-  button, a {
-    -webkit-tap-highlight-color: transparent;
-  }
-
-  :focus-visible {
-    outline: 2px solid rgb(var(--ember-rgb));
-    outline-offset: 2px;
-    border-radius: 6px;
-  }
-
-  ::selection {
-    background: rgb(var(--ember-rgb) / 0.9);
-    color: var(--on-accent);
-  }
-
-  ::-webkit-scrollbar { width: 10px; height: 10px; }
-  ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb {
-    background: rgb(var(--text-muted-rgb) / 0.35);
-    border-radius: 999px;
-    border: 2px solid var(--bg-primary);
-  }
-  ::-webkit-scrollbar-thumb:hover {
-    background: rgb(var(--text-muted-rgb) / 0.55);
-  }
-}
-
-/* Interaction + typography defaults that were previously absent app-wide.
-   These are behavioural only — no token, palette or spacing changes. */
-@layer base {
-  /* Kills the ~300ms double-tap zoom delay on touch. `manipulation` keeps
-     panning and pinch-zoom intact, so it is safe on interactive controls. */
-  a,
-  button,
-  summary,
-  label,
-  input,
-  select,
-  textarea,
-  [role='button'],
-  [role='tab'],
-  [role='switch'] {
-    touch-action: manipulation;
-  }
-
-  /* Prevent headings ending in a single orphan word, and body copy ending on
-     a widow line. */
-  h1,
-  h2,
-  h3,
-  h4 {
-    text-wrap: balance;
-  }
-  p,
-  li {
-    text-wrap: pretty;
-  }
-
-  /* Anchored headings must not land under the sticky header. */
-  :is(h1, h2, h3, h4)[id] {
-    scroll-margin-top: 6rem;
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -409,377 +377,298 @@
 }
 
 @layer components {
-  /* ════════════════════════════════════════════════════════════
-     GLASS TOKEN UTILITIES — the shared vocabulary.
-     Use .glass (base elevated surface), .glass-strong (navs,
-     modals, overlays), .glass-subtle (nested surfaces inside an
-     already-glass parent). Hover states live on .glass-hover.
-     ════════════════════════════════════════════════════════════ */
-
-  .glass,
-  .glass-strong,
-  .glass-subtle {
+  /* ── Surfaces (legacy "glass" names, now solid) ───────────── */
+  .glass, .card-elevated {
     position: relative;
-    background: var(--glass-bg);
-    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(1.4);
-    backdrop-filter: blur(var(--glass-blur)) saturate(1.4);
-    border: 1px solid var(--glass-border);
-    box-shadow: var(--glass-shadow);
-    /* Top inner highlight — the "lit edge" of the glass */
-    background-image: linear-gradient(
-      160deg,
-      var(--glass-highlight) 0%,
-      transparent 42%
-    );
+    background: rgb(var(--bg-card-rgb));
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-sm);
   }
-
+  .card-elevated { border-radius: var(--radius-lg); }
   .glass-strong {
-    background: var(--glass-bg-strong);
-    -webkit-backdrop-filter: blur(var(--glass-blur-strong)) saturate(1.5);
-    backdrop-filter: blur(var(--glass-blur-strong)) saturate(1.5);
-    box-shadow: var(--glass-shadow-strong);
-  }
-
-  .glass-subtle {
-    background: var(--glass-bg-subtle);
-    -webkit-backdrop-filter: blur(12px) saturate(1.2);
-    backdrop-filter: blur(12px) saturate(1.2);
-    border: 1px solid var(--glass-border-soft);
-    box-shadow: 0 4px 16px rgb(16 18 27 / 0.05);
-  }
-
-  /* Gentle hover lift + glow for interactive glass surfaces */
-  .glass-hover {
-    transition: transform 200ms cubic-bezier(0.22, 1, 0.36, 1),
-      box-shadow 200ms cubic-bezier(0.22, 1, 0.36, 1),
-      border-color 200ms ease;
-  }
-  .glass-hover:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--glass-shadow-strong);
-  }
-
-  /* Backdrop behind glass modals/sheets */
-  .glass-backdrop {
-    background: rgb(10 12 20 / 0.4);
-    -webkit-backdrop-filter: blur(8px);
-    backdrop-filter: blur(8px);
-  }
-
-  /* ── Nav ─────────────────────────────────────────────────── */
-  .nav-blur {
-    background: var(--nav-bg);
-    -webkit-backdrop-filter: blur(var(--glass-blur-strong)) saturate(1.6);
-    backdrop-filter: blur(var(--glass-blur-strong)) saturate(1.6);
-  }
-
-  /* ── Golden stripes — thin gold gradient hairlines.
-     Apply to any surface that should carry the gold accent:
-     -stripe-b (bottom edge), -stripe-t (top edge),
-     -stripe-l (left vertical bar), -underline (text underline). */
-  .gold-stripe-b,
-  .gold-stripe-t {
     position: relative;
+    background: rgb(var(--bg-card-rgb));
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-lg);
   }
-  .gold-stripe-b::after,
-  .gold-stripe-t::after {
-    content: '';
-    position: absolute;
-    left: 0;
-    right: 0;
-    height: 2px;
-    background: linear-gradient(
-      90deg,
-      transparent 0%,
-      rgb(var(--gold-rgb) / 0.85) 18%,
-      rgb(var(--gold-rgb)) 50%,
-      rgb(var(--gold-rgb) / 0.85) 82%,
-      transparent 100%
-    );
-    pointer-events: none;
+  .glass-subtle, .card-surface, .surface-subtle {
+    position: relative;
+    background: rgb(var(--bg-alt-rgb));
+    border: 1px solid var(--border-soft);
   }
-  .gold-stripe-b::after { bottom: -1px; }
-  .gold-stripe-t::after { top: -1px; }
+  .card-surface, .surface-subtle { border-radius: var(--radius-md); }
 
-  .gold-stripe-l {
-    border-left: 3px solid rgb(var(--gold-rgb) / 0.9);
-    background-image: linear-gradient(
-      180deg,
-      rgb(var(--gold-rgb) / 0.25),
-      transparent 60%
-    );
+  .glass-hover, .card-elevated, .card-surface {
+    transition: transform 240ms cubic-bezier(0.22, 1, 0.36, 1),
+      box-shadow 240ms cubic-bezier(0.22, 1, 0.36, 1), border-color 180ms ease;
+  }
+  .glass-hover:hover, a.card-elevated:hover, a.card-surface:hover {
+    transform: translateY(-2px);
+    border-color: var(--border-strong);
+    box-shadow: var(--shadow-lg);
   }
 
+  .glass-backdrop { background: rgb(9 14 24 / 0.6); }
+  .nav-blur { background: var(--nav-bg); }
+
+  /* Retired decorative motifs — kept as no-ops for any old markup. */
+  .tibeb, .tibeb-thin { display: none; }
+  .gold-stripe-b, .gold-stripe-t { position: relative; }
+  .gold-stripe-l { border-left: 3px solid rgb(var(--ember-rgb)); }
   .gold-underline {
-    background: linear-gradient(
-      90deg,
-      rgb(var(--gold-rgb) / 0.9),
-      rgb(var(--gold-rgb) / 0.45)
-    );
-    background-repeat: no-repeat;
-    background-size: 100% 0.35em;
-    background-position: 0 88%;
-    -webkit-box-decoration-break: clone;
-    box-decoration-break: clone;
-  }
-
-  /* ── Cards (legacy names → glass) ────────────────────────── */
-  .card-elevated {
-    background: var(--glass-bg);
-    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(1.4);
-    backdrop-filter: blur(var(--glass-blur)) saturate(1.4);
-    border: 1px solid var(--glass-border);
-    border-radius: var(--radius-lg);
-    box-shadow: var(--glass-shadow);
-    transition: transform 200ms cubic-bezier(0.22, 1, 0.36, 1),
-      box-shadow 200ms cubic-bezier(0.22, 1, 0.36, 1);
-  }
-  .card-elevated:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--glass-shadow-strong);
-  }
-
-  .card-surface {
-    background: var(--glass-bg-subtle);
-    -webkit-backdrop-filter: blur(12px) saturate(1.2);
-    backdrop-filter: blur(12px) saturate(1.2);
-    border: 1px solid var(--glass-border-soft);
-    border-radius: var(--radius-md);
-    box-shadow: 0 4px 16px rgb(16 18 27 / 0.05);
-    transition: transform 200ms cubic-bezier(0.22, 1, 0.36, 1),
-      box-shadow 200ms cubic-bezier(0.22, 1, 0.36, 1);
-  }
-  .card-surface:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--glass-shadow);
+    text-decoration: underline;
+    text-decoration-color: rgb(var(--gold-rgb));
+    text-decoration-thickness: 0.12em;
+    text-underline-offset: 0.18em;
   }
 
   .page-shell {
     width: 100%;
     max-width: 80rem;
     margin-inline: auto;
-    padding: 2rem 1rem 7rem;
+    padding: 2rem 1rem 7.5rem;
   }
+  @media (min-width: 640px) { .page-shell { padding: 3rem 1.5rem 4rem; } }
 
-  .surface-subtle {
-    background: var(--glass-bg-subtle);
-    border: 1px solid var(--glass-border-soft);
-    border-radius: var(--radius-md);
-  }
-
-  /* ── Eyebrow: quiet uppercase label, navy-tinted w/ gold dash ─ */
+  /* ── Type helpers ─────────────────────────────────────────── */
   .eyebrow {
     display: inline-flex;
     align-items: center;
-    gap: 0.4rem;
-    background: rgb(var(--ember-rgb) / 0.1);
-    color: rgb(var(--ember-rgb));
-    border-radius: 999px;
-    font-size: 0.6875rem;
-    font-weight: 700;
-    letter-spacing: 0.12em;
+    gap: 0.5rem;
+    color: rgb(var(--text-secondary-rgb));
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
-    padding: 0.3rem 0.75rem;
-    line-height: 1;
+    line-height: 1.2;
   }
   .eyebrow::before {
     content: '';
-    display: inline-block;
-    width: 1.25rem;
-    height: 2px;
-    border-radius: 999px;
-    background: linear-gradient(90deg, rgb(var(--gold-rgb)), rgb(var(--gold-rgb) / 0.4));
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 2px;
+    background: rgb(var(--gold-rgb));
   }
+  .display { font-family: var(--font-display), 'Bricolage Grotesque', system-ui, sans-serif; letter-spacing: -0.03em; }
+  .numeric { font-variant-numeric: tabular-nums; }
 
-  /* ── Form label ───────────────────────────────────────────────
-     A label is not an eyebrow. It reads in sentence case at body
-     size, carries no pill, dash or tint — it just names the field. */
   .field-label {
     display: block;
     font-size: 0.8125rem;
     font-weight: 600;
     line-height: 1.4;
-    color: var(--text-primary);
+    color: rgb(var(--text-primary-rgb));
     margin-bottom: 0.375rem;
   }
 
-  /* ── Buttons: solid accent / soft glass ghosts ────────────── */
-  .btn-primary {
+  /* ── Buttons ──────────────────────────────────────────────── */
+  .btn-primary, .btn-secondary, .btn-accent {
     position: relative;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
-    background: linear-gradient(
-      135deg,
-      rgb(var(--ember-rgb)) 0%,
-      rgb(var(--ember-deep-rgb)) 100%
-    );
-    color: rgb(var(--on-accent-rgb));
-    border: none;
-    border-radius: 14px;
+    min-height: 2.75rem;
+    border-radius: 10px;
     font-weight: 600;
-    padding: 0.75rem 1.75rem;
-    box-shadow: 0 2px 8px rgb(var(--ember-rgb) / 0.3),
-      0 8px 24px rgb(var(--ember-rgb) / 0.18);
-    transition: transform 160ms cubic-bezier(0.22, 1, 0.36, 1),
-      box-shadow 160ms cubic-bezier(0.22, 1, 0.36, 1),
-      filter 160ms ease;
+    font-size: 0.9375rem;
+    padding: 0.625rem 1.25rem;
+    transition: transform 140ms cubic-bezier(0.22, 1, 0.36, 1),
+      background-color 160ms ease, border-color 160ms ease, box-shadow 160ms ease, color 160ms ease;
   }
-  .btn-primary:hover {
-    transform: translateY(-1px);
-    filter: brightness(1.06);
-    box-shadow: 0 4px 12px rgb(var(--ember-rgb) / 0.35),
-      0 12px 32px rgb(var(--ember-rgb) / 0.22);
+  .btn-primary {
+    background: rgb(var(--ember-rgb));
+    color: rgb(var(--on-accent-rgb));
+    border: 1px solid rgb(var(--ember-deep-rgb));
+    box-shadow: var(--shadow-sm);
   }
-  .btn-primary:active {
-    transform: translateY(0) scale(0.98);
-    box-shadow: 0 1px 4px rgb(var(--ember-rgb) / 0.3);
+  .btn-primary:hover { background: rgb(var(--ember-deep-rgb)); }
+  .btn-secondary {
+    background: rgb(var(--bg-card-rgb));
+    color: rgb(var(--text-primary-rgb));
+    border: 1px solid var(--border-strong);
   }
-  .btn-primary:disabled {
+  .btn-secondary:hover { background: rgb(var(--bg-alt-rgb)); border-color: rgb(var(--text-primary-rgb) / 0.35); }
+  .btn-accent {
+    background: rgb(var(--ember-soft-rgb));
+    color: rgb(var(--ember-deep-rgb));
+    border: 1px solid transparent;
+  }
+  [data-theme='dark'] .btn-accent { color: rgb(var(--ember-rgb)); }
+  .btn-accent:hover { border-color: rgb(var(--ember-rgb) / 0.4); }
+  .btn-primary:active, .btn-secondary:active, .btn-accent:active { transform: scale(0.98); }
+  .btn-primary:disabled, .btn-secondary:disabled, .btn-accent:disabled,
+  .btn-primary[aria-disabled='true'] {
     opacity: 0.5;
     cursor: not-allowed;
     transform: none;
-    filter: saturate(0.6);
-    box-shadow: none;
-  }
-
-  .btn-secondary {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    background: var(--glass-bg);
-    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(1.4);
-    backdrop-filter: blur(var(--glass-blur)) saturate(1.4);
-    color: var(--text-primary);
-    border: 1px solid var(--glass-border);
-    border-radius: 14px;
-    font-weight: 600;
-    padding: 0.75rem 1.75rem;
-    box-shadow: 0 2px 8px rgb(16 18 27 / 0.05);
-    transition: transform 160ms cubic-bezier(0.22, 1, 0.36, 1),
-      box-shadow 160ms cubic-bezier(0.22, 1, 0.36, 1),
-      border-color 160ms ease;
-  }
-  .btn-secondary:hover {
-    transform: translateY(-1px);
-    border-color: rgb(var(--ember-rgb) / 0.35);
-    box-shadow: 0 4px 16px rgb(16 18 27 / 0.08);
-  }
-  .btn-secondary:active {
-    transform: translateY(0) scale(0.98);
-  }
-
-  /* Legacy accent button → same accent, lighter treatment */
-  .btn-accent {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    background: rgb(var(--ember-rgb) / 0.12);
-    color: rgb(var(--ember-rgb));
-    border: 1px solid rgb(var(--ember-rgb) / 0.25);
-    border-radius: 14px;
-    font-weight: 600;
-    padding: 0.75rem 1.75rem;
-    transition: transform 160ms cubic-bezier(0.22, 1, 0.36, 1),
-      background-color 160ms ease, border-color 160ms ease;
-  }
-  .btn-accent:hover {
-    transform: translateY(-1px);
-    background: rgb(var(--ember-rgb) / 0.18);
-    border-color: rgb(var(--ember-rgb) / 0.4);
-  }
-  .btn-accent:active {
-    transform: translateY(0) scale(0.98);
   }
 
   .input-premium {
     width: 100%;
-    background: rgb(var(--bg-input-rgb) / 0.7);
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    padding: 0.75rem 1rem;
-    font-size: 0.875rem;
+    background: rgb(var(--bg-card-rgb));
+    color: rgb(var(--text-primary-rgb));
+    border: 1px solid var(--border-strong);
+    border-radius: 10px;
+    padding: 0.625rem 0.875rem;
+    font-size: 0.9375rem;
     outline: none;
-    transition: border-color 150ms ease, box-shadow 150ms ease,
-      background-color 150ms ease;
+    transition: border-color 150ms ease, box-shadow 150ms ease;
   }
-  .input-premium::placeholder {
-    color: var(--text-muted);
-  }
+  .input-premium::placeholder { color: rgb(var(--text-muted-rgb)); }
+  .input-premium:hover { border-color: rgb(var(--text-primary-rgb) / 0.35); }
   .input-premium:focus {
-    border-color: rgb(var(--ember-rgb) / 0.5);
-    background: rgb(255 255 255 / 0.85);
-    box-shadow: 0 0 0 4px rgb(var(--ember-rgb) / 0.12);
+    border-color: rgb(var(--ember-rgb));
+    box-shadow: 0 0 0 3px rgb(var(--ember-rgb) / 0.18);
   }
-  /* Same console boundary as the `bg-white` overrides above: a focused input
-     inside the fixed-light console stays on the console card surface. */
-  [data-theme='dark'] .input-premium:focus:not(:where(.shell-console *)) {
-    background: rgb(27 27 32 / 0.9);
+  .input-premium[aria-invalid='true'] { border-color: rgb(var(--danger-rgb)); }
+  .input-premium:disabled { opacity: 0.6; cursor: not-allowed; }
+
+  /* The console field is flat light; the focus halo tuned for the paper
+     field reads as a warm smudge there. Pin it to console indigo. */
+  .shell-console .input-premium:focus {
+    box-shadow: 0 0 0 3px rgb(var(--console-indigo-rgb) / 0.18);
   }
 
   .badge-gold {
-    background: rgb(var(--ember-rgb) / 0.12);
-    color: rgb(var(--ember-rgb));
-    border: 1px solid rgb(var(--ember-rgb) / 0.2);
-    border-radius: 999px;
-    padding: 0.2rem 0.75rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    background: rgb(var(--ember-soft-rgb));
+    color: rgb(var(--ember-deep-rgb));
+    border-radius: 6px;
+    padding: 0.2rem 0.55rem;
     font-size: 0.75rem;
     font-weight: 600;
   }
+  [data-theme='dark'] .badge-gold { color: rgb(var(--ember-rgb)); }
 
-  /* ── Motion utilities (CSS side) ──────────────────────────── */
-  .animate-fade-in-up {
-    animation: fade-in-up 380ms cubic-bezier(0.16, 1, 0.3, 1) both;
-  }
-
-  .animate-pop-in {
-    animation: pop-in 240ms cubic-bezier(0.22, 1, 0.36, 1) both;
-  }
+  /* ── Motion ───────────────────────────────────────────────── */
+  .animate-fade-in-up { animation: fade-in-up 420ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+  .animate-pop-in { animation: pop-in 220ms cubic-bezier(0.22, 1, 0.36, 1) both; }
+  .lift-in { animation: fade-in-up 520ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+  .route-fade { animation: route-fade 240ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+  .save-pop { animation: save-pop 420ms cubic-bezier(0.22, 1.4, 0.36, 1); }
+  .animate-drawer-in { animation: drawer-in 260ms cubic-bezier(0.22, 1, 0.36, 1) both; }
 
   .skeleton {
-    background: linear-gradient(
-      90deg,
-      rgb(var(--bg-input-rgb)) 25%,
-      rgb(var(--bg-elevated-rgb)) 50%,
-      rgb(var(--bg-input-rgb)) 75%
-    );
+    background: linear-gradient(90deg, rgb(var(--bg-alt-rgb)) 25%, rgb(var(--bg-elevated-rgb)) 50%, rgb(var(--bg-alt-rgb)) 75%);
     background-size: 200% 100%;
     animation: skeleton-shimmer 1.4s ease-in-out infinite;
     border-radius: var(--radius-md);
   }
 
-  .safe-bottom {
-    padding-bottom: env(safe-area-inset-bottom);
-  }
+  .safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
+  .tap-target { min-height: 44px; min-width: 44px; }
 
-  .tap-target {
-    min-height: 44px;
-    min-width: 44px;
-  }
-
-  /* ── Sticker → quiet glass pill (kept for legacy markup) ──── */
+  /* ── Pills & tags ─────────────────────────────────────────── */
   .sticker {
     display: inline-flex;
     align-items: center;
     gap: 0.4rem;
-    border: 1px solid var(--glass-border);
-    border-radius: 999px;
-    background: var(--glass-bg);
-    -webkit-backdrop-filter: blur(12px) saturate(1.2);
-    backdrop-filter: blur(12px) saturate(1.2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: rgb(var(--bg-card-rgb));
+    color: rgb(var(--text-primary-rgb));
+    font-size: 0.75rem;
     font-weight: 600;
     line-height: 1.2;
-    padding: 0.45rem 0.9rem;
-    box-shadow: 0 2px 8px rgb(16 18 27 / 0.06);
+    padding: 0.35rem 0.6rem;
   }
-  .sticker-ember { color: rgb(var(--ember-rgb)); background: rgb(var(--ember-rgb) / 0.12); border-color: rgb(var(--ember-rgb) / 0.25); }
-  .sticker-amber { color: rgb(var(--ember-rgb)); background: rgb(var(--ember-rgb) / 0.1); border-color: rgb(var(--ember-rgb) / 0.22); }
-  .sticker-cream { color: var(--text-primary); background: var(--glass-bg); }
+  .sticker-ember, .sticker-amber { background: rgb(var(--ember-rgb)); color: rgb(var(--on-accent-rgb)); border-color: transparent; }
+  .sticker-cream { background: rgb(var(--bg-card-rgb)); }
 
-  /* ── Horizontal snap carousel ─────────────────────────────── */
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    min-height: 2.5rem;
+    white-space: nowrap;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: rgb(var(--bg-card-rgb));
+    color: rgb(var(--text-secondary-rgb));
+    padding: 0.5rem 1rem;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    transition: background-color 160ms ease, color 160ms ease, border-color 160ms ease, transform 140ms ease;
+  }
+  .chip:hover { color: rgb(var(--text-primary-rgb)); border-color: var(--border-strong); }
+  .chip:active { transform: scale(0.97); }
+  .chip-active, .chip-active:hover {
+    background: rgb(var(--text-primary-rgb));
+    border-color: rgb(var(--text-primary-rgb));
+    color: rgb(var(--bg-primary-rgb));
+  }
+
+  .date-badge {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-width: 3.25rem;
+    background: rgb(var(--bg-card-rgb));
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    text-align: center;
+    line-height: 1;
+    padding: 0 0 0.45rem;
+    box-shadow: var(--shadow-md);
+  }
+  .date-badge-month {
+    display: block;
+    width: 100%;
+    padding: 0.3rem 0.5rem;
+    /* `--gold-text-rgb` rather than `--gold-rgb`: the paper month label is
+       10px bold (= normal text, needs 4.5:1) and measured 4.42:1 on the
+       brighter berbere. The deeper tone lifts it to ~6.2:1. */
+    background: rgb(var(--gold-text-rgb));
+    color: #fffaf3;
+    font-size: 0.625rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+  [data-theme='dark'] .date-badge-month { color: rgb(20 12 8); }
+  .date-badge-day, .date-badge-on-light .date-badge-day {
+    margin-top: 0.4rem;
+    font-family: var(--font-display), 'Bricolage Grotesque', system-ui, sans-serif;
+    font-size: 1.25rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    color: rgb(var(--text-primary-rgb));
+  }
+
+  .price-pill {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.3rem;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: rgb(var(--bg-card-rgb));
+    color: rgb(var(--text-primary-rgb));
+    padding: 0.25rem 0.55rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  .trust-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    border-radius: 6px;
+    background: rgb(var(--ember-soft-rgb));
+    color: rgb(var(--ember-deep-rgb));
+    padding: 0.22rem 0.55rem;
+    font-size: 0.6875rem;
+    font-weight: 600;
+  }
+  [data-theme='dark'] .trust-pill { color: rgb(var(--ember-rgb)); }
+
+  /* ── Carousel ─────────────────────────────────────────────── */
   .snap-row {
     display: flex;
     gap: 1.25rem;
@@ -787,191 +676,46 @@
     scroll-snap-type: x mandatory;
     scroll-behavior: smooth;
     scrollbar-width: none;
-    -ms-overflow-style: none;
     padding-bottom: 0.25rem;
   }
   .snap-row::-webkit-scrollbar { display: none; }
-  .snap-row > * {
-    scroll-snap-align: start;
-    flex: 0 0 84%;
-  }
-  @media (min-width: 640px) {
-    .snap-row > * { flex-basis: 46%; }
-  }
-  @media (min-width: 1024px) {
-    .snap-row > * { flex: 1 1 0; }
-  }
+  .snap-row > * { scroll-snap-align: start; flex: 0 0 84%; }
+  @media (min-width: 640px) { .snap-row > * { flex-basis: 46%; } }
+  @media (min-width: 1024px) { .snap-row > * { flex: 1 1 0; max-width: calc((100% - 2.5rem) / 3); } }
 
-  /* ── Chips: soft neutral pills, accent when active ────────── */
-  .chip {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.45rem;
-    white-space: nowrap;
-    border: 1px solid var(--glass-border);
-    border-radius: 999px;
-    background: var(--glass-bg);
-    -webkit-backdrop-filter: blur(12px) saturate(1.2);
-    backdrop-filter: blur(12px) saturate(1.2);
-    color: var(--text-secondary);
-    padding: 0.55rem 1.05rem;
-    font-size: 0.8125rem;
-    font-weight: 600;
-    box-shadow: 0 2px 8px rgb(16 18 27 / 0.05);
-    transition: transform 160ms cubic-bezier(0.22, 1, 0.36, 1),
-      box-shadow 160ms cubic-bezier(0.22, 1, 0.36, 1),
-      background-color 160ms ease, color 160ms ease,
-      border-color 160ms ease;
-  }
-  .chip:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgb(16 18 27 / 0.08);
-    color: var(--text-primary);
-    border-color: rgb(var(--ember-rgb) / 0.3);
-  }
-  .chip:active {
-    transform: translateY(0) scale(0.97);
-  }
-  .chip-active,
-  .chip-active:hover {
-    background: linear-gradient(135deg, rgb(var(--ember-rgb)), rgb(var(--ember-deep-rgb)));
-    border-color: transparent;
-    color: var(--on-accent);
-    box-shadow: 0 2px 8px rgb(var(--ember-rgb) / 0.3);
-  }
-
-  /* ── Month/day block → glass tile with accent month ───────── */
-  .date-badge {
-    display: inline-flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    background: var(--glass-bg-strong);
-    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(1.4);
-    backdrop-filter: blur(var(--glass-blur)) saturate(1.4);
-    border: 1px solid var(--glass-border);
-    border-radius: 14px;
-    box-shadow: 0 4px 16px rgb(10 12 20 / 0.18);
-    text-align: center;
-    line-height: 1;
-    padding: 0.55rem 0.8rem;
-  }
-  .date-badge-month {
-    font-size: 0.625rem;
-    font-weight: 700;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: rgb(var(--ember-rgb));
-  }
-  .date-badge-day {
-    margin-top: 0.2rem;
-    font-size: 1.15rem;
-    font-weight: 700;
-    font-variant-numeric: tabular-nums;
-    color: #FFFFFF;
-  }
-  /* When placed on light backgrounds (not over photos) */
-  .date-badge-on-light .date-badge-day { color: var(--text-primary); }
-
-  /* ── "From ETB x" pill — quiet neutral glass ──────────────── */
-  .price-pill {
-    display: inline-flex;
-    align-items: baseline;
-    gap: 0.3rem;
-    border: 1px solid var(--glass-border);
-    border-radius: 999px;
-    background: var(--glass-bg-strong);
-    -webkit-backdrop-filter: blur(12px) saturate(1.2);
-    backdrop-filter: blur(12px) saturate(1.2);
-    color: var(--text-primary);
-    padding: 0.25rem 0.7rem;
-    font-size: 0.75rem;
-    font-weight: 700;
-    font-variant-numeric: tabular-nums;
-    white-space: nowrap;
-    box-shadow: 0 2px 8px rgb(10 12 20 / 0.12);
-  }
-
-  /* ── Trust indicator ─────────────────────────────────────── */
-  .trust-pill {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.3rem;
-    border: 1px solid rgb(var(--moss-rgb) / 0.25);
-    border-radius: 999px;
-    background: rgb(var(--moss-rgb) / 0.1);
-    color: rgb(var(--moss-rgb));
-    padding: 0.22rem 0.65rem;
-    font-size: 0.6875rem;
-    font-weight: 600;
-    letter-spacing: 0.02em;
-  }
-
-  /* ── Consumer hero — navy wash with faint gold bloom ──────── */
-  .hero-warm {
-    background:
-      radial-gradient(60% 90% at 15% -10%, rgb(var(--ember-rgb) / 0.08), transparent 60%),
-      radial-gradient(45% 70% at 95% 5%, rgb(var(--gold-rgb) / 0.07), transparent 55%),
-      transparent;
-  }
-
-  /* ── Footer — darker sibling of hero-warm: navy base with a
-     gold bloom; glows sit at opposite corners from the hero. ─ */
-  .footer-warm {
-    background:
-      radial-gradient(55% 80% at 90% 10%, rgb(var(--gold-rgb) / 0.14), transparent 60%),
-      radial-gradient(45% 70% at 6% 100%, rgb(var(--ember-rgb) / 0.22), transparent 58%),
-      rgb(13 24 42);
-  }
-
-  /* ── Dotted texture → very faint dot grid (kept for legacy) ─ */
+  /* ── Section backgrounds ──────────────────────────────────── */
+  .hero-warm { background: rgb(var(--bg-alt-rgb)); }
+  .footer-warm { background: rgb(14 24 41); }
+  [data-theme='dark'] .footer-warm { background: rgb(8 12 20); }
   .dot-grid {
-    background-image: radial-gradient(rgb(var(--text-primary-rgb) / 0.06) 1px, transparent 1.2px);
+    background-image: radial-gradient(rgb(var(--text-primary-rgb) / 0.07) 1px, transparent 1.2px);
     background-size: 18px 18px;
   }
-}
 
-@media (min-width: 640px) {
-  .page-shell { padding: 3rem 1.5rem 4rem; }
-}
+  /* Ledger rule: thin double hairline used to separate editorial sections */
+  .ledger-rule { border-top: 1px solid var(--border); box-shadow: 0 3px 0 -2px var(--border-soft); }
 
-@keyframes skeleton-shimmer {
-  0% { background-position: 200% 0; }
-  100% { background-position: -200% 0; }
-}
+  /* Image scrim for text set over photography */
+  .photo-scrim { background: linear-gradient(180deg, rgb(9 14 24 / 0) 35%, rgb(9 14 24 / 0.82) 100%); }
 
-@keyframes fade-in-up {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes pop-in {
-  from { opacity: 0; transform: scale(0.96); }
-  to { opacity: 1; transform: scale(1); }
-}
-
-/* Route-transition fade used by app/template.tsx. Pure opacity so it matches
-   the previous framer-motion fade exactly. The global prefers-reduced-motion
-   block above collapses animation-duration, so this is covered automatically. */
-@keyframes route-fade {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-@layer components {
-  .route-fade {
-    animation: route-fade 250ms cubic-bezier(0.16, 1, 0.3, 1) both;
-  }
-}
-/* ------------------------------------------------------------
-   PARTNER CONSOLE glass overrides
-   Must live in @layer components so it outranks `.glass` above.
-   ------------------------------------------------------------ */
-@layer components {
+  /* ------------------------------------------------------------
+     PARTNER CONSOLE glass overrides
+     Must live in @layer components so they outrank `.glass` above.
+     ------------------------------------------------------------ */
+  .shell-console { background: rgb(var(--console-bg-rgb)); color: rgb(var(--console-ink-rgb)); }
   .shell-console .glass,
   .shell-console .glass-strong,
-  .shell-console .glass-subtle {
+  .shell-console .glass-subtle,
+  .shell-console .card-elevated {
     background-image: none;
     border-radius: var(--console-radius);
+    box-shadow: var(--console-shadow);
   }
 }
+
+@keyframes skeleton-shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+@keyframes fade-in-up { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes pop-in { from { opacity: 0; transform: scale(0.97); } to { opacity: 1; transform: scale(1); } }
+@keyframes route-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes save-pop { 0% { transform: scale(1); } 40% { transform: scale(1.3); } 100% { transform: scale(1); } }
+@keyframes drawer-in { from { transform: translateX(-100%); } to { transform: translateX(0); } }

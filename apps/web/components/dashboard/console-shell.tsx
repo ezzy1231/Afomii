@@ -230,7 +230,7 @@ function ConsoleNav({
               className={cn(
                 'flex min-h-11 items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-medium transition-colors duration-200',
                 active
-                  ? 'bg-console-indigo text-white shadow-[0_6px_18px_rgb(91_63_240/0.4)]'
+                  ? 'bg-console-nav-accent text-white shadow-[0_6px_18px_rgb(63_114_190/0.4)]'
                   : 'text-console-nav-muted hover:bg-console-nav-soft hover:text-white',
               )}
             >
@@ -250,7 +250,7 @@ function ConsoleNav({
       )}
       {showPromo && (
         <div className="p-3">
-          <div className="rounded-2xl bg-gradient-to-br from-console-indigo to-[#7C4DFF] p-4 shadow-[0_10px_28px_rgb(0_0_0/0.3)]">
+          <div className="rounded-2xl bg-gradient-to-br from-console-nav-accent to-[#2F5C9E] p-4 shadow-[0_10px_28px_rgb(0_0_0/0.3)]">
             <span className="flex size-9 items-center justify-center rounded-xl bg-white/20"><Rocket className="size-[18px] text-white" /></span>
             <p className="mt-3 text-sm font-bold leading-snug text-white">Boost Your Event</p>
             <p className="mt-1 text-[11px] leading-relaxed text-white/75">Featured placement in Explore and priority email drops.</p>
@@ -349,7 +349,7 @@ function ConsoleProfile({
         aria-controls={id}
         className="flex min-h-11 items-center gap-2.5 rounded-xl py-1 pl-1 pr-2 transition-colors hover:bg-console-bg"
       >
-        <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-console-indigo to-[#8A6BFF] text-xs font-bold text-white">
+        <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-console-indigo to-[#3F72BE] text-xs font-bold text-white">
           {initialsFor(account)}
         </span>
         <span className="hidden text-left sm:block">

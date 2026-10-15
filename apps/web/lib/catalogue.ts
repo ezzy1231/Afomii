@@ -133,6 +133,43 @@ export async function getRestaurantCatalogue() {
   return fetchRestaurantCatalogue()
 }
 
+/**
+ * Restaurant ids ordered by real demand: most reservations in the last two
+ * weeks, then rating. Backed by `public.trending_restaurants`, a SECURITY
+ * DEFINER aggregate — an anonymous caller cannot read `public.reservations`
+ * at all, so this is the only way to rank by anything other than the public
+ * rating column.
+ *
+ * Deliberately soft-failing: if the migration has not been applied the RPC
+ * errors, and callers fall back to rating. A missing analytics function must
+ * never take the home page down.
+ */
+const fetchTrendingRestaurantIds = unstable_cache(
+  async (): Promise<string[]> => {
+    try {
+      const supabase = createAnonClient()
+      const { data, error } = await supabase.rpc('trending_restaurants', {
+        p_limit: 12,
+        p_days: 14,
+      })
+      if (error) {
+        console.warn('[catalogue] trending_restaurants unavailable:', error.message)
+        return []
+      }
+      return (data ?? []).map((row: { restaurant_id: string }) => row.restaurant_id)
+    } catch (err) {
+      console.error('[catalogue] trending lookup crashed:', err)
+      return []
+    }
+  },
+  ['trending-restaurants'],
+  { revalidate: CATALOGUE_TTL_SECONDS, tags: ['trending-restaurants'] }
+)
+
+export async function getTrendingRestaurantIds() {
+  return fetchTrendingRestaurantIds()
+}
+
 const fetchEventCatalogue = unstable_cache(
   async (): Promise<{ items: CatalogueItem[] }> => {
     // See fetchRestaurantCatalogue: anon client keeps public reads cacheable.

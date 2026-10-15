@@ -94,7 +94,7 @@ export function PartnerProfileEditor({ kind, profile, account, listing }: Profil
       <input type="hidden" name="neighborhood" value="" />
 
       {message && <p role="status" aria-live="polite" className={`flex items-center gap-2 rounded-xl border px-4 py-3 text-sm ${message.ok ? 'border-console-mint/40 bg-console-mint/20 text-console-mint-ink' : 'border-[#F5C2BC] bg-[#FDECEA] text-[#8C1D18]'}`}>{message.ok && <CheckCircle2 className="size-4" />}{message.text}</p>}
-      <button type="submit" disabled={pending} className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-console-indigo px-5 text-sm font-semibold text-white shadow-[0_6px_18px_rgb(91_63_240/0.22)] hover:bg-console-indigo-deep disabled:opacity-50">
+      <button type="submit" disabled={pending} className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-console-indigo px-5 text-sm font-semibold text-white shadow-[0_6px_18px_rgb(28_58_100/0.22)] hover:bg-console-indigo-deep disabled:opacity-50">
         <Save className="size-4" />{pending ? 'Saving profile…' : 'Save profile'}
       </button>
     </form>

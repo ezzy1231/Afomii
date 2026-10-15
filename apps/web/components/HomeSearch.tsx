@@ -7,34 +7,35 @@ import { ArrowRight, Search } from 'lucide-react'
 export default function HomeSearch() {
   const router = useRouter()
   const [query, setQuery] = useState('')
+  const [pending, setPending] = useState(false)
 
   function submit(e: React.FormEvent) {
     e.preventDefault()
     const q = query.trim()
+    setPending(true)
     router.push(q ? `/restaurants?q=${encodeURIComponent(q)}` : '/restaurants')
   }
 
   return (
     <form
       onSubmit={submit}
-      className="glass flex items-center gap-2 rounded-2xl p-2"
+      role="search"
+      className="group flex min-w-0 items-center gap-2 rounded-2xl border border-app-border bg-app-card p-1.5 shadow-card transition-[box-shadow,border-color] duration-200 focus-within:border-ember focus-within:ring-2 focus-within:ring-ember/15"
     >
-      <div className="flex min-h-12 min-w-0 flex-1 items-center gap-3 px-3">
-        <Search className="size-[18px] shrink-0 text-app-muted" strokeWidth={2.5} />
+      <label className="flex min-h-12 min-w-0 flex-1 cursor-text items-center gap-3 px-3">
+        <Search className="size-[18px] shrink-0 text-app-muted transition-colors group-focus-within:text-ember" strokeWidth={2.4} aria-hidden />
         <input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search restaurants or cuisines"
-          className="min-w-0 flex-1 bg-transparent text-sm font-medium text-app-fg outline-none placeholder:text-app-muted"
+          placeholder="Restaurant, cuisine or area"
+          className="min-h-0 w-full min-w-0 flex-1 bg-transparent text-base font-medium text-app-fg outline-none placeholder:text-app-subtle"
           aria-label="Search restaurants"
+          enterKeyHint="search"
         />
-      </div>
-      <button
-        type="submit"
-        className="inline-flex min-h-12 shrink-0 items-center justify-center gap-1.5 rounded-xl bg-gradient-to-br from-ember to-ember-deep px-4 text-sm font-semibold text-on-accent shadow-[0_2px_8px_rgb(var(--ember-rgb)/0.3)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_4px_12px_rgb(var(--ember-rgb)/0.4)] active:translate-y-0 active:scale-[0.98] sm:px-5"
-      >
+      </label>
+      <button type="submit" disabled={pending} className="btn-primary min-h-12 shrink-0 !rounded-xl !px-4 sm:!px-6">
         Explore
-        <ArrowRight className="size-4" strokeWidth={2.5} />
+        <ArrowRight className="size-4" strokeWidth={2.5} aria-hidden />
       </button>
     </form>
   )

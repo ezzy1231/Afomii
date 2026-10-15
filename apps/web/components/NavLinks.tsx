@@ -16,23 +16,27 @@ export default function NavLinks({ isAuthenticated }: { isAuthenticated: boolean
   ]
 
   return (
-    <nav className="hidden items-center gap-1 md:flex" aria-label="Primary">
+    <nav className="hidden items-center gap-0.5 md:flex" aria-label="Primary">
       {links.map(({ href, label }) => {
-        const active =
-          href === '/' ? pathname === '/' : pathname.startsWith(href)
+        const active = href === '/' ? pathname === '/' : pathname.startsWith(href)
         return (
           <Link
             key={href}
             href={href}
             aria-current={active ? 'page' : undefined}
             className={cn(
-              'relative rounded-full px-3.5 py-1.5 text-sm font-medium transition-colors duration-200 active:translate-y-px',
-              active
-                ? 'bg-ember/12 text-ember'
-                : 'text-app-muted hover:bg-app-elevated/60 hover:text-app-fg'
+              'relative flex min-h-11 items-center px-3 text-sm font-medium transition-colors duration-200',
+              active ? 'text-app-fg' : 'text-app-muted hover:text-app-fg'
             )}
           >
             {label}
+            <span
+              aria-hidden
+              className={cn(
+                'absolute inset-x-3 bottom-1.5 h-[2px] origin-left rounded-full bg-ember transition-transform duration-300 ease-out',
+                active ? 'scale-x-100' : 'scale-x-0'
+              )}
+            />
           </Link>
         )
       })}
