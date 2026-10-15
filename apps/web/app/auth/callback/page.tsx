@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Suspense } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import { resolveAuthDestination } from '@/lib/auth-routing'
 
 /**
  * Supabase OAuth callback (client component).
@@ -73,6 +74,17 @@ function CallbackInner() {
         }
       }
 
+      // `data.user` is undefined when detectSessionInUrl already consumed the
+      // code: exchangeCodeForSession errors, the session exists, and the old
+      // code then dereferenced `data.user!.id` further down and threw. Resolve
+      // the user from whichever source actually has one.
+      const { data: sessionData } = await supabase.auth.getUser()
+      const user = data.user ?? sessionData.user ?? null
+      if (!user) {
+        setError('Could not complete sign-in. Please try again.')
+        return
+      }
+
       const next = params.get('next') ?? readStoredNext()
       // '/' is the fallback, not a choice — treating it as explicit would skip
       // role routing and land every user on the home page.
@@ -81,32 +93,28 @@ function CallbackInner() {
           ? next
           : null
 
-      if (explicitNext) {
-        router.replace(explicitNext)
-        router.refresh()
-        return
-      }
-
       const { data: profile } = await supabase
         .from('profiles')
         .select('role')
-        .eq('id', data.user!.id)
+        .eq('id', user.id)
         .maybeSingle()
 
       if (cancelled) return
 
-      const role = (profile?.role as string | undefined) ?? null
-
-      const destination =
-        role === 'system_admin'
-          ? '/dashboard/admin'
-          : role === 'food_business'
-            ? '/dashboard/restaurant'
-            : role === 'event_organizer'
-              ? '/dashboard/organizer'
-              : role === 'customer'
-                ? '/'
-                : '/auth/role'
+      /*
+       * A first-time Google user carries no role metadata and the
+       * handle_new_user trigger defaults profiles.role to 'customer', so the
+       * callback used to read that default as a real answer and send them home
+       * — the role picker was never shown. resolveAuthDestination() draws the
+       * distinction; see lib/auth-routing.ts and its unit tests.
+       */
+      const meta = (user.user_metadata ?? {}) as Record<string, unknown>
+      const destination = resolveAuthDestination({
+        role: (profile?.role as string | undefined) ?? null,
+        roleSelectedFlag: meta.role_selected,
+        signupRole: meta.role,
+        explicitNext,
+      })
 
       router.replace(destination)
       router.refresh()

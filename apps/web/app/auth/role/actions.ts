@@ -85,6 +85,28 @@ export async function assignRole(formData: FormData): Promise<void> {
     redirect(`/auth/role?error=${encodeURIComponent('Could not save your role. Please try again.')}`)
   }
 
+  /*
+   * Record that this account has now chosen a role.
+   *
+   * Without it, /auth/callback cannot tell a brand-new OAuth user (whose
+   * profiles.role was defaulted to 'customer' by the handle_new_user trigger,
+   * with no role metadata to inspect) from a returning customer who genuinely
+   * chose that role — so it would either skip the picker for everyone or show it
+   * to everyone on every sign-in.
+   *
+   * Kept on the auth user rather than a new profiles column so this needs no
+   * migration. It is an onboarding hint only: authorisation still reads
+   * profiles.role, which the user cannot write from the client.
+   *
+   * Non-fatal by design — if it fails the user is simply asked again next time
+   * rather than being blocked from finishing onboarding.
+   */
+  try {
+    await supabase.auth.updateUser({ data: { role_selected: true } })
+  } catch (err) {
+    logActionError('assignRole.markRoleSelected', err)
+  }
+
   // Provision the partner record so the destination dashboard is not empty.
   const { data: profile } = await supabase
     .from('profiles')

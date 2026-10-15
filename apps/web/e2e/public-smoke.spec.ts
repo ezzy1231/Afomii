@@ -99,7 +99,10 @@ test.describe('Auth surface', () => {
     const boxes = await cards.evaluateAll((els) =>
       els.map((el) => {
         const r = el.getBoundingClientRect()
-        return { top: Math.round(r.top), width: Math.round(r.width) }
+        // offsetTop, not rect.top: the cards fade in with a staggered
+        // `animate-fade-in-up` (translateY), so rect.top differs per card until
+        // the animation settles. Layout position is what "same row" means.
+        return { top: (el as HTMLElement).offsetTop, width: Math.round(r.width) }
       })
     )
 
