@@ -1,50 +1,20 @@
-import { createClient } from '@/lib/supabase/server'
-import { getUnreadNotificationCount } from '@/lib/supabase/queries'
 import Link from 'next/link'
 import MobileNavigation from './MobileNavigation'
 import NavLinks from './NavLinks'
-import NotificationsBell from './NotificationsBell'
-import ThemeToggle from './ThemeToggle'
+import HeaderAccount from './HeaderAccount'
 import { BrandWordmark } from './BrandMark'
 
-type AuthedUser = {
-  userId: string
-  fullName: string | null
-  email: string | null
-  profileId: string | null
-}
-
-async function getUser(): Promise<AuthedUser | null> {
-  try {
-    const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return null
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('id, full_name, email')
-      .eq('id', user.id)
-      .maybeSingle()
-    return {
-      userId: user.id,
-      fullName: profile?.full_name ?? null,
-      email: profile?.email ?? null,
-      profileId: profile?.id ?? null,
-    }
-  } catch {
-    return null
-  }
-}
-
-export default async function Navbar() {
-  const user = await getUser()
-  const [unreadCount] = await Promise.all([
-    user?.profileId ? getUnreadNotificationCount(user.profileId) : Promise.resolve(0),
-  ])
-  const initial =
-    user?.fullName?.[0]?.toUpperCase() ??
-    user?.email?.[0]?.toUpperCase() ??
-    null
-
+/**
+ * Site header.
+ *
+ * Deliberately NOT an async server component, and deliberately free of
+ * `cookies()`. It used to await the Supabase session and the unread
+ * notification count, which opted every page that renders it out of static
+ * rendering and forced `cache-control: no-store` at the CDN. The account corner
+ * now hydrates client-side via HeaderAccount; the real authorisation check
+ * stays in middleware.ts.
+ */
+export default function Navbar() {
   return (
     <>
       <header className="sticky top-0 z-50 border-b border-app-border bg-app-bg">
@@ -54,34 +24,13 @@ export default async function Navbar() {
           </Link>
 
           <div className="hidden min-w-0 flex-1 justify-center md:flex">
-            <NavLinks isAuthenticated={Boolean(user)} />
+            <NavLinks />
           </div>
 
-          <div className="flex items-center gap-1">
-            {user ? <NotificationsBell initialCount={unreadCount} /> : null}
-            <span>
-              <ThemeToggle />
-            </span>
-            {user ? (
-              <Link
-                href="/settings"
-                className="ml-1 flex size-11 items-center justify-center rounded-full bg-ember font-display text-sm font-bold text-on-accent transition-transform hover:scale-105 active:scale-95"
-                aria-label="Your account"
-              >
-                {initial ?? 'U'}
-              </Link>
-            ) : (
-              <Link
-                href="/auth/signin"
-                className="btn-primary ml-1 !min-h-11 !px-4 text-sm"
-              >
-                Sign in
-              </Link>
-            )}
-          </div>
+          <HeaderAccount />
         </div>
       </header>
-      <MobileNavigation isAuthenticated={Boolean(user)} />
+      <MobileNavigation />
     </>
   )
 }

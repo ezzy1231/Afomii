@@ -5,14 +5,22 @@ import { Bell, Check, Loader2 } from 'lucide-react'
 import type { ConsumerNotification } from '@/lib/supabase/queries'
 import { markNotificationsRead } from '@/app/plans/actions'
 import { cn } from '@/lib/utils'
+import { useSession } from './SessionProvider'
 
-export default function NotificationsBell({ initialCount }: { initialCount: number }) {
+export default function NotificationsBell({ initialCount = 0 }: { initialCount?: number }) {
   const [open, setOpen] = useState(false)
   const [unread, setUnread] = useState(initialCount)
   const [notifications, setNotifications] = useState<ConsumerNotification[]>([])
   const [loading, setLoading] = useState(false)
   const [loadedOnce, setLoadedOnce] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
+  const { unreadCount } = useSession()
+
+  // The provider resolves the count after hydration; adopt it when it arrives
+  // so the badge appears without the user having to open the panel.
+  useEffect(() => {
+    if (unreadCount) setUnread(unreadCount)
+  }, [unreadCount])
 
   useEffect(() => {
     function handleClick(e: MouseEvent) {

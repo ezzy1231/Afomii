@@ -4,9 +4,12 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { CalendarCheck, CalendarDays, CarFront, Home, MapPinned, UserRound } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { useSession } from './SessionProvider'
 
-export default function MobileNavigation({ isAuthenticated }: { isAuthenticated: boolean }) {
+export default function MobileNavigation() {
   const pathname = usePathname()
+  // Client-side session rather than a server prop — keeps pages static.
+  const { isAuthenticated } = useSession()
   const items = [
     { href: '/', label: 'Home', icon: Home },
     // "Dining" rather than "Eat": it matches the page's own "Dining guide"

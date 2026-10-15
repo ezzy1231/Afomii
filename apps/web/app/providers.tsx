@@ -2,6 +2,7 @@
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useState } from "react";
+import { SessionProvider } from "@/components/SessionProvider";
 
 export function Providers({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(
@@ -19,7 +20,9 @@ export function Providers({ children }: { children: React.ReactNode }) {
 
   return (
     <QueryClientProvider client={queryClient}>
-      {children}
+      {/* Keeps the shared chrome's session lookup off the server render path —
+          see the note in SessionProvider. */}
+      <SessionProvider>{children}</SessionProvider>
     </QueryClientProvider>
   );
 }

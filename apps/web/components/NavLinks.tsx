@@ -3,9 +3,13 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
+import { useSession } from './SessionProvider'
 
-export default function NavLinks({ isAuthenticated }: { isAuthenticated: boolean }) {
+export default function NavLinks() {
   const pathname = usePathname()
+  // Session state comes from the client provider rather than a server prop, so
+  // the header no longer forces every page to render on demand.
+  const { isAuthenticated } = useSession()
 
   const links = [
     { href: '/', label: 'Home' },
