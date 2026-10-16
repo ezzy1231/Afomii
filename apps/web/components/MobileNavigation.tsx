@@ -31,7 +31,7 @@ export default function MobileNavigation() {
 
   return (
     <nav
-      className="fixed inset-x-0 bottom-0 z-50 flex items-stretch justify-around border-t border-app-border bg-app-card px-1 pb-[env(safe-area-inset-bottom)] shadow-[0_-8px_24px_-16px_rgb(0_0_0/0.25)] md:hidden"
+      className="chrome-navy fixed inset-x-0 bottom-0 z-50 flex items-stretch justify-around border-t border-app-border px-1 pb-[env(safe-area-inset-bottom)] shadow-[0_-8px_24px_-16px_rgb(0_0_0/0.25)] md:hidden"
       aria-label="Primary"
     >
       {all.map(({ href, label, icon: Icon }) => {
@@ -43,16 +43,10 @@ export default function MobileNavigation() {
             aria-current={active ? 'page' : undefined}
             className={cn(
               'relative flex min-h-[60px] min-w-11 flex-1 flex-col items-center justify-center gap-1 text-[11px] font-medium transition-colors duration-200 active:scale-95',
-              active ? 'text-app-fg' : 'text-app-muted'
+              active ? 'text-ember' : 'text-app-muted'
             )}
           >
-            <span
-              aria-hidden
-              className={cn(
-                'flex h-7 w-12 items-center justify-center rounded-full transition-colors duration-300',
-                active ? 'bg-ember-soft' : 'bg-transparent'
-              )}
-            >
+            <span aria-hidden className="flex h-7 w-12 items-center justify-center">
               <Icon className={cn('size-[19px]', active ? 'text-ember' : 'text-app-muted')} strokeWidth={active ? 2.4 : 1.9} />
             </span>
             <span className={cn(active && 'font-semibold')}>{label}</span>

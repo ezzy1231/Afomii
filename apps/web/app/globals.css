@@ -52,7 +52,9 @@
     --gold-rgb: 194 168 120;
     --gold-text-rgb: 138 109 59;
     --gold-soft-rgb: 243 235 218;
-    --on-gold-rgb: 46 46 46;
+    /* `--gold-deep` = hover fill for gold buttons (navy ink stays ~5.3:1). */
+    --gold-deep-rgb: 168 142 94;
+    --on-gold-rgb: 11 31 58;
     --gray-rgb: 186 186 186;
     --amber-rgb: 183 121 31;
     --amber-soft-rgb: 251 239 213;
@@ -151,6 +153,35 @@
     --shadow-md: 0 1px 0 rgb(0 0 0 / 0.4), 0 8px 20px -10px rgb(0 0 0 / 0.7);
     --shadow-lg: 0 1px 0 rgb(0 0 0 / 0.4), 0 24px 44px -18px rgb(0 0 0 / 0.85);
 
+    color-scheme: dark;
+  }
+
+  /* ═══════════════════════════════════════════════════════════════
+     NAVY CHROME BARS — fixed navy chrome (both themes)
+     The mock's top bar and mobile bottom tab bar are Deep Navy in
+     day mode too, with gold accents on the active item. Rather than
+     restyle every child, this scope rebases the tokens they already
+     read: labels turn ivory/gray, active underlines, badges, and
+     tabs flip to gold, and the notification dropdown (rendered
+     inside the header subtree) becomes a navy panel with ivory
+     hairlines. Must stay after the `[data-theme]` block so it wins
+     on specificity ties. Used by `Navbar` and `MobileNavigation`. */
+  .chrome-navy {
+    --text-primary-rgb: 251 245 240;
+    --text-muted-rgb: 186 186 186;
+    --bg-alt-rgb: 25 44 69;
+    --bg-card-rgb: 17 38 68;
+    --bg-input-rgb: 6 15 29;
+    --bg-elevated-rgb: 25 44 69;
+    --ember-rgb: 194 168 120;
+    --ember-deep-rgb: 214 188 138;
+    --on-accent-rgb: 11 31 58;
+    --border: rgb(248 245 240 / 0.14);
+    --border-soft: rgb(248 245 240 / 0.08);
+    --border-strong: rgb(248 245 240 / 0.24);
+
+    background: rgb(11 31 58);
+    color: rgb(251 245 240);
     color-scheme: dark;
   }
 
@@ -313,6 +344,16 @@
     --ember-soft-rgb: var(--console-indigo-soft-rgb);
     --on-accent-rgb: 255 255 255;
     --on-accent: rgb(255 255 255);
+
+    /* `.btn-primary` paints Muted Gold on the public site; inside the
+       console it rebases to indigo so the form + error-boundary buttons
+       (`EventListingForm`, `RestaurantListingForm`, `DashboardError`)
+       keep the untouched console look. */
+    --gold-rgb: var(--console-indigo-rgb);
+    --gold-deep-rgb: var(--console-indigo-deep-rgb);
+    --gold-soft-rgb: var(--console-indigo-soft-rgb);
+    --gold-text-rgb: var(--console-indigo-rgb);
+    --on-gold-rgb: 255 255 255;
 
     --success-rgb: var(--console-green-rgb);
     --danger-rgb: 196 43 28;
@@ -491,13 +532,15 @@
     transition: transform 140ms cubic-bezier(0.22, 1, 0.36, 1),
       background-color 160ms ease, border-color 160ms ease, box-shadow 160ms ease, color 160ms ease;
   }
+  /* Primary actions are the mock's Muted Gold button in both themes:
+     gold fill, navy ink (~7:1). */
   .btn-primary {
-    background: rgb(var(--ember-rgb));
-    color: rgb(var(--on-accent-rgb));
-    border: 1px solid rgb(var(--ember-deep-rgb));
+    background: rgb(var(--gold-rgb));
+    color: rgb(var(--on-gold-rgb));
+    border: 1px solid rgb(var(--gold-deep-rgb));
     box-shadow: var(--shadow-sm);
   }
-  .btn-primary:hover { background: rgb(var(--ember-deep-rgb)); }
+  .btn-primary:hover { background: rgb(var(--gold-deep-rgb)); }
   .btn-secondary {
     background: rgb(var(--bg-card-rgb));
     color: rgb(var(--text-primary-rgb));
