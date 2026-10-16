@@ -175,10 +175,10 @@ export default function OrganizerProfile({
                 className="object-cover"
               />
             ) : (
-              <div className="absolute inset-0 bg-[linear-gradient(140deg,rgb(var(--ember-rgb)/0.35),rgb(15,44,33,0.95))]" />
+              <div className="absolute inset-0 bg-[linear-gradient(140deg,rgb(var(--ember-rgb)/0.35),rgb(7,22,43,0.95))]" />
             )}
             <div
-              className="absolute inset-0 bg-[linear-gradient(180deg,transparent_30%,rgba(8,14,11,0.82))]"
+              className="absolute inset-0 bg-[linear-gradient(180deg,transparent_30%,rgba(6,15,29,0.82))]"
               aria-hidden
             />
             <div className="relative p-5 sm:p-6">

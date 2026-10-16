@@ -13,7 +13,7 @@ export function BookingCodeQR({ code, size = 112 }: { code: string; size?: numbe
       width: size,
       margin: 1,
       errorCorrectionLevel: 'M',
-      color: { dark: '#10263c', light: '#ffffff' },
+      color: { dark: '#0B1F3A', light: '#ffffff' },
     }).then((result) => {
       if (active) setImage(result)
     }).catch(() => {

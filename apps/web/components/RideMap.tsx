@@ -108,7 +108,7 @@ export default function RideMap({ pickup, destination, routePath, onMapClick }: 
     }
     if (routePath && routePath.length > 1) {
       routeLineRef.current = L.polyline(routePath, {
-        color: '#E05028',
+        color: '#0B1F3A',
         weight: 4,
         opacity: 0.95,
         lineCap: 'round',

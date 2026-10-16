@@ -8,7 +8,7 @@ export default function ThemeToggle() {
     const next = current === 'light' ? 'dark' : 'light'
     document.documentElement.dataset.theme = next
     try { window.localStorage.setItem('urbanexplore-theme', next) } catch { /* storage unavailable */ }
-    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', next === 'dark' ? '#0D1310' : '#FAF8F3')
+    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', next === 'dark' ? '#060F1D' : '#FBF5F0')
   }
 
   return (

@@ -83,8 +83,8 @@ export const metadata: Metadata = {
    media query, so both are listed. */
 export const viewport: Viewport = {
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#FAF8F3" },
-    { media: "(prefers-color-scheme: dark)", color: "#0C101A" },
+    { media: "(prefers-color-scheme: light)", color: "#FBF5F0" },
+    { media: "(prefers-color-scheme: dark)", color: "#060F1D" },
   ],
 };
 

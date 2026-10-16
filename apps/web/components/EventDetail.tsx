@@ -163,9 +163,9 @@ export default function EventDetail({ event }: { event: Event }) {
         </Link>
 
         <div className="mx-auto max-w-sm">
-          <div className="relative overflow-hidden rounded-2xl border border-app-border bg-[rgb(14_24_41)] p-8 text-center shadow-elevate animate-pop-in">
+          <div className="relative overflow-hidden rounded-2xl border border-app-border bg-[rgb(11_31_58)] p-8 text-center shadow-elevate animate-pop-in">
             <div className="absolute inset-x-0 top-0 h-1.5 bg-signal" aria-hidden />
-            <div className="mx-auto mb-4 flex size-14 items-center justify-center rounded-full bg-[rgb(250_248_243)] text-[rgb(14_24_41)]">
+            <div className="mx-auto mb-4 flex size-14 items-center justify-center rounded-full bg-[rgb(251_245_240)] text-[rgb(11_31_58)]">
               <Check className="size-7" strokeWidth={2.5} />
             </div>
             <h1 className="text-3xl font-bold text-white">You&apos;re going!</h1>
@@ -178,7 +178,7 @@ export default function EventDetail({ event }: { event: Event }) {
               <span className="absolute -right-4 top-1/2 size-6 -translate-y-1/2 rounded-full border border-app-border bg-app-bg" aria-hidden />
             </div>
 
-            <div className="text-xs font-semibold uppercase tracking-[0.16em] text-[rgb(250_248_243/0.75)]">
+            <div className="text-xs font-semibold uppercase tracking-[0.16em] text-[rgb(251_245_240/0.75)]">
               Ticket code — show at the door
             </div>
             <div className="mt-2 rounded-xl border border-white/25 bg-white/10 p-4 font-mono text-xl font-bold tracking-wider text-white">
@@ -192,7 +192,7 @@ export default function EventDetail({ event }: { event: Event }) {
             <div className="mt-6 flex flex-col gap-3">
               <Link
                 href="/settings"
-                className="rounded-xl bg-[rgb(250_248_243)] text-[rgb(14_24_41)] px-5 py-3 text-sm font-semibold transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98]"
+                className="rounded-xl bg-[rgb(251_245_240)] text-[rgb(11_31_58)] px-5 py-3 text-sm font-semibold transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98]"
               >
                 View my tickets
               </Link>

@@ -206,14 +206,14 @@ export default async function HomePage() {
                       )}
 
                       {/* Scrim so the name stays legible over any photo. */}
-                      <span aria-hidden className="absolute inset-0 bg-[linear-gradient(180deg,rgb(9_14_24/0.12)_28%,rgb(9_14_24/0.88))]" />
+                      <span aria-hidden className="absolute inset-0 bg-[linear-gradient(180deg,rgb(6_15_29/0.12)_28%,rgb(6_15_29/0.88))]" />
 
-                      <span className="absolute left-4 top-4 inline-flex items-center gap-1.5 rounded-md bg-[rgb(250_248_243/0.94)] px-2 py-1 text-[10px] font-bold uppercase tracking-[0.1em] text-[rgb(14_24_41)]">
+                      <span className="absolute left-4 top-4 inline-flex items-center gap-1.5 rounded-md bg-[rgb(251_245_240/0.94)] px-2 py-1 text-[10px] font-bold uppercase tracking-[0.1em] text-[rgb(11_31_58)]">
                         <span aria-hidden className="size-1.5 rounded-full bg-[rgb(var(--gold-rgb))]" />
                         {feature.badge}
                       </span>
 
-                      <span className="absolute inset-x-5 bottom-5 block text-[rgb(250_248_243)]">
+                      <span className="absolute inset-x-5 bottom-5 block text-[rgb(251_245_240)]">
                         <span className="block font-display text-[1.75rem] font-extrabold leading-[1.1] tracking-[-0.025em]">
                           {feature.name}
                         </span>
@@ -313,27 +313,27 @@ export default async function HomePage() {
         </section>
 
         {/* HOW AN EVENING COMES TOGETHER */}
-        <section className="mt-20 bg-[rgb(14_24_41)] text-[rgb(250_248_243)] dark:bg-app-alt">
+        <section className="mt-20 bg-[rgb(11_31_58)] text-[rgb(251_245_240)] dark:bg-app-alt">
           <div className="mx-auto grid max-w-7xl gap-10 px-4 py-16 sm:px-6 lg:grid-cols-[0.9fr_1.1fr] lg:items-center lg:px-8 lg:py-20">
             <Reveal>
-              <p className="text-xs font-semibold uppercase tracking-[0.1em] text-[rgb(250_248_243/0.65)] dark:text-app-muted">How it works</p>
+              <p className="text-xs font-semibold uppercase tracking-[0.1em] text-[rgb(251_245_240/0.65)] dark:text-app-muted">How it works</p>
               <h2 className="mt-3 text-4xl font-bold leading-[1.05] sm:text-5xl dark:text-app-fg">From “where should we go” to the door.</h2>
-              <p className="mt-5 max-w-md text-base leading-7 text-[rgb(250_248_243/0.8)] dark:text-app-muted">
+              <p className="mt-5 max-w-md text-base leading-7 text-[rgb(251_245_240/0.8)] dark:text-app-muted">
                 Bookings land in My Plans with a check-in code. Open the ride planner
                 from there and the destination is already the venue.
               </p>
             </Reveal>
-            <ol className="grid gap-px overflow-hidden rounded-2xl bg-[rgb(250_248_243/0.14)] sm:grid-cols-3 dark:bg-app-border">
+            <ol className="grid gap-px overflow-hidden rounded-2xl bg-[rgb(251_245_240/0.14)] sm:grid-cols-3 dark:bg-app-border">
               {[
                 { icon: UtensilsCrossed, title: 'Choose', body: 'Search restaurants by cuisine or area, or browse dated events.', href: '/restaurants', cta: 'Browse' },
                 { icon: QrCode, title: 'Confirm', body: 'Reserve a table or buy tickets. Your code is saved to My Plans.', href: '/plans', cta: 'My plans' },
                 { icon: CarFront, title: 'Go', body: 'Set pickup and destination, compare the estimated fare by vehicle.', href: '/ride', cta: 'Ride planner' },
               ].map(({ icon: Icon, title, body, href, cta }, i) => (
-                <li key={title} className="flex flex-col bg-[rgb(14_24_41)] p-6 dark:bg-app-card">
-                  <span className="font-mono text-xs text-[rgb(250_248_243/0.55)] dark:text-app-subtle">0{i + 1}</span>
+                <li key={title} className="flex flex-col bg-[rgb(11_31_58)] p-6 dark:bg-app-card">
+                  <span className="font-mono text-xs text-[rgb(251_245_240/0.55)] dark:text-app-subtle">0{i + 1}</span>
                   <Icon className="mt-4 size-6 text-[rgb(var(--gold-rgb))]" aria-hidden />
                   <h3 className="mt-3 text-xl font-bold dark:text-app-fg">{title}</h3>
-                  <p className="mt-1.5 flex-1 text-sm leading-6 text-[rgb(250_248_243/0.78)] dark:text-app-muted">{body}</p>
+                  <p className="mt-1.5 flex-1 text-sm leading-6 text-[rgb(251_245_240/0.78)] dark:text-app-muted">{body}</p>
                   <Link href={href} className="mt-4 inline-flex min-h-11 items-center gap-1.5 text-sm font-semibold underline-offset-4 hover:underline dark:text-ember">
                     {cta} <ArrowRight className="size-4" aria-hidden />
                   </Link>

@@ -13,10 +13,10 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
         lays out three role cards and was being squeezed into ~176px columns,
         wrapping its copy every two words.
       */}
-      <aside className="relative hidden w-[34%] max-w-[480px] shrink-0 overflow-hidden bg-[rgb(14_24_41)] xl:block">
+      <aside className="relative hidden w-[34%] max-w-[480px] shrink-0 overflow-hidden bg-[rgb(11_31_58)] xl:block">
         <Image src="/places/food-4.jpg" alt="" fill sizes="42vw" className="object-cover opacity-55" />
-        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgb(14_24_41/0.35),rgb(14_24_41/0.92))]" />
-        <div className="relative flex h-full flex-col justify-between p-10 text-[rgb(250_248_243)]">
+        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgb(11_31_58/0.35),rgb(11_31_58/0.92))]" />
+        <div className="relative flex h-full flex-col justify-between p-10 text-[rgb(251_245_240)]">
           <Link href="/" className="inline-flex w-fit rounded-lg" aria-label="UrbanExplore home">
             <BrandWordmark inverted />
           </Link>
@@ -28,7 +28,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
               <br />
               Know the fare.
             </p>
-            <p className="mt-5 max-w-sm text-sm leading-6 text-[rgb(250_248_243/0.78)]">
+            <p className="mt-5 max-w-sm text-sm leading-6 text-[rgb(251_245_240/0.78)]">
               One account for reservations, tickets and saved plans. Partner
               accounts manage listings, bookings and check-ins.
             </p>

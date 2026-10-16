@@ -425,7 +425,7 @@ export default function ExploreCatalogue({
                 <span className="sticker sticker-amber absolute left-5 top-5 !rotate-0">
                   Top rated
                 </span>
-                <span className="absolute right-5 top-5 flex items-center gap-1 rounded-full bg-[rgb(9_14_24/0.72)] px-2.5 py-1 text-xs font-semibold text-white">
+                <span className="absolute right-5 top-5 flex items-center gap-1 rounded-full bg-[rgb(6_15_29/0.72)] px-2.5 py-1 text-xs font-semibold text-white">
                   <Star className="size-3 fill-ember text-ember" />
                   {featured.rating}
                 </span>
@@ -600,7 +600,7 @@ export default function ExploreCatalogue({
                           isSaved ? current.filter((id) => id !== item.id) : [...current, item.id]
                         )
                       }
-                      className="absolute right-2 top-2 flex size-11 items-center justify-center rounded-full border border-white/20 bg-[rgb(9_14_24/0.72)] text-white shadow-soft transition-transform hover:scale-105 active:scale-90"
+                      className="absolute right-2 top-2 flex size-11 items-center justify-center rounded-full border border-white/20 bg-[rgb(6_15_29/0.72)] text-white shadow-soft transition-transform hover:scale-105 active:scale-90"
                       aria-label={isSaved ? `Unsave ${item.name}` : `Save ${item.name}`}
                     >
                       <Heart className={cn('size-4', isSaved && 'save-pop fill-signal text-signal')} />
